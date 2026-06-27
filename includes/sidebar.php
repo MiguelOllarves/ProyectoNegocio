@@ -1,5 +1,5 @@
 <!-- Sidebar for Desktop & Mobile -->
-<aside id="sidebar" class="gradient-sidebar text-white w-64 flex-shrink-0 hidden lg:flex flex-col h-full transition-all duration-300 transform -translate-x-full lg:translate-x-0 fixed lg:relative z-20 shadow-xl">
+<aside id="sidebar" class="gradient-sidebar text-white w-64 flex-shrink-0 flex flex-col h-full transition-transform duration-300 transform -translate-x-full lg:translate-x-0 fixed lg:relative z-40 shadow-xl">
     <!-- Brand -->
     <div class="p-5 flex items-center justify-between border-b border-white/10">
         <div class="flex items-center gap-3">

@@ -25,7 +25,7 @@
                 <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-1">Apertura de Caja</h3>
                 <p class="text-sm text-gray-500 mb-4">Ingresa el monto base con el que inicias la jornada</p>
                 <form action="<?= BASE_URL ?>cashbox/open" method="POST" class="space-y-4">
-                    <div class="grid grid-cols-2 gap-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Base USD ($)</label>
                             <input type="number" step="0.01" name="monto_inicial_usd" required min="0" value="0.00" class="mt-1 block w-full border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md p-2 focus:ring-brand-500 focus:border-brand-500">
@@ -60,7 +60,7 @@
                     <input type="hidden" name="ventas_bs" value="<?= $ventasBs ?>">
 
                     <!-- Resumen del Sistema -->
-                    <div class="grid grid-cols-2 gap-3">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div class="bg-blue-50 dark:bg-blue-900/30 p-3 rounded-lg border border-blue-100 dark:border-blue-800">
                             <div class="text-xs text-blue-600 dark:text-blue-400 uppercase font-bold">Esperado USD</div>
                             <div class="text-xl font-bold text-blue-900 dark:text-blue-200">$<?= number_format($esperadoUsd, 2) ?></div>
@@ -74,7 +74,7 @@
                     </div>
 
                     <!-- Conteo Físico -->
-                    <div class="grid grid-cols-2 gap-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Conteo Físico USD ($)</label>
                             <input type="number" step="0.01" name="declarado_usd" required min="0" class="mt-1 block w-full border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md p-2">
@@ -136,7 +136,7 @@
         <h3 class="font-bold text-gray-800 dark:text-white"><i class="fas fa-history mr-2 text-gray-400"></i>Historial de Turnos</h3>
     </div>
     <div class="overflow-x-auto">
-        <table class="w-full text-left">
+        <table class="min-w-[600px] w-full text-left">
             <thead>
                 <tr class="bg-gray-50 dark:bg-gray-700 text-gray-500 dark:text-gray-300 uppercase text-xs tracking-wider border-b dark:border-gray-600">
                     <th class="p-4 font-semibold">Apertura / Cierre</th>

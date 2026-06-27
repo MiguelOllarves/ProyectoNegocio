@@ -2,7 +2,7 @@
     </div>
 
     <!-- Overlay for mobile sidebar -->
-    <div id="sidebar-overlay" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-10 hidden lg:hidden transition-opacity"></div>
+    <div id="sidebar-overlay" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-30 hidden lg:hidden transition-opacity"></div>
 
     <script>
         // Sidebar Toggle Logic
@@ -12,8 +12,7 @@
         const overlay = document.getElementById('sidebar-overlay');
 
         function openSidebar() {
-            sidebar.classList.remove('-translate-x-full', 'hidden');
-            sidebar.classList.add('flex');
+            sidebar.classList.remove('-translate-x-full');
             overlay.classList.remove('hidden');
         }
         function closeSidebar() {
