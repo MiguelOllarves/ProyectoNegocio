@@ -61,6 +61,8 @@ class Report extends Model {
     }
     
     public function getSalesDetail($startDate, $endDate) {
+        $aggFunc = (DB_DRIVER === 'pgsql') ? "STRING_AGG(si.quantity || ' ' || p.name, ' | ')" : "GROUP_CONCAT(si.quantity || ' ' || p.name, ' | ')";
+        
         $sql = "
             SELECT 
                 s.id, 
@@ -69,7 +71,7 @@ class Report extends Model {
                 s.iva,
                 s.igtf,
                 COALESCE(SUM(si.quantity * COALESCE(p.unit_cost, 0)), 0) as cost_calculated,
-                GROUP_CONCAT(si.quantity || ' ' || p.name, ' | ') as detail
+                $aggFunc as detail
             FROM sales s
             JOIN sale_items si ON s.id = si.sale_id
             JOIN products p ON si.product_id = p.id

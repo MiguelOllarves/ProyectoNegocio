@@ -22,7 +22,7 @@ class SalesController extends Controller {
 
         // Leer métodos de pago activos desde la BD
         $db = Database::getInstance()->getConnection();
-        $pmStmt = $db->query("SELECT * FROM payment_methods WHERE is_active = 1 ORDER BY id");
+        $pmStmt = $db->query("SELECT * FROM payment_methods WHERE is_active = true ORDER BY id");
         $paymentMethods = $pmStmt->fetchAll(PDO::FETCH_ASSOC);
 
         $this->view('modules/sales/views/index', [
