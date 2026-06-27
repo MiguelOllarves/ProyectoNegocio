@@ -1,16 +1,16 @@
 <?php include __DIR__ . '/../../../includes/header.php'; ?>
 
-<div class="p-6">
-    <div class="flex justify-between items-center mb-6">
-        <h1 class="text-3xl font-bold text-gray-800 dark:text-white">Gastos y Egresos</h1>
-        <a href="<?= BASE_URL ?>expenses/create" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow transition-colors flex items-center">
+<div class="p-2 sm:p-6">
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-6">
+        <h1 class="text-xl sm:text-3xl font-bold text-gray-800 dark:text-white">Gastos y Egresos</h1>
+        <a href="<?= BASE_URL ?>expenses/create" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow transition-colors flex items-center w-full sm:w-auto justify-center text-sm">
             <i class="fas fa-plus mr-2"></i> Nuevo Gasto
         </a>
     </div>
 
     <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700 overflow-hidden">
         <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+            <table class="min-w-[600px] w-full divide-y divide-gray-200 dark:divide-gray-700">
                 <thead class="bg-gray-50 dark:bg-gray-900">
                     <tr>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Fecha</th>

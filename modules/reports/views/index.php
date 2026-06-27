@@ -7,28 +7,32 @@
     </div>
     
     <div class="flex gap-2">
-        <a href="<?= BASE_URL ?>reports/kardex" class="bg-white dark:bg-slate-800 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-slate-700 font-bold py-2 px-4 rounded-lg shadow-sm transition-all text-sm flex items-center">
+        <a href="<?= BASE_URL ?>reports/kardex" class="bg-white dark:bg-slate-800 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-slate-700 font-bold py-2 px-4 rounded-lg shadow-sm transition-all text-sm flex items-center w-full sm:w-auto justify-center">
             <i class="fas fa-exchange-alt mr-2"></i> Ver Kardex
         </a>
     </div>
 </div>
 
 <!-- Filtro de Fecha -->
-<div class="bg-white dark:bg-slate-800 p-5 rounded-xl shadow-sm mb-6 border border-gray-100 dark:border-gray-800 flex items-center gap-4 overflow-x-auto">
-    <div class="w-10 h-10 rounded-xl bg-brand-50 dark:bg-brand-900/30 font-bold text-brand-600 dark:text-brand-400 flex items-center justify-center shrink-0">
-        <i class="fas fa-calendar-alt"></i>
-    </div>
-    <form method="GET" action="<?= BASE_URL ?>reports" class="flex flex-1 items-end gap-4 min-w-max">
-        <div>
-            <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-1">Desde</label>
-            <input type="date" name="start" value="<?= htmlspecialchars($start) ?>" class="px-3 py-2 bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-800 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-brand-500 h-10">
+<div class="bg-white dark:bg-slate-800 p-3 sm:p-5 rounded-xl shadow-sm mb-6 border border-gray-100 dark:border-gray-800">
+    <form method="GET" action="<?= BASE_URL ?>reports" class="flex flex-col sm:flex-row items-stretch sm:items-end gap-3">
+        <div class="flex items-center gap-3 sm:shrink-0">
+            <div class="w-10 h-10 rounded-xl bg-brand-50 dark:bg-brand-900/30 font-bold text-brand-600 dark:text-brand-400 flex items-center justify-center shrink-0">
+                <i class="fas fa-calendar-alt"></i>
+            </div>
         </div>
-        <div>
-            <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-1">Hasta</label>
-            <input type="date" name="end" value="<?= htmlspecialchars($end) ?>" class="px-3 py-2 bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-800 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-brand-500 h-10">
+        <div class="flex-1 grid grid-cols-2 gap-3">
+            <div>
+                <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-1">Desde</label>
+                <input type="date" name="start" value="<?= htmlspecialchars($start) ?>" class="w-full px-3 py-2 bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-800 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-brand-500 h-10">
+            </div>
+            <div>
+                <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-1">Hasta</label>
+                <input type="date" name="end" value="<?= htmlspecialchars($end) ?>" class="w-full px-3 py-2 bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-800 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-brand-500 h-10">
+            </div>
         </div>
-        <button type="submit" class="bg-gradient-to-r from-brand-600 to-accent-600 hover:from-brand-500 hover:to-accent-500 text-white font-bold h-10 px-5 rounded-lg shadow-sm shadow-brand-500/20 transition-all text-sm">
-            Aplicar Filtro
+        <button type="submit" class="bg-gradient-to-r from-brand-600 to-accent-600 hover:from-brand-500 hover:to-accent-500 text-white font-bold h-10 px-5 rounded-lg shadow-sm shadow-brand-500/20 transition-all text-sm w-full sm:w-auto">
+            Aplicar
         </button>
     </form>
 </div>
@@ -92,7 +96,7 @@
     </div>
     
     <div class="overflow-x-auto">
-        <table class="w-full text-left border-collapse">
+        <table class="min-w-[700px] w-full text-left border-collapse">
             <thead>
                 <tr class="bg-gray-50 dark:bg-slate-900 border-b border-gray-100 dark:border-gray-800 text-gray-500 dark:text-gray-400 uppercase text-[10px] tracking-widest font-black">
                     <th class="p-4 whitespace-nowrap">Fecha</th>

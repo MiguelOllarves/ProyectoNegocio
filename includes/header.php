@@ -2,7 +2,13 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#10b981">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="TuInventario">
+    <link rel="manifest" href="<?= BASE_URL ?>manifest.json">
+    <link rel="apple-touch-icon" href="<?= BASE_URL ?>icons/icon-512x512.png">
     <title>TuInventario - ERP</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/htmx.org@1.9.11"></script>
@@ -59,7 +65,48 @@
         .gradient-sidebar { background: linear-gradient(180deg, #064e3b 0%, #0e7490 100%); }
         .gradient-header { background: linear-gradient(135deg, #ecfdf5 0%, #ecfeff 100%); }
         .dark .gradient-header { background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); }
+
+        /* ===== GLOBAL MOBILE RESPONSIVE ===== */
+        @media (max-width: 640px) {
+            /* Tables: ensure horizontal scroll */
+            .overflow-x-auto { -webkit-overflow-scrolling: touch; }
+            table { font-size: 0.8rem; }
+            table th, table td { padding: 0.5rem 0.75rem !important; }
+            
+            /* Modals: full screen on mobile */
+            .fixed.inset-0 .max-w-4xl,
+            .fixed.inset-0 .max-w-xl,
+            .fixed.inset-0 .max-w-sm,
+            .fixed.inset-0 .max-w-lg {
+                max-width: 100% !important;
+                margin: 0 !important;
+                border-radius: 0 !important;
+                min-height: 100vh;
+            }
+            
+            /* Text scaling */
+            h1, .text-3xl { font-size: 1.5rem !important; }
+            h2, .text-2xl { font-size: 1.25rem !important; }
+            
+            /* KPI cards: smaller padding */
+            .grid > div > .p-5 { padding: 0.75rem; }
+            
+            /* Touch targets: minimum 44px */
+            button, a, select, input[type="submit"] { min-height: 40px; }
+        }
+
+        /* Smooth transitions for PWA feel */
+        * { -webkit-tap-highlight-color: transparent; }
+        input, select, textarea { font-size: 16px !important; } /* Prevent zoom on iOS */
     </style>
+    <script>
+        // Register PWA Service Worker
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('<?= BASE_URL ?>sw.js').catch(() => {});
+            });
+        }
+    </script>
 </head>
 <body class="bg-gray-50 text-gray-800 dark:bg-slate-950 dark:text-gray-100 antialiased h-screen flex overflow-hidden">
     <!-- Main Sidebar -->
