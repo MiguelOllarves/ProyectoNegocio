@@ -353,24 +353,24 @@ class POSController {
 
             this.cart.forEach(item => {
                 const div = document.createElement('div');
-                div.className = 'flex flex-col bg-gray-850 border border-gray-700/50 p-3 rounded-xl mb-2';
+                div.className = 'flex flex-col bg-gray-50 dark:bg-gray-850 border border-gray-200 dark:border-gray-700/50 p-3 rounded-xl mb-2';
                 div.innerHTML = `
                     <div class="flex justify-between items-start mb-2">
                         <div class="flex-1 pr-2">
-                            <h4 class="text-sm font-bold text-gray-200 leading-tight">${item.name}</h4>
-                            <span class="text-brand-400 font-bold text-xs mt-1 block">$${parseFloat(item.price).toFixed(2)} ${item.exempt ? '<span class="text-gray-500 font-normal">(E)</span>' : ''}</span>
+                            <h4 class="text-sm font-bold text-gray-800 dark:text-gray-200 leading-tight">${item.name}</h4>
+                            <span class="text-brand-500 dark:text-brand-400 font-bold text-xs mt-1 block">$${parseFloat(item.price).toFixed(2)} ${item.exempt ? '<span class="text-gray-400 dark:text-gray-500 font-normal">(E)</span>' : ''}</span>
                         </div>
                         <div class="text-right">
-                            <span class="text-white font-bold block">$${(item.price * item.qty).toFixed(2)}</span>
+                            <span class="text-gray-900 dark:text-white font-bold block">$${(item.price * item.qty).toFixed(2)}</span>
                         </div>
                     </div>
-                    <div class="flex justify-between items-center mt-1 border-t border-gray-700/50 pt-2">
-                        <div class="flex items-center bg-gray-900 rounded-lg border border-gray-700 overflow-hidden shadow-inner">
-                            <button class="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-white hover:bg-gray-700 transition" onclick="window.posState.changeQty(${item.id}, -1)"><i class="fas fa-minus text-xs"></i></button>
-                            <span class="w-10 text-center font-bold text-sm text-gray-200">${item.qty}</span>
-                            <button class="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-white hover:bg-gray-700 transition" onclick="window.posState.changeQty(${item.id}, 1)"><i class="fas fa-plus text-xs"></i></button>
+                    <div class="flex justify-between items-center mt-1 border-t border-gray-200 dark:border-gray-700/50 pt-2">
+                        <div class="flex items-center bg-gray-100 dark:bg-gray-900 rounded-lg border border-gray-300 dark:border-gray-700 overflow-hidden shadow-inner">
+                            <button class="w-8 h-8 flex items-center justify-center text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white hover:bg-gray-200 dark:hover:bg-gray-700 transition" onclick="window.posState.changeQty(${item.id}, -1)"><i class="fas fa-minus text-xs"></i></button>
+                            <span class="w-10 text-center font-bold text-sm text-gray-800 dark:text-gray-200">${item.qty}</span>
+                            <button class="w-8 h-8 flex items-center justify-center text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white hover:bg-gray-200 dark:hover:bg-gray-700 transition" onclick="window.posState.changeQty(${item.id}, 1)"><i class="fas fa-plus text-xs"></i></button>
                         </div>
-                        <button class="w-8 h-8 rounded-lg bg-red-500/10 text-red-400 hover:bg-red-500 hover:text-white transition-colors flex items-center justify-center" onclick="window.posState.removeProduct(${item.id})">
+                        <button class="w-8 h-8 rounded-lg bg-red-100 dark:bg-red-500/10 text-red-500 dark:text-red-400 hover:bg-red-500 hover:text-white transition-colors flex items-center justify-center" onclick="window.posState.removeProduct(${item.id})">
                             <i class="fas fa-trash text-xs"></i>
                         </button>
                     </div>
@@ -399,18 +399,18 @@ class POSController {
         }
         this.payments.forEach((p, idx) => {
             const div = document.createElement('div');
-            div.className = "flex justify-between items-center text-sm bg-gray-800 border border-gray-700 p-3 rounded-lg shadow-sm";
+            div.className = "flex justify-between items-center text-sm bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-3 rounded-lg shadow-sm";
             let symbol = p.currency === 'VES' ? 'Bs' : (p.currency === 'USD' ? '$' : '€');
             div.innerHTML = `
                 <div class="flex items-center">
-                    <div class="w-8 h-8 rounded bg-gray-700 flex items-center justify-center mr-3 text-brand-400">
+                    <div class="w-8 h-8 rounded bg-gray-200 dark:bg-gray-700 flex items-center justify-center mr-3 text-brand-600 dark:text-brand-400">
                         <i class="fas ${p.currency === 'VES' ? 'fa-money-bill' : 'fa-dollar-sign'}"></i>
                     </div>
-                    <span class="font-bold text-gray-300">${p.methodName}</span>
+                    <span class="font-bold text-gray-800 dark:text-gray-300">${p.methodName}</span>
                 </div>
                 <div class="flex items-center gap-4">
-                    <span class="font-black text-white text-lg">${symbol}${p.amount.toFixed(2)}</span>
-                    <button class="w-7 h-7 rounded-full bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition flex items-center justify-center" onclick="window.posState.removePayment(${idx})">
+                    <span class="font-black text-gray-900 dark:text-white text-lg">${symbol}${p.amount.toFixed(2)}</span>
+                    <button class="w-7 h-7 rounded-full bg-red-100 dark:bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition flex items-center justify-center" onclick="window.posState.removePayment(${idx})">
                         <i class="fas fa-times text-xs"></i>
                     </button>
                 </div>
@@ -442,14 +442,14 @@ document.addEventListener('DOMContentLoaded', () => {
             if (p.name.toLowerCase().includes(term) || (p.barcode && p.barcode.toLowerCase().includes(term))) {
                 foundCount++;
                 const card = document.createElement('div');
-                card.className = `bg-gray-850 hover:bg-gray-800 border-2 border-gray-800 hover:border-brand-500 transition-all rounded-xl p-4 cursor-pointer shadow-lg group`;
+                card.className = `bg-white dark:bg-gray-850 hover:bg-gray-50 dark:hover:bg-gray-800 border-2 border-gray-100 dark:border-gray-800 hover:border-brand-500 dark:hover:border-brand-500 transition-all rounded-xl p-4 cursor-pointer shadow-sm dark:shadow-none group`;
                 card.innerHTML = `
-                    <div class="h-24 w-full bg-gray-900 rounded-lg mb-3 flex items-center justify-center border border-gray-700/50 group-hover:border-brand-500/50 transition-colors overflow-hidden">
-                        ${p.image ? `<img src="${BASE_URL}../${p.image}" class="h-full object-contain">` : '<i class="fas fa-box text-3xl text-gray-700"></i>'}
+                    <div class="h-24 w-full bg-gray-100 dark:bg-gray-900 rounded-lg mb-3 flex items-center justify-center border border-gray-200 dark:border-gray-700/50 group-hover:border-brand-200 dark:group-hover:border-brand-500/50 transition-colors overflow-hidden">
+                        ${p.image ? `<img src="${BASE_URL}../${p.image}" class="h-full object-contain">` : '<i class="fas fa-box text-3xl text-gray-300 dark:text-gray-700"></i>'}
                     </div>
-                    <div class="font-bold text-gray-200 text-sm mb-2 line-clamp-2 leading-tight" title="${p.name}">${p.name}</div>
+                    <div class="font-bold text-gray-800 dark:text-gray-200 text-sm mb-2 line-clamp-2 leading-tight" title="${p.name}">${p.name}</div>
                     <div class="flex justify-between items-end mt-auto">
-                        <span class="text-brand-400 font-extrabold text-lg tracking-tight">$${parseFloat(p.price).toFixed(2)}</span>
+                        <span class="text-brand-600 dark:text-brand-400 font-extrabold text-lg tracking-tight">$${parseFloat(p.price).toFixed(2)}</span>
                     </div>
                 `;
                 card.addEventListener('click', () => window.posState.addProduct(p, 1));
