@@ -270,7 +270,7 @@ function productForm() {
 
 <div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 overflow-hidden mt-4">
     <div class="overflow-x-auto">
-        <table class="w-full text-left border-collapse">
+        <table class="min-w-[600px] w-full text-left border-collapse">
             <thead>
                 <tr class="bg-gray-50/50 dark:bg-slate-800/50 border-b border-gray-100 dark:border-gray-800 text-gray-500 dark:text-gray-400 uppercase text-[10px] tracking-widest font-black">
                     <th class="p-4 rounded-tl-xl">Producto</th>

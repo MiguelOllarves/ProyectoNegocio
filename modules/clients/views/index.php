@@ -1,11 +1,11 @@
 <?php include __DIR__ . '/../../../includes/header.php'; ?>
 
-<div class="mb-6 flex justify-between items-center" x-data="{ openModal: false }">
+<div class="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3" x-data="{ openModal: false }">
     <div>
-        <h2 class="text-2xl font-bold text-gray-800 dark:text-white">Clientes</h2>
+        <h2 class="text-xl sm:text-2xl font-bold text-gray-800 dark:text-white">Clientes</h2>
         <p class="text-gray-600 dark:text-gray-400 text-sm">Gestiona tu cartera de clientes sin recargar la página (<span class="text-brand-500 font-bold">SPA</span>)</p>
     </div>
-    <button @click="openModal = true" class="bg-brand-600 hover:bg-brand-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors shadow-sm flex items-center">
+    <button @click="openModal = true" class="bg-brand-600 hover:bg-brand-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors shadow-sm flex items-center w-full sm:w-auto justify-center">
         <i class="fas fa-plus mr-2"></i> Nuevo Cliente
     </button>
 
@@ -56,7 +56,7 @@
 
 <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
     <div class="overflow-x-auto">
-        <table class="w-full text-left border-collapse">
+        <table class="min-w-[600px] w-full text-left border-collapse">
             <thead>
                 <tr class="bg-gray-50 dark:bg-gray-700 border-b border-gray-100 dark:border-gray-700 text-gray-500 dark:text-gray-300 uppercase text-xs tracking-wider">
                     <th class="p-4 font-semibold">Nombre</th>
