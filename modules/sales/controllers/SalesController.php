@@ -37,33 +37,40 @@ class SalesController extends Controller {
 
     public function process() {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $data = json_decode(file_get_contents('php://input'), true);
+            try {
+                $data = json_decode(file_get_contents('php://input'), true);
 
-            if (!empty($data['items']) && isset($data['totals'])) {
-                $userId = $_SESSION['user_id'] ?? 1; 
-                
-                $totals   = $data['totals'];
-                $payments = $data['payments'] ?? [];
+                if (!empty($data['items']) && isset($data['totals'])) {
+                    $userId = $_SESSION['user_id'] ?? 1; 
+                    
+                    $totals   = $data['totals'];
+                    $payments = $data['payments'] ?? [];
 
-                $saleId = $this->saleModel->createSale(
-                    $userId,
-                    $totals['subtotalUsd'] ?? 0,
-                    $totals['ivaUsd'] ?? 0,
-                    $totals['igtfUsd'] ?? 0,
-                    $totals['totalUsd'] ?? 0,
-                    $totals['paidUsd'] ?? 0,
-                    $totals['changeUsd'] ?? 0,
-                    $data['items'],
-                    $payments
-                );
-                
-                if ($saleId) {
-                    $this->jsonResponse(['success' => true, 'sale_id' => $saleId]);
+                    $saleId = $this->saleModel->createSale(
+                        $userId,
+                        $totals['subtotalUsd'] ?? 0,
+                        $totals['ivaUsd'] ?? 0,
+                        $totals['igtfUsd'] ?? 0,
+                        $totals['totalUsd'] ?? 0,
+                        $totals['paidUsd'] ?? 0,
+                        $totals['changeUsd'] ?? 0,
+                        $data['items'],
+                        $payments
+                    );
+                    
+                    if ($saleId) {
+                        $this->jsonResponse(['success' => true, 'sale_id' => $saleId]);
+                    } else {
+                        // Let's get the last DB error if possible
+                        $dbError = $this->saleModel->db->errorInfo();
+                        $this->jsonResponse(['success' => false, 'message' => 'Error en base de datos', 'db_error' => $dbError], 500);
+                    }
                 } else {
-                    $this->jsonResponse(['success' => false, 'message' => 'Error en base de datos'], 500);
+                    $this->jsonResponse(['success' => false, 'message' => 'Datos inválidos o carrito vacío'], 400);
                 }
-            } else {
-                $this->jsonResponse(['success' => false, 'message' => 'Datos inválidos o carrito vacío'], 400);
+            } catch (\Throwable $th) {
+                file_put_contents(__DIR__ . '/../../../error_log_sales.txt', $th->getMessage() . "\n" . $th->getTraceAsString());
+                $this->jsonResponse(['success' => false, 'message' => $th->getMessage(), 'file' => $th->getFile(), 'line' => $th->getLine()], 500);
             }
         }
     }

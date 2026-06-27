@@ -1,0 +1,3 @@
+Cannot access protected property Sale::$db
+#0 E:\PROYECTOS\ProyectoNegocio\public\index.php(67): SalesController->process()
+#1 {main}

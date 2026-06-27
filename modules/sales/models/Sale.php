@@ -36,17 +36,19 @@ class Sale extends Model {
             $stmtStockAfter = $this->db->prepare("SELECT stock FROM products WHERE id = :pid");
 
             foreach ($items as $item) {
+                $actualQty = $item['quantity'] ?? $item['qty'] ?? 1;
+
                 // Guardar el item de venta
                 $stmtItem->execute([
                     'sid' => $saleId,
                     'pid' => $item['id'],
-                    'qty' => $item['quantity'],
+                    'qty' => $actualQty,
                     'price' => $item['price']
                 ]);
 
                 // Descontar inventario
                 $stmtUpdateStock->execute([
-                    'qty' => $item['quantity'],
+                    'qty' => $actualQty,
                     'pid' => $item['id']
                 ]);
 
@@ -55,7 +57,7 @@ class Sale extends Model {
 
                 $stmtKardex->execute([
                     'pid' => $item['id'],
-                    'qty' => $item['quantity'],
+                    'qty' => $actualQty,
                     'stock_after' => $stockAfter,
                     'sid' => $saleId,
                     'uid' => $userId
