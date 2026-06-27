@@ -18,7 +18,7 @@ require_once __DIR__ . '/../core/Controller.php';
 require_once __DIR__ . '/../core/Middleware.php';
 require_once __DIR__ . '/../core/Settings.php';
 
-$url = isset($_GET['url']) ? rtrim($_GET['url'], '/') : 'dashboard';
+$url = !empty($_GET['url']) ? rtrim($_GET['url'], '/') : 'dashboard';
 $urlParts = explode('/', $url);
 
 $module = $urlParts[0];
