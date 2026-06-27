@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#10b981">
-    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="TuInventario">
     <link rel="manifest" href="<?= BASE_URL ?>manifest.json">
@@ -13,6 +13,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/htmx.org@1.9.11"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
     <script>
         if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
             document.documentElement.classList.add('dark');
@@ -98,6 +99,54 @@
         /* Smooth transitions for PWA feel */
         * { -webkit-tap-highlight-color: transparent; }
         input, select, textarea { font-size: 16px !important; } /* Prevent zoom on iOS */
+
+        /* ===== GLOBAL LOADER ===== */
+        #global-loader {
+            position: fixed; inset: 0; z-index: 9999;
+            background: rgba(15,23,42,0.6);
+            backdrop-filter: blur(6px);
+            display: none;
+            align-items: center; justify-content: center;
+            flex-direction: column;
+            transition: opacity 0.3s;
+        }
+        #global-loader.active { display: flex; animation: loaderFadeIn 0.25s ease; }
+        @keyframes loaderFadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .loader-spinner {
+            width: 48px; height: 48px;
+            border: 4px solid rgba(16,185,129,0.2);
+            border-top-color: #10b981;
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .loader-pulse { 
+            margin-top: 16px; color: #d1fae5; font-size: 13px; font-weight: 600;
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+        @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+        /* ===== PROFESSIONAL PRINT STYLES ===== */
+        @media print {
+            body { background: white !important; color: black !important; overflow: visible !important; height: auto !important; display: block !important; }
+            #sidebar, #sidebar-overlay, #mobile-menu-btn, #theme-toggle, #global-loader,
+            header, .gradient-header, .no-print, button, a[href*="logout"],
+            .fixed.inset-0 { display: none !important; }
+            main { padding: 0 !important; margin: 0 !important; overflow: visible !important; height: auto !important; }
+            .flex-1.flex.flex-col { display: block !important; height: auto !important; overflow: visible !important; }
+            table { width: 100% !important; border-collapse: collapse !important; font-size: 11px !important; page-break-inside: auto; }
+            table th { background: #f3f4f6 !important; color: #111 !important; font-weight: 700 !important; border: 1px solid #d1d5db !important; padding: 6px 10px !important; }
+            table td { border: 1px solid #e5e7eb !important; padding: 5px 10px !important; color: #333 !important; }
+            tr { page-break-inside: avoid; }
+            .print-header { display: block !important; text-align: center; margin-bottom: 20px; padding-bottom: 12px; border-bottom: 2px solid #10b981; }
+            .print-header h1 { font-size: 20px; font-weight: 900; color: #064e3b; }
+            .print-header p { font-size: 11px; color: #666; margin-top: 2px; }
+            .print-footer { display: block !important; text-align: center; margin-top: 20px; padding-top: 10px; border-top: 1px solid #e5e7eb; font-size: 9px; color: #999; }
+            .bg-white, .dark\\:bg-slate-800, .dark\\:bg-gray-800, .dark\\:bg-slate-900 { background: white !important; }
+            .shadow-sm, .shadow-md, .shadow-lg, .shadow-xl, .shadow-2xl { box-shadow: none !important; }
+            .rounded-xl, .rounded-2xl, .rounded-lg { border-radius: 0 !important; }
+            * { color: #111 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+        }
     </style>
     <script>
         // Register PWA Service Worker
@@ -109,6 +158,18 @@
     </script>
 </head>
 <body class="bg-gray-50 text-gray-800 dark:bg-slate-950 dark:text-gray-100 antialiased h-screen flex overflow-hidden">
+    <!-- GLOBAL LOADER -->
+    <div id="global-loader">
+        <div class="loader-spinner"></div>
+        <p class="loader-pulse">Procesando...</p>
+    </div>
+
+    <!-- PRINT HEADER (only visible on Ctrl+P) -->
+    <div class="print-header" style="display:none;">
+        <h1><?= htmlspecialchars(Settings::get('business_name', 'TuInventario ERP')) ?></h1>
+        <p>Reporte generado el <?= date('d/m/Y H:i') ?></p>
+    </div>
+
     <!-- Main Sidebar -->
     <?php include 'sidebar.php'; ?>
     

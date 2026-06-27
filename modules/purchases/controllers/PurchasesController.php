@@ -16,7 +16,13 @@ class PurchasesController extends Controller {
 
     public function index() {
         $purchases = $this->model->allWithSupplier();
-        $this->view('modules/purchases/views/index', ['purchases' => $purchases]);
+        $products = $this->productModel->all();
+        $suppliers = $this->supplierModel->all();
+        $this->view('modules/purchases/views/index', [
+            'purchases' => $purchases,
+            'products' => $products,
+            'suppliers' => $suppliers
+        ]);
     }
 
     public function create() {

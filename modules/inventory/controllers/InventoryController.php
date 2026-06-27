@@ -125,14 +125,81 @@ class InventoryController extends Controller {
     }
 
     public function edit($id) {
-        // Edit page is not strictly required by this modal task, keep it simple redirect for now
-        header('Location: ' . BASE_URL . 'inventory');
-        exit;
+        // Return JSON product data for modal pre-fill
+        $product = $this->productModel->find($id);
+        if ($product) {
+            $this->jsonResponse($product);
+        } else {
+            $this->jsonResponse(['error' => 'Producto no encontrado'], 404);
+        }
+    }
+
+    public function update($id) {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST' && $id) {
+            $unit = $_POST['unit_of_measure'] ?? 'Unidades';
+            if ($unit === 'new' && !empty($_POST['new_unit'])) {
+                $unit = $_POST['new_unit'];
+            }
+
+            // Handle dynamic category
+            if (isset($_POST['category_id']) && $_POST['category_id'] === 'new' && !empty($_POST['new_category'])) {
+                $newCatId = $this->categoryModel->create(['name' => $_POST['new_category']]);
+                $_POST['category_id'] = $newCatId;
+            }
+
+            $data = [
+                'name' => $_POST['name'] ?? '',
+                'category_id' => !empty($_POST['category_id']) ? $_POST['category_id'] : null,
+                'barcode' => $_POST['barcode'] ?? '',
+                'cost_type' => $_POST['cost_type'] ?? 'unit',
+                'unit_cost' => $_POST['unit_cost'] ?? 0,
+                'bulk_cost' => $_POST['bulk_cost'] ?? 0,
+                'units_per_bulk' => $_POST['units_per_bulk'] ?? 1,
+                'currency' => $_POST['currency'] ?? 'USD',
+                'profit_margin' => $_POST['profit_margin'] ?? 0,
+                'price' => $_POST['price'] ?? 0,
+                'stock' => $_POST['stock'] ?? 0,
+                'min_stock' => $_POST['min_stock'] ?? 5,
+                'unit_of_measure' => $unit,
+                'is_tax_exempt' => isset($_POST['is_tax_exempt']) ? 1 : 0
+            ];
+
+            // Image upload (optional)
+            if (!empty($_FILES['image']['name']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
+                $uploadDir = __DIR__ . '/../../../public/uploads/';
+                if (!is_dir($uploadDir)) mkdir($uploadDir, 0777, true);
+                $filename = time() . '_' . basename($_FILES['image']['name']);
+                if (move_uploaded_file($_FILES['image']['tmp_name'], $uploadDir . $filename)) {
+                    $data['image'] = 'uploads/' . $filename;
+                }
+            }
+
+            if ($this->productModel->update($id, $data)) {
+                if (isset($_SERVER['HTTP_HX_REQUEST'])) {
+                    http_response_code(200);
+                    echo "OK";
+                    exit;
+                }
+                header('Location: ' . BASE_URL . 'inventory');
+                exit;
+            } else {
+                if (isset($_SERVER['HTTP_HX_REQUEST'])) {
+                    http_response_code(400);
+                    echo "Error al actualizar";
+                    exit;
+                }
+            }
+        }
     }
 
     public function delete($id) {
         if ($id) {
             $this->productModel->delete($id);
+        }
+        if (isset($_SERVER['HTTP_HX_REQUEST'])) {
+            http_response_code(200);
+            echo "OK";
+            exit;
         }
         header('Location: ' . BASE_URL . 'inventory');
         exit;

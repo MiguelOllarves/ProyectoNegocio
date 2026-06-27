@@ -28,6 +28,9 @@ self.addEventListener('fetch', event => {
     // Skip non-GET requests
     if (event.request.method !== 'GET') return;
     
+    // Skip non-HTTP protocols (e.g. chrome-extension://)
+    if (!url.protocol.startsWith('http')) return;
+    
     // For CDN resources (fonts, tailwind, icons) use cache-first
     if (url.origin !== location.origin) {
         event.respondWith(

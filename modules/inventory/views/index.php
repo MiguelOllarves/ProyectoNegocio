@@ -268,6 +268,17 @@ function productForm() {
 }
 </script>
 
+<!-- Search + Actions Bar -->
+<div class="flex flex-col sm:flex-row items-center gap-3 mt-4 mb-4">
+    <div class="relative flex-1 w-full">
+        <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+        <input type="text" data-table-search="#inventory-tbody" placeholder="Buscar producto, categoría, marca..." class="w-full bg-white dark:bg-slate-800 border border-gray-200 dark:border-gray-700 rounded-lg pl-10 pr-4 py-2.5 text-sm text-gray-800 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-500 transition-all shadow-sm">
+    </div>
+    <button onclick="printPage()" class="no-print bg-white dark:bg-slate-800 border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 px-4 py-2.5 rounded-lg text-sm font-medium hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors shadow-sm flex items-center gap-2">
+        <i class="fas fa-print"></i> Imprimir
+    </button>
+</div>
+
 <div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 overflow-hidden mt-4">
     <div class="overflow-x-auto">
         <table class="min-w-[600px] w-full text-left border-collapse">
@@ -287,11 +298,14 @@ function productForm() {
     </div>
 </div>
 
-<!-- Scripts for HTMX listening to re-attach any Alpine listeners if needed -->
+<!-- Scripts for HTMX listening -->
 <script>
     document.body.addEventListener('htmx:afterSwap', function(event) {
         if(event.detail.target.id === 'inventory-tbody') {
-            // Reinit alpine bindings if necessary or icons
+            // Re-render barcodes in new rows
+            document.querySelectorAll('[data-barcode]').forEach(el => {
+                try { JsBarcode(el, el.getAttribute('data-barcode'), { width:1, height:30, displayValue:false, margin:0 }); } catch(e){}
+            });
         }
     });
 </script>
@@ -299,17 +313,93 @@ function productForm() {
 <!-- Librería para generar Código QR -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
-<!-- QR Modal -->
+<!-- QR / Barcode Modal -->
 <div id="qrModal" class="fixed inset-0 bg-slate-900/60 z-50 hidden flex items-center justify-center backdrop-blur-sm transition-opacity">
-    <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl p-6 w-full max-w-sm m-4 relative border border-gray-100 dark:border-gray-700 zoom-in animate-fade-in-up">
+    <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl p-6 w-full max-w-sm m-4 relative border border-gray-100 dark:border-gray-700 animate-fade-in-up">
         <button onclick="closeQrModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 dark:hover:text-white transition-colors w-8 h-8 rounded-full hover:bg-gray-100 dark:hover:bg-slate-700 flex items-center justify-center">
             <i class="fas fa-times"></i>
         </button>
         <div class="text-center">
             <h3 id="qrTitle" class="text-lg font-black text-gray-800 dark:text-white mb-1">Producto</h3>
-            <p id="qrSubtitle" class="text-[10px] uppercase font-bold tracking-widest text-brand-600 dark:text-brand-400 mb-6 bg-brand-50 dark:bg-brand-900/30 inline-block px-3 py-1 rounded-full"></p>
-            <div id="qrContainer" class="flex justify-center bg-white p-5 rounded-2xl border border-gray-100 inline-block mx-auto shadow-sm"></div>
-            <p class="text-[10px] font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500 mt-5">Úsalo para lector rápido</p>
+            <p id="qrSubtitle" class="text-[10px] uppercase font-bold tracking-widest text-brand-600 dark:text-brand-400 mb-4 bg-brand-50 dark:bg-brand-900/30 inline-block px-3 py-1 rounded-full"></p>
+            <!-- Barcode Image -->
+            <div id="barcodeContainer" class="flex justify-center mb-3"><svg id="barcodeSvg"></svg></div>
+            <!-- QR Image -->
+            <div id="qrContainer" class="flex justify-center bg-white p-4 rounded-2xl border border-gray-100 inline-block mx-auto shadow-sm"></div>
+            <div class="mt-4 flex justify-center gap-3">
+                <button onclick="printLabel()" class="bg-brand-600 hover:bg-brand-700 text-white text-xs font-bold px-4 py-2 rounded-lg transition-colors"><i class="fas fa-print mr-1"></i> Imprimir Etiqueta</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- EDIT PRODUCT MODAL -->
+<div id="editModal" class="fixed inset-0 bg-slate-900/60 z-50 hidden overflow-y-auto backdrop-blur-sm" style="display: none;">
+    <div class="flex items-start justify-center min-h-screen px-4 pt-10 pb-20 text-center sm:p-0">
+        <div class="fixed inset-0" onclick="closeEditModal()"></div>
+        <div class="relative inline-block w-full max-w-2xl p-6 md:p-8 overflow-hidden text-left align-middle bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-gray-100 dark:border-gray-800 my-8 animate-fade-in-up">
+            <div class="flex justify-between items-center mb-6 border-b border-gray-100 dark:border-gray-800 pb-4">
+                <h3 class="text-xl font-black text-gray-800 dark:text-white flex items-center">
+                    <div class="w-8 h-8 rounded-lg bg-amber-50 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 flex items-center justify-center mr-3"><i class="fas fa-edit"></i></div>
+                    Editar Producto
+                </h3>
+                <button onclick="closeEditModal()" class="text-gray-400 hover:text-red-500 transition-colors w-8 h-8 flex items-center justify-center rounded-full hover:bg-red-50 dark:hover:bg-red-900/20"><i class="fas fa-times"></i></button>
+            </div>
+            <form id="editForm" hx-encoding="multipart/form-data" hx-swap="none"
+                  class="space-y-5">
+                <input type="hidden" id="edit-id" name="id">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1">Nombre *</label>
+                        <input type="text" name="name" id="edit-name" required class="w-full bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-brand-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1">Código Barras</label>
+                        <input type="text" name="barcode" id="edit-barcode" class="w-full bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-brand-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1">Categoría</label>
+                        <select name="category_id" id="edit-category" class="w-full bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-brand-500">
+                            <option value="">Sin Categoría</option>
+                            <?php if(!empty($categories)): foreach($categories as $c): ?>
+                                <option value="<?= $c['id'] ?>"><?= htmlspecialchars($c['name']) ?></option>
+                            <?php endforeach; endif; ?>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1">Fotografía</label>
+                        <input type="file" name="image" accept="image/*" class="w-full bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-1.5 text-sm file:mr-4 file:py-1 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-brand-50 file:text-brand-700">
+                    </div>
+                </div>
+                <div class="grid grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1">Stock</label>
+                        <input type="number" name="stock" id="edit-stock" class="w-full bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-brand-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1">Mínimo</label>
+                        <input type="number" name="min_stock" id="edit-min_stock" class="w-full bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-brand-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1">Precio $</label>
+                        <input type="number" step="0.01" name="price" id="edit-price" class="w-full bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-brand-500 font-bold">
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1">Costo Unitario $</label>
+                        <input type="number" step="0.01" name="unit_cost" id="edit-unit_cost" class="w-full bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-brand-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1">% Margen</label>
+                        <input type="number" step="0.01" name="profit_margin" id="edit-profit_margin" class="w-full bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-brand-500">
+                    </div>
+                </div>
+                <div class="pt-4 border-t border-gray-100 dark:border-gray-800 flex justify-end gap-3">
+                    <button type="button" onclick="closeEditModal()" class="px-5 py-2.5 bg-white dark:bg-slate-800 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-700 font-medium text-sm">Cancelar</button>
+                    <button type="submit" class="px-6 py-2.5 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-lg font-bold shadow-md hover:shadow-lg transition-all text-sm flex items-center"><i class="fas fa-save mr-2"></i> Guardar Cambios</button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
@@ -322,21 +412,79 @@ function productForm() {
         document.getElementById('qrTitle').innerText = name;
         document.getElementById('qrSubtitle').innerText = code;
         
+        // Render barcode SVG
+        try { JsBarcode('#barcodeSvg', code, { width: 2, height: 60, displayValue: true, fontSize: 14, margin: 5, background: '#ffffff' }); } catch(e) {}
+        
         const container = document.getElementById('qrContainer');
         container.innerHTML = ''; 
         
         qrcodeContainer = new QRCode(container, {
-            text: code,
-            width: 180,
-            height: 180,
-            colorDark : "#0f172a", 
-            colorLight : "#ffffff",
+            text: code, width: 150, height: 150,
+            colorDark : "#0f172a", colorLight : "#ffffff",
             correctLevel : QRCode.CorrectLevel.H
         });
     }
 
     function closeQrModal() {
         document.getElementById('qrModal').classList.add('hidden');
+    }
+
+    function printLabel() {
+        const modal = document.getElementById('qrModal');
+        const content = modal.querySelector('.text-center').innerHTML;
+        const win = window.open('', '_blank', 'width=400,height=500');
+        win.document.write('<html><head><title>Etiqueta</title><style>body{font-family:Inter,sans-serif;text-align:center;padding:20px} h3{margin:0 0 4px;font-size:16px} p{margin:0 0 10px;font-size:10px;color:#666} svg{max-width:100%} button{display:none} img{max-width:180px}</style></head><body>');
+        win.document.write(content);
+        win.document.write('</body></html>');
+        win.document.close();
+        win.print();
+    }
+
+    // ===== EDIT PRODUCT =====
+    function editProduct(id) {
+        fetch('<?= BASE_URL ?>inventory/edit/' + id)
+            .then(r => r.json())
+            .then(p => {
+                document.getElementById('edit-id').value = p.id;
+                document.getElementById('edit-name').value = p.name || '';
+                document.getElementById('edit-barcode').value = p.barcode || '';
+                document.getElementById('edit-stock').value = p.stock || 0;
+                document.getElementById('edit-min_stock').value = p.min_stock || 5;
+                document.getElementById('edit-price').value = p.price || 0;
+                document.getElementById('edit-unit_cost').value = p.unit_cost || 0;
+                document.getElementById('edit-profit_margin').value = p.profit_margin || 0;
+                document.getElementById('edit-category').value = p.category_id || '';
+                
+                // Set HTMX action URL
+                const form = document.getElementById('editForm');
+                form.setAttribute('hx-post', '<?= BASE_URL ?>inventory/update/' + p.id);
+                form.setAttribute('hx-target', 'this');
+                htmx.process(form); // Re-process HTMX attributes
+                
+                document.getElementById('editModal').classList.remove('hidden');
+                document.getElementById('editModal').style.display = '';
+            })
+            .catch(err => alert('Error al cargar producto'));
+    }
+
+    function closeEditModal() {
+        document.getElementById('editModal').classList.add('hidden');
+        document.getElementById('editModal').style.display = 'none';
+    }
+
+    // Close on success
+    document.body.addEventListener('htmx:afterRequest', function(e) {
+        if (e.detail.elt && e.detail.elt.id === 'editForm' && e.detail.successful) {
+            closeEditModal();
+            document.body.dispatchEvent(new Event('inventoryUpdated'));
+        }
+    });
+
+    // ===== DELETE PRODUCT =====
+    function deleteProduct(id) {
+        fetch('<?= BASE_URL ?>inventory/delete/' + id, { method: 'GET', headers: { 'HX-Request': 'true' }})
+            .then(() => document.body.dispatchEvent(new Event('inventoryUpdated')))
+            .catch(err => alert('Error al eliminar'));
     }
 </script>
 
