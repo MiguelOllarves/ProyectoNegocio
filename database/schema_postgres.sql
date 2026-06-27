@@ -107,6 +107,16 @@ CREATE TABLE IF NOT EXISTS sale_items (
     price_at_sale NUMERIC(15,2) NOT NULL
 );
 
+-- Pagos Mixtos de Ventas
+CREATE TABLE IF NOT EXISTS ventas_pagos (
+    id SERIAL PRIMARY KEY,
+    venta_id INTEGER REFERENCES sales(id) ON DELETE CASCADE,
+    metodo_pago VARCHAR(50),
+    monto_divisa NUMERIC(15,2) DEFAULT 0,
+    monto_bs NUMERIC(15,2) DEFAULT 0,
+    tasa_aplicada NUMERIC(15,2)
+);
+
 -- Compras
 CREATE TABLE IF NOT EXISTS purchases (
     id SERIAL PRIMARY KEY,

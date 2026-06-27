@@ -46,7 +46,9 @@
         <a href="<?= BASE_URL ?>inventory" class="text-gray-400 hover:text-brand-500 md:mb-6 transition-colors" title="Inventario"><i class="fas fa-box-open text-xl"></i></a>
         <a href="<?= BASE_URL ?>settings" class="text-gray-400 hover:text-brand-500 md:mb-6 transition-colors" title="Configuración"><i class="fas fa-cog text-xl"></i></a>
         <div class="md:mt-auto flex items-center">
-            <a href="<?= BASE_URL ?>logout" class="text-gray-400 hover:text-red-500 transition-colors" title="Salir"><i class="fas fa-sign-out-alt text-xl"></i></a>
+            <a href="<?= BASE_URL ?>logout" class="text-gray-400 hover:text-red-500 transition-colors md:p-2" title="Salir" onclick="return confirm('¿Seguro que deseas salir del Punto de Venta y cerrar sesión?');">
+                <i class="fas fa-sign-out-alt text-xl"></i>
+            </a>
         </div>
     </aside>
 
@@ -157,6 +159,7 @@
                 <div class="bg-red-500/10 border border-red-500/20 rounded-xl p-4 flex flex-col justify-center">
                     <span class="text-xs text-red-400 font-bold uppercase tracking-wider mb-1">Resta Pagar</span>
                     <span id="modal-remaining" class="font-black text-red-500 text-2xl truncate">$0.00</span>
+                    <span id="modal-remaining-bs" class="text-xs font-bold text-red-400 mt-1">Bs 0.00</span>
                 </div>
                 <div class="bg-green-500/10 border border-green-500/20 rounded-xl p-4 flex flex-col justify-center text-right">
                     <span class="text-xs text-green-400 font-bold uppercase tracking-wider mb-1">Cambio a dar</span>
@@ -170,6 +173,26 @@
                 </button>
                 <button id="btn-confirm-sale" class="flex-1 py-3 bg-green-600 hover:bg-green-500 text-white rounded-lg font-bold shadow-lg transition-colors flex justify-center items-center disabled:opacity-50 disabled:cursor-not-allowed" disabled>
                     <i class="fas fa-check-circle mr-2"></i> Finalizar Venta
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Venta Exitosa (Alpine.js) -->
+    <div x-data="{ openSuccess: false, saleId: null }" @sale-success.window="openSuccess = true; saleId = $event.detail.sale_id; $dispatch('close-payment');" x-show="openSuccess" class="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" style="display: none;" x-transition>
+        <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 w-full max-w-sm mx-auto text-center shadow-2xl border border-gray-100 dark:border-gray-700">
+            <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-green-100 dark:bg-green-900/30 mb-5">
+                <i class="fas fa-check text-2xl text-green-600 dark:text-green-400"></i>
+            </div>
+            <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">¡Venta Exitosa!</h3>
+            <p class="text-sm text-gray-500 mb-6">El pago ha sido procesado y el inventario actualizado.</p>
+            
+            <div class="flex flex-col gap-3">
+                <a :href="`<?= BASE_URL ?>sales/receipt/${saleId}`" target="_blank" class="w-full py-3 bg-brand-600 hover:bg-brand-500 text-white rounded-lg font-bold shadow-md transition flex justify-center items-center">
+                    <i class="fas fa-print mr-2"></i> Imprimir Recibo
+                </a>
+                <button @click="openSuccess = false" class="w-full py-3 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-800 dark:text-white rounded-lg font-bold transition">
+                    Nueva Venta
                 </button>
             </div>
         </div>
@@ -321,6 +344,7 @@ class POSController {
             changeVes: remainingUsd < 0 ? (Math.abs(remainingUsd) * this.bcvRate) : 0
         };
 
+        window.dispatchEvent(new CustomEvent('pos-calculated'));
         this.render();
     }
 
@@ -383,11 +407,13 @@ class POSController {
         const btnConfirm = document.getElementById('btn-confirm-sale');
         if (tots.remainingUsd > 0) {
             document.getElementById('modal-remaining').innerText = `$${tots.remainingUsd.toFixed(2)}`;
-            document.getElementById('modal-change').innerText = `$0.00`;
+            document.getElementById('modal-remaining-bs').innerText = `Bs ${(tots.remainingUsd * this.bcvRate).toFixed(2)}`;
+            document.getElementById('modal-change').innerHTML = `$0.00<br><span class="text-xs">Bs 0.00</span>`;
             btnConfirm.disabled = true;
         } else {
             document.getElementById('modal-remaining').innerText = `$0.00`;
-            document.getElementById('modal-change').innerText = `$${tots.changeUsd.toFixed(2)} (Bs ${tots.changeVes.toFixed(2)})`;
+            document.getElementById('modal-remaining-bs').innerText = ``;
+            document.getElementById('modal-change').innerHTML = `$${tots.changeUsd.toFixed(2)}<br><span class="text-xs">Bs ${tots.changeVes.toFixed(2)}</span>`;
             btnConfirm.disabled = false;
         }
         
@@ -477,6 +503,36 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Payment additions logic
+    const selectMethod = document.getElementById('pay-method');
+    const inputAmount = document.getElementById('pay-amount');
+
+    // Auto-fill logic when selecting a payment method
+    function autoFillRemaining() {
+        const remainingUsd = window.posState.currentTotals?.remainingUsd || 0;
+        if (remainingUsd <= 0) {
+            inputAmount.value = '0.00';
+            return;
+        }
+
+        const selectedOpt = selectMethod.options[selectMethod.selectedIndex];
+        const currencyCode = selectedOpt.dataset.currency;
+        const appliesIgtf = selectedOpt.dataset.igtf === '1';
+
+        // Calculation: If applies IGTF, we literally just convert remaining * rate. No, wait, if applies IGTF, the igtf adds, so the amount we need to pay is smaller than remaining or remaining is everything? 
+        // We'll just convert remainingUsd natively. If IGTF applies later it is added. But remainingUsd ALREADY includes IGTF from PREVIOUS payments. Wait, remaining is total - paid. If the total increases because we add an IGTF payment, it's a loop.
+        // For simplicity, we just fill the direct conversion of remainingUsd.
+        let val = 0;
+        if (currencyCode === 'USD') val = remainingUsd;
+        else if (currencyCode === 'VES') val = remainingUsd * window.posState.bcvRate;
+        else if (currencyCode === 'EUR') val = remainingUsd * (window.posState.bcvRate / window.posState.eurRate); // Approx
+        
+        inputAmount.value = val.toFixed(2);
+    }
+
+    selectMethod.addEventListener('change', autoFillRemaining);
+    // Also bind it to an event we can trigger when totals change
+    window.addEventListener('pos-calculated', autoFillRemaining);
+
     document.getElementById('add-payment-btn').addEventListener('click', () => {
         const select = document.getElementById('pay-method');
         const inputAmount = document.getElementById('pay-amount');
@@ -511,7 +567,10 @@ document.addEventListener('DOMContentLoaded', () => {
         .then(res => res.json())
         .then(data => {
             if(data.success) {
-                window.location.href = BASE_URL + 'sales/receipt/' + data.sale_id;
+                window.dispatchEvent(new CustomEvent('sale-success', { detail: { sale_id: data.sale_id } }));
+                window.posState.emptyCart();
+                btnProcess.disabled = false;
+                btnProcess.innerHTML = '<i class="fas fa-check-circle mr-2"></i> Finalizar Venta';
             } else {
                 alert('Error crítico devuelto por servidor: ' + data.message);
                 btnProcess.disabled = false;

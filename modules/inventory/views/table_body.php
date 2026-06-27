@@ -23,11 +23,11 @@
                 <span class="bg-gray-100 border border-gray-200 text-gray-700 py-0.5 px-2 rounded-md text-xs"><i class="fas fa-folder mr-1 opacity-70"></i><?= htmlspecialchars($p['category_name'] ?? 'Sin Categoría') ?></span>
             </div>
         </td>
-        <td class="p-4 text-sm font-bold text-gray-800 text-right">$<?= number_format($p['price'], 2) ?></td>
         <td class="p-4 text-center">
             <?php $stockClass = $p['stock'] <= $p['min_stock'] ? 'text-red-700 bg-red-100' : 'text-green-700 bg-green-100'; ?>
             <span class="inline-block px-2 py-1 rounded-md text-sm font-semibold <?= $stockClass ?>"><?= $p['stock'] ?></span>
         </td>
+        <td class="p-4 text-sm font-bold text-gray-800 text-right">$<?= number_format($p['price'], 2) ?></td>
         <td class="p-4 text-right space-x-1">
             <a href="<?= BASE_URL ?>inventory/edit/<?= $p['id'] ?>" class="inline-block text-gray-400 hover:text-amber-500 bg-gray-50 p-2 rounded-lg" title="Editar"><i class="fas fa-edit"></i></a>
         </td>

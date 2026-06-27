@@ -22,7 +22,11 @@ class Sale extends Model {
             // Ingresar los pagos mixtos
             $stmtPago = $this->db->prepare("INSERT INTO ventas_pagos (venta_id, metodo_pago, monto_divisa, monto_bs, tasa_aplicada) VALUES (?, ?, ?, ?, ?)");
             foreach ($payments as $p) {
-                $stmtPago->execute([$saleId, $p['method'], $p['usd'] ?? 0, $p['bs'] ?? 0, $p['rate'] ?? 0]);
+                // frontend sends 'amountUsd' and 'amountVes'
+                $usd = $p['amountUsd'] ?? 0;
+                $bs = $p['amountVes'] ?? 0;
+                $rate = $usd > 0 ? ($bs / $usd) : 0; // approximate rate from the payment
+                $stmtPago->execute([$saleId, $p['method'], $usd, $bs, $rate]);
             }
 
             $stmtItem = $this->db->prepare("INSERT INTO sale_items (sale_id, product_id, quantity, price_at_sale) VALUES (:sid, :pid, :qty, :price)");
