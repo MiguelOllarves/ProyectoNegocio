@@ -24,7 +24,7 @@
         }
     </script>
 </head>
-<body class="bg-gray-50 text-gray-800 dark:bg-gray-900 dark:text-gray-100 font-sans h-screen overflow-hidden flex selection:bg-brand-500 selection:text-white transition-colors">
+<body class="bg-gray-50 text-gray-800 dark:bg-gray-900 dark:text-gray-100 font-sans h-screen overflow-hidden flex flex-col md:flex-row selection:bg-brand-500 selection:text-white transition-colors">
 
     <!-- Global Variables -->
     <script>
@@ -38,85 +38,85 @@
         }
     </script>
 
-    <!-- Sidebar -->
-    <aside class="w-16 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 flex flex-col items-center py-4 z-10 transition-colors shadow-sm">
+    <!-- Sidebar / Bottom Nav (Mobile) -->
+    <aside class="w-full md:w-16 h-16 md:h-full bg-white dark:bg-gray-800 border-t md:border-t-0 md:border-r border-gray-200 dark:border-gray-700 flex flex-row md:flex-col items-center justify-around md:justify-start md:py-4 z-30 transition-colors shadow-sm order-last md:order-first">
         <a href="<?= BASE_URL ?>dashboard" title="Dashboard">
-            <i class="fas fa-boxes text-brand-500 text-2xl mb-8 hover:text-brand-400 transition-colors cursor-pointer"></i>
+            <i class="fas fa-boxes text-brand-500 text-2xl md:mb-8 hover:text-brand-400 transition-colors cursor-pointer"></i>
         </a>
-        <a href="<?= BASE_URL ?>inventory" class="text-gray-400 hover:text-brand-500 mb-6 transition-colors" title="Inventario"><i class="fas fa-box-open text-xl"></i></a>
-        <a href="<?= BASE_URL ?>settings" class="text-gray-400 hover:text-brand-500 mb-6 transition-colors" title="Configuración"><i class="fas fa-cog text-xl"></i></a>
-        <div class="mt-auto">
+        <a href="<?= BASE_URL ?>inventory" class="text-gray-400 hover:text-brand-500 md:mb-6 transition-colors" title="Inventario"><i class="fas fa-box-open text-xl"></i></a>
+        <a href="<?= BASE_URL ?>settings" class="text-gray-400 hover:text-brand-500 md:mb-6 transition-colors" title="Configuración"><i class="fas fa-cog text-xl"></i></a>
+        <div class="md:mt-auto flex items-center">
             <a href="<?= BASE_URL ?>logout" class="text-gray-400 hover:text-red-500 transition-colors" title="Salir"><i class="fas fa-sign-out-alt text-xl"></i></a>
         </div>
     </aside>
 
     <!-- Área Central: Catálogo -->
-    <main class="flex-1 flex flex-col p-4 bg-gray-50 dark:bg-gray-900 overflow-hidden transition-colors">
-        <div class="mb-4 relative">
+    <main class="flex-1 flex flex-col p-2 md:p-4 bg-gray-50 dark:bg-gray-900 overflow-hidden transition-colors order-1 md:order-2">
+        <div class="mb-2 md:mb-4 relative">
             <i class="fas fa-search absolute left-4 top-3.5 text-gray-400"></i>
             <input type="text" id="search-product" class="w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg pl-12 pr-4 py-3 text-gray-800 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-all font-medium shadow-sm" placeholder="Buscar por código de barras o nombre...">
         </div>
         
-        <div class="flex-1 overflow-y-auto pr-2 custom-scrollbar">
-            <div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4" id="products-grid">
+        <div class="flex-1 overflow-y-auto pr-1 md:pr-2 custom-scrollbar">
+            <div class="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2 md:gap-4" id="products-grid">
                 <!-- Javascript renders products here -->
             </div>
-            <div id="empty-products" class="hidden text-center text-gray-400 dark:text-gray-500 mt-20">
-                <i class="fas fa-search text-4xl mb-4 opacity-50"></i>
-                <p>No se encontraron productos</p>
+            <div id="empty-products" class="hidden text-center text-gray-400 dark:text-gray-500 mt-10 md:mt-20">
+                <i class="fas fa-search text-3xl md:text-4xl mb-3 md:mb-4 opacity-50"></i>
+                <p class="text-sm md:text-base">No se encontraron productos</p>
             </div>
         </div>
     </main>
 
     <!-- Panel Derecho: Carrito y Totales -->
-    <aside class="w-96 bg-white dark:bg-gray-800 flex flex-col shadow-2xl z-20 border-l border-gray-200 dark:border-gray-700 transition-colors">
+    <aside class="w-full md:w-96 lg:w-[400px] h-2/5 md:h-full bg-white dark:bg-gray-800 flex flex-col shadow-2xl z-20 border-t md:border-t-0 md:border-l border-gray-200 dark:border-gray-700 transition-colors order-2 md:order-3">
         <!-- Tasa BCV Header -->
-        <div class="px-5 py-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-850 flex justify-between items-center text-sm font-bold text-gray-600 dark:text-gray-300">
+        <div class="px-3 md:px-5 py-2 md:py-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-850 flex justify-between items-center text-xs md:text-sm font-bold text-gray-600 dark:text-gray-300 shadow-sm">
             <div class="flex items-center gap-2">
                 <i class="fas fa-coins text-brand-500"></i>
                 <span>Tasa BCV: Bs. <?= number_format($bcvRate ?? 622.21, 2) ?></span>
             </div>
-            <span class="text-green-500 text-xs flex items-center animate-pulse"><i class="fas fa-circle text-[8px] mr-1"></i> Actual</span>
+            <span class="text-green-500 flex items-center animate-pulse"><i class="fas fa-circle text-[8px] mr-1"></i></span>
         </div>
         
         <!-- Cart Items -->
         <div class="flex-1 p-2 overflow-y-auto custom-scrollbar bg-white dark:bg-gray-800" id="cart-items">
             <!-- Javascript renders cart items here -->
-            <div id="empty-cart" class="text-center text-gray-400 dark:text-gray-500 mt-20">
-                <i class="fas fa-shopping-basket text-4xl mb-4 opacity-30"></i>
-                <p class="text-sm font-medium">Carrito vacío</p>
+            <div id="empty-cart" class="text-center text-gray-400 dark:text-gray-500 mt-10 md:mt-20">
+                <i class="fas fa-shopping-basket text-3xl md:text-4xl mb-3 md:mb-4 opacity-30"></i>
+                <p class="text-xs md:text-sm font-medium">Carrito vacío</p>
             </div>
         </div>
 
         <!-- Totales (Dark Theme) -->
-        <div class="p-5 bg-gray-50 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 shadow-inner">
-            <div class="flex justify-between text-gray-500 dark:text-gray-400 mb-1.5 text-sm font-medium">
+        <div class="p-3 md:p-5 bg-gray-50 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 shadow-inner">
+            <div class="flex justify-between text-gray-500 dark:text-gray-400 mb-1 text-xs md:text-sm font-medium">
                 <span>Subtotal (Base)</span> <span id="pos-subtotal" class="text-gray-800 dark:text-gray-200">$0.00</span>
             </div>
-            <div class="flex justify-between text-gray-500 dark:text-gray-400 mb-1.5 text-sm font-medium">
+            <div class="flex justify-between text-gray-500 dark:text-gray-400 mb-1 text-xs md:text-sm font-medium">
                 <span>IVA (16%)</span> <span id="pos-iva" class="text-gray-800 dark:text-gray-200">$0.00</span>
             </div>
-            <div class="flex justify-between text-yellow-600 dark:text-yellow-500 font-bold mb-4 text-sm bg-yellow-100 dark:bg-yellow-500/10 px-2 py-1 -mx-2 rounded">
+            <div class="flex justify-between text-yellow-600 dark:text-yellow-500 font-bold mb-2 md:mb-4 text-xs md:text-sm bg-yellow-100 dark:bg-yellow-500/10 px-2 py-1 -mx-2 rounded">
                 <span><i class="fas fa-bolt mr-1"></i> IGTF (3%)</span> <span id="pos-igtf">$0.00</span>
             </div>
             
-            <div class="flex justify-between items-end border-t border-gray-200 dark:border-gray-700 pt-3 mb-5">
-                <span class="text-gray-600 dark:text-gray-300 text-lg font-bold uppercase tracking-wider">Total</span>
+            <div class="flex justify-between items-end border-t border-gray-200 dark:border-gray-700 pt-2 md:pt-3 mb-3 md:mb-5">
+                <span class="text-gray-600 dark:text-gray-300 text-sm md:text-lg font-bold uppercase tracking-wider">Total</span>
                 <div class="text-right">
-                    <div class="text-4xl font-black text-gray-800 dark:text-white leading-none" id="cart-total">$0.00</div>
-                    <div class="text-sm font-bold text-brand-600 dark:text-brand-400 mt-1" id="cart-total-bs">Bs 0.00</div>
+                    <div class="text-2xl md:text-4xl font-black text-gray-800 dark:text-white leading-none" id="cart-total">$0.00</div>
+                    <div class="text-xs md:text-sm font-bold text-brand-600 dark:text-brand-400 mt-1" id="cart-total-bs">Bs 0.00</div>
                 </div>
             </div>
 
             <!-- Footer Action Buttons -->
-            <div class="flex space-x-3">
-                <button id="clear-cart" class="w-14 py-3 bg-red-50 dark:bg-gray-800 text-red-500 dark:text-red-400 hover:bg-red-500 hover:text-white rounded-lg transition border border-red-200 dark:border-gray-700 hover:border-transparent flex items-center justify-center shadow-sm" title="Vaciar Carrito">
+            <div class="flex space-x-2 md:space-x-3">
+                <button id="clear-cart" class="w-12 md:w-14 py-2 md:py-3 bg-red-50 dark:bg-gray-800 text-red-500 dark:text-red-400 hover:bg-red-500 hover:text-white rounded-lg transition border border-red-200 dark:border-gray-700 hover:border-transparent flex items-center justify-center shadow-sm" title="Vaciar Carrito">
                     <i class="fas fa-trash"></i>
                 </button>
-                <button class="w-14 py-3 bg-yellow-50 dark:bg-gray-800 text-yellow-600 dark:text-yellow-500 hover:bg-yellow-500 hover:text-white rounded-lg transition border border-yellow-200 dark:border-gray-700 hover:border-transparent flex items-center justify-center shadow-sm" title="Poner en Espera">
+                <button class="w-12 md:w-14 py-2 md:py-3 bg-yellow-50 dark:bg-gray-800 text-yellow-600 dark:text-yellow-500 hover:bg-yellow-500 hover:text-white rounded-lg transition border border-yellow-200 dark:border-gray-700 hover:border-transparent flex items-center justify-center shadow-sm" title="Poner en Espera">
                     <i class="fas fa-pause"></i>
                 </button>
-                <button id="open-payment-modal" class="flex-1 py-3 bg-brand-600 hover:bg-brand-500 text-white font-bold rounded-lg transition shadow-lg flex justify-center items-center uppercase tracking-wide disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                <button id="open-payment-modal" class="flex-1 py-2 md:py-3 bg-brand-600 hover:bg-brand-500 text-white text-sm md:text-base font-bold rounded-lg transition shadow-lg flex justify-center items-center uppercase tracking-wide disabled:opacity-50 disabled:cursor-not-allowed" disabled>
                     Cobrar <i class="fas fa-arrow-right ml-2"></i>
                 </button>
             </div>
