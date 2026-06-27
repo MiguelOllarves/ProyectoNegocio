@@ -1,0 +1,19 @@
+{
+  "version": 2,
+  "framework": null,
+  "functions": {
+    "public/index.php": {
+      "runtime": "vercel-php@0.6.1"
+    }
+  },
+  "routes": [
+    {
+      "src": "/assets/(.*)",
+      "dest": "/public/assets/$1"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/public/index.php?url=$1"
+    }
+  ]
+}
