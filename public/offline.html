@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sin Conexión | TuInventario</title>
+    <!-- CSS Dependencies from CDN (Loaded automatically from Cache by Service Worker) -->
+    <link rel="stylesheet" href="/css/tailwind.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+        crossorigin="anonymous" referrerpolicy="no-referrer">
+
+    <style>
+        .animate-float {
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(0px);
+            }
+
+            50% {
+                transform: translateY(-15px);
+            }
+
+            100% {
+                transform: translateY(0px);
+            }
+        }
+
+        .pulse-ring {
+            animation: pulse-ring 2s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+        }
+
+        @keyframes pulse-ring {
+            0% {
+                transform: scale(0.8);
+                opacity: 0.5;
+            }
+
+            100% {
+                transform: scale(2);
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+
+<body class="bg-slate-900 min-h-screen flex items-center justify-center p-4 relative overflow-hidden font-sans">
+
+    <!-- Animated background gradients -->
+    <div class="absolute top-0 left-0 w-full h-full overflow-hidden z-0 pointer-events-none">
+        <div
+            class="absolute -top-[20%] -left-[10%] w-[50%] h-[50%] rounded-full bg-emerald-600/20 blur-[100px] md:blur-[140px]">
+        </div>
+        <div
+            class="absolute top-[60%] -right-[10%] w-[60%] h-[60%] rounded-full bg-blue-600/10 blur-[100px] md:blur-[140px]">
+        </div>
+    </div>
+
+    <!-- Main Content Card with Glassmorphism -->
+    <div
+        class="relative z-10 w-full max-w-lg bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl p-8 md:p-12 text-center shadow-2xl">
+        <div class="relative w-32 h-32 mx-auto mb-8 flex justify-center items-center">
+            <div class="absolute inset-0 bg-emerald-500/20 rounded-full pulse-ring"></div>
+            <div
+                class="relative bg-emerald-500 text-white w-24 h-24 rounded-full flex items-center justify-center text-4xl shadow-lg shadow-emerald-500/40 animate-float">
+                <i class="fa-solid fa-satellite-dish"></i>
+            </div>
+        </div>
+
+        <h1 class="text-3xl md:text-4xl font-extrabold text-white mb-4 tracking-tight">
+            ¡Ups! Te has desconectado
+        </h1>
+        <p class="text-slate-300 text-lg mb-8 leading-relaxed">
+            Parece que perdiste la conexión a internet o nuestro sistema está inalcanzable.
+        </p>
+
+        <button onclick="window.location.reload()"
+            class="group relative inline-flex items-center justify-center gap-3 px-8 py-4 font-semibold text-white transition-all duration-300 ease-in-out bg-emerald-500 rounded-xl hover:bg-emerald-400 hover:scale-105 hover:shadow-emerald-500/50 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 focus:ring-offset-slate-900">
+            <i class="fa-solid fa-rotate-right group-hover:rotate-180 transition-transform duration-500"></i>
+            <span>Reintentar Conexión</span>
+        </button>
+
+        <div class="mt-10 flex items-center justify-center gap-3 text-slate-400 text-sm border-t border-white/10 pt-6">
+            <i class="fa-solid fa-box-open text-emerald-400 text-lg"></i>
+            <span><b>TuInventario</b> es seguro. Tus datos te esperan.</span>
+        </div>
+    </div>
+</body>
+
+</html>

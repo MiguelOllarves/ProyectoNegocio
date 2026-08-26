@@ -1,0 +1,14 @@
+# Base de datos local
+database/tu_inventario.db
+*.db
+*.sqlite
+
+# Configuraciones locales de VS Code
+.vscode/
+
+# Archivos temporales y de sistema
+*.log
+.DS_Store
+Thumbs.db
+node_modules/
+vendor/

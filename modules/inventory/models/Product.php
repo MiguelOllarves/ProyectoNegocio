@@ -1,0 +1,100 @@
+<?php
+require_once __DIR__ . '/../../../core/Model.php';
+
+class Product extends Model {
+    protected $table = 'products';
+    protected $tenantColumn = 'tenant_id';
+
+    // Retrieve all products with their categories and brands
+    public function allWithCategoriesAndBrands() {
+        $sql = "SELECT p.*, c.name as category_name, b.name as brand_name, 
+                       u.abbreviation as sale_unit_abbr, u.name as sale_unit_name, u.conversion_to_base as sale_unit_factor,
+                       u2.abbreviation as base_unit_abbr, u2.name as base_unit_name
+                FROM {$this->table} p 
+                LEFT JOIN categories c ON p.category_id = c.id 
+                LEFT JOIN brands b ON p.brand_id = b.id
+                LEFT JOIN units_of_measure u ON p.sale_unit_id = u.id
+                LEFT JOIN units_of_measure u2 ON p.base_unit_id = u2.id";
+        
+        $params = [];
+        if ($this->tenantColumn && isset($_SESSION['business_id'])) {
+            $sql .= " WHERE p.{$this->tenantColumn} = :tenant_id";
+            $params['tenant_id'] = $_SESSION['business_id'];
+        }
+        $sql .= " ORDER BY p.name ASC";
+        
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute($params);
+        return $stmt->fetchAll();
+    }
+
+    // Save product with dynamic meta attributes
+    public function createWithMeta($data, $metaAttributes) {
+        $this->db->beginTransaction();
+        try {
+            // First save product
+            $productId = $this->create($data);
+            if (!$productId) throw new Exception("Error saving product");
+            
+            // Then save meta attributes (IMEI, Color, Talla, etc)
+            if (!empty($metaAttributes)) {
+                $sqlMeta = "INSERT INTO product_meta (product_id, meta_key, meta_value) VALUES (:pid, :key, :val)";
+                $stmtMeta = $this->db->prepare($sqlMeta);
+                
+                foreach ($metaAttributes as $key => $val) {
+                    if (!empty($val)) {
+                        $stmtMeta->execute([
+                            'pid' => $productId,
+                            'key' => $key,
+                            'val' => $val
+                        ]);
+                    }
+                }
+            }
+            $this->db->commit();
+            return $productId;
+        } catch (Exception $e) {
+            $this->db->rollBack();
+            return false;
+        }
+    }
+    public function getMeta($productId) {
+        $sql = "SELECT meta_key, meta_value FROM product_meta WHERE product_id = :pid";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute(['pid' => $productId]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function updateWithMeta($id, $data, $metaAttributes) {
+        $this->db->beginTransaction();
+        try {
+            // Update product
+            $this->update($id, $data);
+            
+            // Delete old meta
+            $sqlDel = "DELETE FROM product_meta WHERE product_id = :pid";
+            $stmtDel = $this->db->prepare($sqlDel);
+            $stmtDel->execute(['pid' => $id]);
+            
+            // Insert new meta
+            if (!empty($metaAttributes)) {
+                $sqlMeta = "INSERT INTO product_meta (product_id, meta_key, meta_value) VALUES (:pid, :key, :val)";
+                $stmtMeta = $this->db->prepare($sqlMeta);
+                foreach ($metaAttributes as $key => $val) {
+                    if (!empty($val)) {
+                        $stmtMeta->execute([
+                            'pid' => $id,
+                            'key' => $key,
+                            'val' => $val
+                        ]);
+                    }
+                }
+            }
+            $this->db->commit();
+            return true;
+        } catch (Exception $e) {
+            $this->db->rollBack();
+            return false;
+        }
+    }
+}

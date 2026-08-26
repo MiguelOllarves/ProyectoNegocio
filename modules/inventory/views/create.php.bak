@@ -1,0 +1,510 @@
+<?php include __DIR__ . '/../../../includes/header.php'; ?>
+
+<div class="mb-6">
+    <div class="flex items-center text-sm text-gray-500 mb-2">
+        <a href="<?= BASE_URL ?>inventory" class="hover:text-brand-600 transition-colors">Inventario</a>
+        <i class="fas fa-chevron-right mx-2 text-xs"></i>
+        <span class="text-gray-800 font-medium">Nuevo Producto</span>
+    </div>
+    <h2 class="text-2xl font-bold text-gray-800">Agregar Nuevo Producto</h2>
+</div>
+
+<?php if (!empty($error)): ?>
+    <div class="bg-red-50 border-l-4 border-red-500 p-4 mb-6 rounded-md">
+        <div class="flex items-center">
+            <i class="fas fa-exclamation-circle text-red-500 mr-3"></i>
+            <p class="text-red-700"><?= htmlspecialchars($error) ?></p>
+        </div>
+    </div>
+<?php endif; ?>
+
+<script>
+    const units = <?= json_encode($units ?? []) ?>;
+</script>
+
+<form action="<?= BASE_URL ?>inventory/create" method="POST" enctype="multipart/form-data" class="max-w-3xl mx-auto pb-10">
+    <!-- Step 1: Información Principal -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 sm:p-8 mb-6 relative overflow-hidden">
+        <div class="absolute top-0 left-0 w-2 h-full bg-blue-500"></div>
+        <h3 class="text-xl font-bold text-gray-800 mb-6 flex items-center">
+            <span class="bg-blue-100 text-blue-600 rounded-full w-8 h-8 flex items-center justify-center mr-3 text-sm">1</span>
+            ¿Qué producto vas a agregar?
+        </h3>
+        
+        <div class="space-y-6">
+            <div>
+                <label class="block text-base font-bold text-gray-800 mb-2">Nombre del Producto <span class="text-red-500">*</span></label>
+                <input type="text" name="name" required placeholder="Ej: Refresco Coca-Cola 2 Litros" class="w-full text-lg rounded-lg border border-gray-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-colors">
+            </div>
+            
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-2">Categoría</label>
+                    <select name="category_id" id="cat_select" class="w-full rounded-lg border border-gray-300 px-4 py-3 bg-white focus:outline-none focus:ring-2 focus:ring-brand-500 cursor-pointer">
+                        <option value="">-- Selecciona una categoría --</option>
+                        <?php if(!empty($categories)): foreach($categories as $c): ?>
+                            <option value="<?= $c['id'] ?>"><?= htmlspecialchars($c['name']) ?></option>
+                        <?php endforeach; endif; ?>
+                        <option value="new" class="font-bold text-brand-600">+ Añadir nueva categoría...</option>
+                    </select>
+                    <input type="text" name="new_category" id="new_category" placeholder="Escribe la nueva categoría" class="hidden mt-2 w-full rounded-md border border-brand-300 bg-brand-50 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-2">Marca</label>
+                    <select name="brand_id" id="brand_select" class="w-full rounded-lg border border-gray-300 px-4 py-3 bg-white focus:outline-none focus:ring-2 focus:ring-brand-500 cursor-pointer">
+                        <option value="">-- Selecciona una marca --</option>
+                        <?php if(!empty($brands)): foreach($brands as $b): ?>
+                            <option value="<?= $b['id'] ?>"><?= htmlspecialchars($b['name']) ?></option>
+                        <?php endforeach; endif; ?>
+                        <option value="new" class="font-bold text-brand-600">+ Añadir nueva marca...</option>
+                    </select>
+                    <input type="text" name="new_brand" id="new_brand" placeholder="Escribe la nueva marca" class="hidden mt-2 w-full rounded-md border border-brand-300 bg-brand-50 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
+                </div>
+            </div>
+            
+            <div>
+                <label class="block text-sm font-bold text-gray-700 mb-2">Imagen del Producto (Opcional)</label>
+                <input type="file" name="image" accept="image/*" class="w-full rounded-lg border border-gray-300 px-4 py-2 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-brand-500 transition-colors text-sm file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-bold file:bg-brand-100 file:text-brand-700 hover:file:bg-brand-200 cursor-pointer">
+            </div>
+        </div>
+    </div>
+
+    <!-- Step 2: Venta -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 sm:p-8 mb-6 relative overflow-hidden">
+        <div class="absolute top-0 left-0 w-2 h-full bg-green-500"></div>
+        <h3 class="text-xl font-bold text-gray-800 mb-6 flex items-center">
+            <span class="bg-green-100 text-green-600 rounded-full w-8 h-8 flex items-center justify-center mr-3 text-sm">2</span>
+            ¿A cuánto lo vas a vender?
+        </h3>
+        
+        <div class="bg-green-50/50 rounded-xl p-5 border border-green-100 mb-5">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 items-end">
+                <div>
+                    <label class="block text-sm font-bold text-green-800 mb-2">Precio de Venta (Al público)</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-green-800 font-bold text-xl">$</span>
+                        <input type="number" step="0.01" name="price" id="sale_price" required class="w-full text-2xl font-bold text-green-900 rounded-lg border-2 border-green-300 pl-10 pr-4 py-3 bg-white focus:outline-none focus:ring-4 focus:ring-green-100 focus:border-green-500 transition-all">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-2">Moneda principal</label>
+                    <select name="currency" class="w-full rounded-lg border border-gray-300 px-4 py-3 bg-white focus:outline-none focus:ring-2 focus:ring-brand-500 cursor-pointer">
+                        <option value="USD">Dólares (USD)</option>
+                        <option value="VES">Bolívares (VES)</option>
+                        <option value="COP">Pesos Col. (COP)</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Costs & Advanced margins inside Step 2 -->
+        <details class="group">
+            <summary class="flex items-center cursor-pointer text-sm font-bold text-brand-600 hover:text-brand-800 bg-brand-50 p-3 rounded-lg border border-brand-100">
+                <i class="fas fa-chevron-right mr-3 transition-transform group-open:rotate-90"></i>
+                Ver Detalles de Costo y Margen de Ganancia (Opcional)
+            </summary>
+            <div class="mt-4 pt-4 border-t border-gray-100 space-y-5">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-2" id="cost_label">¿Cuánto te costó?</label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-gray-500 font-bold">$</span>
+                            <input type="number" step="0.01" name="unit_cost" id="total_cost" value="0" required class="w-full text-lg rounded-lg border border-gray-300 pl-8 pr-4 py-2 focus:outline-none focus:ring-2 focus:ring-brand-500">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-2">% Ganancia Sugerida</label>
+                        <div class="relative">
+                            <input type="number" step="0.01" name="profit_margin" id="profit_margin" value="0.0" class="w-full text-lg rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-brand-500">
+                            <span class="absolute inset-y-0 right-0 flex items-center pr-4 text-gray-500 font-bold">%</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex items-center gap-3 mt-2 p-3 bg-gray-50 rounded-lg border border-gray-200 w-fit">
+                    <input type="checkbox" name="is_tax_exempt" id="is_tax_exempt" value="1" class="w-5 h-5 text-brand-600 border-gray-300 rounded focus:ring-brand-500 cursor-pointer">
+                    <label for="is_tax_exempt" class="text-sm font-bold text-gray-700 cursor-pointer">Producto Exento de IVA (E)</label>
+                </div>
+            </div>
+        </details>
+    </div>
+
+    <!-- Step 3: Inventario y Unidades -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 sm:p-8 mb-6 relative overflow-hidden">
+        <div class="absolute top-0 left-0 w-2 h-full bg-orange-500"></div>
+        <h3 class="text-xl font-bold text-gray-800 mb-6 flex items-center">
+            <span class="bg-orange-100 text-orange-600 rounded-full w-8 h-8 flex items-center justify-center mr-3 text-sm">3</span>
+            Cantidades en Inventario
+        </h3>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-6">
+            <div>
+                <label class="block text-sm font-bold text-gray-800 mb-2" id="stock_label">¿Cuántos tienes actualmente?</label>
+                <input type="number" step="0.001" name="stock" id="stock_input" value="0" class="w-full text-xl font-bold rounded-lg border-2 border-gray-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-colors">
+            </div>
+            <div>
+                <label class="block text-sm font-bold text-gray-700 mb-2">Stock Mínimo (Alerta de escasez)</label>
+                <input type="number" step="0.001" name="min_stock" value="5" class="w-full text-lg rounded-lg border border-gray-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-brand-500 transition-colors">
+            </div>
+        </div>
+
+        <details class="group">
+            <summary class="flex items-center cursor-pointer text-sm font-bold text-brand-600 hover:text-brand-800 bg-brand-50 p-3 rounded-lg border border-brand-100">
+                <i class="fas fa-chevron-right mr-3 transition-transform group-open:rotate-90"></i>
+                Configuración de Medidas y Conversiones (Avanzado)
+            </summary>
+            <div class="mt-4 pt-4 border-t border-gray-100 space-y-5 bg-gray-50 p-5 rounded-lg border border-gray-200">
+                <p class="text-sm text-gray-600 font-medium mb-2"><i class="fas fa-info-circle mr-1 text-blue-500"></i> Útil si compras por caja o saco y vendes por unidad o kilo.</p>
+                
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-2">Tipo de Medición</label>
+                        <select name="measurement_type" id="measurement_type" class="w-full rounded-lg border border-gray-300 px-4 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-brand-500 cursor-pointer">
+                            <option value="unidad">Por Unidad</option>
+                            <option value="peso">Por Peso</option>
+                            <option value="volumen">Por Volumen</option>
+                        </select>
+                    </div>
+                    <div class="flex items-center pt-8">
+                        <input type="checkbox" name="allow_fractional_sales" id="allow_fractional" value="1" class="w-5 h-5 text-brand-600 rounded mr-3 cursor-pointer">
+                        <label for="allow_fractional" class="text-sm font-bold text-gray-800 cursor-pointer">Permitir venta en decimales (Ej: 0.5 kg)</label>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Se compra por:</label>
+                        <select name="purchase_unit_id" id="purchase_unit_id" class="w-full text-sm rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand-500 cursor-pointer">
+                            <!-- JS will populate -->
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Se vende por:</label>
+                        <select name="sale_unit_id" id="sale_unit_id" class="w-full text-sm rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand-500 cursor-pointer">
+                            <!-- JS will populate -->
+                        </select>
+                    </div>
+                </div>
+
+                <div id="content_section" class="grid grid-cols-1 sm:grid-cols-2 gap-5 p-4 bg-white rounded-lg border border-gray-200 mt-2">
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-2" id="content_label">Contiene:</label>
+                        <input type="number" step="0.01" name="content_per_purchase" id="content_per_purchase" value="1" class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-2">Unidad contenida:</label>
+                        <select name="contained_unit_id" id="contained_unit_id" class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand-500 cursor-pointer">
+                            <!-- JS will populate -->
+                        </select>
+                    </div>
+                </div>
+
+                <div class="mt-4 p-3 bg-brand-50 border border-brand-100 rounded-lg text-sm font-medium text-brand-800 hidden" id="normalized_cost_display">
+                    <i class="fas fa-calculator mr-2 text-brand-500"></i> Costo base: <span id="calc_cost" class="font-bold"></span>
+                </div>
+
+                <!-- Default Base Unit (hidden, calculated by JS) -->
+                <input type="hidden" name="base_unit_id" id="base_unit_id" value="">
+            </div>
+        </details>
+    </div>
+
+    <!-- Extra Options (Barcode & Attributes) -->
+    <details class="group mb-10">
+        <summary class="flex items-center justify-center p-4 bg-white border border-gray-200 rounded-xl cursor-pointer text-sm font-bold text-gray-600 hover:bg-gray-50 transition-colors shadow-sm">
+            <i class="fas fa-sliders-h mr-3 text-brand-500"></i> Opciones Adicionales (Código de Barras, Atributos)
+        </summary>
+        <div class="mt-4 bg-white rounded-xl shadow-sm border border-gray-200 p-6 sm:p-8">
+            <div class="mb-8">
+                <label class="block text-sm font-bold text-gray-700 mb-2">Código de Barras (Opcional)</label>
+                <div class="flex">
+                    <span class="inline-flex items-center px-4 rounded-l-lg border border-r-0 border-gray-300 bg-gray-50 text-gray-500">
+                        <i class="fas fa-barcode text-lg"></i>
+                    </span>
+                    <input type="text" name="barcode" placeholder="Escanea o escribe el código" class="flex-1 block w-full rounded-none rounded-r-lg border border-gray-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-brand-500">
+                </div>
+            </div>
+
+            <div class="border-t border-gray-100 pt-8">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-3">
+                    <div>
+                        <h3 class="text-lg font-bold text-gray-800">Atributos Especiales</h3>
+                        <p class="text-sm text-gray-500 mt-1">Ideal para agregar Tallas, Colores, Lotes, IMEI, etc.</p>
+                    </div>
+                    <button type="button" id="add-attr-btn" class="w-full sm:w-auto bg-brand-50 border border-brand-200 text-brand-700 hover:bg-brand-100 hover:border-brand-300 font-bold px-5 py-2.5 rounded-lg transition-colors flex items-center justify-center">
+                        <i class="fas fa-plus mr-2"></i> Añadir Atributo
+                    </button>
+                </div>
+                
+                <div id="attributes-container" class="space-y-4">
+                    <div class="text-sm text-gray-500 p-6 text-center border-2 border-dashed border-gray-300 rounded-lg bg-gray-50" id="empty-attrs-msg">
+                        <i class="fas fa-tags text-2xl text-gray-300 mb-2 block"></i>
+                        No has añadido atributos especiales.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </details>
+
+    <!-- Actions -->
+    <div class="mt-8 flex flex-col sm:flex-row justify-end gap-4 border-t border-gray-200 pt-6">
+        <a href="<?= BASE_URL ?>inventory" class="px-6 py-3 bg-white border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50 font-bold text-center transition-colors shadow-sm">Cancelar</a>
+        <button type="submit" class="px-8 py-3 bg-brand-600 hover:bg-brand-700 text-white rounded-xl font-bold shadow-lg shadow-brand-500/40 transition-all flex justify-center items-center hover:-translate-y-0.5">
+            <i class="fas fa-save mr-2 text-xl"></i> Guardar Producto
+        </button>
+    </div>
+</form>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Toggle new inputs logic
+        const selects = ['cat', 'brand'];
+        selects.forEach(pref => {
+            const select = document.getElementById(pref + '_select');
+            const input = document.getElementById('new_' + (pref === 'cat' ? 'category' : pref));
+            if(select && input) {
+                select.addEventListener('change', function() {
+                    if(this.value === 'new') {
+                        input.classList.remove('hidden');
+                        input.focus();
+                    } else {
+                        input.classList.add('hidden');
+                        input.value = '';
+                    }
+                });
+            }
+        });
+
+        // Dynamic Attributes logic
+        const btnAdd = document.getElementById('add-attr-btn');
+        const container = document.getElementById('attributes-container');
+        const emptyMsg = document.getElementById('empty-attrs-msg');
+
+        btnAdd.addEventListener('click', function() {
+            if (emptyMsg) emptyMsg.style.display = 'none';
+            
+            const row = document.createElement('div');
+            row.className = 'flex gap-3 items-center animate-fade-in-up bg-white p-2 rounded border border-gray-200 shadow-sm';
+            row.innerHTML = `
+                <div class="flex-1">
+                    <input type="text" name="meta_key[]" placeholder="Atributo (Ej: Material)" required class="w-full text-sm rounded-md border border-gray-300 px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-brand-500">
+                </div>
+                <div class="flex-1">
+                    <input type="text" name="meta_value[]" placeholder="Valor (Ej: Plástico)" required class="w-full text-sm rounded-md border border-gray-300 px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-brand-500">
+                </div>
+                <button type="button" class="remove-attr text-gray-400 hover:text-red-500 p-2 focus:outline-none transition-colors" title="Eliminar atributo">
+                    <i class="fas fa-trash"></i>
+                </button>
+            `;
+            
+            container.appendChild(row);
+            
+            row.querySelector('.remove-attr').addEventListener('click', function() {
+                container.removeChild(row);
+                if (container.children.length === 1 && emptyMsg) { 
+                    emptyMsg.style.display = 'block';
+                }
+            });
+        });
+
+        // UNIT ENGINE LOGIC
+        const typeSelect = document.getElementById('measurement_type');
+        const pUnitSelect = document.getElementById('purchase_unit_id');
+        const cUnitSelect = document.getElementById('contained_unit_id');
+        const sUnitSelect = document.getElementById('sale_unit_id');
+        const bUnitInput = document.getElementById('base_unit_id');
+        
+        const costInput = document.getElementById('total_cost');
+        const contentInput = document.getElementById('content_per_purchase');
+        const priceInput = document.getElementById('sale_price');
+        const marginInput = document.getElementById('profit_margin');
+        const allowFrac = document.getElementById('allow_fractional');
+
+        const contentSection = document.getElementById('content_section');
+        const calcDisplay = document.getElementById('normalized_cost_display');
+        const calcCostText = document.getElementById('calc_cost');
+        const stockLabel = document.getElementById('stock_label');
+
+        function populateSelects(family) {
+            const filteredUnits = units.filter(u => u.base_type === family);
+            let optionsHTML = '';
+            filteredUnits.forEach(u => {
+                optionsHTML += `<option value="${u.id}" data-base="${u.base_unit_id}" data-conv="${u.conversion_to_base}">${u.name} (${u.abbreviation})</option>`;
+            });
+
+            pUnitSelect.innerHTML = optionsHTML;
+            cUnitSelect.innerHTML = optionsHTML;
+            sUnitSelect.innerHTML = optionsHTML;
+            
+            // Set reasonable defaults
+            if (family === 'peso') {
+                selectOptionByAbbr(cUnitSelect, 'kg');
+                selectOptionByAbbr(sUnitSelect, 'kg');
+                selectOptionByAbbr(pUnitSelect, 'sc50');
+            } else if (family === 'volumen') {
+                selectOptionByAbbr(cUnitSelect, 'L');
+                selectOptionByAbbr(sUnitSelect, 'L');
+            } else {
+                selectOptionByAbbr(cUnitSelect, 'und');
+                selectOptionByAbbr(sUnitSelect, 'und');
+                selectOptionByAbbr(pUnitSelect, 'und');
+            }
+        }
+
+        function selectOptionByAbbr(select, abbr) {
+            for(let i = 0; i < select.options.length; i++) {
+                if(select.options[i].text.includes('('+abbr+')')) {
+                    select.selectedIndex = i;
+                    break;
+                }
+            }
+        }
+
+        function updateUI() {
+            const family = typeSelect.value;
+            
+            if (family === 'unidad') {
+                allowFrac.disabled = true;
+            } else {
+                allowFrac.disabled = false;
+            }
+            
+            contentSection.classList.remove('hidden');
+            
+            const pOpt = pUnitSelect.options[pUnitSelect.selectedIndex];
+            const purchaseName = pOpt ? pOpt.text.split(' ')[0] : 'Unidad';
+            
+            document.getElementById('cost_label').innerText = `Costo por ${purchaseName}:`;
+            document.getElementById('content_label').innerText = `Unidades por ${purchaseName}:`;
+
+            // Update Stock label
+            const sOpt = sUnitSelect.options[sUnitSelect.selectedIndex];
+            stockLabel.innerText = `Stock Inicial (en ${sOpt ? sOpt.text : ''})`;
+
+            // Set base unit hidden input
+            if(sOpt) bUnitInput.value = sOpt.dataset.base;
+
+            calculateCost();
+        }
+
+        function calculateCost() {
+            const totalCost = parseFloat(costInput.value) || 0;
+            const contentAmount = parseFloat(contentInput.value) || 1;
+            
+            const cOpt = cUnitSelect.options[cUnitSelect.selectedIndex];
+            const sOpt = sUnitSelect.options[sUnitSelect.selectedIndex];
+            
+            if(!cOpt || !sOpt) return;
+
+            const cConv = parseFloat(cOpt.dataset.conv);
+            const sConv = parseFloat(sOpt.dataset.conv);
+
+            // Cost per base unit
+            const contentInBase = contentAmount * cConv;
+            const costPerBase = contentInBase > 0 ? (totalCost / contentInBase) : 0;
+            
+            // Cost per sale unit
+            const costPerSale = costPerBase * sConv;
+            
+            calcDisplay.classList.remove('hidden');
+            const pOpt = pUnitSelect.options[pUnitSelect.selectedIndex];
+            
+            let html = `El ${pOpt.text} cuesta $${totalCost.toFixed(2)}. `;
+            html += `Contiene ${contentAmount} ${cOpt.text}.<br>`;
+            html += `Costo normalizado: <b>$${costPerSale.toFixed(2)} / ${sOpt.text}</b>`;
+            
+            calcCostText.innerHTML = html;
+            calcCostText.dataset.costPerSale = costPerSale;
+
+            calculatePrice('cost');
+        }
+
+        function calculatePrice(source = null) {
+            const costPerSale = parseFloat(calcCostText.dataset.costPerSale) || 0;
+            
+            if (source === 'cost' || source === 'margin' || document.activeElement === marginInput) {
+                const margin = parseFloat(marginInput.value) || 0;
+                const newPrice = costPerSale > 0 ? costPerSale * (1 + (margin / 100)) : 0;
+                if(newPrice > 0 || source !== 'cost') priceInput.value = newPrice.toFixed(2);
+            } else if (source === 'price' || document.activeElement === priceInput) {
+                const price = parseFloat(priceInput.value) || 0;
+                const newMargin = costPerSale > 0 ? ((price / costPerSale) - 1) * 100 : 0;
+                marginInput.value = newMargin.toFixed(2);
+            }
+        }
+
+        typeSelect.addEventListener('change', () => {
+            populateSelects(typeSelect.value);
+            updateUI();
+        });
+
+        pUnitSelect.addEventListener('change', updateUI);
+        cUnitSelect.addEventListener('change', updateUI);
+        sUnitSelect.addEventListener('change', updateUI);
+        costInput.addEventListener('input', updateUI);
+        contentInput.addEventListener('input', updateUI);
+        
+        marginInput.addEventListener('input', () => calculatePrice('margin'));
+        priceInput.addEventListener('input', () => calculatePrice('price'));
+
+        // Form submission with AJAX and SweetAlert
+        const form = document.querySelector('form');
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const formData = new FormData(form);
+            
+            // Basic validation
+            if (!formData.get('name')) {
+                Swal.fire('Error', 'El nombre es obligatorio', 'error');
+                return;
+            }
+            if (parseFloat(formData.get('price')) < 0) {
+                Swal.fire('Error', 'El precio no puede ser negativo', 'error');
+                return;
+            }
+            
+            // Submit
+            fetch(form.action, {
+                method: 'POST',
+                body: formData,
+                headers: { 'HX-Request': 'true' }
+            })
+            .then(async response => {
+                if(response.ok) {
+                    Swal.fire({
+                        title: '¡Guardado Exitoso!',
+                        text: 'El producto se ha guardado correctamente en el inventario.',
+                        icon: 'success',
+                        timer: 2000,
+                        showConfirmButton: true,
+                        confirmButtonText: 'Continuar',
+                        confirmButtonColor: '#10b981',
+                    }).then(() => {
+                        window.location.href = '<?= BASE_URL ?>inventory';
+                    });
+                } else {
+                    const text = await response.text();
+                    Swal.fire('Error al guardar', text || 'Hubo un problema al guardar el producto', 'error');
+                }
+            })
+            .catch(error => {
+                Swal.fire('Error', 'Hubo un error de red al intentar guardar.', 'error');
+            });
+        });
+
+        // Init
+        populateSelects(typeSelect.value);
+        updateUI();
+    });
+</script>
+
+<style>
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-in-up {
+    animation: fadeInUp 0.3s ease-out forwards;
+}
+</style>
+
+<?php include __DIR__ . '/../../../includes/footer.php'; ?>

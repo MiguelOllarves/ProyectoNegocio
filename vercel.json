@@ -1,0 +1,24 @@
+{
+  "version": 2,
+  "framework": null,
+  "functions": {
+    "api/index.php": {
+      "runtime": "vercel-php@0.6.2",
+      "excludeFiles": "public/assets/video/**"
+    }
+  },
+  "routes": [
+    {
+      "src": "/iconos_negocio/(.*)",
+      "dest": "/iconos_negocio/$1"
+    },
+    {
+      "src": "/(assets/.*|images/.*|css/.*|js/.*|sw\\.js|manifest\\.json|icons/.*)",
+      "dest": "/public/$1"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/api/index.php?url=$1"
+    }
+  ]
+}

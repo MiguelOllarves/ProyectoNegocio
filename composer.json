@@ -1,0 +1,13 @@
+{
+  "name": "proyecto/negocio",
+  "description": "TuInventario Web App",
+  "require": {
+    "minishlink/web-push": "^8.0",
+    "phpmailer/phpmailer": "^7.1"
+  },
+  "config": {
+    "platform": {
+      "php": "8.0"
+    }
+  }
+}
