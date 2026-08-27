@@ -13,7 +13,7 @@ class ProductPresentation extends Model {
                 FROM {$this->table} pp 
                 LEFT JOIN units_of_measure u ON pp.unit_id = u.id 
                 WHERE pp.product_id = :pid 
-                ORDER BY pp.name ASC";
+                ORDER BY pp.id ASC";
         $stmt = $this->db->prepare($sql);
         $stmt->execute(['pid' => $productId]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);

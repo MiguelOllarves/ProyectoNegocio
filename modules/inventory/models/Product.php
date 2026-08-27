@@ -62,7 +62,12 @@ class Product extends Model {
         $sql = "SELECT meta_key, meta_value FROM product_meta WHERE product_id = :pid";
         $stmt = $this->db->prepare($sql);
         $stmt->execute(['pid' => $productId]);
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $result = [];
+        foreach ($rows as $row) {
+            $result[$row['meta_key']] = $row['meta_value'];
+        }
+        return $result;
     }
 
     public function updateWithMeta($id, $data, $metaAttributes) {

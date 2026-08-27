@@ -113,20 +113,21 @@
                     <label class="block text-sm font-bold text-green-800 mb-2">Precio de Venta (por <span class="lbl_unit_name"></span>)</label>
                     <div class="relative">
                         <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-green-800 font-bold text-xl">$</span>
-                        <input type="number" step="0.01" name="price" id="sale_price" required value="<?= htmlspecialchars($product['price'] ?? 0) ?>"  class="w-full text-2xl font-bold text-green-900 rounded-xl border-2 border-green-300 bg-green-50 pl-10 pr-4 py-3 focus:outline-none focus:bg-white focus:ring-4 focus:ring-green-100 focus:border-green-500 transition-all shadow-sm">
+                        <input type="number" step="0.01" name="price" id="sale_price" required value="<?= number_format((float)($product['price'] ?? 0), 2, '.', '') ?>" class="w-full text-2xl font-bold text-green-900 rounded-xl border-2 border-green-300 bg-green-50 pl-10 pr-4 py-3 focus:outline-none focus:bg-white focus:ring-4 focus:ring-green-100 focus:border-green-500 transition-all shadow-sm">
                     </div>
+                    <div class="mt-2 text-[11px] font-bold text-green-700 opacity-80 pl-2">Equivale a: <span id="ves_sale_price">Bs. 0,00</span> 🇻🇪</div>
                 </div>
                 
                 <div>
-                    <div class="flex justify-between items-center mb-2">
-                        <label class="block text-sm font-bold text-slate-700">% Ganancia</label>
-                        <select id="margin_type" class="text-xs bg-transparent text-brand-600 font-bold focus:outline-none cursor-pointer">
+                    <div class="flex flex-wrap justify-between sm:justify-start items-center gap-2 mb-2 w-full">
+                        <label class="block text-sm font-bold text-slate-700 whitespace-nowrap">% Ganancia</label>
+                        <select id="margin_type" class="text-xs bg-transparent text-brand-600 font-bold focus:outline-none cursor-pointer pb-0.5 border-b border-dashed border-brand-200">
                             <option value="margin">Comercial (Costo / %)</option>
                             <option value="markup">Simple (Costo + %)</option>
                         </select>
                     </div>
                     <div class="relative">
-                        <input type="number" step="0.01" name="profit_margin" id="profit_margin" value="<?= htmlspecialchars($product['profit_margin'] ?? 0) ?>"  class="w-full text-lg rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 focus:outline-none focus:bg-white focus:ring-2 focus:ring-brand-500 transition-all shadow-sm">
+                        <input type="number" step="0.01" name="profit_margin" id="profit_margin" value="<?= number_format((float)($product['profit_margin'] ?? 0), 2, '.', '') ?>" class="w-full text-lg rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 focus:outline-none focus:bg-white focus:ring-2 focus:ring-brand-500 transition-all shadow-sm">
                         <span class="absolute inset-y-0 right-0 flex items-center pr-4 text-slate-500 font-bold">%</span>
                     </div>
                 </div>
@@ -258,13 +259,13 @@
                     <div class="relative transition-all duration-300 rounded-xl" id="total_cost_wrapper">
                         <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-slate-500 font-bold text-lg">$</span>
                         <!-- Usamos el ID total_cost para que la logica inferior y PHP no rompan, pero representa el unitario internamente -->
-                        <input type="number" step="0.0001" name="total_cost" id="total_cost" value="<?= (float)($product['unit_cost'] ?? 0) ?>" placeholder="Ej: 1.5" class="w-full text-xl font-bold rounded-xl border border-slate-300 bg-white pl-10 pr-4 py-3 focus:outline-none focus:bg-white focus:ring-2 focus:ring-indigo-500 transition-all shadow-sm">
+                        <input type="number" step="0.000001" name="total_cost" id="total_cost" value="<?= number_format((float)($product['unit_cost'] ?? 0), 6, '.', '') ?>" placeholder="Ej: 1.5" class="w-full text-xl font-bold rounded-xl border border-slate-300 bg-white pl-10 pr-4 py-3 focus:outline-none focus:bg-white focus:ring-2 focus:ring-indigo-500 transition-all shadow-sm">
                     </div>
+                    <div class="mt-2 text-[11px] font-bold text-slate-500 pl-2 transition-all">Equivale a: <span id="ves_math_cost" class="text-slate-700">Bs. 0,00</span> 🇻🇪</div>
                 </div>
 
                 <input type="hidden" name="content_per_purchase" id="content_per_purchase" value="1">
-                <input type="hidden" name="unit_cost" id="hidden_unit_cost" value="<?= (float)($product['unit_cost'] ?? 0) ?>">
-                </div>
+                <input type="hidden" name="unit_cost" id="hidden_unit_cost" value="<?= number_format((float)($product['unit_cost'] ?? 0), 6, '.', '') ?>">
             </div>
         </div>
 
@@ -312,26 +313,12 @@
 </form>
 
 <script>
-    window.calculateMagicCost = function() {
-        const total = parseFloat(document.getElementById('magic_cost_total').value) || 0;
-        const qty = parseFloat(document.getElementById('magic_cost_qty').value) || 0;
-        if (total > 0 && qty > 0) {
-            const unitCost = total / qty;
-            document.getElementById('total_cost').value = unitCost.toFixed(4);
-            document.getElementById('total_cost').dispatchEvent(new Event('input'));
-            
-            // Clean up and notify
-            document.getElementById('magic_cost_total').value = '';
-            document.getElementById('magic_cost_qty').value = '';
-            Swal.fire({
-                toast: true, position: 'top-end',
-                icon: 'success', title: 'Calculado: $' + unitCost.toFixed(2) + ' c/u',
-                showConfirmButton: false, timer: 3000
-            });
-        } else {
-            Swal.fire('Faltan Datos', 'Por favor ingresa tanto el precio pagado por el bulto/empaque completo, y cuántas unidades base individuales incluye adentro.', 'warning');
-        }
-    };
+    const BCV_RATE = <?= class_exists('Settings') ? Settings::getBcvRate() : 36.5 ?>;
+
+    function formatVes(usd) {
+        if (!usd || isNaN(usd)) return "Bs. 0,00";
+        return "Bs. " + (usd * BCV_RATE).toLocaleString('es-VE', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+    }
 
     document.addEventListener("DOMContentLoaded", function() {
         // Toggle new inputs logic
@@ -451,26 +438,31 @@
                     </div>
                 `;
             } else {
+                let initialTotal = (parseFloat(document.getElementById("total_cost").value) || 0) * (parseFloat(qty) || 1);
+                let valOpt = initialTotal > 0 ? `value="${initialTotal.toFixed(6).replace(/\.?0+$/, '')}"` : '';
+
                 row.innerHTML = `
-                    <div class="flex flex-col sm:flex-row gap-3 w-full items-start sm:items-end">
-                        <div class="w-full sm:w-4/12 relative">
-                            <label class="block text-xs font-bold text-slate-600 mb-1 shrink-0">Contenedor/Empaque</label>
-                            <input type="text" list="pack_names" name="presentation_names[]" value="${name}" required placeholder="Ej: Bulto, Caja..." class="w-full text-sm rounded-lg border border-slate-200 bg-white px-3 py-2.5 outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm transition-all focus:border-indigo-500">
+                    <div class="flex flex-col sm:flex-row w-full items-start sm:items-center gap-3">
+                        <div class="flex-1 w-full">
+                            <label class="text-[10px] uppercase font-bold text-slate-500 mb-1 block">Contenedor/Empaque</label>
+                            <input type="text" name="presentation_names[]" value="${name}" class="w-full border-slate-300 rounded-lg p-2.5 text-sm outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Ej: Bulto de 24">
                         </div>
-                        <div class="w-full sm:w-3/12 relative">
-                            <label class="block text-xs font-bold text-slate-600 mb-1">¿Cuántas trae?</label>
-                            <input type="number" step="0.001" name="presentation_quantities[]" value="${qty}" required class="w-full text-sm font-bold text-slate-700 rounded-lg border border-slate-200 bg-white px-3 py-2.5 outline-none focus:ring-2 focus:ring-indigo-500 pres-qty-input shadow-sm transition-all text-center focus:border-indigo-500">
+                        <div class="w-full sm:w-28">
+                            <label class="text-[10px] uppercase font-bold text-slate-500 mb-1 block">¿Cuántas trae?</label>
+                            <input type="number" name="presentation_quantities[]" min="0.001" step="0.001" value="${qty}" class="pres-qty-input w-full border-slate-300 rounded-lg p-2.5 text-sm outline-none focus:ring-2 focus:ring-indigo-500 text-center" placeholder="10">
+                            <input type="hidden" name="presentation_units[]" class="pres-unit-input" value="${mainUnit.value}">
                         </div>
-                        <div class="w-full sm:w-4/12 relative group tooltip-trigger animate-bounce-short">
-                            <label class="block text-xs font-bold text-indigo-700 mb-1 flex items-center gap-1 whitespace-nowrap">Total Pagado</label>
-                            <div class="relative">
-                                <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-indigo-500 font-bold">$</span>
-                                <input type="number" step="0.01" class="w-full text-sm rounded-lg border border-indigo-200 bg-indigo-50/50 pl-7 pr-2 py-2.5 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none auto-cost-trigger font-bold text-indigo-800 transition-colors placeholder-indigo-300 shadow-sm" placeholder="Ej: 50">
+                        <div class="w-full sm:w-32 bg-indigo-50/50 p-2 rounded-xl border border-indigo-100 flex items-end">
+                            <div class="w-full">
+                                <label class="text-[10px] uppercase font-bold text-indigo-700 mb-1 block">Total Pagado</label>
+                                <input type="number" step="0.01" class="cost-trigger-input w-full border-slate-300 rounded-lg p-2.5 outline-none focus:ring-2 focus:ring-indigo-500 bg-indigo-50 text-indigo-900 font-bold" placeholder="$ Ej: 50" ${valOpt}>
                             </div>
                         </div>
-                        <input type="hidden" name="presentation_units[]" class="pres-unit-input" value="${mainUnit.value}">
-                        <div class="w-full sm:w-1/12 flex items-center justify-end sm:pb-1">
-                            <button type="button" class="remove-pres text-slate-400 hover:text-red-500 p-2.5 bg-white hover:bg-red-50 rounded-lg transition-colors border border-slate-200 shadow-sm" title="Quitar este empaque"><i class="fas fa-trash"></i></button>
+                        
+                        <div class="flex items-end h-full pb-2">
+                            <button type="button" class="remove-pres hover:text-red-600 bg-white border border-slate-200 p-2.5 rounded-lg ml-2 hover:bg-red-50 text-slate-400 transition-colors">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
                         </div>
                     </div>
                 `;
@@ -575,6 +567,8 @@
             }
         }
 
+        let isInitialUIUpdate = true;
+
         function updateUI() {
             if(presContainer.children.length === 0) {
                 if (savedPresentations && savedPresentations.length > 0) {
@@ -586,29 +580,42 @@
             }
             updateLabels();
 
-            // Set hiddens for backend
             hiddenContained.value = mainUnit.value;
             hiddenPurchase.value = mainUnit.value; 
             
             const opt = mainUnit.options[mainUnit.selectedIndex];
             if(opt) hiddenBase.value = opt.dataset.base;
 
-            calculateEverything();
+            calculateEverything(isInitialUIUpdate);
+            isInitialUIUpdate = false;
         }
 
-        function calculateEverything() {
+        function calculateEverything(isInitial = false) {
             const unitCost = parseFloat(costInput.value) || 0;
             currentCostPerBase = unitCost;
             hiddenCost.value = currentCostPerBase; 
 
-            // Auto margin/price
-            if(document.activeElement !== marginInput && document.activeElement !== priceInput) {
-                calculatePrice("cost");
+            if (!isInitial) {
+                if(document.activeElement !== marginInput && document.activeElement !== priceInput) {
+                    calculatePrice("cost");
+                }
             }
+            updateVesHints();
 
             // Auto stock
-            const totalUnits = parseFloat(stockContainers.value) || 0;
-            calcTotalStock.innerText = totalUnits.toLocaleString();
+            if (typeof stockContainers !== 'undefined' && stockContainers) {
+                const totalUnits = parseFloat(stockContainers.value) || 0;
+                if (typeof calcTotalStock !== 'undefined' && calcTotalStock) {
+                    calcTotalStock.innerText = totalUnits.toLocaleString();
+                }
+            }
+        }
+
+        function updateVesHints() {
+            let vMath = document.getElementById('ves_math_cost');
+            let vSale = document.getElementById('ves_sale_price');
+            if(vMath) vMath.innerText = formatVes(parseFloat(costInput.value) || 0);
+            if(vSale) vSale.innerText = formatVes(parseFloat(priceInput.value) || 0);
         }
 
         function calculatePrice(source) {
@@ -637,6 +644,7 @@
                 }
                 marginInput.value = newMargin.toFixed(2);
             }
+            updateVesHints();
         }
 
         mType.addEventListener("change", renderUnits);

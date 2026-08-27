@@ -297,6 +297,12 @@ class InventoryController extends Controller {
         
         $product['dynamic_attributes'] = $this->productModel->getMeta($id);
         
+        require_once __DIR__ . '/../../../core/UnitConversionService.php';
+        if (!empty($product['sale_unit_id'])) {
+            $product['stock'] = \UnitConversionService::convertFromBase((float)($product['stock'] ?? 0), $product['sale_unit_id']);
+            $product['min_stock'] = \UnitConversionService::convertFromBase((float)($product['min_stock'] ?? 0), $product['sale_unit_id']);
+        }
+        
         $presModel = new ProductPresentation();
         $presentations = $presModel->getByProduct($id);
         
@@ -357,7 +363,7 @@ class InventoryController extends Controller {
             // Backend decides cost per base unit
             $totalCost = (float)($_POST['total_cost'] ?? 0);
             require_once __DIR__ . '/../../../core/CostCalculationService.php';
-            $unitCost = current($this->productModel->find($id))['unit_cost'] ?? 0; // Fallback to current cost
+            $unitCost = $this->productModel->find($id)['unit_cost'] ?? 0; // Fallback to current cost
             if (isset($_POST['total_cost']) && $totalCost >= 0 && $contentPerPurchase > 0) {
                 // The purchase is $totalCost for $contentPerPurchase of $saleUnitId
                 $unitCost = \CostCalculationService::calculateCostPerBaseUnit($totalCost, $contentPerPurchase, $saleUnitId);

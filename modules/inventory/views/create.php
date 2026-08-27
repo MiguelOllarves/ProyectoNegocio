@@ -115,6 +115,7 @@
                         <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-green-800 font-bold text-xl">$</span>
                         <input type="number" step="0.01" name="price" id="sale_price" required class="w-full text-2xl font-bold text-green-900 rounded-xl border-2 border-green-300 bg-green-50 pl-10 pr-4 py-3 focus:outline-none focus:bg-white focus:ring-4 focus:ring-green-100 focus:border-green-500 transition-all shadow-sm">
                     </div>
+                    <div class="mt-2 text-[11px] font-bold text-green-700 opacity-80 pl-2">Equivale a: <span id="ves_sale_price">Bs. 0,00</span> 🇻🇪</div>
                 </div>
                 
                 <div>
@@ -251,6 +252,7 @@
                         <!-- Usamos el ID total_cost para que la logica inferior y PHP no rompan -->
                         <input type="number" step="0.0001" name="total_cost" id="total_cost" value="0" placeholder="Ej: 1.5" class="w-full text-xl font-bold rounded-xl border border-slate-300 bg-white pl-10 pr-4 py-3 focus:outline-none focus:bg-white focus:ring-2 focus:ring-indigo-500 transition-all shadow-sm">
                     </div>
+                    <div class="mt-2 text-[11px] font-bold text-slate-500 pl-2 transition-all">Equivale a: <span id="ves_math_cost" class="text-slate-700">Bs. 0,00</span> 🇻🇪</div>
                 </div>
 
                 <input type="hidden" name="content_per_purchase" id="content_per_purchase" value="1">
@@ -302,26 +304,12 @@
 </form>
 
 <script>
-    window.calculateMagicCost = function() {
-        const total = parseFloat(document.getElementById('magic_cost_total').value) || 0;
-        const qty = parseFloat(document.getElementById('magic_cost_qty').value) || 0;
-        if (total > 0 && qty > 0) {
-            const unitCost = total / qty;
-            document.getElementById('total_cost').value = unitCost.toFixed(4);
-            document.getElementById('total_cost').dispatchEvent(new Event('input'));
-            
-            // Clean up and notify
-            document.getElementById('magic_cost_total').value = '';
-            document.getElementById('magic_cost_qty').value = '';
-            Swal.fire({
-                toast: true, position: 'top-end',
-                icon: 'success', title: 'Calculado: $' + unitCost.toFixed(2) + ' c/u',
-                showConfirmButton: false, timer: 3000
-            });
-        } else {
-            Swal.fire('Faltan Datos', 'Por favor ingresa tanto el precio pagado por el bulto/empaque completo, y cuántas unidades base individuales incluye adentro.', 'warning');
-        }
-    };
+    const BCV_RATE = <?= class_exists('Settings') ? Settings::getBcvRate() : 36.5 ?>;
+
+    function formatVes(usd) {
+        if (!usd || isNaN(usd)) return "Bs. 0,00";
+        return "Bs. " + (usd * BCV_RATE).toLocaleString('es-VE', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+    }
 
     document.addEventListener("DOMContentLoaded", function() {
         // Toggle new inputs logic
@@ -574,6 +562,15 @@
             // Auto stock (ya no lo saca del empaque, es el inventario total el que se provee en base unit)
             const totalUnits = parseFloat(stockContainers.value) || 0;
             calcTotalStock.innerText = totalUnits.toLocaleString();
+            
+            updateVesHints();
+        }
+
+        function updateVesHints() {
+            let vMath = document.getElementById('ves_math_cost');
+            let vSale = document.getElementById('ves_sale_price');
+            if(vMath) vMath.innerText = formatVes(parseFloat(costInput.value) || 0);
+            if(vSale) vSale.innerText = formatVes(parseFloat(priceInput.value) || 0);
         }
 
         function calculatePrice(source) {
@@ -602,6 +599,7 @@
                 }
                 marginInput.value = newMargin.toFixed(2);
             }
+            updateVesHints();
         }
 
         mType.addEventListener("change", renderUnits);
