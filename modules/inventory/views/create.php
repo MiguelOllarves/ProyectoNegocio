@@ -22,6 +22,16 @@
     const units = <?= json_encode($units ?? []) ?>;
 </script>
 
+<datalist id="pack_names">
+    <option value="Bulto">
+    <option value="Caja">
+    <option value="Paquete">
+    <option value="Saco">
+    <option value="Cesta">
+    <option value="Docena">
+    <option value="Paca">
+</datalist>
+
 <form action="<?= BASE_URL ?>inventory/create" method="POST" enctype="multipart/form-data" class="max-w-7xl mx-auto pb-32 sm:pb-12 px-0 sm:px-6 lg:px-8">
     <div class="flex flex-col md:flex-row gap-4 sm:gap-6 lg:gap-8 mb-8 items-start">
         <!-- COLUMNA IZQUIERDA -->
@@ -108,9 +118,9 @@
                 </div>
                 
                 <div>
-                    <div class="flex justify-between items-center mb-2">
-                        <label class="block text-sm font-bold text-slate-700">% Ganancia</label>
-                        <select id="margin_type" class="text-xs bg-transparent text-brand-600 font-bold focus:outline-none cursor-pointer">
+                    <div class="flex flex-wrap justify-between sm:justify-start items-center gap-2 mb-2 w-full">
+                        <label class="block text-sm font-bold text-slate-700 whitespace-nowrap">% Ganancia</label>
+                        <select id="margin_type" class="text-xs bg-transparent text-brand-600 font-bold focus:outline-none cursor-pointer pb-0.5 border-b border-dashed border-brand-200">
                             <option value="margin">Comercial (Costo / %)</option>
                             <option value="markup">Simple (Costo + %)</option>
                         </select>
@@ -236,42 +246,10 @@
                 
                 <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 mb-4">
                     <label class="block text-sm font-bold text-slate-800 mb-2">Costo matemático por 1 <span class="lbl_unit_name text-indigo-700 uppercase underline">Unidad</span> individual:</label>
-                    <div class="relative">
+                    <div class="relative transition-all duration-300 rounded-xl" id="total_cost_wrapper">
                         <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-slate-500 font-bold text-lg">$</span>
-                        <!-- Usamos el ID total_cost para que la logica inferior y PHP no rompan, pero representa el unitario internamente -->
-                        <input type="number" step="0.0001" name="total_cost" id="total_cost" value="0.00" placeholder="Ej: 1.50" class="w-full text-xl font-bold rounded-xl border border-slate-300 bg-white pl-10 pr-4 py-3 focus:outline-none focus:bg-white focus:ring-2 focus:ring-indigo-500 transition-all shadow-sm">
-                    </div>
-                </div>
-
-                <!-- CALCULADORA MÁGICA REIMAGINADA -->
-                <div class="p-4 bg-indigo-600 rounded-xl shadow-md text-white">
-                    <div class="flex items-start gap-4 flex-col sm:flex-row">
-                        <div class="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center shrink-0 hidden sm:flex">
-                            <i class="fas fa-magic text-2xl text-yellow-300"></i>
-                        </div>
-                        <div class="flex-1 w-full">
-                            <h5 class="font-bold text-base mb-1 text-yellow-300 flex items-center"><i class="fas fa-magic mr-2 sm:hidden"></i> Calculadora de Bultos</h5>
-                            <p class="text-xs text-indigo-100 mb-4 leading-relaxed">Si compraste un bulto y no quieres dividir el precio tú mismo, llénalo aquí y el sistema rellenará la casilla de arriba automáticamente:</p>
-                            <div class="flex flex-col sm:flex-row gap-3">
-                                <div class="flex-1 relative">
-                                    <label class="block text-[10px] font-bold text-indigo-200 uppercase mb-1 tracking-widest pl-1">PRECIO TOTAL PAGADO</label>
-                                    <div class="relative">
-                                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-indigo-400 font-bold">$</span>
-                                        <input type="number" id="magic_cost_total" placeholder="Ej: 50.00" class="w-full text-sm rounded-lg border-0 bg-white/10 text-white placeholder-indigo-300/50 pl-8 pr-3 py-3 focus:ring-2 focus:ring-yellow-400 focus:bg-white/20 transition-all">
-                                    </div>
-                                </div>
-                                <div class="flex-1 relative">
-                                    <label class="block text-[10px] font-bold text-indigo-200 uppercase mb-1 tracking-widest pl-1">CANTIDADES ADENTRO</label>
-                                    <div class="relative">
-                                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-indigo-400"><i class="fas fa-boxes"></i></span>
-                                        <input type="number" id="magic_cost_qty" placeholder="Ej: 20" class="w-full text-sm rounded-lg border-0 bg-white/10 text-white placeholder-indigo-300/50 pl-8 pr-3 py-3 focus:ring-2 focus:ring-yellow-400 focus:bg-white/20 transition-all">
-                                    </div>
-                                </div>
-                            </div>
-                            <button type="button" onclick="calculateMagicCost()" class="mt-4 w-full bg-yellow-400 hover:bg-yellow-500 text-indigo-900 font-extrabold py-3 px-4 rounded-lg shadow-sm uppercase text-xs tracking-wider transition-colors border border-yellow-500">
-                                <i class="fas fa-bolt mr-2"></i> Calcular Automáticamente
-                            </button>
-                        </div>
+                        <!-- Usamos el ID total_cost para que la logica inferior y PHP no rompan -->
+                        <input type="number" step="0.0001" name="total_cost" id="total_cost" value="0" placeholder="Ej: 1.5" class="w-full text-xl font-bold rounded-xl border border-slate-300 bg-white pl-10 pr-4 py-3 focus:outline-none focus:bg-white focus:ring-2 focus:ring-indigo-500 transition-all shadow-sm">
                     </div>
                 </div>
 
@@ -441,19 +419,26 @@
                 `;
             } else {
                 row.innerHTML = `
-                    <div class="w-5/12">
-                        <input type="text" name="presentation_names[]" value="${name}" required placeholder="Nombre (Ej: Bulto 24kg)" class="w-full text-sm rounded-lg border border-slate-200 bg-slate-50 focus:bg-white px-3 py-2 outline-none focus:ring-2 focus:ring-indigo-500">
-                    </div>
-                    <div class="w-4/12 flex items-center">
-                        <span class="text-xs text-slate-500 mr-2">Trae:</span>
-                        <input type="number" step="0.001" name="presentation_quantities[]" value="${qty}" required class="w-full text-sm rounded-lg border border-slate-200 bg-slate-50 focus:bg-white px-3 py-2 outline-none focus:ring-2 focus:ring-indigo-500 pres-qty-input">
-                    </div>
-                    <div class="w-2/12">
-                        <span class="lbl_unit_name text-[10px] font-bold text-indigo-700 bg-indigo-50 px-2 py-1.5 rounded-md truncate max-w-full inline-block"></span>
-                    </div>
-                    <input type="hidden" name="presentation_units[]" class="pres-unit-input" value="${mainUnit.value}">
-                    <div class="w-1/12 flex justify-end">
-                        <button type="button" class="remove-pres text-slate-400 hover:text-red-500 p-2 bg-slate-50 hover:bg-red-50 rounded-lg transition-colors" title="Quitar este empaque"><i class="fas fa-trash"></i></button>
+                    <div class="flex flex-col sm:flex-row gap-3 w-full items-start sm:items-end">
+                        <div class="w-full sm:w-4/12 relative">
+                            <label class="block text-xs font-bold text-slate-600 mb-1 shrink-0">Contenedor/Empaque</label>
+                            <input type="text" list="pack_names" name="presentation_names[]" value="${name}" required placeholder="Ej: Bulto, Caja..." class="w-full text-sm rounded-lg border border-slate-200 bg-white px-3 py-2.5 outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm transition-all focus:border-indigo-500">
+                        </div>
+                        <div class="w-full sm:w-3/12 relative">
+                            <label class="block text-xs font-bold text-slate-600 mb-1">¿Cuántas trae?</label>
+                            <input type="number" step="0.001" name="presentation_quantities[]" value="${qty}" required class="w-full text-sm font-bold text-slate-700 rounded-lg border border-slate-200 bg-white px-3 py-2.5 outline-none focus:ring-2 focus:ring-indigo-500 pres-qty-input shadow-sm transition-all text-center focus:border-indigo-500">
+                        </div>
+                        <div class="w-full sm:w-4/12 relative group tooltip-trigger animate-bounce-short">
+                            <label class="block text-xs font-bold text-indigo-700 mb-1 flex items-center gap-1 whitespace-nowrap">Total Pagado</label>
+                            <div class="relative">
+                                <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-indigo-500 font-bold">$</span>
+                                <input type="number" step="0.01" class="w-full text-sm rounded-lg border border-indigo-200 bg-indigo-50/50 pl-7 pr-2 py-2.5 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none auto-cost-trigger font-bold text-indigo-800 transition-colors placeholder-indigo-300 shadow-sm" placeholder="Ej: 50">
+                            </div>
+                        </div>
+                        <input type="hidden" name="presentation_units[]" class="pres-unit-input" value="${mainUnit.value}">
+                        <div class="w-full sm:w-1/12 flex items-center justify-end sm:pb-1">
+                            <button type="button" class="remove-pres text-slate-400 hover:text-red-500 p-2.5 bg-white hover:bg-red-50 rounded-lg transition-colors border border-slate-200 shadow-sm" title="Quitar este empaque"><i class="fas fa-trash"></i></button>
+                        </div>
                     </div>
                 `;
             }
@@ -461,6 +446,37 @@
             
             if(!fixed) {
                 row.querySelector(".remove-pres").addEventListener("click", () => { presContainer.removeChild(row); });
+                
+                const costTrigger = row.querySelector('.auto-cost-trigger');
+                const qtyInput = row.querySelector('.pres-qty-input');
+                costTrigger.addEventListener('input', function() {
+                    let totalPaid = parseFloat(this.value) || 0;
+                    let qty = parseFloat(qtyInput.value) || 0;
+                    if(totalPaid > 0 && qty > 0) {
+                        let unitCost = totalPaid / qty;
+                        let tc = document.getElementById('total_cost');
+                        tc.value = Number(unitCost.toFixed(4));
+                        tc.dispatchEvent(new Event('input'));
+                        
+                        let wrap = document.getElementById('total_cost_wrapper');
+                        if(wrap) {
+                           wrap.classList.add('bg-yellow-200', 'ring-4', 'ring-yellow-400', 'scale-[1.02]');
+                           setTimeout(() => wrap.classList.remove('bg-yellow-200', 'ring-4', 'ring-yellow-400', 'scale-[1.02]'), 600);
+                        }
+
+                        let stockInput = document.getElementById('stock_containers');
+                        if (stockInput && (stockInput.value === "0" || stockInput.value === "")) {
+                            stockInput.value = qty;
+                            stockInput.dispatchEvent(new Event('input'));
+                            
+                            stockInput.classList.add('bg-yellow-100', 'ring-4', 'ring-yellow-300', 'transition-all');
+                            setTimeout(() => stockInput.classList.remove('bg-yellow-100', 'ring-4', 'ring-yellow-300'), 600);
+                        }
+                    }
+                });
+                qtyInput.addEventListener('input', function() {
+                    if (costTrigger.value) costTrigger.dispatchEvent(new Event('input'));
+                });
             }
             updateLabels(); 
         }
