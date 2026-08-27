@@ -201,7 +201,7 @@ class InventoryController extends Controller {
                 'allow_fractional_sales' => isset($_POST['allow_fractional_sales']) ? 1 : 0,
 
                 // Legacy fields (kept for old views fallback)
-                'unit_of_measure' => 'Migrado',
+                'unit_of_measure' => $_POST['unit_of_measure'] ?? 'Unidad',
                 'cost_type' => 'unit',
                 'bulk_cost' => 0,
                 'units_per_bulk' => 1,
@@ -362,7 +362,7 @@ class InventoryController extends Controller {
                 'allow_fractional_sales' => isset($_POST['allow_fractional_sales']) ? 1 : 0,
 
                 // Legacy
-                'unit_of_measure' => 'Migrado'
+                'unit_of_measure' => $_POST['unit_of_measure'] ?? 'Unidad'
             ];
 
             // Image upload (optional) - Vercel Compatibility Base64

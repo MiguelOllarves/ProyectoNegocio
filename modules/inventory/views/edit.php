@@ -127,9 +127,19 @@
 
                 <div>
                     <label class="block text-sm font-bold text-slate-700 mb-2">¿Cuánto te costó el <span class="lbl_container_name text-indigo-700">Unidad</span> completo?</label>
+                    <?php
+                        $costPerSale = $product['unit_cost'] ?? 0;
+                        if (($product['sale_unit_id'] ?? 0) > 0) {
+                            require_once __DIR__ . '/../../../core/CostCalculationService.php';
+                            try {
+                                $costPerSale = CostCalculationService::calculateCostPerSaleUnit($costPerSale, $product['sale_unit_id']);
+                            } catch (\Exception $e) {}
+                        }
+                        $totalCostVal = $costPerSale * ($product['conversion_factor'] ?? 1);
+                    ?>
                     <div class="relative">
                         <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-slate-500 font-bold">$</span>
-                        <input type="number" step="0.01" name="total_cost" id="total_cost" value="<?= htmlspecialchars(($product['unit_cost'] ?? 0) * ($product['conversion_factor'] ?? 1)) ?>"  class="w-full text-lg rounded-xl border border-slate-200 bg-slate-50 pl-8 pr-4 py-3 focus:outline-none focus:bg-white focus:ring-2 focus:ring-brand-500 transition-all shadow-sm">
+                        <input type="number" step="0.01" name="total_cost" id="total_cost" value="<?= number_format($totalCostVal, 2, '.', '') ?>"  class="w-full text-lg rounded-xl border border-slate-200 bg-slate-50 pl-8 pr-4 py-3 focus:outline-none focus:bg-white focus:ring-2 focus:ring-brand-500 transition-all shadow-sm">
                     </div>
                     <!-- Hidden input that actually submits the unit_cost -->
                     <input type="hidden" name="unit_cost" id="hidden_unit_cost" value="0">
@@ -200,7 +210,19 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <div>
                     <label class="block text-sm font-bold text-slate-800 mb-2">¿Cuántos <span class="lbl_container_name text-orange-600">Unidad</span> tienes actualmente?</label>
-                    <input type="number" step="0.001" id="stock_containers" value="0" class="w-full text-xl font-bold rounded-xl border-2 border-slate-300 bg-slate-50 px-4 py-3 focus:outline-none focus:bg-white focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all shadow-sm">
+                    <?php
+                        $stockInSaleUnit = $product['stock'] ?? 0;
+                        if (($product['sale_unit_id'] ?? 0) > 0) {
+                            try {
+                                $stockInSaleUnit = UnitConversionService::convertFromBase((float)($product['stock'] ?? 0), $product['sale_unit_id']);
+                            } catch (\Exception $e) {}
+                        }
+                        $contentPerPurchase = (float)($product['conversion_factor'] ?? 1);
+                        if ($contentPerPurchase <= 0) $contentPerPurchase = 1;
+                        $stockContainers = $stockInSaleUnit / $contentPerPurchase;
+                        $stockContainersVal = is_float($stockContainers) && floor($stockContainers) != $stockContainers ? number_format($stockContainers, 3, '.', '') : $stockContainers;
+                    ?>
+                    <input type="number" step="0.001" id="stock_containers" value="<?= $stockContainersVal ?>" class="w-full text-xl font-bold rounded-xl border-2 border-slate-300 bg-slate-50 px-4 py-3 focus:outline-none focus:bg-white focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all shadow-sm">
                 </div>
                 <div>
                     <label class="block text-sm font-bold text-slate-700 mb-2">Stock Mínimo (Alerta en <span class="lbl_unit_name"></span>)</label>
