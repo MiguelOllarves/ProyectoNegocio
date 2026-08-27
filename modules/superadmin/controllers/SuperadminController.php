@@ -14,64 +14,35 @@ class SuperadminController extends Controller {
         require_once __DIR__ . '/../../../config/Database.php';
         $db = Database::getInstance()->getConnection();
 
-        // Auto-migración Modo Dios
-        if ($db->getAttribute(PDO::ATTR_DRIVER_NAME) === 'sqlite') {
-            $db->exec("CREATE TABLE IF NOT EXISTS site_visits (id INTEGER PRIMARY KEY AUTOINCREMENT, ip_address VARCHAR(45), visited_at DATETIME DEFAULT CURRENT_TIMESTAMP)");
-            try { $db->exec("ALTER TABLE site_visits ADD COLUMN country VARCHAR(100)"); } catch(Exception $e){}
-            
-            $db->exec("CREATE TABLE IF NOT EXISTS banned_ips (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                ip_address VARCHAR(45) UNIQUE NOT NULL,
-                reason TEXT,
-                banned_at DATETIME DEFAULT CURRENT_TIMESTAMP
-            )");
-            
-            $db->exec("CREATE TABLE IF NOT EXISTS security_alerts (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                type VARCHAR(50) NOT NULL,
-                ip_address VARCHAR(45),
-                details TEXT,
-                created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-            )");
-            $db->exec("CREATE TABLE IF NOT EXISTS audit_logs (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                user_id INTEGER NULL,
-                business_id INTEGER NULL,
-                action TEXT NOT NULL,
-                target TEXT NULL,
-                details TEXT NULL,
-                ip_address VARCHAR(45) NULL,
-                created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-            )");
-        } else {
-            $db->exec("CREATE TABLE IF NOT EXISTS site_visits (id SERIAL PRIMARY KEY, ip_address VARCHAR(45), visited_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)");
-            try { $db->exec("ALTER TABLE site_visits ADD COLUMN IF NOT EXISTS country VARCHAR(100)"); } catch(Exception $e){}
-            
-            $db->exec("CREATE TABLE IF NOT EXISTS banned_ips (
-                id SERIAL PRIMARY KEY,
-                ip_address VARCHAR(45) UNIQUE NOT NULL,
-                reason TEXT,
-                banned_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            )");
-            
-            $db->exec("CREATE TABLE IF NOT EXISTS security_alerts (
-                id SERIAL PRIMARY KEY,
-                type VARCHAR(50) NOT NULL,
-                ip_address VARCHAR(45),
-                details TEXT,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            )");
-            $db->exec("CREATE TABLE IF NOT EXISTS audit_logs (
-                id SERIAL PRIMARY KEY,
-                user_id INTEGER NULL,
-                business_id INTEGER NULL,
-                action VARCHAR(255) NOT NULL,
-                target VARCHAR(255) NULL,
-                details TEXT NULL,
-                ip_address VARCHAR(45) NULL,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            )");
-        }
+        // Auto-migración Modo Dios (PostgreSQL)
+        $db->exec("CREATE TABLE IF NOT EXISTS site_visits (id SERIAL PRIMARY KEY, ip_address VARCHAR(45), visited_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)");
+        try { $db->exec("ALTER TABLE site_visits ADD COLUMN IF NOT EXISTS country VARCHAR(100)"); } catch(Exception $e){}
+        
+        $db->exec("CREATE TABLE IF NOT EXISTS banned_ips (
+            id SERIAL PRIMARY KEY,
+            ip_address VARCHAR(45) UNIQUE NOT NULL,
+            reason TEXT,
+            banned_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )");
+        
+        $db->exec("CREATE TABLE IF NOT EXISTS security_alerts (
+            id SERIAL PRIMARY KEY,
+            type VARCHAR(50) NOT NULL,
+            ip_address VARCHAR(45),
+            details TEXT,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )");
+        
+        $db->exec("CREATE TABLE IF NOT EXISTS audit_logs (
+            id SERIAL PRIMARY KEY,
+            user_id INTEGER NULL,
+            business_id INTEGER NULL,
+            action VARCHAR(255) NOT NULL,
+            target VARCHAR(255) NULL,
+            details TEXT NULL,
+            ip_address VARCHAR(45) NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )");
 
         // Estadísticas Globales
         $stats = [
@@ -89,11 +60,7 @@ class SuperadminController extends Controller {
 
         // Tráfico de últimos 7 días (para la gráfica)
         $daily_visits = [];
-        if ($db->getAttribute(PDO::ATTR_DRIVER_NAME) === 'sqlite') {
-            $stmtVisits = $db->query("SELECT strftime('%Y-%m-%d', visited_at) as day, COUNT(*) as count FROM site_visits WHERE visited_at >= date('now', '-7 days') GROUP BY day ORDER BY day ASC");
-        } else {
-            $stmtVisits = $db->query("SELECT DATE(visited_at) as day, COUNT(*) as count FROM site_visits WHERE visited_at >= NOW() - INTERVAL '7 days' GROUP BY day ORDER BY day ASC");
-        }
+        $stmtVisits = $db->query("SELECT DATE(visited_at) as day, COUNT(*) as count FROM site_visits WHERE visited_at >= NOW() - INTERVAL '7 days' GROUP BY day ORDER BY day ASC");
         $visits_data = $stmtVisits->fetchAll(PDO::FETCH_ASSOC);
         foreach($visits_data as $v) {
             $daily_visits[$v['day']] = $v['count'];
@@ -350,24 +317,7 @@ class SuperadminController extends Controller {
 
     public function backup_db() {
         $this->requireSuperAdmin();
-        require_once __DIR__ . '/../../../config/Database.php';
-        $db = Database::getInstance()->getConnection();
-        
-        if ($db->getAttribute(PDO::ATTR_DRIVER_NAME) === 'sqlite') {
-            $dbPath = DB_PATH;
-            if (file_exists($dbPath)) {
-                $filename = 'respaldo_tu_inventario_' . date('Y-m-d_H-i-s') . '.sqlite';
-                header('Content-Type: application/octet-stream');
-                header('Content-Disposition: attachment; filename="' . $filename . '"');
-                header('Content-Length: ' . filesize($dbPath));
-                readfile($dbPath);
-                exit;
-            } else {
-                echo "Base de datos no encontrada localmente.";
-            }
-        } else {
-            echo "El volcado de PostgreSQL/MySQL debe gestionarse externamente (pg_dump) por razones de seguridad en este servidor.";
-        }
+        echo "El volcado de PostgreSQL/MySQL debe gestionarse externamente (pg_dump) por razones de seguridad en este servidor.";
         exit;
     }
 

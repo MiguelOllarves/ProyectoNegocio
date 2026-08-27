@@ -7,17 +7,10 @@ class Database {
 
     private function __construct() {
         try {
-            if (DB_DRIVER === 'pgsql') {
-                $dsn = "pgsql:host=" . DB_HOST . ";port=" . DB_PORT . ";dbname=" . DB_NAME;
-                $this->pdo = new PDO($dsn, DB_USER, DB_PASS);
-            } else {
-                // Default: SQLite
-                $this->pdo = new PDO("sqlite:" . DB_PATH);
-                $this->pdo->exec("PRAGMA foreign_keys = ON;");
-                $this->pdo->exec("PRAGMA journal_mode = WAL;"); // Better concurrency
-            }
+            $dsn = "pgsql:host=" . DB_HOST . ";port=" . DB_PORT . ";dbname=" . DB_NAME;
+            $this->pdo = new PDO($dsn, DB_USER, DB_PASS);
 
-            // Shared PDO attributes for both drivers
+            // PDO attributes
             $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
             $this->pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
             $this->pdo->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);

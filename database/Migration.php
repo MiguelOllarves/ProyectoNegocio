@@ -46,7 +46,7 @@ class Migration {
      * Ejecuta el schema.sql completo.
      */
     private static function runSchema(PDO $pdo) {
-        $schemaPath = __DIR__ . '/schema.sql';
+        $schemaPath = __DIR__ . '/schema_postgres.sql';
         if (!file_exists($schemaPath)) return;
 
         $sql = file_get_contents($schemaPath);
@@ -58,16 +58,6 @@ class Migration {
         );
 
         foreach ($statements as $statement) {
-            // Traducción automática al vuelo para PostgreSQL
-            if (defined('DB_DRIVER') && DB_DRIVER === 'pgsql') {
-                // 1. AUTOINCREMENT a SERIAL
-                $statement = str_ireplace('INTEGER PRIMARY KEY AUTOINCREMENT', 'SERIAL PRIMARY KEY', $statement);
-                // 2. DATETIME a TIMESTAMP
-                $statement = str_ireplace('DATETIME', 'TIMESTAMP', $statement);
-                // 3. BOOLEAN DEFAULT 0 a BOOLEAN DEFAULT FALSE
-                $statement = str_ireplace('BOOLEAN DEFAULT 0', 'BOOLEAN DEFAULT FALSE', $statement);
-                $statement = str_ireplace('BOOLEAN DEFAULT 1', 'BOOLEAN DEFAULT TRUE', $statement);
-            }
             
             try {
                 $pdo->exec($statement);
@@ -83,20 +73,15 @@ class Migration {
             edit_code TEXT,
             menu_base64 TEXT,
             menu_type TEXT,
-            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )");
 
         // Ejecutar los índices requeridos que pudiesen haber fallado en el parsing simple
         try { $pdo->exec("CREATE UNIQUE INDEX IF NOT EXISTS idx_cat_tenant_name ON categories(tenant_id, name)"); } catch (\Exception $e) {}
         try { $pdo->exec("CREATE UNIQUE INDEX IF NOT EXISTS idx_brand_tenant_name ON brands(tenant_id, name)"); } catch (\Exception $e) {}
         try { 
-            if (defined('DB_DRIVER') && DB_DRIVER === 'pgsql') {
-                $pdo->exec("CREATE UNIQUE INDEX IF NOT EXISTS idx_prod_tenant_sku ON products(tenant_id, sku) WHERE sku IS NOT NULL AND sku != ''");
-                $pdo->exec("CREATE UNIQUE INDEX IF NOT EXISTS idx_prod_tenant_code ON products(tenant_id, barcode) WHERE barcode IS NOT NULL AND barcode != ''");
-            } else {
-                $pdo->exec("CREATE UNIQUE INDEX IF NOT EXISTS idx_prod_tenant_sku ON products(tenant_id, sku) WHERE sku IS NOT NULL AND sku != ''");
-                $pdo->exec("CREATE UNIQUE INDEX IF NOT EXISTS idx_prod_tenant_code ON products(tenant_id, barcode) WHERE barcode IS NOT NULL AND barcode != ''");
-            }
+            $pdo->exec("CREATE UNIQUE INDEX IF NOT EXISTS idx_prod_tenant_sku ON products(tenant_id, sku) WHERE sku IS NOT NULL AND sku != ''");
+            $pdo->exec("CREATE UNIQUE INDEX IF NOT EXISTS idx_prod_tenant_code ON products(tenant_id, barcode) WHERE barcode IS NOT NULL AND barcode != ''");
         } catch (\Exception $e) {}
         try { $pdo->exec("CREATE INDEX IF NOT EXISTS idx_created_at_sales ON sales(created_at)"); } catch (\Exception $e) {}
         try { $pdo->exec("CREATE INDEX IF NOT EXISTS idx_tenant_id_products ON products(tenant_id)"); } catch (\Exception $e) {}
@@ -223,16 +208,9 @@ class Migration {
             // Obtener columnas actuales de la tabla
             $existingCols = [];
             try {
-                if (defined('DB_DRIVER') && DB_DRIVER === 'pgsql') {
-                    $result = $pdo->query("SELECT column_name FROM information_schema.columns WHERE table_name = '{$table}'");
-                    while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
-                        $existingCols[] = $row['column_name'];
-                    }
-                } else {
-                    $result = $pdo->query("PRAGMA table_info({$table})");
-                    while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
-                        $existingCols[] = $row['name'];
-                    }
+                $result = $pdo->query("SELECT column_name FROM information_schema.columns WHERE table_name = '{$table}'");
+                while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+                    $existingCols[] = $row['column_name'];
                 }
             } catch (PDOException $e) {
                 continue; // La tabla no existe aún, será creada por runSchema
@@ -240,11 +218,9 @@ class Migration {
 
             foreach ($columns as $colName => $alterSql) {
                 if (!in_array($colName, $existingCols)) {
-                    if (defined('DB_DRIVER') && DB_DRIVER === 'pgsql') {
-                        $alterSql = str_ireplace('DATETIME', 'TIMESTAMP', $alterSql);
-                        $alterSql = str_ireplace('BOOLEAN DEFAULT 0', 'BOOLEAN DEFAULT FALSE', $alterSql);
-                        $alterSql = str_ireplace('BOOLEAN DEFAULT 1', 'BOOLEAN DEFAULT TRUE', $alterSql);
-                    }
+                    $alterSql = str_ireplace('DATETIME', 'TIMESTAMP', $alterSql);
+                    $alterSql = str_ireplace('BOOLEAN DEFAULT 0', 'BOOLEAN DEFAULT FALSE', $alterSql);
+                    $alterSql = str_ireplace('BOOLEAN DEFAULT 1', 'BOOLEAN DEFAULT TRUE', $alterSql);
                     try {
                         $pdo->exec($alterSql);
                     } catch (PDOException $e) {
@@ -364,11 +340,7 @@ class Migration {
             // Eliminar planes Anuales duplicados creados por migraciones anteriores
             $pdo->exec("DELETE FROM plans WHERE name = 'Plan Anual' AND id != 2");
 
-            if ($pdo->getAttribute(PDO::ATTR_DRIVER_NAME) === 'pgsql') {
-                $pdo->exec("UPDATE businesses SET trial_ends_at = CURRENT_TIMESTAMP + INTERVAL '30 days' WHERE trial_ends_at IS NULL");
-            } else {
-                $pdo->exec("UPDATE businesses SET trial_ends_at = datetime('now', '+30 days') WHERE trial_ends_at IS NULL");
-            }
+            $pdo->exec("UPDATE businesses SET trial_ends_at = CURRENT_TIMESTAMP + INTERVAL '30 days' WHERE trial_ends_at IS NULL");
         } catch (PDOException $e) {
             error_log('[Migration] Error in backfillData: ' . $e->getMessage());
         }

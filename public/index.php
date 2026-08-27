@@ -90,13 +90,8 @@ require_once __DIR__ . '/../config/Database.php';
 try {
     $db = Database::getInstance()->getConnection();
     // 1. Crear la tabla silenciosamente si no existe aún para evitar errores en el primer arranque
-    if ($db->getAttribute(PDO::ATTR_DRIVER_NAME) === 'sqlite') {
-        $db->exec("CREATE TABLE IF NOT EXISTS banned_ips (id INTEGER PRIMARY KEY AUTOINCREMENT, ip_address VARCHAR(45) UNIQUE, reason TEXT, banned_at DATETIME DEFAULT CURRENT_TIMESTAMP)");
-        $db->exec("CREATE TABLE IF NOT EXISTS rate_limits (id INTEGER PRIMARY KEY AUTOINCREMENT, ip_address VARCHAR(45), action VARCHAR(50), attempts INTEGER DEFAULT 0, last_attempt DATETIME DEFAULT CURRENT_TIMESTAMP, UNIQUE(ip_address, action))");
-    } else {
-        $db->exec("CREATE TABLE IF NOT EXISTS banned_ips (id SERIAL PRIMARY KEY, ip_address VARCHAR(45) UNIQUE, reason TEXT, banned_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)");
-        $db->exec("CREATE TABLE IF NOT EXISTS rate_limits (id SERIAL PRIMARY KEY, ip_address VARCHAR(45), action VARCHAR(50), attempts INTEGER DEFAULT 0, last_attempt TIMESTAMP DEFAULT CURRENT_TIMESTAMP, UNIQUE(ip_address, action))");
-    }
+    $db->exec("CREATE TABLE IF NOT EXISTS banned_ips (id SERIAL PRIMARY KEY, ip_address VARCHAR(45) UNIQUE, reason TEXT, banned_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)");
+    $db->exec("CREATE TABLE IF NOT EXISTS rate_limits (id SERIAL PRIMARY KEY, ip_address VARCHAR(45), action VARCHAR(50), attempts INTEGER DEFAULT 0, last_attempt TIMESTAMP DEFAULT CURRENT_TIMESTAMP, UNIQUE(ip_address, action))");
     
     // 2. Verificar IP actual
     $clientIp = $_SERVER['HTTP_CF_CONNECTING_IP'] ?? $_SERVER['HTTP_X_FORWARDED_FOR'] ?? $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1';

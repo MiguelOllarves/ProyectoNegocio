@@ -334,35 +334,19 @@ class AuthController extends Controller {
                 $geolocation = $_POST['geolocation'] ?? '';
                 
                 try {
-                    // Auto-crear tabla login_sessions si no existe
-                    if ($db->getAttribute(PDO::ATTR_DRIVER_NAME) === 'sqlite') {
-                        $db->exec("CREATE TABLE IF NOT EXISTS login_sessions (
-                            id INTEGER PRIMARY KEY AUTOINCREMENT,
-                            user_id INTEGER NOT NULL,
-                            ip_address VARCHAR(45),
-                            user_agent TEXT,
-                            device_type VARCHAR(20),
-                            os_name VARCHAR(50),
-                            browser_name VARCHAR(50),
-                            location VARCHAR(255),
-                            fingerprint VARCHAR(255),
-                            logged_in_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-                            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-                        )");
-                    } else {
-                        $db->exec("CREATE TABLE IF NOT EXISTS login_sessions (
-                            id SERIAL PRIMARY KEY,
-                            user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-                            ip_address VARCHAR(45),
-                            user_agent TEXT,
-                            device_type VARCHAR(20),
-                            os_name VARCHAR(50),
-                            browser_name VARCHAR(50),
-                            location VARCHAR(255),
-                            fingerprint VARCHAR(255),
-                            logged_in_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-                        )");
-                    }
+                    // Auto-crear tabla login_sessions si no existe (PostgreSQL)
+                    $db->exec("CREATE TABLE IF NOT EXISTS login_sessions (
+                        id SERIAL PRIMARY KEY,
+                        user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+                        ip_address VARCHAR(45),
+                        user_agent TEXT,
+                        device_type VARCHAR(20),
+                        os_name VARCHAR(50),
+                        browser_name VARCHAR(50),
+                        location VARCHAR(255),
+                        fingerprint VARCHAR(255),
+                        logged_in_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                    )");
                     
                     // Detectar tipo de dispositivo, OS y navegador
                     $deviceType = 'Escritorio';

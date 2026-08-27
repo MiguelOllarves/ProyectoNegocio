@@ -13,13 +13,13 @@ if (!file_exists($publicIconsDir . '/logo1-t.png') && file_exists(__DIR__ . '/..
     @copy(__DIR__ . '/../iconos_negocio/logo1-t.ico', $publicIconsDir . '/logo1-t.ico');
 }
 
-// --- Configuración de Base de Datos Interactiva (Agnóstica) ---
-// Leer enlace de Supabase de las variables de entorno (Para Vercel)
+// --- Configuración de Base de Datos (PostgreSQL Exclusivo) ---
+// Leer enlace de la base de datos de las variables de entorno
 $dbUrl = getenv('DATABASE_URL');
 
+define('DB_DRIVER', 'pgsql');
+
 if ($dbUrl) {
-    // Modo Nube (PostgreSQL en Vercel)
-    define('DB_DRIVER', 'pgsql');
     $dbOpts = parse_url($dbUrl);
     define('DB_HOST', $dbOpts["host"]);
     define('DB_PORT', $dbOpts["port"] ?? 5432);
@@ -27,9 +27,12 @@ if ($dbUrl) {
     define('DB_PASS', $dbOpts["pass"]);
     define('DB_NAME', ltrim($dbOpts["path"], '/'));
 } else {
-    // Modo Local (SQLite local)
-    define('DB_DRIVER', 'sqlite'); 
-    define('DB_PATH', __DIR__ . '/../database/tu_inventario.db');
+    // Fallback para desarrollo local si no hay DATABASE_URL
+    define('DB_HOST', 'localhost');
+    define('DB_PORT', 5432);
+    define('DB_USER', 'postgres');
+    define('DB_PASS', 'postgres');
+    define('DB_NAME', 'tu_inventario');
 }
 
 // --- Configuración de URL Base (Dinámica Prod/Dev) ---
