@@ -112,6 +112,18 @@ CREATE TABLE IF NOT EXISTS products (
     FOREIGN KEY (tenant_id) REFERENCES businesses(id) ON DELETE CASCADE
 );
 
+-- Presentaciones de Compra/Venta por Producto
+CREATE TABLE IF NOT EXISTS product_presentations (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    product_id INTEGER NOT NULL,
+    name TEXT NOT NULL, -- ej. 'Bulto 20kg', 'Caja 24und'
+    quantity REAL NOT NULL DEFAULT 1.0, -- Cantidad de la unidad_id que contiene
+    unit_id INTEGER, -- FK a units_of_measure, la unidad de lo que trae adentro
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE,
+    FOREIGN KEY (unit_id) REFERENCES units_of_measure(id) ON DELETE RESTRICT
+);
+
 -- Recetas de Platos (Ingredientes por Plato - Módulo Restaurante)
 CREATE TABLE IF NOT EXISTS recipe_items (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -214,11 +226,13 @@ CREATE TABLE IF NOT EXISTS purchase_items (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     purchase_id INTEGER,
     product_id INTEGER,
+    presentation_id INTEGER, -- FK a product_presentations opcional
     quantity INTEGER NOT NULL,
     unit_type TEXT DEFAULT 'unidad',
     cost_per_unit REAL NOT NULL,
     FOREIGN KEY (purchase_id) REFERENCES purchases(id) ON DELETE CASCADE,
-    FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE RESTRICT
+    FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE RESTRICT,
+    FOREIGN KEY (presentation_id) REFERENCES product_presentations(id) ON DELETE SET NULL
 );
 
 -- Gastos / Egresos
@@ -436,3 +450,15 @@ CREATE UNIQUE INDEX IF NOT EXISTS idx_prod_tenant_code ON products(tenant_id, ba
 CREATE INDEX IF NOT EXISTS idx_created_at_sales ON sales(created_at);
 CREATE INDEX IF NOT EXISTS idx_tenant_id_products ON products(tenant_id);
 
+CREATE TABLE IF NOT EXISTS audit_logs (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NULL,
+    business_id INTEGER NULL,
+    action TEXT NOT NULL,
+    target TEXT NULL,
+    details TEXT NULL,
+    ip_address VARCHAR(45) NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL,
+    FOREIGN KEY (business_id) REFERENCES businesses(id) ON DELETE SET NULL
+);

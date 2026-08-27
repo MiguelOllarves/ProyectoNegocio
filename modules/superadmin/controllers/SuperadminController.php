@@ -33,6 +33,16 @@ class SuperadminController extends Controller {
                 details TEXT,
                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP
             )");
+            $db->exec("CREATE TABLE IF NOT EXISTS audit_logs (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER NULL,
+                business_id INTEGER NULL,
+                action TEXT NOT NULL,
+                target TEXT NULL,
+                details TEXT NULL,
+                ip_address VARCHAR(45) NULL,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+            )");
         } else {
             $db->exec("CREATE TABLE IF NOT EXISTS site_visits (id SERIAL PRIMARY KEY, ip_address VARCHAR(45), visited_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)");
             try { $db->exec("ALTER TABLE site_visits ADD COLUMN IF NOT EXISTS country VARCHAR(100)"); } catch(Exception $e){}
@@ -51,6 +61,16 @@ class SuperadminController extends Controller {
                 details TEXT,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )");
+            $db->exec("CREATE TABLE IF NOT EXISTS audit_logs (
+                id SERIAL PRIMARY KEY,
+                user_id INTEGER NULL,
+                business_id INTEGER NULL,
+                action VARCHAR(255) NOT NULL,
+                target VARCHAR(255) NULL,
+                details TEXT NULL,
+                ip_address VARCHAR(45) NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )");
         }
 
         // Estadísticas Globales
@@ -65,16 +85,7 @@ class SuperadminController extends Controller {
             'security_alerts' => $db->query("SELECT COUNT(*) FROM security_alerts")->fetchColumn()
         ];
 
-        // Últimos pagos reportados
-        $stmtPayments = $db->query("
-            SELECT p.*, b.business_name, pl.name as plan_name, pl.duration_days 
-            FROM payments p 
-            JOIN businesses b ON p.tenant_id = b.id 
-            JOIN plans pl ON p.plan_id = pl.id 
-            ORDER BY created_at DESC 
-            LIMIT 50
-        ");
-        $payments = $stmtPayments->fetchAll(PDO::FETCH_ASSOC);
+
 
         // Tráfico de últimos 7 días (para la gráfica)
         $daily_visits = [];
@@ -93,62 +104,11 @@ class SuperadminController extends Controller {
 
         $this->view('modules/superadmin/views/index', [
             'stats' => $stats,
-            'payments' => $payments,
             'daily_visits' => $daily_visits,
             'country_visits' => $country_visits
         ]);
     }
 
-    public function process_payment() {
-        $this->requireSuperAdmin();
-
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            require_once __DIR__ . '/../../../config/Database.php';
-            $db = Database::getInstance()->getConnection();
-            
-            $paymentId = $_POST['payment_id'] ?? 0;
-            $action = $_POST['action'] ?? ''; // 'approve' or 'reject'
-
-            try {
-                $db->beginTransaction();
-
-                $stmt = $db->prepare("SELECT * FROM payments WHERE id = ?");
-                $stmt->execute([$paymentId]);
-                $payment = $stmt->fetch(PDO::FETCH_ASSOC);
-
-                if (!$payment) throw new Exception("Pago no encontrado");
-
-                if ($action === 'approve') {
-                    // Update Payment
-                    $db->prepare("UPDATE payments SET status = 'approved' WHERE id = ?")->execute([$paymentId]);
-
-                    // Get Plan duration
-                    $stmtPlan = $db->prepare("SELECT duration_days FROM plans WHERE id = ?");
-                    $stmtPlan->execute([$payment['plan_id']]);
-                    $days = $stmtPlan->fetchColumn() ?: 30;
-
-                    // Update Tenant Subscription
-                    // Convert days to interval (PostgreSQL) or modifier (SQLite)
-                    if ($db->getAttribute(PDO::ATTR_DRIVER_NAME) === 'sqlite') {
-                        $sql = "UPDATE businesses SET subscription_status = 'active', plan_id = ?, trial_ends_at = datetime(COALESCE(trial_ends_at, 'now'), '+{$days} days') WHERE id = ?";
-                    } else {
-                        $sql = "UPDATE businesses SET subscription_status = 'active', plan_id = ?, trial_ends_at = COALESCE(trial_ends_at, CURRENT_TIMESTAMP) + INTERVAL '{$days} days' WHERE id = ?";
-                    }
-                    $db->prepare($sql)->execute([$payment['plan_id'], $payment['tenant_id']]);
-
-                } else if ($action === 'reject') {
-                    $db->prepare("UPDATE payments SET status = 'rejected' WHERE id = ?")->execute([$paymentId]);
-                }
-
-                $db->commit();
-                echo json_encode(['success' => true]);
-            } catch (Exception $e) {
-                $db->rollBack();
-                echo json_encode(['success' => false, 'message' => $e->getMessage()]);
-            }
-            exit;
-        }
-    }
 
     public function tenants() {
         $this->requireSuperAdmin();
@@ -156,7 +116,11 @@ class SuperadminController extends Controller {
         $db = Database::getInstance()->getConnection();
         
         $sql = "SELECT b.*, 
-                       (SELECT COUNT(*) FROM users u WHERE u.business_id = b.id) as subusers_count
+                       (SELECT COUNT(*) FROM users u WHERE u.business_id = b.id) as subusers_count,
+                       (SELECT COUNT(*) FROM products p WHERE p.tenant_id = b.id) as products_count,
+                       (SELECT COALESCE(SUM(total), 0) FROM sales s WHERE s.tenant_id = b.id AND s.status = 'completed') as total_sales_amount,
+                       (SELECT COUNT(*) FROM sales s WHERE s.tenant_id = b.id) as total_sales_count,
+                       (SELECT COUNT(*) FROM expenses e WHERE e.tenant_id = b.id) as expenses_count
                 FROM businesses b 
                 ORDER BY b.created_at DESC";
         $stmt = $db->query($sql);
@@ -226,7 +190,9 @@ class SuperadminController extends Controller {
         ");
         $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
         
-        $this->view('modules/superadmin/views/users', ['users' => $users]);
+        $businesses = $db->query("SELECT id, business_name FROM businesses ORDER BY business_name ASC")->fetchAll(PDO::FETCH_ASSOC);
+        
+        $this->view('modules/superadmin/views/users', ['users' => $users, 'businesses' => $businesses]);
     }
 
     public function toggle_user() {
@@ -282,9 +248,15 @@ class SuperadminController extends Controller {
             $full_name = $_POST['full_name'] ?? '';
             $username = $_POST['username'] ?? '';
             
+            $role = $_POST['role'] ?? 'vendedor';
+            $business_id = !empty($_POST['business_id']) ? $_POST['business_id'] : null;
+            $status = isset($_POST['status']) ? (int)$_POST['status'] : 1;
+            
+            
             if ($id && $full_name && $username) {
                 try {
-                    $db->prepare("UPDATE users SET full_name = ?, username = ? WHERE id = ? AND role != 'super_admin'")->execute([$full_name, $username, $id]);
+                    $db->prepare("UPDATE users SET full_name = ?, username = ?, role = ?, business_id = ?, status = ? WHERE id = ? AND role != 'super_admin'")
+                       ->execute([$full_name, $username, $role, $business_id, $status, $id]);
                     echo json_encode(['success' => true]);
                 } catch(PDOException $e) {
                     echo json_encode(['success' => false, 'message' => 'El correo electrónico / credencial ya pertenece a otra persona.']);
@@ -304,35 +276,22 @@ class SuperadminController extends Controller {
             $id = $_POST['id'] ?? null;
             if ($id) {
                 try {
-                    // Prevenir eliminar administradores o super admins, o depender de FK? 
-                    // El super_admin actual esta protegido por role != super_admin
                     $db->prepare("DELETE FROM users WHERE id = ? AND role != 'super_admin'")->execute([$id]);
+                    $ip = $_SERVER['HTTP_CF_CONNECTING_IP'] ?? $_SERVER['HTTP_X_FORWARDED_FOR'] ?? $_SERVER['REMOTE_ADDR'] ?? '';
+                    $db->prepare("INSERT INTO audit_logs(user_id, action, target, ip_address) VALUES (?, 'Hard Delete', ?, ?)")->execute([$_SESSION['user_id'] ?? null, "User ID $id", $ip]);
                     echo json_encode(['success' => true]);
                 } catch(PDOException $e) {
-                    echo json_encode(['success' => false, 'message' => 'No se puede eliminar el usuario porque tiene transacciones o pagos asociados en el sistema. Considere bloquearlo en su lugar.']);
+                    // Soft Delete Fallback
+                    $db->prepare("UPDATE users SET status = 0 WHERE id = ? AND role != 'super_admin'")->execute([$id]);
+                    $ip = $_SERVER['HTTP_CF_CONNECTING_IP'] ?? $_SERVER['HTTP_X_FORWARDED_FOR'] ?? $_SERVER['REMOTE_ADDR'] ?? '';
+                    $db->prepare("INSERT INTO audit_logs(user_id, action, target, ip_address, details) VALUES (?, 'Soft Delete (Fallo FK)', ?, ?, 'Inhabilitado por histórico')")->execute([$_SESSION['user_id'] ?? null, "User ID $id", $ip]);
+                    echo json_encode(['success' => true, 'message' => 'Usuario desactivado permanentemente (Soft Delete) porque posee histórico e hitos.']);
                 }
             }
             exit;
         }
     }
 
-    public function finances() {
-        $this->requireSuperAdmin();
-        require_once __DIR__ . '/../../../config/Database.php';
-        $db = Database::getInstance()->getConnection();
-        
-        $sql = "SELECT p.*, b.business_name, pl.name as plan_name 
-                FROM payments p 
-                JOIN businesses b ON p.tenant_id = b.id 
-                JOIN plans pl ON p.plan_id = pl.id 
-                ORDER BY p.created_at DESC";
-        $stmt = $db->query($sql);
-        $payments = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        
-        $this->view('modules/superadmin/views/finances', [
-            'payments' => $payments
-        ]);
-    }
 
     public function backups() {
         $this->requireSuperAdmin();
@@ -412,31 +371,6 @@ class SuperadminController extends Controller {
         exit;
     }
 
-    public function payment_proof($id = 0) {
-        $this->requireSuperAdmin();
-        if (!$id) { header("HTTP/1.0 404 Not Found"); exit; }
-        
-        require_once __DIR__ . '/../../../config/Database.php';
-        $db = Database::getInstance()->getConnection();
-        
-        $stmt = $db->prepare("SELECT proof_image FROM payments WHERE id = ?");
-        $stmt->execute([$id]);
-        $base64 = $stmt->fetchColumn();
-        
-        if ($base64 && strpos($base64, 'data:image') === 0) {
-            list($type, $data) = explode(';', $base64);
-            list(, $data)      = explode(',', $data);
-            $imgData = base64_decode($data);
-            $mime = str_replace('data:', '', $type);
-            header("Content-Type: $mime");
-            header('Cache-Control: public, max-age=86400');
-            echo $imgData;
-            exit;
-        }
-        
-        header("HTTP/1.0 404 Not Found");
-        exit;
-    }
 
     // ════════════════════════════════════════════════════════════════════════════
     // MODO DIOS: MÉTODOS DE GESTIÓN AVANZADA
@@ -470,12 +404,21 @@ class SuperadminController extends Controller {
             $user = $stmt->fetch(PDO::FETCH_ASSOC);
             
             if ($user) {
-                // Registrar impersonación
+                // Registrar impersonación en auditoría
                 $ip = $_SERVER['HTTP_CF_CONNECTING_IP'] ?? $_SERVER['HTTP_X_FORWARDED_FOR'] ?? $_SERVER['REMOTE_ADDR'] ?? '';
-                $db->prepare("INSERT INTO security_alerts (type, ip_address, details) VALUES ('IMPERSONATION', ?, ?)")
-                   ->execute([$ip, "Superadmin impersonated user ID: " . $user['id'] . " (" . $user['username'] . ")"]);
+                $db->prepare("INSERT INTO audit_logs(user_id, action, target, ip_address, details) VALUES (?, 'Impersonate', ?, ?, ?)")->execute([$_SESSION['user_id'] ?? null, "User ID " . $user['id'], $ip, "S-Admin suplantando a " . $user['username']]);
                 
-                // Setear sesión
+                // BACKUP SESSION
+                $_SESSION['superadmin_snapshot'] = [
+                    'user_id' => $_SESSION['user_id'],
+                    'business_id' => $_SESSION['business_id'] ?? null,
+                    'username' => $_SESSION['username'],
+                    'role' => $_SESSION['role'],
+                    'full_name' => $_SESSION['full_name'],
+                    'business_slug' => $_SESSION['business_slug'] ?? null
+                ];
+
+                // Setear sesión del suplantado
                 $_SESSION['user_id'] = $user['id'];
                 $_SESSION['business_id'] = $user['business_id'];
                 $_SESSION['username'] = $user['username'];
@@ -487,6 +430,8 @@ class SuperadminController extends Controller {
                     $stmtB = $db->prepare("SELECT slug FROM businesses WHERE id = ?");
                     $stmtB->execute([$user['business_id']]);
                     $_SESSION['business_slug'] = $stmtB->fetchColumn();
+                } else {
+                    unset($_SESSION['business_slug']);
                 }
                 
                 echo json_encode(['success' => true]);
@@ -494,6 +439,25 @@ class SuperadminController extends Controller {
                 echo json_encode(['success' => false, 'message' => 'Usuario no encontrado o restringido']);
             }
         }
+        exit;
+    }
+
+    public function unimpersonate() {
+        if (!isset($_SESSION['superadmin_snapshot'])) {
+            header("Location: " . BASE_URL);
+            exit;
+        }
+        
+        $snap = $_SESSION['superadmin_snapshot'];
+        $_SESSION['user_id'] = $snap['user_id'];
+        $_SESSION['business_id'] = $snap['business_id'];
+        $_SESSION['username'] = $snap['username'];
+        $_SESSION['role'] = $snap['role'];
+        $_SESSION['full_name'] = $snap['full_name'];
+        $_SESSION['business_slug'] = $snap['business_slug'];
+        
+        unset($_SESSION['superadmin_snapshot']);
+        header("Location: " . BASE_URL . "superadmin/users");
         exit;
     }
 

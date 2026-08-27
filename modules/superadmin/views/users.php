@@ -55,14 +55,23 @@
                         <span class="px-2 py-1 text-[10px] uppercase font-bold rounded-full <?= $u['role'] === 'super_admin' ? 'bg-amber-100 text-amber-700' : 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300' ?>">
                             <?= htmlspecialchars($u['role']) ?>
                         </span>
+                        <?php if(isset($u['status']) && $u['status'] == 0): ?>
+                            <span class="ml-1 px-2 py-1 text-[10px] uppercase font-bold rounded-full bg-red-100 text-red-700">INACTIVO</span>
+                        <?php endif; ?>
                     </td>
                     <td class="py-3 px-6 text-right space-x-2">
                         <?php if($u['role'] !== 'super_admin'): ?>
+                            <button onclick="editUser(<?= htmlspecialchars(json_encode($u)) ?>)" class="text-emerald-500 hover:text-emerald-700 bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-900/30 dark:hover:bg-emerald-800 p-2 rounded-lg transition-colors" title="Editar Usuario y Roles">
+                                <i class="fas fa-edit"></i>
+                            </button>
                             <button onclick="impersonateUser(<?= $u['id'] ?>, '<?= htmlspecialchars($u['username']) ?>')" class="text-blue-500 hover:text-blue-700 bg-blue-50 hover:bg-blue-100 dark:bg-blue-900/30 dark:hover:bg-blue-800 p-2 rounded-lg transition-colors" title="Iniciar Sesión como este usuario">
                                 <i class="fas fa-sign-in-alt"></i>
                             </button>
                             <button onclick="changePassword(<?= $u['id'] ?>, '<?= htmlspecialchars($u['username']) ?>')" class="text-orange-500 hover:text-orange-700 bg-orange-50 hover:bg-orange-100 dark:bg-orange-900/30 dark:hover:bg-orange-800 p-2 rounded-lg transition-colors" title="Cambiar Contraseña">
                                 <i class="fas fa-key"></i>
+                            </button>
+                            <button onclick="deleteUser(<?= $u['id'] ?>, '<?= htmlspecialchars($u['username']) ?>')" class="text-red-500 hover:text-red-700 bg-red-50 hover:bg-red-100 dark:bg-red-900/30 dark:hover:bg-red-800 p-2 rounded-lg transition-colors" title="Eliminar / Suspender">
+                                <i class="fas fa-trash-alt"></i>
                             </button>
                         <?php else: ?>
                             <span class="text-xs text-gray-400 italic">No editable</span>
@@ -102,6 +111,59 @@
     </div>
 </div>
 
+<!-- Modal Editar Usuario -->
+<div id="editModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm items-center justify-center z-50">
+    <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-lg p-6 border border-gray-100 dark:border-gray-700 transform scale-95 transition-all max-h-[90vh] overflow-y-auto">
+        <h3 class="text-xl font-bold text-gray-800 dark:text-white mb-6">Editar Usuario</h3>
+        
+        <form id="editUserForm" onsubmit="submitEditUser(event)">
+            <input type="hidden" id="editUserId" name="id">
+            
+            <div class="grid grid-cols-1 gap-4 mb-6">
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">Nombre Completo</label>
+                    <input type="text" id="editFullName" name="full_name" required class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white rounded-lg p-3">
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">Usuario / Correo</label>
+                    <input type="text" id="editUsername" name="username" required class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white rounded-lg p-3">
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">Rol (Jerarquía)</label>
+                    <select id="editRole" name="role" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white rounded-lg p-3">
+                        <option value="administrador">Administrador</option>
+                        <option value="empleado">Empleado</option>
+                        <option value="vendedor">Vendedor</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">Negocio Asociado (Tenant)</label>
+                    <select id="editBusiness" name="business_id" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white rounded-lg p-3">
+                        <option value="">-- Sin Negocio (No recomendado) --</option>
+                        <?php foreach($businesses as $b): ?>
+                        <option value="<?= $b['id'] ?>"><?= htmlspecialchars($b['business_name']) ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">Estado Activo</label>
+                    <select id="editStatus" name="status" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white rounded-lg p-3">
+                        <option value="1">Activo y Autorizado</option>
+                        <option value="0">Suspendido / Inactivo</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="flex justify-end gap-3">
+                <button type="button" onclick="closeEditModal()" class="px-5 py-2.5 text-sm font-bold text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-all">Cancelar</button>
+                <button type="submit" class="px-5 py-2.5 text-sm font-bold text-white bg-brand-500 hover:bg-brand-600 rounded-xl shadow-lg shadow-brand-500/30 transition-all flex items-center">
+                    <i class="fas fa-save mr-2"></i> Guardar Cambios
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
 <script>
 function impersonateUser(id, username) {
     if(confirm(`⚠️ ATENCIÓN: Vas a iniciar sesión como "${username}".\nTu sesión actual de Superadmin se cerrará y entrarás al sistema como si fueras este usuario.\n\n¿Continuar?`)) {
@@ -116,6 +178,49 @@ function impersonateUser(id, username) {
             } else {
                 alert(res.message || 'Error al impersonar');
             }
+        });
+    }
+}
+
+const editModal = document.getElementById('editModal');
+function editUser(user) {
+    document.getElementById('editUserId').value = user.id || '';
+    document.getElementById('editFullName').value = user.full_name || '';
+    document.getElementById('editUsername').value = user.username || '';
+    document.getElementById('editRole').value = user.role || 'vendedor';
+    document.getElementById('editBusiness').value = user.business_id || '';
+    document.getElementById('editStatus').value = (user.status == 0) ? '0' : '1';
+    
+    editModal.classList.remove('hidden');
+    editModal.classList.add('flex');
+    editModal.children[0].classList.replace('scale-95', 'scale-100');
+}
+function closeEditModal() {
+    editModal.children[0].classList.replace('scale-100', 'scale-95');
+    setTimeout(() => {
+        editModal.classList.remove('flex');
+        editModal.classList.add('hidden');
+    }, 200);
+}
+function submitEditUser(e) {
+    e.preventDefault();
+    const fd = new FormData(document.getElementById('editUserForm'));
+    fetch('<?= BASE_URL ?>superadmin/update_user', { method: 'POST', body: fd })
+    .then(r => r.json())
+    .then(res => {
+        if(res.success) { location.reload(); }
+        else { alert(res.message || 'Error al actualizar usuario.'); }
+    });
+}
+function deleteUser(id, username) {
+    if(confirm(`⚠️ ¿Estás seguro que deseas eliminar a "${username}"?\n\nSi el usuario posee histórico (Ej: facturas, registros, auditoría), el sistema le aplicará un 'Soft Delete' (Suspensión inactiva persistente) en su lugar.`)) {
+        const fd = new FormData();
+        fd.append('id', id);
+        fetch('<?= BASE_URL ?>superadmin/delete_user', { method: 'POST', body: fd })
+        .then(r => r.json())
+        .then(res => {
+            if(res.message) alert(res.message);
+            if(res.success) setTimeout(() => location.reload(), 1000);
         });
     }
 }

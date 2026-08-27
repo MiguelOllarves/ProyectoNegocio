@@ -282,11 +282,17 @@ if (array_key_exists($module, $moduleMap)) {
     // --- Middleware de Seguridad ---
     if ($accessRoles !== 'public') {
         Middleware::requireAuth();
-        if (is_array($accessRoles)) {
-            Middleware::requireRole($accessRoles);
-        }
-        if ($requiredPermission) {
-            Middleware::requirePermission($requiredPermission);
+        
+        // BYPASS especial para SuperAdmin que está impersonando y necesita volver
+        $isReturningSuperAdmin = ($module === 'superadmin' && $action === 'unimpersonate' && isset($_SESSION['superadmin_snapshot']));
+        
+        if (!$isReturningSuperAdmin) {
+            if (is_array($accessRoles)) {
+                Middleware::requireRole($accessRoles);
+            }
+            if ($requiredPermission) {
+                Middleware::requirePermission($requiredPermission);
+            }
         }
     }
 

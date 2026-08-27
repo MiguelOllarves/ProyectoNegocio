@@ -1,57 +1,65 @@
 <?php
-require_once __DIR__ . '/core/UnitConversionService.php';
-require_once __DIR__ . '/core/CostCalculationService.php';
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
 
-require_once __DIR__ . '/config/Database.php';
-
-echo "=========== SETUP ===========\n";
+// Mock server env
+$_SERVER['DOCUMENT_ROOT'] = __DIR__;
+$_SESSION['user_id'] = 1;
 $_SESSION['business_id'] = 1;
 
-$db = Database::getInstance()->getConnection();
-$stmt = $db->query("SELECT id, name, base_type FROM units_of_measure WHERE name IN ('Gramo', 'Kilogramo')");
-$units = $stmt->fetchAll(PDO::FETCH_ASSOC);
+require __DIR__.'/config/Database.php';
+require __DIR__.'/modules/inventory/models/Product.php';
+require __DIR__.'/modules/purchases/models/Purchase.php';
+require __DIR__.'/modules/inventory/models/ProductPresentation.php';
 
-$gramoId = null;
-$kiloId = null;
-foreach($units as $u) {
-    if ($u['name'] === 'Gramo') $gramoId = $u['id'];
-    if ($u['name'] === 'Kilogramo') $kiloId = $u['id'];
-}
-echo "Gramo ID: $gramoId | Kilo ID: $kiloId \n";
-
-echo "=========== PRUEBAS DE MOTOR MATEMATICO ===========\n";
-
-// 1. Convertir de kg a gramos
 try {
-    $g = UnitConversionService::convertToBase(40, $kiloId);
-    echo "[TEST 1] 40 kg a base: $g (Esperado: 40000)\n";
+    $db = Database::getInstance()->getConnection();
+    
+    // 1. Crear producto Arroz
+    $db->exec("INSERT INTO products (name, stock, unit_cost, price) VALUES ('Arroz Test', 0, 0, 1.5)");
+    $productId = $db->lastInsertId();
+    
+    // Get a valid unit ID from the DB
+    $unit = $db->query("SELECT id FROM units_of_measure LIMIT 1")->fetch(PDO::FETCH_ASSOC);
+    $unitId = $unit ? $unit['id'] : 1;
+
+    // 2. Crear Presentaciones
+    $presModel = new ProductPresentation();
+    $pid1 = $presModel->create(['product_id' => $productId, 'name' => 'Caja 20 und', 'quantity' => 20, 'unit_id' => $unitId]);
+    $pid2 = $presModel->create(['product_id' => $productId, 'name' => 'Paquete 5 und', 'quantity' => 5, 'unit_id' => $unitId]);
+    
+    // 3. Comprar Arroz - 1 Caja x $20
+    $purchaseModel = new Purchase();
+    $items = [
+        [
+            'product_id' => $productId,
+            'presentation_id' => $pid1,
+            'quantity' => 1,
+            'cost' => 20
+        ]
+    ];
+    $purchaseId = $purchaseModel->createWithItems(1, null, $items, "Compra de prueba de 1 Caja de Arroz Test a $20");
+
+    // 4. Check results
+    $product = $db->query("SELECT * FROM products WHERE id = $productId")->fetch(PDO::FETCH_ASSOC);
+    
+    echo "=== RESULTADOS DE COMPRA ===\n";
+    echo "Stock Total: " . $product['stock'] . "\n";
+    echo "Expectativa Stock: 20\n";
+    echo "Costo Unitario Base: " . $product['unit_cost'] . "\n";
+    echo "Expectativa Costo Unitario Base: 1 (20 / 20 = 1)\n";
+    
+    $purchases = $db->query("SELECT * FROM purchase_items WHERE purchase_id = $purchaseId")->fetchAll(PDO::FETCH_ASSOC);
+    echo "Items Comprados:\n";
+    print_r($purchases);
+    
+    // Clean up
+    $db->exec("DELETE FROM kardex WHERE product_id = $productId");
+    $db->exec("DELETE FROM purchase_items WHERE purchase_id = $purchaseId");
+    $db->exec("DELETE FROM purchases WHERE id = $purchaseId");
+    $db->exec("DELETE FROM product_presentations WHERE product_id = $productId");
+    $db->exec("DELETE FROM products WHERE id = $productId");
+    
 } catch (Exception $e) {
-    echo "ERROR en Test 1: " . $e->getMessage() . "\n";
+    echo "Error: " . $e->getMessage();
 }
-
-// 2. Costo por unidad base ($200 por 40kg)
-// $totalCost = 200, $purchaseQty = 40 (kg), targetUnit = 4 (kg) -> Costo por gramo
-try {
-    $costPerGram = CostCalculationService::calculateCostPerBaseUnit(200, 40, $kiloId);
-    echo "[TEST 2] Costo por gramo de (40kg por 200usd): $costPerGram (Esperado: 0.005)\n";
-} catch (Exception $e) {
-    echo "ERROR en Test 2: " . $e->getMessage() . "\n";
-}
-
-// 3. Costo de 100g de queso. (La receta usa 100g)
-try {
-    $costoEmpanada = CostCalculationService::calculateIngredientCost(100, $gramoId, 0.005);
-    echo "[TEST 3] Costo 100g de Queso a 0.005c/g: $costoEmpanada (Esperado: 0.5 o 0.50)\n";
-} catch (Exception $e) {
-    echo "ERROR en Test 3: " . $e->getMessage() . "\n";
-}
-
-// 4. Test missing costs
-echo "\n==== CASOS CONTRA COSTOS FALTANTES ====\n";
-$missing1 = CostCalculationService::calculateIngredientCost(100, $gramoId, 0); // costo 0 o nulo
-echo "[TEST 4] Costo ingrediente sin costo cargado: $missing1 (Esperado: MISSING_COST)\n";
-
-$missing2 = CostCalculationService::calculateIngredientCost(100, $gramoId, null);
-echo "[TEST 5] Costo ingrediente nulo: $missing2 (Esperado: MISSING_COST)\n";
-
-echo "=========== FIN DE PRUEBAS ===========\n";

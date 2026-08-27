@@ -2,6 +2,7 @@
 require_once __DIR__ . '/../models/Product.php';
 require_once __DIR__ . '/../models/Category.php';
 require_once __DIR__ . '/../models/Brand.php';
+require_once __DIR__ . '/../models/ProductPresentation.php';
 require_once __DIR__ . '/../../../core/UnitConversionService.php';
 
 class InventoryController extends Controller {
@@ -220,7 +221,30 @@ class InventoryController extends Controller {
             ];
 
             try {
-                if ($this->productModel->createWithMeta($data, $metaAttributes)) {
+                $productId = $this->productModel->createWithMeta($data, $metaAttributes);
+                if ($productId) {
+                    // Sync Presentations
+                    $presentationModel = new ProductPresentation();
+                    $presentations = [];
+                    if (!empty($_POST['presentation_names'])) {
+                        for ($i = 0; $i < count($_POST['presentation_names']); $i++) {
+                            if (!empty(trim($_POST['presentation_names'][$i])) && (float)$_POST['presentation_quantities'][$i] > 0) {
+                                $presentations[] = [
+                                    'name' => $_POST['presentation_names'][$i],
+                                    'quantity' => $_POST['presentation_quantities'][$i],
+                                    'unit_id' => $_POST['presentation_units'][$i]
+                                ];
+                            }
+                        }
+                    } 
+                    if (empty($presentations)) {
+                        $pr_name = empty($_POST['unit_of_measure']) ? "Presentación Default" : $_POST['unit_of_measure'];
+                        $pr_qty  = empty($_POST['content_per_purchase']) ? 1 : $_POST['content_per_purchase'];
+                        $pr_unit = empty($_POST['contained_unit_id']) ? null : $_POST['contained_unit_id'];
+                        $presentations[] = ['name' => $pr_name, 'quantity' => $pr_qty, 'unit_id' => $pr_unit];
+                    }
+                    $presentationModel->syncForProduct($productId, $presentations);
+
                     // If HTMX request, just return success
                     if (isset($_SERVER['HTTP_HX_REQUEST'])) {
                         http_response_code(200);
@@ -273,6 +297,9 @@ class InventoryController extends Controller {
         
         $product['dynamic_attributes'] = $this->productModel->getMeta($id);
         
+        $presModel = new ProductPresentation();
+        $presentations = $presModel->getByProduct($id);
+        
         $categories = $this->categoryModel->all();
         $brands = $this->brandModel->all();
         usort($brands, function($a, $b) { return strcmp($a['name'], $b['name']); });
@@ -283,6 +310,7 @@ class InventoryController extends Controller {
 
         $this->view('modules/inventory/views/edit', [
             'product' => $product,
+            'presentations' => $presentations,
             'categories' => $categories, 
             'brands' => $brands,
             'units' => $units
@@ -293,6 +321,9 @@ class InventoryController extends Controller {
         // Return JSON product data for modal pre-fill
         $product = $this->productModel->find($id);
         if ($product) {
+            require_once __DIR__ . '/../models/ProductPresentation.php';
+            $presModel = new ProductPresentation();
+            $product['presentations'] = $presModel->getByProduct($id);
             $this->jsonResponse($product);
         } else {
             $this->jsonResponse(['error' => 'Producto no encontrado'], 404);
@@ -409,6 +440,28 @@ class InventoryController extends Controller {
 
             try {
                 if ($this->productModel->updateWithMeta($id, $data, $metaAttributes)) {
+                    // Sync Presentations
+                    $presentationModel = new ProductPresentation();
+                    $presentations = [];
+                    if (!empty($_POST['presentation_names'])) {
+                        for ($i = 0; $i < count($_POST['presentation_names']); $i++) {
+                            if (!empty(trim($_POST['presentation_names'][$i])) && (float)$_POST['presentation_quantities'][$i] > 0) {
+                                $presentations[] = [
+                                    'name' => $_POST['presentation_names'][$i],
+                                    'quantity' => $_POST['presentation_quantities'][$i],
+                                    'unit_id' => $_POST['presentation_units'][$i]
+                                ];
+                            }
+                        }
+                    } 
+                    if (empty($presentations)) {
+                        $pr_name = empty($_POST['unit_of_measure']) ? "Presentación Default" : $_POST['unit_of_measure'];
+                        $pr_qty  = empty($_POST['content_per_purchase']) ? 1 : $_POST['content_per_purchase'];
+                        $pr_unit = empty($_POST['contained_unit_id']) ? null : $_POST['contained_unit_id'];
+                        $presentations[] = ['name' => $pr_name, 'quantity' => $pr_qty, 'unit_id' => $pr_unit];
+                    }
+                    $presentationModel->syncForProduct($id, $presentations);
+
                     if (isset($_SERVER['HTTP_HX_REQUEST'])) {
                         http_response_code(200);
                         echo "OK";

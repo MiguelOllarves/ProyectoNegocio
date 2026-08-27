@@ -23,15 +23,20 @@
 </script>
 
 <form action="<?= BASE_URL ?>inventory/update/<?= $product['id'] ?>" method="POST" enctype="multipart/form-data" class="max-w-7xl mx-auto pb-32 sm:pb-12 px-0 sm:px-6 lg:px-8">
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 lg:gap-8 mb-8 items-stretch">
-        
+    <div class="flex flex-col md:flex-row gap-4 sm:gap-6 lg:gap-8 mb-8 items-start">
+        <!-- COLUMNA IZQUIERDA -->
+        <div class="flex-1 flex flex-col gap-4 sm:gap-6 lg:gap-8 min-w-0 md:w-1/2 w-full">
         <!-- Step 1: Información Principal -->
-        <div class="bg-white rounded-none sm:rounded-2xl shadow-sm hover:shadow-md transition-shadow border-y sm:border border-gray-100 p-4 sm:p-5 relative overflow-hidden flex flex-col h-full">
+        <div class="bg-white rounded-none sm:rounded-2xl shadow-sm hover:shadow-md transition-shadow border-y sm:border border-gray-100 p-4 sm:p-5 relative overflow-hidden flex flex-col w-full">
             <div class="absolute top-0 left-0 w-2 h-full bg-blue-500"></div>
-            <h3 class="text-xl font-bold text-gray-800 mb-6 flex items-center">
+            <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
                 <span class="bg-blue-100 text-blue-600 rounded-full w-8 h-8 flex items-center justify-center mr-3 text-sm">1</span>
-                ¿Qué producto vas a agregar?
+                ¿Qué producto vas a editar?
             </h3>
+            
+            <div class="mb-6 bg-blue-50 border-l-4 border-blue-500 p-4 rounded-r-xl shadow-sm">
+                <p class="text-sm text-blue-900 leading-relaxed"><i class="fas fa-magic text-blue-600 mr-2"></i><b>Concepto Básico:</b> Mantener el nombre de tu producto bien claro y agrupado en una buena categoría te ayudará a formar estantes virtuales ordenados cuando estés vendiendo.</p>
+            </div>
             
             <div class="space-y-6">
                 <div>
@@ -68,96 +73,30 @@
                     <label class="block text-sm font-bold text-slate-700 mb-2">Imagen del Producto (Opcional)</label>
                     <input type="file" name="image" accept="image/*" class="w-full rounded-lg border border-gray-300 px-4 py-2 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-brand-500 transition-colors text-sm file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-bold file:bg-brand-100 file:text-brand-700 hover:file:bg-brand-200 cursor-pointer"> <?php if ($product['image']): ?><p class='text-xs mt-1 text-gray-500'>Ya tiene imagen asignada.</p><?php endif; ?>
                 </div>
-            </div>
-        </div>
-
-        <!-- Step 2: Medición y Compra -->
-        <div class="bg-white rounded-none sm:rounded-2xl shadow-sm hover:shadow-md transition-shadow border-y sm:border border-gray-100 p-4 sm:p-5 relative overflow-hidden flex flex-col h-full">
-            <div class="absolute top-0 left-0 w-2 h-full bg-indigo-500"></div>
-            <h3 class="text-xl font-bold text-gray-800 mb-6 flex items-center">
-                <span class="bg-indigo-100 text-indigo-600 rounded-full w-8 h-8 flex items-center justify-center mr-3 text-sm">2</span>
-                ¿Cómo se mide y se compra?
-            </h3>
-            
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-5">
-                <div>
-                    <label class="block text-sm font-bold text-slate-700 mb-2">Tipo de Medición</label>
-                    <select name="measurement_type" id="measurement_type" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 focus:outline-none focus:bg-white focus:ring-2 focus:ring-brand-500 cursor-pointer transition-all shadow-sm">
-                        <option value="unidad" <?= $product['measurement_type'] == 'unidad' ? 'selected' : '' ?>>Por Unidad</option>
-                        <option value="peso" <?= $product['measurement_type'] == 'peso' ? 'selected' : '' ?>>Por Peso</option>
-                        <option value="volumen" <?= $product['measurement_type'] == 'volumen' ? 'selected' : '' ?>>Por Volumen</option>
-                    </select>
-                </div>
-                
-                <div>
-                    <label class="block text-sm font-bold text-slate-700 mb-2">Se vende por (Unidad de medida)</label>
-                    <select name="sale_unit_id" id="main_unit_id" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 focus:outline-none focus:bg-white focus:ring-2 focus:ring-brand-500 cursor-pointer transition-all shadow-sm">
-                        <!-- JS will populate with units of selected family -->
-                    </select>
-                    <!-- Ocultos necesarios para el backend -->
-                    <input type="hidden" name="contained_unit_id" id="hidden_contained_unit">
-                    <input type="hidden" name="purchase_unit_id" id="hidden_purchase_unit">
-                    <input type="hidden" name="base_unit_id" id="hidden_base_unit">
-                    
-                    <div class="mt-2 flex items-center gap-2" id="fractional_container">
-                        <input type="checkbox" name="allow_fractional_sales" id="allow_fractional" value="1" class="w-4 h-4 text-brand-600 rounded cursor-pointer">
-                        <label for="allow_fractional" class="text-sm font-bold text-slate-700 cursor-pointer">Permitir decimales (Ej: 0.5)</label>
-                    </div>
-                </div>
-            </div>
-
-            <div class="bg-indigo-50/50 rounded-xl p-5 border border-indigo-100">
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-5">
-                    <div>
-                        <label class="block text-sm font-bold text-slate-700 mb-2">¿Cómo lo compras a tu proveedor?</label>
-                        <select id="container_type" name="unit_of_measure" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 focus:outline-none focus:bg-white focus:ring-2 focus:ring-brand-500 cursor-pointer transition-all shadow-sm">
-                            <option value="Unidad" <?= $product['unit_of_measure'] == 'Unidad' ? 'selected' : '' ?>>Por Unidad (Individual)</option>
-                            <option value="Caja" <?= $product['unit_of_measure'] == 'Caja' ? 'selected' : '' ?>>Por Caja</option>
-                            <option value="Paquete" <?= $product['unit_of_measure'] == 'Paquete' ? 'selected' : '' ?>>Por Paquete</option>
-                            <option value="Bulto" <?= $product['unit_of_measure'] == 'Bulto' ? 'selected' : '' ?>>Por Bulto</option>
-                            <option value="Saco" <?= $product['unit_of_measure'] == 'Saco' ? 'selected' : '' ?>>Por Saco</option>
-                        </select>
-                    </div>
-                    
-                    <div id="container_details" class="hidden">
-                        <label class="block text-sm font-bold text-slate-700 mb-2">¿De cuántos <span class="lbl_unit_name text-indigo-700"></span> es el <span class="lbl_container_name text-indigo-700">Saco</span>?</label>
-                        <input type="number" step="0.01" name="content_per_purchase" id="content_per_purchase" value="<?= htmlspecialchars($product['conversion_factor'] ?? 1) ?>"  class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 focus:outline-none focus:bg-white focus:ring-2 focus:ring-brand-500 transition-all shadow-sm">
-                    </div>
-                </div>
 
                 <div>
-                    <label class="block text-sm font-bold text-slate-700 mb-2">¿Cuánto te costó el <span class="lbl_container_name text-indigo-700">Unidad</span> completo?</label>
-                    <?php
-                        $costPerSale = $product['unit_cost'] ?? 0;
-                        if (($product['sale_unit_id'] ?? 0) > 0) {
-                            require_once __DIR__ . '/../../../core/CostCalculationService.php';
-                            try {
-                                $costPerSale = CostCalculationService::calculateCostPerSaleUnit($costPerSale, $product['sale_unit_id']);
-                            } catch (\Exception $e) {}
-                        }
-                        $totalCostVal = $costPerSale * ($product['conversion_factor'] ?? 1);
-                    ?>
-                    <div class="relative">
-                        <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-slate-500 font-bold">$</span>
-                        <input type="number" step="0.01" name="total_cost" id="total_cost" value="<?= number_format($totalCostVal, 2, '.', '') ?>"  class="w-full text-lg rounded-xl border border-slate-200 bg-slate-50 pl-8 pr-4 py-3 focus:outline-none focus:bg-white focus:ring-2 focus:ring-brand-500 transition-all shadow-sm">
+                    <label class="block text-sm font-bold text-slate-700 mb-2">Código de Barras (Opcional)</label>
+                    <div class="flex">
+                        <span class="inline-flex items-center px-4 rounded-l-xl border border-r-0 border-slate-200 bg-slate-100 text-slate-500">
+                            <i class="fas fa-barcode text-lg"></i>
+                        </span>
+                        <input type="text" name="barcode" placeholder="Escanea o escribe el código" value="<?= htmlspecialchars($product['barcode'] ?? '') ?>"  class="flex-1 block w-full rounded-none rounded-r-xl border border-slate-200 bg-slate-50 px-4 py-3 focus:outline-none focus:bg-white focus:ring-2 focus:ring-brand-500 transition-all shadow-sm">
                     </div>
-                    <!-- Hidden input that actually submits the unit_cost -->
-                    <input type="hidden" name="unit_cost" id="hidden_unit_cost" value="0">
-                </div>
-                
-                <div class="mt-4 p-3 bg-white rounded-lg border border-indigo-200 text-sm font-medium text-indigo-800 hidden" id="cost_summary_box">
-                    <i class="fas fa-calculator mr-2 text-indigo-500"></i> Costo base: <b>$<span id="calc_cost_per_unit">0.00</span></b> por <span class="lbl_unit_name"></span>
                 </div>
             </div>
         </div>
 
         <!-- Step 3: Venta -->
-        <div class="bg-white rounded-none sm:rounded-2xl shadow-sm hover:shadow-md transition-shadow border-y sm:border border-gray-100 p-4 sm:p-5 relative overflow-hidden flex flex-col h-full">
+        <div class="bg-white rounded-none sm:rounded-2xl shadow-sm hover:shadow-md transition-shadow border-y sm:border border-gray-100 p-4 sm:p-5 relative overflow-hidden flex flex-col w-full">
             <div class="absolute top-0 left-0 w-2 h-full bg-green-500"></div>
-            <h3 class="text-xl font-bold text-gray-800 mb-6 flex items-center">
+            <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
                 <span class="bg-green-100 text-green-600 rounded-full w-8 h-8 flex items-center justify-center mr-3 text-sm">3</span>
                 ¿A cuánto lo vas a vender?
             </h3>
+            
+            <div class="mb-6 bg-green-50 border-l-4 border-green-500 p-4 rounded-r-xl shadow-sm">
+                <p class="text-sm text-green-900 leading-relaxed"><i class="fas fa-tags text-green-600 mr-2"></i><b>Ganancia comercial:</b> Dinos a qué precio se lo vas a ofrecer al cliente final. Automáticamente restaremos el costo matemático que llenaste en el paso 2 y te diremos de cuánto es tu porcentaje de ganancia real.</p>
+            </div>
             
             <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <div>
@@ -200,16 +139,20 @@
         </div>
 
         <!-- Step 4: Inventario -->
-        <div class="bg-white rounded-none sm:rounded-2xl shadow-sm hover:shadow-md transition-shadow border-y sm:border border-gray-100 p-4 sm:p-5 relative overflow-hidden flex flex-col h-full">
+        <div class="bg-white rounded-none sm:rounded-2xl shadow-sm hover:shadow-md transition-shadow border-y sm:border border-gray-100 p-4 sm:p-5 relative overflow-hidden flex flex-col w-full">
             <div class="absolute top-0 left-0 w-2 h-full bg-orange-500"></div>
-            <h3 class="text-xl font-bold text-gray-800 mb-6 flex items-center">
+            <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
                 <span class="bg-orange-100 text-orange-600 rounded-full w-8 h-8 flex items-center justify-center mr-3 text-sm">4</span>
                 Cantidades en Inventario
             </h3>
+            
+            <div class="mb-6 bg-orange-50 border-l-4 border-orange-500 p-4 rounded-r-xl shadow-sm">
+                <p class="text-sm text-orange-900 leading-relaxed"><i class="fas fa-boxes text-orange-600 mr-2"></i><b>Conteo actual:</b> Si tu caja física tiene mercancía para vender suelta (por ejemplo: si te quedan 2 bultos enteros allá atrás), esto significa que cuentas con <b>esos mismos individuales multiplicados</b>. En la vista de listado de inventario prodrás ver tu stock real completo.</p>
+            </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <div>
-                    <label class="block text-sm font-bold text-slate-800 mb-2">¿Cuántos <span class="lbl_container_name text-orange-600">Unidad</span> tienes actualmente?</label>
+                    <label class="block text-sm font-bold text-slate-800 mb-2">Inventario Físico (En <span class="lbl_unit_name text-orange-600">Unidad</span>)</label>
                     <?php
                         $stockInSaleUnit = $product['stock'] ?? 0;
                         if (($product['sale_unit_id'] ?? 0) > 0) {
@@ -217,28 +160,140 @@
                                 $stockInSaleUnit = UnitConversionService::convertFromBase((float)($product['stock'] ?? 0), $product['sale_unit_id']);
                             } catch (\Exception $e) {}
                         }
-                        $contentPerPurchase = (float)($product['conversion_factor'] ?? 1);
-                        if ($contentPerPurchase <= 0) $contentPerPurchase = 1;
-                        $stockContainers = $stockInSaleUnit / $contentPerPurchase;
-                        $stockContainersVal = is_float($stockContainers) && floor($stockContainers) != $stockContainers ? number_format($stockContainers, 3, '.', '') : $stockContainers;
+                        $stockContainersVal = is_float($stockInSaleUnit) && floor($stockInSaleUnit) != $stockInSaleUnit ? number_format($stockInSaleUnit, 3, '.', '') : $stockInSaleUnit;
                     ?>
-                    <input type="number" step="0.001" id="stock_containers" value="<?= $stockContainersVal ?>" class="w-full text-xl font-bold rounded-xl border-2 border-slate-300 bg-slate-50 px-4 py-3 focus:outline-none focus:bg-white focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all shadow-sm">
+                    <input type="number" step="0.001" name="stock" id="stock_containers" value="<?= $stockContainersVal ?>" class="w-full text-xl font-bold rounded-xl border-2 border-slate-300 bg-slate-50 px-4 py-3 focus:outline-none focus:bg-white focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all shadow-sm">
                 </div>
                 <div>
                     <label class="block text-sm font-bold text-slate-700 mb-2">Stock Mínimo (Alerta en <span class="lbl_unit_name"></span>)</label>
                     <input type="number" step="0.001" name="min_stock" value="<?= htmlspecialchars($product['min_stock'] ?? 5) ?>"  class="w-full text-lg rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 focus:outline-none focus:bg-white focus:ring-2 focus:ring-brand-500 transition-all shadow-sm">
                 </div>
             </div>
-            
-            <!-- El inventario real que se enviará al servidor, en la unidad de medida -->
-            <input type="hidden" name="stock" id="real_stock" value="0">
+            <input type="hidden" id="real_stock" value="0">
             
             <div class="mt-4 p-4 bg-orange-50 border border-orange-200 rounded-lg text-orange-900 font-medium">
-                <i class="fas fa-boxes mr-2 text-orange-600"></i> Inventario Total Guardado: <b><span id="calc_total_stock" class="text-xl">0</span> <span class="lbl_unit_name"></span></b>
+                <i class="fas fa-boxes mr-2 text-orange-600"></i> Inventario Total para este producto: <b><span id="calc_total_stock" class="text-xl">0</span> <span class="lbl_unit_name"></span></b>
             </div>
         </div>
         
-    </div> <!-- FIN DEL GRID -->
+            </div> <!-- FIN COLUMNA IZQUIERDA -->
+
+        <!-- COLUMNA DERECHA -->
+        <div class="flex-1 flex flex-col gap-4 sm:gap-6 lg:gap-8 min-w-0 md:w-1/2 w-full">
+        <!-- Step 2: Medición y Compra -->
+        <div class="bg-white rounded-none sm:rounded-2xl shadow-sm hover:shadow-md transition-shadow border-y sm:border border-gray-100 p-4 sm:p-5 relative overflow-hidden flex flex-col w-full">
+            <div class="absolute top-0 left-0 w-2 h-full bg-indigo-500"></div>
+            <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                <span class="bg-indigo-100 text-indigo-600 rounded-full w-8 h-8 flex items-center justify-center mr-3 text-sm">2</span>
+                ¿Cómo se mide y se compra?
+            </h3>
+            
+            <div class="mb-6 bg-indigo-50 border-l-4 border-indigo-500 p-4 rounded-r-xl shadow-sm">
+                <p class="text-sm text-indigo-900 leading-relaxed"><i class="fas fa-lightbulb text-amber-500 text-lg mr-2"></i><b>¡Presta mucha atención aquí!:</b> No importa que tu proveedor te despache en Bultos inmensos... ¡Aquí arriba <b>solamente debes elegir la unidad más pequeñita</b> en la que tú lo vas a vender (Unidad, Kilo o Gramo)! Más abajo te daremos espacio para crear o editar el Bulto y configurar su magia.</p>
+            </div>
+            
+            <!-- SECCIÓN 1: VENTA AL DETAL -->
+            <div class="mb-5 border-b border-indigo-100 pb-5">
+                <h4 class="font-bold text-indigo-900 text-base mb-1">1. ¿En qué formato le entregas esto al cliente?</h4>
+                <p class="text-[11px] text-slate-500 mb-4 leading-tight">Ejemplo: Si vendes Refresco suelto, elige "Por Unidad". Si vendes Queso, elige "Por Peso". Esta será tu Unidad Base de venta.</p>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 bg-indigo-50/30 p-4 rounded-xl border border-indigo-50/50">
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 mb-1">Tipo de Medición</label>
+                        <select name="measurement_type" id="measurement_type" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 focus:outline-none focus:bg-white focus:ring-2 focus:ring-brand-500 cursor-pointer transition-all shadow-sm">
+                            <option value="unidad" <?= $product['measurement_type'] == 'unidad' ? 'selected' : '' ?>>Por Unidad</option>
+                            <option value="peso" <?= $product['measurement_type'] == 'peso' ? 'selected' : '' ?>>Por Peso</option>
+                            <option value="volumen" <?= $product['measurement_type'] == 'volumen' ? 'selected' : '' ?>>Por Volumen</option>
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 mb-1">Se vende por (Unidad de medida)</label>
+                        <select name="sale_unit_id" id="main_unit_id" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 focus:outline-none focus:bg-white focus:ring-2 focus:ring-brand-500 cursor-pointer transition-all shadow-sm">
+                            <!-- JS will populate with units of selected family -->
+                        </select>
+                        <!-- Ocultos necesarios para el backend -->
+                        <input type="hidden" name="contained_unit_id" id="hidden_contained_unit">
+                        <input type="hidden" name="purchase_unit_id" id="hidden_purchase_unit">
+                        <input type="hidden" name="base_unit_id" id="hidden_base_unit">
+                        
+                        <div class="mt-3 flex items-center gap-2 bg-white p-2 rounded-lg border border-slate-200" id="fractional_container">
+                            <input type="checkbox" name="allow_fractional_sales" id="allow_fractional" value="1" <?= $product['allow_fractional_sales'] ? 'checked' : '' ?> class="w-4 h-4 text-brand-600 rounded cursor-pointer">
+                            <label for="allow_fractional" class="text-xs font-bold text-slate-700 cursor-pointer">Permitir venta con decimales (Ej: 0.5 kg)</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SECCIÓN 2: EMPAQUES MAYORES -->
+            <div class="mb-5 border-b border-indigo-100 pb-5">
+                <h4 class="font-bold text-indigo-900 text-base mb-1">2. ¿El proveedor te vende esto en Cajas o Bultos?</h4>
+                <p class="text-[11px] text-slate-500 mb-4 leading-tight">Si compras al mayor (Ej: compras el Bulto y trae 24 refrescos adentro), regístralo aquí. Así el sistema sabrá cómo desarmarlo en tu inventario cuando lo recibas. (Esta sección es Opcional).</p>
+
+                <div class="bg-indigo-50/50 rounded-xl p-4 border border-indigo-100">
+                     <div id="presentations-container" class="space-y-3">
+                         <!-- Dynamically populated JS rows go here -->
+                     </div>
+                     <button type="button" id="add-presentation-btn" class="mt-4 w-full sm:w-auto text-sm font-bold text-indigo-600 hover:text-indigo-800 bg-indigo-100 hover:bg-indigo-200 px-5 py-2.5 rounded-lg transition-colors border border-indigo-200 flex justify-center items-center"><i class="fas fa-plus mr-2"></i> Añadir Bulto / Caja</button>
+                </div>
+            </div>
+
+            <!-- SECCIÓN 3: COSTO -->
+            <div>
+                <h4 class="font-bold text-indigo-900 text-base mb-1">3. ¿Cuánto te costó comprar esta mercancía?</h4>
+                <p class="text-[11px] text-slate-500 mb-4 leading-tight">El sistema necesita saber cuánto te costó exactamente UNA sola <span class="lbl_unit_name font-bold underline"></span> para calcular tus ganancias.</p>
+                
+                <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 mb-4">
+                    <label class="block text-sm font-bold text-slate-800 mb-2">Costo matemático por 1 <span class="lbl_unit_name text-indigo-700 uppercase underline">Unidad</span> individual:</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-slate-500 font-bold text-lg">$</span>
+                        <!-- Usamos el ID total_cost para que la logica inferior y PHP no rompan, pero representa el unitario internamente -->
+                        <input type="number" step="0.0001" name="total_cost" id="total_cost" value="<?= number_format($product['unit_cost'] ?? 0, 4, '.', '') ?>" placeholder="Ej: 1.50" class="w-full text-xl font-bold rounded-xl border border-slate-300 bg-white pl-10 pr-4 py-3 focus:outline-none focus:bg-white focus:ring-2 focus:ring-indigo-500 transition-all shadow-sm">
+                    </div>
+                </div>
+
+                <!-- CALCULADORA MÁGICA REIMAGINADA -->
+                <div class="p-4 bg-indigo-600 rounded-xl shadow-md text-white">
+                    <div class="flex items-start gap-4 flex-col sm:flex-row">
+                        <div class="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center shrink-0 hidden sm:flex">
+                            <i class="fas fa-magic text-2xl text-yellow-300"></i>
+                        </div>
+                        <div class="flex-1 w-full">
+                            <h5 class="font-bold text-base mb-1 text-yellow-300 flex items-center"><i class="fas fa-magic mr-2 sm:hidden"></i> Calculadora de Bultos</h5>
+                            <p class="text-xs text-indigo-100 mb-4 leading-relaxed">Si compraste un bulto y no quieres dividir el precio tú mismo, llénalo aquí y el sistema rellenará la casilla de arriba automáticamente:</p>
+                            <div class="flex flex-col sm:flex-row gap-3">
+                                <div class="flex-1 relative">
+                                    <label class="block text-[10px] font-bold text-indigo-200 uppercase mb-1 tracking-widest pl-1">PRECIO TOTAL PAGADO</label>
+                                    <div class="relative">
+                                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-indigo-400 font-bold">$</span>
+                                        <input type="number" id="magic_cost_total" placeholder="Ej: 50.00" class="w-full text-sm rounded-lg border-0 bg-white/10 text-white placeholder-indigo-300/50 pl-8 pr-3 py-3 focus:ring-2 focus:ring-yellow-400 focus:bg-white/20 transition-all">
+                                    </div>
+                                </div>
+                                <div class="flex-1 relative">
+                                    <label class="block text-[10px] font-bold text-indigo-200 uppercase mb-1 tracking-widest pl-1">CANTIDADES ADENTRO</label>
+                                    <div class="relative">
+                                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-indigo-400"><i class="fas fa-boxes"></i></span>
+                                        <input type="number" id="magic_cost_qty" placeholder="Ej: 20" class="w-full text-sm rounded-lg border-0 bg-white/10 text-white placeholder-indigo-300/50 pl-8 pr-3 py-3 focus:ring-2 focus:ring-yellow-400 focus:bg-white/20 transition-all">
+                                    </div>
+                                </div>
+                            </div>
+                            <button type="button" onclick="calculateMagicCost()" class="mt-4 w-full bg-yellow-400 hover:bg-yellow-500 text-indigo-900 font-extrabold py-3 px-4 rounded-lg shadow-sm uppercase text-xs tracking-wider transition-colors border border-yellow-500">
+                                <i class="fas fa-bolt mr-2"></i> Calcular Automáticamente
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <input type="hidden" name="content_per_purchase" id="content_per_purchase" value="1">
+                <input type="hidden" name="unit_cost" id="hidden_unit_cost" value="0">
+                </div>
+            </div>
+        </div>
+
+                </div> <!-- FIN COLUMNA DERECHA -->
+
+    </div> <!-- FIN DEL FLEX ROW -->
+
 
     <!-- Extra Options (Barcode & Attributes) -->
     <details class="group mb-10">
@@ -246,17 +301,9 @@
             <i class="fas fa-sliders-h mr-3 text-brand-500"></i> Opciones Adicionales (Código de Barras, Atributos)
         </summary>
         <div class="mt-4 bg-white rounded-none sm:rounded-2xl shadow-sm hover:shadow-md transition-shadow border-y sm:border border-gray-100 p-5 sm:p-8">
-            <div class="mb-8">
-                <label class="block text-sm font-bold text-slate-700 mb-2">Código de Barras (Opcional)</label>
-                <div class="flex">
-                    <span class="inline-flex items-center px-4 rounded-l-xl border border-r-0 border-slate-200 bg-slate-100 text-slate-500">
-                        <i class="fas fa-barcode text-lg"></i>
-                    </span>
-                    <input type="text" name="barcode" placeholder="Escanea o escribe el código" value="<?= htmlspecialchars($product['barcode'] ?? '') ?>"  class="flex-1 block w-full rounded-none rounded-r-xl border border-slate-200 bg-slate-50 px-4 py-3 focus:outline-none focus:bg-white focus:ring-2 focus:ring-brand-500 transition-all shadow-sm">
-                </div>
-            </div>
+            <!-- (El código de barras ya se movió al Paso 1) -->
 
-            <div class="border-t border-slate-100 pt-8">
+            <div class="pt-2">
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-3">
                     <div>
                         <h3 class="text-lg font-bold text-gray-800">Atributos Especiales</h3>
@@ -287,6 +334,27 @@
 </form>
 
 <script>
+    window.calculateMagicCost = function() {
+        const total = parseFloat(document.getElementById('magic_cost_total').value) || 0;
+        const qty = parseFloat(document.getElementById('magic_cost_qty').value) || 0;
+        if (total > 0 && qty > 0) {
+            const unitCost = total / qty;
+            document.getElementById('total_cost').value = unitCost.toFixed(4);
+            document.getElementById('total_cost').dispatchEvent(new Event('input'));
+            
+            // Clean up and notify
+            document.getElementById('magic_cost_total').value = '';
+            document.getElementById('magic_cost_qty').value = '';
+            Swal.fire({
+                toast: true, position: 'top-end',
+                icon: 'success', title: 'Calculado: $' + unitCost.toFixed(2) + ' c/u',
+                showConfirmButton: false, timer: 3000
+            });
+        } else {
+            Swal.fire('Faltan Datos', 'Por favor ingresa tanto el precio pagado por el bulto/empaque completo, y cuántas unidades base individuales incluye adentro.', 'warning');
+        }
+    };
+
     document.addEventListener("DOMContentLoaded", function() {
         // Toggle new inputs logic
         const selects = ["cat", "brand"];
@@ -374,6 +442,64 @@
 
         let currentCostPerBase = 0;
 
+        const presContainer = document.getElementById("presentations-container");
+        const btnAddPres = document.getElementById("add-presentation-btn");
+        let savedPresentations = [];
+        try { savedPresentations = <?= json_encode($presentations ?? []) ?>; } catch(e) {}
+        
+        function addPresentationRow(name = '', qty = 1, fixed = false) {
+            const row = document.createElement("div");
+            row.className = fixed 
+                ? "flex items-center animate-fade-in-up bg-indigo-50/80 p-3.5 rounded-xl border border-indigo-200 shadow-inner mb-3" 
+                : "flex gap-2 items-center animate-fade-in-up bg-white p-3 rounded-xl border border-indigo-100 shadow-sm";
+            
+            if (fixed) {
+                row.innerHTML = `
+                    <div class="w-full relative flex items-center gap-3">
+                        <input type="hidden" name="presentation_names[]" value="${name}">
+                        <input type="hidden" name="presentation_quantities[]" value="1" class="pres-qty-input">
+                        <input type="hidden" name="presentation_units[]" class="pres-unit-input" value="${mainUnit.value}">
+                        
+                        <div class="bg-indigo-500 text-white w-8 h-8 rounded-full flex items-center justify-center shrink-0 shadow-md">
+                            <i class="fas fa-tag text-sm"></i>
+                        </div>
+                        <div class="flex-1">
+                            <p class="text-xs font-bold text-indigo-900 leading-tight">Porción Base Individual</p>
+                            <p class="text-[10px] text-indigo-600 leading-tight mt-1">Representa 1 <span class="lbl_unit_name font-bold underline decoration-indigo-300"></span> para vender. Sistema Automático.</p>
+                        </div>
+                        <div class="text-indigo-400 pr-2" title="Configuración Bloqueada por el sistema">
+                            <i class="fas fa-lock"></i>
+                        </div>
+                    </div>
+                `;
+            } else {
+                row.innerHTML = `
+                    <div class="w-5/12">
+                        <input type="text" name="presentation_names[]" value="${name}" required placeholder="Nombre (Ej: Bulto 24kg)" class="w-full text-sm rounded-lg border border-slate-200 bg-slate-50 focus:bg-white px-3 py-2 outline-none focus:ring-2 focus:ring-indigo-500">
+                    </div>
+                    <div class="w-4/12 flex items-center">
+                        <span class="text-xs text-slate-500 mr-2">Trae:</span>
+                        <input type="number" step="0.001" name="presentation_quantities[]" value="${qty}" required class="w-full text-sm rounded-lg border border-slate-200 bg-slate-50 focus:bg-white px-3 py-2 outline-none focus:ring-2 focus:ring-indigo-500 pres-qty-input">
+                    </div>
+                    <div class="w-2/12">
+                        <span class="lbl_unit_name text-[10px] font-bold text-indigo-700 bg-indigo-50 px-2 py-1.5 rounded-md truncate max-w-full inline-block"></span>
+                    </div>
+                    <input type="hidden" name="presentation_units[]" class="pres-unit-input" value="${mainUnit.value}">
+                    <div class="w-1/12 flex justify-end">
+                        <button type="button" class="remove-pres text-slate-400 hover:text-red-500 p-2 bg-slate-50 hover:bg-red-50 rounded-lg transition-colors" title="Quitar este empaque"><i class="fas fa-trash"></i></button>
+                    </div>
+                `;
+            }
+            presContainer.appendChild(row);
+            
+            if(!fixed) {
+                row.querySelector(".remove-pres").addEventListener("click", () => { presContainer.removeChild(row); });
+            }
+            updateLabels(); 
+        }
+
+        btnAddPres.addEventListener("click", () => addPresentationRow('', 1, false));
+
         function updateLabels() {
             try {
                 let unitName = "unidad";
@@ -382,8 +508,10 @@
                 }
                 document.querySelectorAll(".lbl_unit_name").forEach(el => el.innerText = unitName);
                 
-                const cName = cType && cType.value === "Unidad" ? "Unidad" : (cType ? cType.value : "Unidad");
-                document.querySelectorAll(".lbl_container_name").forEach(el => el.innerText = cName);
+                // Actualizar los hiddens de unidad en las presentaciones cada que cambian
+                document.querySelectorAll(".pres-unit-input").forEach(el => {
+                    el.value = mainUnit.value;
+                });
             } catch (e) {
                 console.error("Error in updateLabels:", e);
             }
@@ -402,9 +530,19 @@
                 }
 
                 let filteredUnits = [];
-                if (Array.isArray(units)) {
-                    filteredUnits = units.filter(u => u.base_type === family);
+                const unitsArray = Array.isArray(units) ? units : Object.values(units);
+                filteredUnits = unitsArray.filter(u => u.base_type === family);
+                
+                if (filteredUnits.length === 0 && family === "unidad") {
+                    filteredUnits.push({
+                        id: "",
+                        base_unit_id: "",
+                        conversion_to_base: 1,
+                        name: "Unidad Estandar",
+                        abbreviation: "U"
+                    });
                 }
+                
                 let html = "";
                 filteredUnits.forEach(u => {
                     html += `<option value="${u.id}" data-base="${u.base_unit_id}" data-conv="${u.conversion_to_base}">${u.name} (${u.abbreviation})</option>`;
@@ -431,13 +569,14 @@
         }
 
         function updateUI() {
-            if(cType.value === "Unidad" && mType.value === "unidad") {
-                cDetails.classList.add("hidden");
-                contentInput.value = 1;
-            } else {
-                cDetails.classList.remove("hidden");
+            if(presContainer.children.length === 0) {
+                if (savedPresentations && savedPresentations.length > 0) {
+                    savedPresentations.forEach((p, idx) => addPresentationRow(p.name, p.quantity, idx === 0));
+                    savedPresentations = []; 
+                } else {
+                    addPresentationRow('Unidad Suelta', 1, true); 
+                }
             }
-            
             updateLabels();
 
             // Set hiddens for backend
@@ -451,24 +590,9 @@
         }
 
         function calculateEverything() {
-            const totalCost = parseFloat(costInput.value) || 0;
-            const content = parseFloat(contentInput.value) || 1;
-            
-            const opt = mainUnit.options[mainUnit.selectedIndex];
-            if(!opt) return;
-
-            // Cost per unit (el costo por unidad base que guardará el backend)
-            currentCostPerBase = content > 0 ? totalCost / content : 0;
-
-            // FIX: El backend espera el costo unitario, no el costo bulk total.
+            const unitCost = parseFloat(costInput.value) || 0;
+            currentCostPerBase = unitCost;
             hiddenCost.value = currentCostPerBase; 
-            
-            if((cType.value !== "Unidad" || mType.value !== "unidad") && currentCostPerBase > 0) {
-                costSummaryBox.classList.remove("hidden");
-                calcCostText.innerText = currentCostPerBase.toFixed(2);
-            } else {
-                costSummaryBox.classList.add("hidden");
-            }
 
             // Auto margin/price
             if(document.activeElement !== marginInput && document.activeElement !== priceInput) {
@@ -476,9 +600,7 @@
             }
 
             // Auto stock
-            const containersCount = parseFloat(stockContainers.value) || 0;
-            const totalUnits = containersCount * content;
-            realStock.value = totalUnits;
+            const totalUnits = parseFloat(stockContainers.value) || 0;
             calcTotalStock.innerText = totalUnits.toLocaleString();
         }
 
@@ -512,8 +634,6 @@
 
         mType.addEventListener("change", renderUnits);
         mainUnit.addEventListener("change", updateUI);
-        cType.addEventListener("change", updateUI);
-        contentInput.addEventListener("input", updateUI);
         costInput.addEventListener("input", updateUI);
         stockContainers.addEventListener("input", updateUI);
         

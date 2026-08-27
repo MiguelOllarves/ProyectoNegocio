@@ -33,6 +33,9 @@ class Migration {
             // Paso 5: Backfill Data
             self::backfillSaaSData($pdo);
             
+            // Paso 6: Backfill Data for Presentations Migration
+            self::backfillPresentations($pdo);
+            
             self::$executed = true;
         } catch (PDOException $e) {
             error_log('[Migration] Error: ' . $e->getMessage());
@@ -178,6 +181,7 @@ class Migration {
             ],
             'purchase_items' => [
                 'unit_type' => "ALTER TABLE purchase_items ADD COLUMN unit_type TEXT DEFAULT 'unidad'",
+                'presentation_id' => "ALTER TABLE purchase_items ADD COLUMN presentation_id INTEGER",
             ],
             'store_config' => [
                 'facebook' => "ALTER TABLE store_config ADD COLUMN facebook TEXT",
@@ -367,6 +371,38 @@ class Migration {
             }
         } catch (PDOException $e) {
             error_log('[Migration] Error in backfillData: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Backfill data for Product Presentations from the old internal columns.
+     */
+    private static function backfillPresentations(PDO $pdo) {
+        try {
+            // Revisar si ya existen presentaciones (asumimos que si hay más de 0, ya migró).
+            $check = $pdo->query("SELECT COUNT(*) FROM product_presentations")->fetchColumn();
+            if ($check > 0) return;
+
+            // Busca los productos que necesitan migrar su unidad al nuevo schema.
+            $stmt = $pdo->query("SELECT id, name, unit_of_measure, content_per_purchase, contained_unit_id FROM products");
+            $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            if (empty($products)) return;
+
+            $insertStmt = $pdo->prepare("INSERT INTO product_presentations (product_id, name, quantity, unit_id) VALUES (?, ?, ?, ?)");
+            
+            foreach ($products as $p) {
+                // Generar un registro por default basado en los datos antigüos o inventar uno si fallaba
+                $pr_name = empty($p['unit_of_measure']) ? "Presentación Principal" : $p['unit_of_measure'];
+                $pr_qty  = empty($p['content_per_purchase']) ? 1 : $p['content_per_purchase'];
+                $pr_unit = empty($p['contained_unit_id']) ? null : $p['contained_unit_id'];
+                
+                $insertStmt->execute([$p['id'], $pr_name, $pr_qty, $pr_unit]);
+            }
+            
+            error_log('[Migration] Product Presentations Backfilled successfully.');
+        } catch (PDOException $e) {
+            error_log('[Migration] Error in backfillPresentations: ' . $e->getMessage());
         }
     }
 }

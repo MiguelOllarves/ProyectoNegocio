@@ -17,11 +17,18 @@
             </div>
             <div>
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Producto</label>
-                <select id="product_select" class="w-full rounded-md border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand-500">
+                <select id="product_select" onchange="loadProductDetails()" class="w-full rounded-md border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand-500">
                     <option value="">-- Seleccionar Producto --</option>
                     <?php foreach($products as $p): ?>
                         <option value="<?= $p['id'] ?>" data-name="<?= htmlspecialchars($p['name']) ?>"><?= htmlspecialchars($p['name']) ?></option>
                     <?php endforeach; ?>
+                </select>
+            </div>
+            
+            <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Presentación Empaque</label>
+                <select id="presentation_select" disabled class="w-full rounded-md border border-gray-300 dark:border-gray-600 dark:bg-gray-200 dark:text-gray-500 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand-500">
+                    <option value="">-- Seleccione un Producto --</option>
                 </select>
             </div>
         </div>
@@ -40,7 +47,7 @@
         </div>
         <table class="w-full text-left text-sm" id="purchaseTable">
             <thead><tr class="border-b border-gray-200 dark:border-gray-600 text-gray-500 dark:text-gray-400 text-xs uppercase">
-                <th class="pb-2">Producto</th><th class="pb-2 text-center">Cant.</th><th class="pb-2 text-right">Costo U.</th><th class="pb-2 text-right">Subtotal</th><th class="pb-2"></th>
+                <th class="pb-2">Producto y Presentación</th><th class="pb-2 text-center">Cant. Empaques</th><th class="pb-2 text-right">Costo Empaque</th><th class="pb-2 text-right">Subtotal</th><th class="pb-2"></th>
             </tr></thead>
             <tbody id="purchaseItems"></tbody>
             <tfoot><tr class="border-t-2 border-gray-300 dark:border-gray-500 font-bold text-gray-800 dark:text-white">
@@ -58,16 +65,50 @@
 </div>
 <script>
 let purchaseCart = [];
+let currentPresentations = [];
+
+function loadProductDetails() {
+    const sel = document.getElementById('product_select');
+    const presSel = document.getElementById('presentation_select');
+    
+    presSel.innerHTML = '<option value="">-- Cargando... --</option>';
+    presSel.disabled = true;
+    
+    if(!sel.value) {
+        presSel.innerHTML = '<option value="">-- Seleccione un Producto --</option>';
+        return;
+    }
+    
+    fetch('<?= BASE_URL ?>inventory/edit/' + sel.value)
+    .then(res => res.json())
+    .then(data => {
+        if(data.presentations && data.presentations.length > 0) {
+            currentPresentations = data.presentations;
+            presSel.innerHTML = data.presentations.map(p => `<option value="${p.id}" data-qty="${p.quantity}">${p.name} (Trae ${p.quantity})</option>`).join('');
+            presSel.disabled = false;
+            presSel.classList.remove('dark:bg-gray-200');
+            presSel.classList.add('bg-white', 'dark:bg-gray-700');
+            presSel.onchange(); // trigger any related event if needed
+        } else {
+            presSel.innerHTML = '<option value="">-- Sin presentaciones disponibles --</option>';
+        }
+    })
+    .catch(() => presSel.innerHTML = '<option value="">-- Error al cargar --</option>');
+}
 
 function addPurchaseItem() {
     const sel = document.getElementById('product_select');
+    const presSel = document.getElementById('presentation_select');
     const qty = parseInt(document.getElementById('item_qty').value);
     const cost = parseFloat(document.getElementById('item_cost').value);
-    if (!sel.value || qty < 1 || cost <= 0) { alert('Completa todos los campos.'); return; }
+    if (!sel.value || !presSel.value || qty < 1 || cost <= 0) { alert('Completa todos los campos, incluyendo la presentación.'); return; }
+
+    const presName = presSel.options[presSel.selectedIndex].text;
 
     purchaseCart.push({
         product_id: sel.value,
-        name: sel.options[sel.selectedIndex].dataset.name,
+        presentation_id: presSel.value,
+        name: sel.options[sel.selectedIndex].dataset.name + ' - ' + presName,
         quantity: qty,
         cost: cost
     });
@@ -83,10 +124,10 @@ function renderPurchaseCart() {
         const sub = item.quantity * item.cost;
         total += sub;
         return `<tr class="border-b border-gray-100 dark:border-gray-700">
-            <td class="py-2 text-gray-800 dark:text-gray-100">${item.name}</td>
-            <td class="py-2 text-center">${item.quantity}</td>
-            <td class="py-2 text-right">$${item.cost.toFixed(2)}</td>
-            <td class="py-2 text-right font-semibold">$${sub.toFixed(2)}</td>
+            <td class="py-2 text-gray-800 dark:text-gray-100 font-medium">${item.name}</td>
+            <td class="py-2 text-center text-blue-600 font-bold">${item.quantity}</td>
+            <td class="py-2 text-right text-gray-600 dark:text-gray-300">$${item.cost.toFixed(2)}</td>
+            <td class="py-2 text-right font-bold text-green-600">$${sub.toFixed(2)}</td>
             <td class="py-2 text-right"><button onclick="removePurchaseItem(${i})" class="text-red-400 hover:text-red-600"><i class="fas fa-times"></i></button></td>
         </tr>`;
     }).join('');

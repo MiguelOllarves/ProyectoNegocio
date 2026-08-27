@@ -75,7 +75,11 @@
                             'owner' => $b['owner_name'],
                             'phone' => $b['owner_phone'],
                             'email' => $b['email'],
-                            'created_at' => $b['created_at']
+                            'created_at' => $b['created_at'],
+                            'products_count' => $b['products_count'],
+                            'total_sales_amount' => $b['total_sales_amount'],
+                            'total_sales_count' => $b['total_sales_count'],
+                            'expenses_count' => $b['expenses_count']
                         ])) ?>)" class="text-blue-500 hover:text-blue-700 bg-blue-50 hover:bg-blue-100 dark:bg-blue-900/20 dark:hover:bg-blue-900/40 p-2 rounded-lg transition-colors inline-block tooltip mr-1" title="Ver Detalles y Contraseñas">
                             <i class="fas fa-eye"></i>
                         </button>
@@ -125,9 +129,24 @@
                         <p class="text-[10px] text-gray-400 uppercase tracking-widest font-bold mb-1">Correo Electrónico (Login Maestro)</p>
                         <p class="text-sm font-bold text-brand-600 dark:text-brand-400 truncate" x-text="activeTenant.email"></p>
                     </div>
-                    <div class="col-span-2 bg-white dark:bg-slate-800 p-3 rounded-lg border border-gray-100 dark:border-gray-700">
-                        <p class="text-[10px] text-gray-400 uppercase tracking-widest font-bold mb-1">Fecha de Inscripción en Plataforma</p>
-                        <p class="text-sm font-bold text-gray-700 dark:text-gray-300" x-text="activeTenant.created_at"></p>
+                </div>
+
+                <div class="grid grid-cols-2 flex-wrap gap-4 mb-6">
+                    <div class="bg-indigo-50 dark:bg-indigo-900/20 p-3 rounded-lg border border-indigo-100 dark:border-indigo-800 block text-center">
+                        <p class="text-[9px] sm:text-[10px] text-indigo-500 uppercase tracking-widest font-bold mb-1">Catálogo</p>
+                        <p class="text-lg sm:text-2xl font-black text-indigo-700 dark:text-indigo-400" x-text="(activeTenant.products_count || 0) + ' Prod'"></p>
+                    </div>
+                    <div class="bg-emerald-50 dark:bg-emerald-900/20 p-3 rounded-lg border border-emerald-100 dark:border-emerald-800 block text-center">
+                        <p class="text-[9px] sm:text-[10px] text-emerald-500 uppercase tracking-widest font-bold mb-1">Volumen Ventas</p>
+                        <p class="text-lg sm:text-2xl font-black text-emerald-700 dark:text-emerald-400 truncate" x-text="'$' + Number(activeTenant.total_sales_amount || 0).toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2})"></p>
+                    </div>
+                    <div class="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg border border-blue-100 dark:border-blue-800 block text-center">
+                        <p class="text-[9px] sm:text-[10px] text-blue-500 uppercase tracking-widest font-bold mb-1">Tickets (#)</p>
+                        <p class="text-lg sm:text-2xl font-black text-blue-700 dark:text-blue-400" x-text="activeTenant.total_sales_count || 0"></p>
+                    </div>
+                    <div class="bg-orange-50 dark:bg-orange-900/20 p-3 rounded-lg border border-orange-100 dark:border-orange-800 block text-center">
+                        <p class="text-[9px] sm:text-[10px] text-orange-500 uppercase tracking-widest font-bold mb-1">Gastos Brutos (#)</p>
+                        <p class="text-lg sm:text-2xl font-black text-orange-700 dark:text-orange-400" x-text="activeTenant.expenses_count || 0"></p>
                     </div>
                 </div>
 

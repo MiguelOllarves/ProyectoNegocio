@@ -379,6 +379,13 @@
     <!-- Toast Container para notificaciones in-app -->
     <div id="toast-container" class="fixed top-4 left-0 right-0 z-[100000] pointer-events-none flex flex-col gap-2 transition-all"></div>
 
+    <?php if(isset($_SESSION['superadmin_snapshot'])): ?>
+    <div class="bg-red-600 text-white font-bold text-center py-2.5 px-4 shadow-[0_0_30px_rgba(220,38,38,0.8)] flex flex-col sm:flex-row justify-center sm:justify-between items-center gap-3 z-[9999999] relative">
+        <span class="text-sm"><i class="fas fa-user-secret mr-2"></i> ⚠️ Estás suplantando a <b><?= htmlspecialchars($_SESSION['username']) ?></b>.</span>
+        <a href="<?= BASE_URL ?>superadmin/unimpersonate" class="bg-white text-red-600 px-4 py-1.5 rounded-full hover:bg-gray-100 transition-colors text-xs shadow-md whitespace-nowrap"><i class="fas fa-sign-out-alt mr-1"></i> Volver al Modo Dios</a>
+    </div>
+    <?php endif; ?>
+
     <!-- PWA Install Banner -->
     <div id="install-pwa-banner" class="hidden fixed top-4 sm:top-auto sm:bottom-4 left-4 right-4 z-[99999] bg-gradient-to-r from-brand-600 to-brand-800 text-white p-4 rounded-2xl shadow-2xl flex-col sm:flex-row items-center justify-between gap-4 border border-brand-500">
         <div class="flex items-center gap-4 w-full sm:w-auto">
@@ -696,7 +703,6 @@
                         ['superadmin', 'fa-globe', 'Visión General', null],
                         ['superadmin/tenants', 'fa-building', 'Negocios', null],
                         ['superadmin/users', 'fa-users-cog', 'Usuarios', null],
-                        ['superadmin/finances', 'fa-chart-pie', 'Finanzas', null],
                         ['superadmin/backups', 'fa-database', 'Respaldos', null],
                         ['superadmin/profile', 'fa-user-shield', 'Identidad', null]
                     ];

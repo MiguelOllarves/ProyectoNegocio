@@ -24,11 +24,14 @@ class Purchase extends Model {
             $purchaseId = $this->db->lastInsertId();
 
             // 2. Insertar ítems + actualizar stock + kardex
-            $stmtItem = $this->db->prepare("INSERT INTO purchase_items (purchase_id, product_id, quantity, unit_type, cost_per_unit) VALUES (?, ?, ?, ?, ?)");
+            $stmtItem = $this->db->prepare("INSERT INTO purchase_items (purchase_id, product_id, presentation_id, quantity, unit_type, cost_per_unit) VALUES (?, ?, ?, ?, ?, ?)");
             $stmtStock = $this->db->prepare("UPDATE products SET stock = stock + ?, unit_cost = ?, bulk_cost = ? WHERE id = ?");
             $stmtStockAfter = $this->db->prepare("SELECT stock FROM products WHERE id = ?");
             $stmtKardex = $this->db->prepare("INSERT INTO kardex (product_id, type, quantity, stock_after, reference_type, reference_id, note, user_id) VALUES (?, 'entrada_compra', ?, ?, 'purchase', ?, ?, ?)");
-            $stmtProdConf = $this->db->prepare("SELECT purchase_unit_id FROM products WHERE id = ?");
+            
+            // Legacy / Presentation Fallbacks
+            $stmtProdConf = $this->db->prepare("SELECT purchase_unit_id, content_per_purchase FROM products WHERE id = ?");
+            $stmtPresConf = $this->db->prepare("SELECT unit_id, quantity FROM product_presentations WHERE id = ?");
             
             require_once __DIR__ . '/../../../core/CostCalculationService.php';
             require_once __DIR__ . '/../../../core/UnitConversionService.php';
@@ -38,20 +41,38 @@ class Purchase extends Model {
                     throw new \Exception("Cantidad inválida para compra ({$item['quantity']}).");
                 }
                 
-                // Ensure unit_type exists
                 $unitType = $item['unit_type'] ?? 'unidad';
+                $presentationId = !empty($item['presentation_id']) ? $item['presentation_id'] : null;
+                $multiplier = 1.0;
+                $calcUnitId = null;
 
-                $stmtProdConf->execute([$item['product_id']]);
-                $purchaseUnitId = $stmtProdConf->fetchColumn();
-                if (!$purchaseUnitId) {
-                    throw new \Exception("El producto no tiene unidad de compra configurada. Obligatorio por el motor de inventario (ID {$item['product_id']}).");
+                if ($presentationId) {
+                    $stmtPresConf->execute([$presentationId]);
+                    $pres = $stmtPresConf->fetch();
+                    if ($pres) {
+                        $calcUnitId = $pres['unit_id'];
+                        $multiplier = (float)$pres['quantity'];
+                    }
+                }
+                
+                if (!$calcUnitId) { // Fallback to legacy product config
+                    $stmtProdConf->execute([$item['product_id']]);
+                    $prodFall = $stmtProdConf->fetch();
+                    $calcUnitId = $prodFall['purchase_unit_id'];
+                    $multiplier = (float)$prodFall['content_per_purchase'];
+                }
+
+                if (!$calcUnitId) {
+                    throw new \Exception("El producto no tiene unidad de compra/presentación configurada (ID {$item['product_id']}).");
                 }
 
                 $totalItemCost = $item['quantity'] * $item['cost'];
-                $quantityInBaseUnits = \UnitConversionService::convertToBase($item['quantity'], $purchaseUnitId);
-                $costPerBaseUnit = \CostCalculationService::calculateCostPerBaseUnit($totalItemCost, $item['quantity'], $purchaseUnitId);
+                $realQuantity = $item['quantity'] * $multiplier;
+                
+                $quantityInBaseUnits = \UnitConversionService::convertToBase($realQuantity, $calcUnitId);
+                $costPerBaseUnit = \CostCalculationService::calculateCostPerBaseUnit($totalItemCost, $realQuantity, $calcUnitId);
 
-                $stmtItem->execute([$purchaseId, $item['product_id'], $item['quantity'], $unitType, $item['cost']]);
+                $stmtItem->execute([$purchaseId, $item['product_id'], $presentationId, $item['quantity'], $unitType, $item['cost']]);
                 $stmtStock->execute([$quantityInBaseUnits, $costPerBaseUnit, $item['cost'], $item['product_id']]);
 
                 $stmtStockAfter->execute([$item['product_id']]);
@@ -119,15 +140,35 @@ class Purchase extends Model {
             $stmtStock = $this->db->prepare("UPDATE products SET stock = stock - ? WHERE id = ?");
             $stmtStockAfter = $this->db->prepare("SELECT stock FROM products WHERE id = ?");
             $stmtKardex = $this->db->prepare("INSERT INTO kardex (product_id, type, quantity, stock_after, reference_type, reference_id, note, user_id) VALUES (?, 'salida_anulacion', ?, ?, 'purchase', ?, ?, ?)");
-            $stmtProdConf = $this->db->prepare("SELECT purchase_unit_id FROM products WHERE id = ?");
+            
+            $stmtProdConf = $this->db->prepare("SELECT purchase_unit_id, content_per_purchase FROM products WHERE id = ?");
+            $stmtPresConf = $this->db->prepare("SELECT unit_id, quantity FROM product_presentations WHERE id = ?");
+            
             require_once __DIR__ . '/../../../core/UnitConversionService.php';
 
             foreach ($purchase['items'] as $item) {
-                $stmtProdConf->execute([$item['product_id']]);
-                $purchaseUnitId = $stmtProdConf->fetchColumn();
-                if (!$purchaseUnitId) throw new \Exception("Producto sin unidad de compra detectado al revertir.");
+                $calcUnitId = null;
+                $multiplier = 1.0;
+                
+                if (!empty($item['presentation_id'])) {
+                    $stmtPresConf->execute([$item['presentation_id']]);
+                    $pres = $stmtPresConf->fetch();
+                    if ($pres) {
+                        $calcUnitId = $pres['unit_id'];
+                        $multiplier = (float)$pres['quantity'];
+                    }
+                }
+                if (!$calcUnitId) { // Fallback
+                    $stmtProdConf->execute([$item['product_id']]);
+                    $prodFall = $stmtProdConf->fetch();
+                    $calcUnitId = $prodFall['purchase_unit_id'];
+                    $multiplier = (float)$prodFall['content_per_purchase'];
+                }
 
-                $quantityInBaseUnits = \UnitConversionService::convertToBase($item['quantity'], $purchaseUnitId);
+                if (!$calcUnitId) throw new \Exception("Producto sin unidad de compra detectado al revertir.");
+
+                $realQuantity = $item['quantity'] * $multiplier;
+                $quantityInBaseUnits = \UnitConversionService::convertToBase($realQuantity, $calcUnitId);
 
                 // Reverse the stock correctly in base units
                 $stmtStock->execute([$quantityInBaseUnits, $item['product_id']]);
@@ -172,16 +213,34 @@ class Purchase extends Model {
             $stmtStockSub = $this->db->prepare("UPDATE products SET stock = stock - ? WHERE id = ?");
             $stmtStockAfter = $this->db->prepare("SELECT stock FROM products WHERE id = ?");
             $stmtKardexRev = $this->db->prepare("INSERT INTO kardex (product_id, type, quantity, stock_after, reference_type, reference_id, note, user_id) VALUES (?, 'ajuste_negativo', ?, ?, 'purchase_edit', ?, ?, ?)");
-            $stmtProdConfRev = $this->db->prepare("SELECT purchase_unit_id FROM products WHERE id = ?");
+            
+            $stmtProdConfRev = $this->db->prepare("SELECT purchase_unit_id, content_per_purchase FROM products WHERE id = ?");
+            $stmtPresConfRev = $this->db->prepare("SELECT unit_id, quantity FROM product_presentations WHERE id = ?");
+            
             require_once __DIR__ . '/../../../core/UnitConversionService.php';
             require_once __DIR__ . '/../../../core/CostCalculationService.php';
 
             foreach ($purchase['items'] as $oldItem) {
-                $stmtProdConfRev->execute([$oldItem['product_id']]);
-                $purchaseUnitId = $stmtProdConfRev->fetchColumn();
-                if (!$purchaseUnitId) throw new \Exception("Producto sin unidad de compra detectado al revertir edición.");
+                $calcUnitId = null;
+                $multiplier = 1.0;
+                if (!empty($oldItem['presentation_id'])) {
+                    $stmtPresConfRev->execute([$oldItem['presentation_id']]);
+                    $pres = $stmtPresConfRev->fetch();
+                    if ($pres) {
+                        $calcUnitId = $pres['unit_id'];
+                        $multiplier = (float)$pres['quantity'];
+                    }
+                }
+                if (!$calcUnitId) { 
+                    $stmtProdConfRev->execute([$oldItem['product_id']]);
+                    $prodFall = $stmtProdConfRev->fetch();
+                    $calcUnitId = $prodFall['purchase_unit_id'];
+                    $multiplier = (float)$prodFall['content_per_purchase'];
+                }
+                if (!$calcUnitId) throw new \Exception("Producto sin unidad de compra detectado al revertir edición.");
 
-                $quantityInBaseUnits = \UnitConversionService::convertToBase($oldItem['quantity'], $purchaseUnitId);
+                $realQuantity = $oldItem['quantity'] * $multiplier;
+                $quantityInBaseUnits = \UnitConversionService::convertToBase($realQuantity, $calcUnitId);
 
                 $stmtStockSub->execute([$quantityInBaseUnits, $oldItem['product_id']]);
                 $stmtStockAfter->execute([$oldItem['product_id']]);
@@ -194,10 +253,12 @@ class Purchase extends Model {
 
             // INSERT NEW ITEMS
             $total = 0;
-            $stmtItem = $this->db->prepare("INSERT INTO purchase_items (purchase_id, product_id, quantity, unit_type, cost_per_unit) VALUES (?, ?, ?, ?, ?)");
+            $stmtItem = $this->db->prepare("INSERT INTO purchase_items (purchase_id, product_id, presentation_id, quantity, unit_type, cost_per_unit) VALUES (?, ?, ?, ?, ?, ?)");
             $stmtStockAdd = $this->db->prepare("UPDATE products SET stock = stock + ?, unit_cost = ?, bulk_cost = ? WHERE id = ?");
             $stmtKardexAdd = $this->db->prepare("INSERT INTO kardex (product_id, type, quantity, stock_after, reference_type, reference_id, note, user_id) VALUES (?, 'entrada_compra', ?, ?, 'purchase_edit', ?, ?, ?)");
-            $stmtProdConf = $this->db->prepare("SELECT purchase_unit_id FROM products WHERE id = ?");
+            
+            $stmtProdConf = $this->db->prepare("SELECT purchase_unit_id, content_per_purchase FROM products WHERE id = ?");
+            $stmtPresConf = $this->db->prepare("SELECT unit_id, quantity FROM product_presentations WHERE id = ?");
 
             foreach ($items as $item) {
                 if (!isset($item['quantity']) || $item['quantity'] <= 0) {
@@ -206,18 +267,36 @@ class Purchase extends Model {
 
                 $total += $item['quantity'] * $item['cost'];
                 $unitType = $item['unit_type'] ?? 'unidad';
+                $presentationId = !empty($item['presentation_id']) ? $item['presentation_id'] : null;
+                $calcUnitId = null;
+                $multiplier = 1.0;
 
-                $stmtProdConf->execute([$item['product_id']]);
-                $purchaseUnitId = $stmtProdConf->fetchColumn();
-                if (!$purchaseUnitId) {
+                if ($presentationId) {
+                    $stmtPresConf->execute([$presentationId]);
+                    $pres = $stmtPresConf->fetch();
+                    if ($pres) {
+                        $calcUnitId = $pres['unit_id'];
+                        $multiplier = (float)$pres['quantity'];
+                    }
+                }
+                if (!$calcUnitId) { 
+                    $stmtProdConf->execute([$item['product_id']]);
+                    $prodFall = $stmtProdConf->fetch();
+                    $calcUnitId = $prodFall['purchase_unit_id'];
+                    $multiplier = (float)$prodFall['content_per_purchase'];
+                }
+
+                if (!$calcUnitId) {
                     throw new \Exception("El producto no tiene unidad de compra configurada.");
                 }
 
                 $totalItemCost = $item['quantity'] * $item['cost'];
-                $quantityInBaseUnits = \UnitConversionService::convertToBase($item['quantity'], $purchaseUnitId);
-                $costPerBaseUnit = \CostCalculationService::calculateCostPerBaseUnit($totalItemCost, $item['quantity'], $purchaseUnitId);
+                $realQuantity = clone $item['quantity'] * $multiplier;
+                
+                $quantityInBaseUnits = \UnitConversionService::convertToBase($realQuantity, $calcUnitId);
+                $costPerBaseUnit = \CostCalculationService::calculateCostPerBaseUnit($totalItemCost, $realQuantity, $calcUnitId);
 
-                $stmtItem->execute([$id, $item['product_id'], $item['quantity'], $unitType, $item['cost']]);
+                $stmtItem->execute([$id, $item['product_id'], $presentationId, $item['quantity'], $unitType, $item['cost']]);
                 
                 // Add stock
                 $stmtStockAdd->execute([$quantityInBaseUnits, $costPerBaseUnit, $item['cost'], $item['product_id']]);

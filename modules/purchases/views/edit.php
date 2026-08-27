@@ -36,20 +36,20 @@
     <div class="bg-gray-50 dark:bg-slate-800 rounded-lg p-4 border border-gray-100 dark:border-gray-700 mb-6">
         <h4 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Agregar Productos a la Compra</h4>
         <div class="flex flex-col sm:flex-row gap-3">
-            <select x-model="newItem.product_id" class="flex-1 bg-white dark:bg-slate-900 border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-brand-500">
+            <select x-model="newItem.product_id" @change="fetchPresentations()" class="flex-1 bg-white dark:bg-slate-900 border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-brand-500">
                 <option value="">Seleccionar producto...</option>
                 <?php if(!empty($products)): foreach($products as $prod): ?>
                     <option value="<?= $prod['id'] ?>" data-name="<?= htmlspecialchars($prod['name']) ?>"><?= htmlspecialchars($prod['name']) ?></option>
                 <?php endforeach; endif; ?>
             </select>
-            <select x-model="newItem.unit_type" class="w-32 bg-white dark:bg-slate-900 border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-brand-500">
-                <option value="unidad">Unidad</option>
-                <option value="bulto">Bulto</option>
-                <option value="paquete">Paquete</option>
-                <option value="caja">Caja</option>
+            <select x-model="newItem.presentation_id" :disabled="presentations.length === 0" class="flex-1 bg-white dark:bg-slate-900 border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-brand-500 disabled:opacity-60">
+                <option value="" x-text="presentations.length === 0 ? '-- Seleccione un Producto --' : 'Seleccione Presentación...'"></option>
+                <template x-for="p in presentations" :key="p.id">
+                    <option :value="p.id" x-text="p.name + ' (Trae ' + p.quantity + ')'"></option>
+                </template>
             </select>
-            <input type="number" x-model.number="newItem.quantity" min="1" placeholder="Cant." class="w-24 bg-white dark:bg-slate-900 border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-brand-500">
-            <input type="number" step="0.01" min="0" x-model.number="newItem.cost" placeholder="C/U $" class="w-32 bg-white dark:bg-slate-900 border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-brand-500">
+            <input type="number" x-model.number="newItem.quantity" min="1" placeholder="Emps." class="w-24 bg-white dark:bg-slate-900 border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-brand-500">
+            <input type="number" step="0.01" min="0" x-model.number="newItem.cost" placeholder="Costo Emp $" class="w-32 bg-white dark:bg-slate-900 border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-brand-500">
             <button @click="addItem()" type="button" class="bg-brand-600 hover:bg-brand-700 text-white font-bold px-4 py-2 rounded-lg text-sm transition-colors shadow-sm"><i class="fas fa-plus"></i></button>
         </div>
     </div>
@@ -59,9 +59,8 @@
         <table class="w-full text-left border-collapse">
             <thead>
                 <tr class="bg-gray-50 dark:bg-slate-800 border-b text-gray-500 dark:text-gray-400 uppercase text-[10px] tracking-widest font-black">
-                    <th class="p-3">Producto</th>
-                    <th class="p-3 text-center">Fmt.</th>
-                    <th class="p-3 text-center">Cant.</th>
+                    <th class="p-3">Producto y Presentación</th>
+                    <th class="p-3 text-center">Cant. Emp.</th>
                     <th class="p-3 text-right">C/U</th>
                     <th class="p-3 text-right">Subtotal</th>
                     <th class="p-3 text-center">X</th>
@@ -71,7 +70,6 @@
                 <template x-for="(item, idx) in items" :key="idx">
                     <tr class="border-b border-gray-100 dark:border-gray-700">
                         <td class="p-3 text-sm font-semibold text-gray-800 dark:text-gray-100" x-text="item.name"></td>
-                        <td class="p-3 text-sm text-center capitalize" x-text="item.unit_type"></td>
                         <td class="p-3 text-sm text-center" x-text="item.quantity"></td>
                         <td class="p-3 text-sm text-right" x-text="'$' + item.cost.toFixed(2)"></td>
                         <td class="p-3 text-sm text-right font-bold text-brand-600 dark:text-brand-400" x-text="'$' + (item.quantity * item.cost).toFixed(2)"></td>
@@ -103,9 +101,9 @@
 $jsItems = array_map(function($i) {
     return [
         'product_id' => $i['product_id'],
-        'name' => $i['name'],
+        'name' => $i['name'] . (isset($i['presentation_name']) ? ' - ' . $i['presentation_name'] : ''),
+        'presentation_id' => $i['presentation_id'] ?? null,
         'quantity' => $i['quantity'],
-        'unit_type' => $i['unit_type'] ?? 'unidad',
         'cost' => floatval($i['cost_per_unit'])
     ];
 }, $purchase['items']);
@@ -117,19 +115,39 @@ function editPurchaseForm() {
         supplierId: '<?= $purchase['supplier_id'] ?? '' ?>',
         notes: <?= json_encode($purchase['notes'] ?? '') ?>,
         items: <?= json_encode($jsItems) ?>,
-        newItem: { product_id: '', quantity: 1, cost: 0, unit_type: 'unidad' },
+        presentations: [],
+        newItem: { product_id: '', quantity: 1, cost: 0, presentation_id: '' },
         get total() { return this.items.reduce((sum, i) => sum + (i.quantity * i.cost), 0); },
+        async fetchPresentations() {
+            this.presentations = [];
+            this.newItem.presentation_id = '';
+            if(!this.newItem.product_id) return;
+            try {
+                let res = await fetch('<?= BASE_URL ?>inventory/edit/' + this.newItem.product_id);
+                let data = await res.json();
+                if(data.presentations && data.presentations.length > 0) {
+                    this.presentations = data.presentations;
+                    this.newItem.presentation_id = this.presentations[0].id;
+                }
+            } catch(e) {}
+        },
         addItem() {
-            if (!this.newItem.product_id || this.newItem.quantity <= 0) return;
+            if (!this.newItem.product_id || !this.newItem.presentation_id || this.newItem.quantity <= 0) {
+                Swal.fire('Error', 'Completa los datos de la presentación y cantidad correctamente.', 'warning');
+                return;
+            }
             const sel = document.querySelector(`option[value="${this.newItem.product_id}"]`);
+            const p = this.presentations.find(x => String(x.id) === String(this.newItem.presentation_id));
+            const pName = p ? p.name : '';
             this.items.push({
                 product_id: this.newItem.product_id,
-                name: sel ? sel.textContent : 'Producto',
+                presentation_id: this.newItem.presentation_id,
+                name: (sel ? sel.textContent : 'Producto') + ' - ' + pName,
                 quantity: this.newItem.quantity,
-                unit_type: this.newItem.unit_type,
                 cost: this.newItem.cost || 0
             });
-            this.newItem = { product_id: '', quantity: 1, cost: 0, unit_type: 'unidad' };
+            this.newItem = { product_id: '', quantity: 1, cost: 0, presentation_id: '' };
+            this.presentations = [];
         },
         submit() {
             if (this.items.length === 0) return;
@@ -138,8 +156,8 @@ function editPurchaseForm() {
                 notes: this.notes,
                 items: this.items.map(i => ({
                     product_id: i.product_id,
+                    presentation_id: i.presentation_id,
                     quantity: i.quantity,
-                    unit_type: i.unit_type,
                     cost: i.cost
                 }))
             };

@@ -16,6 +16,7 @@ DROP TABLE IF EXISTS arqueo_caja CASCADE;
 DROP TABLE IF EXISTS sales CASCADE;
 DROP TABLE IF EXISTS kardex CASCADE;
 DROP TABLE IF EXISTS product_meta CASCADE;
+DROP TABLE IF EXISTS product_presentations CASCADE;
 DROP TABLE IF EXISTS products CASCADE;
 DROP TABLE IF EXISTS store_config CASCADE;
 DROP TABLE IF EXISTS clients CASCADE;
@@ -189,6 +190,16 @@ CREATE TABLE IF NOT EXISTS products (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+-- 8.5 Presentaciones Adicionales
+CREATE TABLE IF NOT EXISTS product_presentations (
+    id SERIAL PRIMARY KEY,
+    product_id INTEGER REFERENCES products(id) ON DELETE CASCADE,
+    name VARCHAR(255) NOT NULL,
+    quantity NUMERIC(15,2) NOT NULL DEFAULT 1.0,
+    unit_id INTEGER REFERENCES units_of_measure(id) ON DELETE RESTRICT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
 -- Recetas de Platos (Ingredientes por Plato - Módulo Restaurante)
 CREATE TABLE IF NOT EXISTS recipe_items (
     id SERIAL PRIMARY KEY,
@@ -252,6 +263,7 @@ CREATE TABLE IF NOT EXISTS purchase_items (
     id SERIAL PRIMARY KEY,
     purchase_id INTEGER REFERENCES purchases(id) ON DELETE CASCADE,
     product_id INTEGER REFERENCES products(id) ON DELETE RESTRICT,
+    presentation_id INTEGER REFERENCES product_presentations(id) ON DELETE SET NULL,
     quantity NUMERIC(15,2) NOT NULL,
     normalized_quantity NUMERIC(15,2) DEFAULT 0,
     unit_id INTEGER,
@@ -438,3 +450,14 @@ INSERT INTO units_of_measure (id, name, abbreviation, base_type, base_unit_id, c
 ON CONFLICT DO NOTHING;
 
 SELECT setval('units_of_measure_id_seq', (SELECT MAX(id) FROM units_of_measure));
+
+CREATE TABLE IF NOT EXISTS audit_logs (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER NULL REFERENCES users(id) ON DELETE SET NULL,
+    business_id INTEGER NULL REFERENCES businesses(id) ON DELETE SET NULL,
+    action VARCHAR(255) NOT NULL,
+    target VARCHAR(255) NULL,
+    details TEXT NULL,
+    ip_address VARCHAR(45) NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
