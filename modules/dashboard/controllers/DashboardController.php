@@ -30,7 +30,10 @@ class DashboardController extends Controller {
         foreach ($products as $p) {
             // Calculate Cost per Base Unit
             $containedConv = $unitMap[$p['contained_unit_id']] ?? 1;
-            $contentInBase = max((float)$p['content_per_purchase'], 0.0001) * $containedConv;
+            $factor = (float)$p['content_per_purchase'];
+            if ($factor <= 0) $factor = 1.0; // Default to 1 to avoid division by zero or massive inflation
+            
+            $contentInBase = $factor * $containedConv;
             $costPerBase = (float)$p['unit_cost'] / $contentInBase;
             
             $invVal = (float)$p['stock'] * $costPerBase;
