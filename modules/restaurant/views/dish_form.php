@@ -186,8 +186,6 @@ document.addEventListener("DOMContentLoaded", function() {
         const sel = row.querySelector(".ing-select");
         const qty = parseFloat(row.querySelector(".ing-qty").value) || 0;
         const unitSel = row.querySelector(".ing-unit");
-        const warningIcon = row.querySelector(".unit-warning");
-        if (warningIcon) warningIcon.classList.add("hidden");
         
         const ing = ingredientsData.find(i => i.id == sel.value);
         if (!ing || qty <= 0) return null;
@@ -229,11 +227,10 @@ document.addEventListener("DOMContentLoaded", function() {
                         qtyBase = qty * parseFloat(fromUnit.conversion_to_base);
                         let fractionOfContainer = qtyBase / assumedContentInBase;
                         qtySale = fractionOfContainer;
-                        if (warningIcon) warningIcon.classList.add("hidden");
                     } else {
                         // Tipos de medida definitivamente incompatibles y sin contenido interno definido
                         qtySale = 0; 
-                        if (warningIcon) warningIcon.classList.remove("hidden");
+                        qtyBase = 0; 
                     }
                 }
             }
@@ -326,7 +323,6 @@ document.addEventListener("DOMContentLoaded", function() {
             </div>
             <div class="flex-[1] relative">
                 <select name="unit_id[]" class="ing-unit w-full rounded-lg border border-slate-200 dark:border-gray-600 bg-white dark:bg-slate-800 text-sm text-gray-800 dark:text-gray-200 px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand-500 cursor-pointer"><option value="">Unidad...</option></select>
-                <i class="unit-warning hidden fas fa-exclamation-triangle text-red-500 absolute -top-2 -right-2 bg-white rounded-full p-0.5 shadow-sm" title="Error de medida: Incompatible con inventario."></i>
             </div>
             <div class="flex items-center justify-center min-w-[80px]">
                 <span class="row-cost text-sm font-bold text-gray-500 dark:text-gray-400">$0.00</span>
@@ -342,11 +338,12 @@ document.addEventListener("DOMContentLoaded", function() {
             unitSel.innerHTML = '<option value="">Unidad...</option>';
             if (ing) {
                 const families = [
+                    ['unidad',  'Unidad'],
                     ['peso',    'Peso'],
                     ['volumen', 'Volumen']
                 ];
-                // Solo Gramo (1), Kilogramo (4), Litro (9), Mililitro (2)
-                const culinaryUnitIds = [1, 2, 4, 9]; 
+                // Gramo (1), Kilogramo (4), Litro (9), Mililitro (2), Unidad (3)
+                const culinaryUnitIds = [1, 2, 4, 9, 3]; 
                 let defaultSet = false;
                 families.forEach(([family, label]) => {
                     const list = (unitsByType[family] || []).filter(u => culinaryUnitIds.includes(parseInt(u.id)));
