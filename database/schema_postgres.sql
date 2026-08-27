@@ -5,29 +5,6 @@
 
 -- IMPORTANTE: Para que todo funcione sin conflictos, borraremos las tablas existentes en orden.
 -- Esto asegura una instalación limpia sin el error 42703.
-DROP TABLE IF EXISTS notifications CASCADE;
-DROP TABLE IF EXISTS credit_payments CASCADE;
-DROP TABLE IF EXISTS credits CASCADE;
-DROP TABLE IF EXISTS purchase_items CASCADE;
-DROP TABLE IF EXISTS purchases CASCADE;
-DROP TABLE IF EXISTS sale_items CASCADE;
-DROP TABLE IF EXISTS ventas_pagos CASCADE;
-DROP TABLE IF EXISTS arqueo_caja CASCADE;
-DROP TABLE IF EXISTS sales CASCADE;
-DROP TABLE IF EXISTS kardex CASCADE;
-DROP TABLE IF EXISTS product_meta CASCADE;
-DROP TABLE IF EXISTS product_presentations CASCADE;
-DROP TABLE IF EXISTS products CASCADE;
-DROP TABLE IF EXISTS store_config CASCADE;
-DROP TABLE IF EXISTS clients CASCADE;
-DROP TABLE IF EXISTS suppliers CASCADE;
-DROP TABLE IF EXISTS brands CASCADE;
-DROP TABLE IF EXISTS categories CASCADE;
-DROP TABLE IF EXISTS users CASCADE;
-DROP TABLE IF EXISTS businesses CASCADE;
-DROP TABLE IF EXISTS settings CASCADE;
-DROP TABLE IF EXISTS payment_methods CASCADE;
-DROP TABLE IF EXISTS audit_logs CASCADE;
 
 -- 1. Negocios / Inquilinos
 CREATE TABLE IF NOT EXISTS businesses (
