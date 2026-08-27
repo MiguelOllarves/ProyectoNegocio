@@ -166,11 +166,6 @@
                     <label class="block text-sm font-bold text-slate-800 mb-2">Inventario Físico (En <span class="lbl_unit_name text-orange-600">Unidad</span>)</label>
                     <?php
                         $stockInSaleUnit = $product['stock'] ?? 0;
-                        if (($product['sale_unit_id'] ?? 0) > 0) {
-                            try {
-                                $stockInSaleUnit = UnitConversionService::convertFromBase((float)($product['stock'] ?? 0), $product['sale_unit_id']);
-                            } catch (\Exception $e) {}
-                        }
                         $stockContainersVal = is_float($stockInSaleUnit) && floor($stockInSaleUnit) != $stockInSaleUnit ? number_format($stockInSaleUnit, 3, '.', '') : $stockInSaleUnit;
                     ?>
                     <input type="number" step="0.001" name="stock" id="stock_containers" value="<?= $stockContainersVal ?>" class="w-full text-xl font-bold rounded-xl border-2 border-slate-300 bg-slate-50 px-4 py-3 focus:outline-none focus:bg-white focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all shadow-sm">
@@ -211,10 +206,14 @@
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 bg-indigo-50/30 p-4 rounded-xl border border-indigo-50/50">
                     <div>
                         <label class="block text-sm font-bold text-slate-700 mb-1">Tipo de Medición</label>
+                        <?php
+                            $dbMeta = is_array($product['dynamic_attributes'] ?? null) ? $product['dynamic_attributes'] : [];
+                            $savedType = $dbMeta['measurement_type'] ?? ($product['measurement_type'] ?? 'unidad');
+                        ?>
                         <select name="measurement_type" id="measurement_type" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 focus:outline-none focus:bg-white focus:ring-2 focus:ring-brand-500 cursor-pointer transition-all shadow-sm">
-                            <option value="unidad" <?= $product['measurement_type'] == 'unidad' ? 'selected' : '' ?>>Por Unidad</option>
-                            <option value="peso" <?= $product['measurement_type'] == 'peso' ? 'selected' : '' ?>>Por Peso</option>
-                            <option value="volumen" <?= $product['measurement_type'] == 'volumen' ? 'selected' : '' ?>>Por Volumen</option>
+                            <option value="unidad" <?= $savedType == 'unidad' ? 'selected' : '' ?>>Por Unidad</option>
+                            <option value="peso" <?= $savedType == 'peso' ? 'selected' : '' ?>>Por Peso</option>
+                            <option value="volumen" <?= $savedType == 'volumen' ? 'selected' : '' ?>>Por Volumen</option>
                         </select>
                     </div>
                     
@@ -591,12 +590,6 @@
         }
 
         function calculateEverything(isInitial = false) {
-            // DEBUG TRACE FOR USER
-            if (isInitial) {
-                console.log("ANTIGRAVITY DEBUG TRACE - IF YOU SEE THIS THE FILE UPDATED");
-                alert("SISTEMA ACTUALIZADO LOCALMENTE. Si ves este mensaje, la Base de Datos está respondiendo correctamente.");
-            }
-            
             const unitCost = parseFloat(costInput.value) || 0;
             currentCostPerBase = unitCost;
             hiddenCost.value = currentCostPerBase; 
