@@ -591,6 +591,12 @@
         }
 
         function calculateEverything(isInitial = false) {
+            // DEBUG TRACE FOR USER
+            if (isInitial) {
+                console.log("ANTIGRAVITY DEBUG TRACE - IF YOU SEE THIS THE FILE UPDATED");
+                alert("SISTEMA ACTUALIZADO LOCALMENTE. Si ves este mensaje, la Base de Datos está respondiendo correctamente.");
+            }
+            
             const unitCost = parseFloat(costInput.value) || 0;
             currentCostPerBase = unitCost;
             hiddenCost.value = currentCostPerBase; 
