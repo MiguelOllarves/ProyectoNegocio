@@ -175,6 +175,10 @@ class InventoryController extends Controller {
             if ($totalCost > 0 && $contentPerPurchase > 0) {
                 // The purchase is $totalCost for $contentPerPurchase of $saleUnitId
                 $unitCost = \CostCalculationService::calculateCostPerBaseUnit($totalCost, $contentPerPurchase, $saleUnitId);
+            } elseif (!empty($_POST['unit_cost'])) {
+                $uCost = (float)$_POST['unit_cost'];
+                $saleUnitFactor = $saleUnit ? (float)$saleUnit['conversion_to_base'] : 1;
+                $unitCost = $saleUnitFactor > 0 ? $uCost / $saleUnitFactor : $uCost;
             }
 
             // Convertir stock introducido a unidad base
@@ -385,6 +389,10 @@ class InventoryController extends Controller {
             if (isset($_POST['total_cost']) && $totalCost >= 0 && $contentPerPurchase > 0) {
                 // The purchase is $totalCost for $contentPerPurchase of $saleUnitId
                 $unitCost = \CostCalculationService::calculateCostPerBaseUnit($totalCost, $contentPerPurchase, $saleUnitId);
+            } elseif (isset($_POST['unit_cost'])) {
+                $uCost = (float)$_POST['unit_cost'];
+                $saleUnitFactor = $saleUnit ? (float)$saleUnit['conversion_to_base'] : 1;
+                $unitCost = $saleUnitFactor > 0 ? $uCost / $saleUnitFactor : $uCost;
             }
             
             // OJO: Al actualizar, si el frontend envía el stock modificado, lo convertimos a base.
