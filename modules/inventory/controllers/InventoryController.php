@@ -262,13 +262,16 @@ class InventoryController extends Controller {
                     $error = "Error al guardar el producto.";
                 }
             } catch (\Exception $e) {
+                error_log("Inventory Create Error: " . $e->getMessage());
                 if (isset($_SERVER['HTTP_HX_REQUEST'])) {
                     http_response_code(400);
+                    // Safe encoding for header
+                    $msg = str_replace(["\r", "\n"], ' ', $e->getMessage());
                     header('X-Toast-Type: error');
-                    header('X-Toast-Message: Error al guardar (¿Código de Barras Duplicado?)');
+                    header('X-Toast-Message: ' . substr($msg, 0, 200));
                     exit;
                 }
-                exit('Error Critico de Base de Datos.');
+                exit('Error Critico de Base de Datos: ' . $e->getMessage());
             }
         }
     }

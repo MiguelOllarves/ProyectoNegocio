@@ -55,7 +55,7 @@ class Product extends Model {
             return $productId;
         } catch (Exception $e) {
             $this->db->rollBack();
-            return false;
+            throw $e;
         }
     }
     public function getMeta($productId) {

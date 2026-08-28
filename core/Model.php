@@ -64,7 +64,9 @@ class Model {
             $this->logAudit('CREATE', $id, $data);
             return $id;
         }
-        return false;
+        
+        $errorInfo = $stmt->errorInfo();
+        throw new Exception("Error Insertando en {$this->table}: " . ($errorInfo[2] ?? 'Error desconocido'));
     }
 
     public function update($id, $data) {

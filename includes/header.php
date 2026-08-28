@@ -117,7 +117,7 @@
                 if (!subscription) {
                     const vapidPublicKey = "<?= VAPID_PUBLIC_KEY ?>";
                     if (!vapidPublicKey || vapidPublicKey.includes('VAPID_PUBLIC_KEY')) {
-                        throw new Error("Clave VAPID no configurada");
+                        return; // Silent return to avoid console errors when not configured
                     }
                     subscription = await registration.pushManager.subscribe({
                         userVisibleOnly: true,
