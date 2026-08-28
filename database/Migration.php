@@ -87,6 +87,7 @@ class Migration {
         try { $pdo->exec("CREATE INDEX IF NOT EXISTS idx_tenant_id_products ON products(tenant_id)"); } catch (\Exception $e) {}
     }
 
+    /**
      * Verifica que columnas críticas existan en tablas pre-existentes.
      * PostgreSQL soporta ADD COLUMN IF NOT EXISTS, pero usamos check por compatibilidad.
      */

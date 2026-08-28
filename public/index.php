@@ -1,5 +1,54 @@
 <?php
 ob_start(); // Buffer all output to prevent stray warnings from corrupting JSON responses
+
+// ==========================================
+// MANEJADOR DE ERRORES VISUALES
+// ==========================================
+function renderVisualError($title, $message, $file = '', $line = '') {
+    if (ob_get_level()) ob_clean();
+    http_response_code(500);
+    $html = "<!DOCTYPE html><html><head><meta charset='utf-8'><meta name='viewport' content='width=device-width, initial-scale=1'><title>Error del Sistema</title>";
+    $html .= "<style>body{background:#f8fafc;color:#1e293b;font-family:system-ui,-apple-system,sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;padding:1rem;} .card{background:#fff;padding:2rem;border-radius:1rem;border-top:4px solid #ef4444;box-shadow:0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04);max-width:650px;width:100%;} h1{color:#dc2626;margin:0 0 1rem;font-size:1.5rem;display:flex;align-items:center;gap:0.5rem;} p{margin:0 0 1rem;line-height:1.5;} .details{background:#1e293b;padding:1.5rem;border-radius:0.5rem;font-family:monospace;font-size:0.875rem;overflow-x:auto;color:#e2e8f0;margin-top:1rem;word-wrap:break-word;} .file{color:#38bdf8;font-weight:bold;} .btn{display:inline-block;background:#ef4444;color:#fff;text-decoration:none;padding:0.75rem 1.5rem;border-radius:0.5rem;font-weight:bold;transition:all 0.2s;border:none;cursor:pointer;} .btn:hover{background:#dc2626;box-shadow:0 4px 6px -1px rgba(239,68,68,0.3);} .header-err{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #e2e8f0;padding-bottom:1rem;margin-bottom:1rem;}</style></head>";
+    $html .= "<body><div class='card'>";
+    $html .= "<div class='header-err'><h1><svg style='width:28px;height:28px;' fill='none' stroke='currentColor' viewBox='0 0 24 24'><path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z'></path></svg> $title</h1>";
+    $html .= "<span style='background:#fee2e2;color:#991b1b;padding:0.25rem 0.75rem;border-radius:9999px;font-size:0.75rem;font-weight:bold;'>HTTP 500</span></div>";
+    
+    // Simplificar el mensaje para usuarios finales, pero manteniendo el detalle técnico
+    $html .= "<p>El sistema ha encontrado un problema procesando tu solicitud. Nuestro equipo técnico ha sido notificado.</p>";
+    
+    if ($file && $line) {
+        $html .= "<div class='details'>";
+        $html .= "<div style='color:#94a3b8;margin-bottom:0.5rem;'>// Detalles técnicos del error:</div>";
+        $html .= "<div style='color:#f87171;margin-bottom:0.5rem;'>" . htmlspecialchars($message) . "</div>";
+        $html .= "En archivo: <span class='file'>" . htmlspecialchars($file) . "</span><br>Línea: <span style='color:#fbbf24;'>" . (int)$line . "</span>";
+        $html .= "</div>";
+    }
+    $html .= "<div style='margin-top:1.5rem;text-align:right;'><a href='javascript:history.back()' class='btn' style='background:#64748b;margin-right:0.5rem;'>Volver Atrás</a><a href='/' class='btn'>Ir al Inicio</a></div>";
+    $html .= "</div></body></html>";
+    echo $html;
+    exit;
+}
+
+set_error_handler(function($errno, $errstr, $errfile, $errline) {
+    if (error_reporting() === 0) return false;
+    if (in_array($errno, [E_ERROR, E_CORE_ERROR, E_COMPILE_ERROR, E_USER_ERROR, E_RECOVERABLE_ERROR, E_PARSE])) {
+        renderVisualError("Error Crítico de Aplicación", $errstr, $errfile, $errline);
+    }
+    return false; // Permitir que errores menores continúen
+});
+
+set_exception_handler(function($e) {
+    renderVisualError("Excepción No Controlada", $e->getMessage(), $e->getFile(), $e->getLine());
+});
+
+register_shutdown_function(function() {
+    $error = error_get_last();
+    if ($error && in_array($error['type'], [E_ERROR, E_PARSE, E_CORE_ERROR, E_COMPILE_ERROR, E_USER_ERROR])) {
+        // En Vercel a veces los fatal errors escapan el buffer
+        renderVisualError("Error Fatal de Procesamiento", $error['message'], $error['file'], $error['line']);
+    }
+});
+// ==========================================
 if (isset($_GET['serve_logo'])) {
     require_once __DIR__ . '/../config/Database.php';
     session_start();
