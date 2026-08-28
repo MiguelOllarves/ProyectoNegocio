@@ -304,23 +304,32 @@ document.addEventListener("DOMContentLoaded", function() {
         function populateUnits() {
             const ing = ingredientsData.find(i => i.id == ingSel.value);
             unitSel.innerHTML = '<option value="">Medida...</option>';
-            if (ing && ing.unit_id) {
-                const ingUnit = unitsData.find(u => u.id == ing.unit_id);
-                if (ingUnit) {
-                    const familyList = unitsByType[ingUnit.base_type] || [];
-                    
+            if (ing) {
+                let availableTypes = [];
+                let ingUnit = null;
+                if (ing.unit_id) {
+                    ingUnit = unitsData.find(u => u.id == ing.unit_id);
+                    if (ingUnit) availableTypes = [ingUnit.base_type];
+                }
+                if (availableTypes.length === 0) {
+                    availableTypes = Object.keys(unitsByType); // Show all if no base unit is set
+                }
+                
+                const labels = {'unidad': 'Por Unidad', 'peso': 'Por Peso', 'volumen': 'Por Líquido'};
+                availableTypes.forEach(type => {
+                    const familyList = unitsByType[type] || [];
                     let opts = '';
                     familyList.forEach(u => {
                         const selected = (data.unit_id && data.unit_id == u.id) ? "selected" : "";
                         opts += `<option value="${u.id}" ${selected}>${u.name} (${u.abbreviation})</option>`;
                     });
-                    
-                    const labels = {'unidad': 'Por Unidad', 'peso': 'Por Peso', 'volumen': 'Por Líquido'};
-                    unitSel.innerHTML += `<optgroup label="${labels[ingUnit.base_type] || 'Medidas'}">${opts}</optgroup>`;
-                    
-                    if (!data.unit_id) {
-                        unitSel.value = ingUnit.id;
+                    if (opts) {
+                        unitSel.innerHTML += `<optgroup label="${labels[type] || type}">${opts}</optgroup>`;
                     }
+                });
+                
+                if (ingUnit && !data.unit_id) {
+                    unitSel.value = ingUnit.id;
                 }
             }
             updateSummary();
