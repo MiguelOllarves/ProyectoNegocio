@@ -231,6 +231,7 @@ $requestUrl = $_GET['url'] ?? '';
 $csrfExemptRoutes = [
     'tienda/registerClient',
     'tienda/checkout',
+    'auth/check_unique',
 ];
 $isExemptFromCsrf = false;
 foreach ($csrfExemptRoutes as $route) {
