@@ -319,9 +319,13 @@ document.addEventListener("DOMContentLoaded", function() {
                 availableTypes.forEach(type => {
                     const familyList = unitsByType[type] || [];
                     let opts = '';
+                    const allowedUnits = ['g', 'kg', 'l', 'ml'];
                     familyList.forEach(u => {
-                        const selected = (data.unit_id && data.unit_id == u.id) ? "selected" : "";
-                        opts += `<option value="${u.id}" ${selected}>${u.name} (${u.abbreviation})</option>`;
+                        const abbr = u.abbreviation.toLowerCase();
+                        if (allowedUnits.includes(abbr)) {
+                            const selected = (data.unit_id && data.unit_id == u.id) ? "selected" : "";
+                            opts += `<option value="${u.id}" ${selected}>${u.name} (${u.abbreviation})</option>`;
+                        }
                     });
                     if (opts) {
                         unitSel.innerHTML += `<optgroup label="${labels[type] || type}">${opts}</optgroup>`;
