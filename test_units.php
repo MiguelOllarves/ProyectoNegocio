@@ -1,25 +1,5 @@
 <?php
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
-require __DIR__.'/core/Database.php';
-
-try {
-    $db = Database::getInstance()->getConnection();
-    
-    // Check sale_units
-    $stmt = $db->query("SELECT * FROM sale_units");
-    $sale_units = $stmt ? $stmt->fetchAll(PDO::FETCH_ASSOC) : "Table not found";
-    
-    // Check units_of_measure
-    $stmt2 = $db->query("SELECT * FROM units_of_measure");
-    $uom = $stmt2 ? $stmt2->fetchAll(PDO::FETCH_ASSOC) : "Table not found";
-    
-    echo "=== SALE UNITS ===\n";
-    print_r($sale_units);
-    
-    echo "=== UNITS OF MEASURE ===\n";
-    print_r($uom);
-
-} catch (Exception $e) {
-    echo "Error: " . $e->getMessage();
-}
+require_once __DIR__ . '/config/Database.php';
+$db = Database::getInstance()->getConnection();
+$stmt = $db->query("SELECT p.name, p.base_unit_id, p.unit_of_measure, u.base_type FROM products p LEFT JOIN units_of_measure u ON p.base_unit_id = u.id");
+print_r($stmt->fetchAll(PDO::FETCH_ASSOC));
