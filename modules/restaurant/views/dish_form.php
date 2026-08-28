@@ -80,7 +80,7 @@ include __DIR__ . '/../../../includes/header.php';
             <div class="p-5 sm:p-8">
                 <div class="text-sm text-slate-600 dark:text-gray-400 mb-6 bg-orange-50 dark:bg-orange-900/20 p-4 rounded-xl border border-orange-100 dark:border-orange-800/30 leading-relaxed">
                     <i class="fas fa-info-circle text-orange-400 mr-1"></i>
-                    Añade ingredientes pesables (Ej: <b>200 gramos</b> de Carne) o productos directos ya listos del inventario (Ej: <b>1 Unidad</b> de Refresco). El sistema calculará el costo juntando ambos mundos.
+                    Añade ingredientes pesables (Ej: <b>200 gramos</b> de Carne o <b>1 litro</b> de Leche). Solo se permiten productos registrados como kilogramos o litros. El sistema calculará el costo.
                 </div>
 
                 <div id="recipe-rows" class="space-y-3"></div>
@@ -319,9 +319,13 @@ document.addEventListener("DOMContentLoaded", function() {
                 availableTypes.forEach(type => {
                     const familyList = unitsByType[type] || [];
                     let opts = '';
+                    const allowedUnits = ['g', 'kg', 'l', 'ml'];
                     familyList.forEach(u => {
-                        const selected = (data.unit_id && data.unit_id == u.id) ? "selected" : "";
-                        opts += `<option value="${u.id}" ${selected}>${u.name} (${u.abbreviation})</option>`;
+                        const abbr = u.abbreviation.toLowerCase();
+                        if (allowedUnits.includes(abbr)) {
+                            const selected = (data.unit_id && data.unit_id == u.id) ? "selected" : "";
+                            opts += `<option value="${u.id}" ${selected}>${u.name} (${u.abbreviation})</option>`;
+                        }
                     });
                     if (opts) {
                         unitSel.innerHTML += `<optgroup label="${labels[type] || type}">${opts}</optgroup>`;

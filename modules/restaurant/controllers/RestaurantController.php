@@ -60,10 +60,10 @@ class RestaurantController extends Controller {
                 LEFT JOIN units_of_measure u ON p.base_unit_id = u.id";
         $params = [];
         if (isset($_SESSION['business_id'])) {
-            $sql .= " WHERE p.tenant_id = :tenant_id AND p.is_dish = FALSE";
+            $sql .= " WHERE p.tenant_id = :tenant_id AND p.is_dish = FALSE AND (u.base_type IN ('peso', 'volumen') OR LOWER(p.unit_of_measure) IN ('kg', 'kilogramos', 'g', 'gramos', 'l', 'litros', 'ml', 'mililitros'))";
             $params['tenant_id'] = $_SESSION['business_id'];
         } else {
-            $sql .= " WHERE p.is_dish = FALSE";
+            $sql .= " WHERE p.is_dish = FALSE AND (u.base_type IN ('peso', 'volumen') OR LOWER(p.unit_of_measure) IN ('kg', 'kilogramos', 'g', 'gramos', 'l', 'litros', 'ml', 'mililitros'))";
         }
         $sql .= " ORDER BY p.name ASC";
 
