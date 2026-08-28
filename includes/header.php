@@ -711,8 +711,8 @@
                         ['dashboard',  'fa-tachometer-alt', 'Panel de Control',  null],
                         ['inventory',  $inventoryIcon,      $inventoryLabel,     'inventory'],
                     ];
-                    // Módulo de Platos SOLO para gastronomía
-                    if ($category === 'gastronomia') {
+                    // Módulo de Platos para gastronomía y general
+                    if ($category === 'gastronomia' || $category === 'general') {
                         $menuItems[] = ['restaurant', 'fa-utensils', 'Platos', 'inventory'];
                     }
                     $menuItems = array_merge($menuItems, [
