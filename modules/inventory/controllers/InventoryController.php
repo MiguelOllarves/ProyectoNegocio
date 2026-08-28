@@ -206,7 +206,13 @@ class InventoryController extends Controller {
                 'cost_type' => 'unit',
                 'bulk_cost' => 0,
                 'units_per_bulk' => 1,
-                'conversion_factor' => $contentPerPurchase
+                'conversion_factor' => $contentPerPurchase,
+                
+                // Unit Engine (Real Columns)
+                'measurement_type' => $mType,
+                'base_unit_id' => $baseUnitId,
+                'contained_unit_id' => $containedUnitId,
+                'content_per_purchase' => $contentPerPurchase
             ];
             
             if ($imagePath) {
@@ -403,7 +409,13 @@ class InventoryController extends Controller {
                 'allow_fractional_sales' => isset($_POST['allow_fractional_sales']) ? 1 : 0,
 
                 // Legacy
-                'unit_of_measure' => $_POST['unit_of_measure'] ?? 'Unidad'
+                'unit_of_measure' => $_POST['unit_of_measure'] ?? 'Unidad',
+                
+                // Unit Engine (Real Columns)
+                'measurement_type' => $mType,
+                'base_unit_id' => $baseUnitId,
+                'contained_unit_id' => $containedUnitId,
+                'content_per_purchase' => $contentPerPurchase
             ];
 
             // Image upload (optional) - Vercel Compatibility Base64
