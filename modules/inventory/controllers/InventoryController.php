@@ -163,6 +163,10 @@ class InventoryController extends Controller {
             $baseUnitId = !empty($_POST['base_unit_id']) ? (int)$_POST['base_unit_id'] : 3;
             $contentPerPurchase = !empty($_POST['content_per_purchase']) ? (float)$_POST['content_per_purchase'] : 1.0;
             $containedUnitId = !empty($_POST['contained_unit_id']) ? (int)$_POST['contained_unit_id'] : 3;
+
+            require_once __DIR__ . '/../../../core/UnitConversionService.php';
+            $saleUnit = \UnitConversionService::getUnit($saleUnitId);
+            $saleUnitName = $saleUnit ? $saleUnit['name'] : 'Unidad';
             
             // Backend decides cost per base unit
             $totalCost = (float)($_POST['total_cost'] ?? 0);
@@ -202,7 +206,7 @@ class InventoryController extends Controller {
                 'allow_fractional_sales' => isset($_POST['allow_fractional_sales']) ? 1 : 0,
 
                 // Legacy fields (kept for old views fallback)
-                'unit_of_measure' => $_POST['unit_of_measure'] ?? 'Unidad',
+                'unit_of_measure' => $saleUnitName,
                 'cost_type' => 'unit',
                 'bulk_cost' => 0,
                 'units_per_bulk' => 1,
@@ -370,6 +374,10 @@ class InventoryController extends Controller {
             $contentPerPurchase = !empty($_POST['content_per_purchase']) ? (float)$_POST['content_per_purchase'] : 1.0;
             $containedUnitId = !empty($_POST['contained_unit_id']) ? (int)$_POST['contained_unit_id'] : 3;
 
+            require_once __DIR__ . '/../../../core/UnitConversionService.php';
+            $saleUnit = \UnitConversionService::getUnit($saleUnitId);
+            $saleUnitName = $saleUnit ? $saleUnit['name'] : 'Unidad';
+
             // Backend decides cost per base unit
             $totalCost = (float)($_POST['total_cost'] ?? 0);
             require_once __DIR__ . '/../../../core/CostCalculationService.php';
@@ -409,7 +417,7 @@ class InventoryController extends Controller {
                 'allow_fractional_sales' => isset($_POST['allow_fractional_sales']) ? 1 : 0,
 
                 // Legacy
-                'unit_of_measure' => $_POST['unit_of_measure'] ?? 'Unidad',
+                'unit_of_measure' => $saleUnitName,
                 
                 // Unit Engine (Real Columns)
                 'measurement_type' => $mType,
@@ -595,5 +603,32 @@ class InventoryController extends Controller {
             }
         }
         return $this->categoryModel->create(['name' => $name]);
+    }
+
+    public function get($id) {
+        $product = $this->productModel->find($id);
+        if (!$product) {
+            http_response_code(404);
+            echo json_encode(['error' => 'Not found']);
+            exit;
+        }
+
+        $category = $this->categoryModel->find($product['category_id']);
+        $product['category_name'] = $category ? $category['name'] : 'Sin Categoría';
+        
+        if ($product['brand_id']) {
+            $brand = $this->brandModel->find($product['brand_id']);
+            $product['brand_name'] = $brand ? $brand['name'] : 'Genérico';
+        }
+
+        // Meta and units
+        $product['dynamic_attributes'] = $this->productModel->getMeta($id);
+        
+        $presModel = new ProductPresentation();
+        $product['presentations'] = $presModel->getByProduct($id);
+
+        header('Content-Type: application/json');
+        echo json_encode($product);
+        exit;
     }
 }

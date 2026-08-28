@@ -867,4 +867,144 @@ function processBulkImport(dataArray) {
 }
 </script>
 
+<!-- VIEW PRODUCT SPECS MODAL -->
+<div id="viewSpecsModal" class="fixed inset-0 bg-slate-900/60 z-50 hidden overflow-y-auto backdrop-blur-sm" style="display: none;">
+    <div class="flex items-start justify-center min-h-screen px-4 pt-10 pb-20 text-center sm:p-0">
+        <div class="fixed inset-0" onclick="closeViewSpecsModal()"></div>
+        <div class="relative inline-block w-full max-w-2xl p-6 md:p-8 text-left align-middle bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-gray-100 dark:border-gray-800 my-8 animate-fade-in-up">
+            
+            <div class="flex justify-between items-center mb-6 border-b border-gray-100 dark:border-gray-800 pb-4">
+                <h3 class="text-xl font-black text-gray-800 dark:text-white flex items-center">
+                    <div class="w-8 h-8 rounded-lg bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 flex items-center justify-center mr-3"><i class="fas fa-eye"></i></div>
+                    Especificaciones del Producto
+                </h3>
+                <button onclick="closeViewSpecsModal()" class="modal-close text-gray-400 hover:text-gray-600"><i class="fas fa-times"></i></button>
+            </div>
+
+            <div id="viewSpecsLoading" class="text-center py-10">
+                <i class="fas fa-circle-notch fa-spin text-4xl text-brand-500 mb-4"></i>
+                <p class="text-gray-500">Cargando especificaciones...</p>
+            </div>
+
+            <div id="viewSpecsContent" class="hidden space-y-6">
+                <!-- Header Info -->
+                <div class="flex items-center gap-4 bg-gray-50 dark:bg-slate-800 p-4 rounded-xl border border-gray-100 dark:border-gray-700">
+                    <img id="vs-image" src="" class="w-16 h-16 rounded-lg object-cover shadow-sm bg-white hidden border border-gray-200">
+                    <div id="vs-no-image" class="w-16 h-16 rounded-lg bg-gray-200 dark:bg-slate-700 flex items-center justify-center text-gray-400 hidden"><i class="fas fa-image text-2xl"></i></div>
+                    
+                    <div class="flex-1">
+                        <h4 id="vs-name" class="text-lg font-black text-gray-900 dark:text-white">Nombre</h4>
+                        <div class="flex gap-2 mt-1">
+                            <span id="vs-brand" class="bg-blue-100 text-blue-700 text-xs px-2 py-0.5 rounded-md font-semibold">Marca</span>
+                            <span id="vs-category" class="bg-gray-200 text-gray-700 text-xs px-2 py-0.5 rounded-md font-semibold">Categoria</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Detalles base -->
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="bg-white dark:bg-slate-800 p-4 rounded-xl border border-gray-100 dark:border-gray-700">
+                        <p class="text-xs text-gray-500 font-bold uppercase mb-1">Precio de Venta</p>
+                        <p id="vs-price" class="text-2xl font-black text-brand-600 dark:text-brand-400">$0.00</p>
+                    </div>
+                    <div class="bg-white dark:bg-slate-800 p-4 rounded-xl border border-gray-100 dark:border-gray-700">
+                        <p class="text-xs text-gray-500 font-bold uppercase mb-1">Stock Actual</p>
+                        <p id="vs-stock" class="text-2xl font-black text-gray-800 dark:text-gray-200">0</p>
+                    </div>
+                </div>
+
+                <!-- Atributos Dinamicos -->
+                <div>
+                    <h5 class="text-sm font-bold text-gray-800 dark:text-white mb-3 flex items-center"><i class="fas fa-list-ul mr-2 text-gray-400"></i>Características / Atributos</h5>
+                    <div id="vs-attributes" class="grid grid-cols-2 gap-3">
+                        <!-- Filled by JS -->
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-6 pt-5 border-t border-gray-100 dark:border-gray-800 flex justify-end">
+                <button onclick="closeViewSpecsModal()" class="px-5 py-2.5 bg-brand-600 text-white rounded-lg font-bold shadow-md hover:bg-brand-700 transition-colors">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function closeViewSpecsModal() {
+    document.getElementById('viewSpecsModal').style.display = 'none';
+}
+
+function viewProductSpecs(id) {
+    const modal = document.getElementById('viewSpecsModal');
+    const loading = document.getElementById('viewSpecsLoading');
+    const content = document.getElementById('viewSpecsContent');
+    
+    modal.style.display = 'block';
+    loading.style.display = 'block';
+    content.style.display = 'none';
+    
+    fetch('<?= BASE_URL ?>inventory/get/' + id)
+        .then(r => r.json())
+        .then(data => {
+            if (data.error) {
+                Swal.fire('Error', 'Producto no encontrado', 'error');
+                closeViewSpecsModal();
+                return;
+            }
+
+            // Set basic info
+            document.getElementById('vs-name').textContent = data.name;
+            document.getElementById('vs-category').textContent = data.category_name;
+            document.getElementById('vs-brand').textContent = data.brand_name || 'Genérico';
+            document.getElementById('vs-price').textContent = '$' + parseFloat(data.price).toFixed(2);
+            document.getElementById('vs-stock').textContent = data.stock + ' ' + (data.unit_of_measure || 'Und');
+
+            // Image
+            const imgEl = document.getElementById('vs-image');
+            const noImg = document.getElementById('vs-no-image');
+            if (data.image) {
+                imgEl.src = data.image.startsWith('data:') || data.image.startsWith('http') ? data.image : '<?= BASE_URL ?>../' + data.image;
+                imgEl.style.display = 'block';
+                noImg.style.display = 'none';
+            } else {
+                imgEl.style.display = 'none';
+                noImg.style.display = 'flex';
+            }
+
+            // Attributes
+            const attrContainer = document.getElementById('vs-attributes');
+            attrContainer.innerHTML = '';
+            
+            const systemKeys = ['measurement_type', 'base_unit_id', 'contained_unit_id', 'content_per_purchase', 'unit_of_measure'];
+            let hasAttrs = false;
+
+            if (data.dynamic_attributes && typeof data.dynamic_attributes === 'object') {
+                Object.entries(data.dynamic_attributes).forEach(([key, val]) => {
+                    if (!systemKeys.includes(key)) {
+                        hasAttrs = true;
+                        attrContainer.innerHTML += `
+                            <div class="bg-gray-50 dark:bg-slate-800 p-2.5 rounded-lg border border-gray-100 dark:border-gray-700">
+                                <span class="text-[10px] uppercase font-bold text-gray-500 block mb-0.5">${key}</span>
+                                <span class="text-sm font-semibold text-gray-800 dark:text-gray-200">${val}</span>
+                            </div>
+                        `;
+                    }
+                });
+            }
+
+            if (!hasAttrs) {
+                attrContainer.innerHTML = `<div class="col-span-2 text-sm text-gray-500 italic p-3 text-center bg-gray-50 dark:bg-slate-800 rounded-lg">No hay atributos adicionales.</div>`;
+            }
+            
+            loading.style.display = 'none';
+            content.style.display = 'block';
+        })
+        .catch(err => {
+            console.error(err);
+            Swal.fire('Error', 'Fallo de conexión al cargar datos', 'error');
+            closeViewSpecsModal();
+        });
+}
+</script>
+
 <?php include __DIR__ . '/../../../includes/footer.php'; ?>

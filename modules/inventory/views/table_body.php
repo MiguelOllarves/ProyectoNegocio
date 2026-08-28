@@ -42,6 +42,7 @@
         </td>
         <td class="p-4 text-sm font-bold text-gray-800 dark:text-gray-200 text-right">$<?= number_format($p['price'], 2) ?></td>
         <td class="p-4 text-right space-x-1">
+            <button onclick="viewProductSpecs(<?= $p['id'] ?>)" class="text-blue-500 hover:text-blue-700 dark:hover:text-blue-400 p-1 mr-2 transition-colors inline-block" title="Ver Especificaciones"><i class="fas fa-eye"></i></button>
             <a href="<?= BASE_URL ?>inventory/edit_view/<?= $p['id'] ?>" class="text-brand-500 hover:text-brand-700 dark:hover:text-brand-400 p-1 mr-2 transition-colors inline-block" title="Editar"><i class="fas fa-edit"></i></a>
             <button onclick="confirmDeleteProduct(<?= $p['id'] ?>)" class="text-red-500 hover:text-red-700 dark:hover:text-red-400 p-1 transition-colors" title="Eliminar"><i class="fas fa-trash"></i></button>
         </td>

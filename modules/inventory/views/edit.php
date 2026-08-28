@@ -346,22 +346,27 @@
             if (typeof dynamicAttrs === 'string') dynamicAttrs = JSON.parse(dynamicAttrs);
         } catch(e) { console.error("Error parsing dynamic attributes", e); }
         
-        if (Array.isArray(dynamicAttrs) && dynamicAttrs.length > 0) {
-            if (emptyMsg) emptyMsg.style.display = "none";
-            dynamicAttrs.forEach(attr => {
-                const row = document.createElement('div');
-                row.className = 'flex gap-3 items-center animate-fade-in-up bg-white p-2 rounded border border-gray-200 shadow-sm';
-                row.innerHTML = `
-                    <div class="flex-1"><input type="text" name="meta_key[]" value="${(attr.meta_key || '').replace(/"/g, '&quot;')}" required class="w-full text-sm rounded-lg border border-slate-200 bg-slate-50 focus:bg-white px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand-500 transition-all shadow-sm"></div>
-                    <div class="flex-1"><input type="text" name="meta_value[]" value="${(attr.meta_value || '').replace(/"/g, '&quot;')}" required class="w-full text-sm rounded-lg border border-slate-200 bg-slate-50 focus:bg-white px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand-500 transition-all shadow-sm"></div>
-                    <button type="button" class="remove-attr text-slate-400 hover:text-red-500 p-2 focus:outline-none transition-colors" title="Eliminar atributo"><i class="fas fa-trash"></i></button>
-                `;
-                container.appendChild(row);
-                row.querySelector('.remove-attr').addEventListener('click', function() {
-                    container.removeChild(row);
-                    if (container.children.length === 1 && emptyMsg) { emptyMsg.style.display = 'block'; }
+        if (typeof dynamicAttrs === 'object' && dynamicAttrs !== null) {
+            const systemKeys = ['measurement_type', 'base_unit_id', 'contained_unit_id', 'content_per_purchase', 'unit_of_measure'];
+            const attrEntries = Object.entries(dynamicAttrs).filter(([key, _]) => !systemKeys.includes(key));
+            
+            if (attrEntries.length > 0) {
+                if (emptyMsg) emptyMsg.style.display = "none";
+                attrEntries.forEach(([key, val]) => {
+                    const row = document.createElement('div');
+                    row.className = 'flex gap-3 items-center animate-fade-in-up bg-white p-2 rounded-xl border border-slate-200 shadow-sm';
+                    row.innerHTML = `
+                        <div class="flex-1"><input type="text" name="meta_key[]" value="${(key || '').replace(/"/g, '&quot;')}" required class="w-full text-sm rounded-lg border border-slate-200 bg-slate-50 focus:bg-white px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand-500 transition-all shadow-sm"></div>
+                        <div class="flex-1"><input type="text" name="meta_value[]" value="${(val || '').replace(/"/g, '&quot;')}" required class="w-full text-sm rounded-lg border border-slate-200 bg-slate-50 focus:bg-white px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand-500 transition-all shadow-sm"></div>
+                        <button type="button" class="remove-attr text-slate-400 hover:text-red-500 p-2 focus:outline-none transition-colors" title="Eliminar atributo"><i class="fas fa-trash"></i></button>
+                    `;
+                    container.appendChild(row);
+                    row.querySelector('.remove-attr').addEventListener('click', function() {
+                        container.removeChild(row);
+                        if (container.children.length === 1 && emptyMsg) { emptyMsg.style.display = 'block'; }
+                    });
                 });
-            });
+            }
         }
 
         const btnAdd = document.getElementById("add-attr-btn");
