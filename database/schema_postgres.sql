@@ -214,12 +214,12 @@ CREATE TABLE IF NOT EXISTS kitchen_ingredients (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- 8.7 Recetas de Platos (Apuntan a kitchen_ingredients)
+-- 8.7 Recetas de Platos (Apuntan a products)
 CREATE TABLE IF NOT EXISTS recipe_items (
     id SERIAL PRIMARY KEY,
     tenant_id INTEGER REFERENCES businesses(id) ON DELETE CASCADE,
     dish_id INTEGER NOT NULL REFERENCES products(id) ON DELETE CASCADE,
-    ingredient_id INTEGER NOT NULL REFERENCES kitchen_ingredients(id) ON DELETE CASCADE,
+    ingredient_id INTEGER NOT NULL REFERENCES products(id) ON DELETE CASCADE,
     quantity NUMERIC(15,4) NOT NULL,
     unit_id INTEGER REFERENCES units_of_measure(id),
     notes TEXT,

@@ -30,7 +30,7 @@ class Recipe extends Model {
                 notes TEXT,
                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                 FOREIGN KEY (dish_id) REFERENCES products(id) ON DELETE CASCADE,
-                FOREIGN KEY (ingredient_id) REFERENCES kitchen_ingredients(id) ON DELETE CASCADE
+                FOREIGN KEY (ingredient_id) REFERENCES products(id) ON DELETE CASCADE
             )");
         } catch (\Exception $e) { }
     }
@@ -40,15 +40,15 @@ class Recipe extends Model {
      */
     public function getForDish($dishId) {
         $sql = "SELECT ri.*, 
-                       ki.name as ingredient_name,
-                       ki.stock as ingredient_stock,
-                       ki.cost_per_unit as ingredient_cost,
-                       ki.unit_id as ingredient_unit_id,
+                       p.name as ingredient_name,
+                       p.stock as ingredient_stock,
+                       p.unit_cost as ingredient_cost,
+                       p.base_unit_id as ingredient_unit_id,
                        u.name as unit_name,
                        u.abbreviation as unit_abbr,
                        u.conversion_to_base as unit_factor
                 FROM {$this->table} ri
-                JOIN kitchen_ingredients ki ON ri.ingredient_id = ki.id
+                JOIN products p ON ri.ingredient_id = p.id
                 LEFT JOIN units_of_measure u ON ri.unit_id = u.id
                 WHERE ri.dish_id = :dish_id";
         $params = ['dish_id' => $dishId];

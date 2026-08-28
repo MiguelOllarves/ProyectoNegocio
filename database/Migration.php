@@ -21,6 +21,15 @@ class Migration {
             // Paso 1: Ejecutar schema.sql (CREATE IF NOT EXISTS - seguro para re-ejecución)
             self::runSchema($pdo);
             
+            // Migrar la llave foranea de recipe_items para que apunte a products en vez de kitchen_ingredients
+            try {
+                $driver = $pdo->getAttribute(PDO::ATTR_DRIVER_NAME);
+                if ($driver === 'pgsql') {
+                    $pdo->exec("ALTER TABLE recipe_items DROP CONSTRAINT IF EXISTS recipe_items_ingredient_id_fkey");
+                    $pdo->exec("ALTER TABLE recipe_items ADD CONSTRAINT recipe_items_ingredient_id_fkey FOREIGN KEY (ingredient_id) REFERENCES products(id) ON DELETE CASCADE");
+                }
+            } catch (\Exception $e) { }
+
             // Paso 2: Verificar y agregar columnas faltantes en tablas existentes
             self::ensureColumns($pdo);
             

@@ -54,16 +54,18 @@ class RestaurantController extends Controller {
        ============================================================ */
 
     private function getIngredients() {
-        $sql = "SELECT ki.id, ki.name, ki.cost_per_unit as unit_cost, ki.stock, ki.min_stock,
-                       ki.unit_id, u.name as unit_name, u.abbreviation as unit_abbr, u.base_type
-                FROM kitchen_ingredients ki
-                LEFT JOIN units_of_measure u ON ki.unit_id = u.id";
+        $sql = "SELECT p.id, p.name, p.unit_cost, p.stock, p.min_stock,
+                       p.base_unit_id as unit_id, u.name as unit_name, u.abbreviation as unit_abbr, u.base_type
+                FROM products p
+                LEFT JOIN units_of_measure u ON p.base_unit_id = u.id";
         $params = [];
         if (isset($_SESSION['business_id'])) {
-            $sql .= " WHERE ki.tenant_id = :tenant_id";
+            $sql .= " WHERE p.tenant_id = :tenant_id AND p.is_dish = FALSE";
             $params['tenant_id'] = $_SESSION['business_id'];
+        } else {
+            $sql .= " WHERE p.is_dish = FALSE";
         }
-        $sql .= " ORDER BY ki.name ASC";
+        $sql .= " ORDER BY p.name ASC";
 
         $db = Database::getInstance()->getConnection();
         $stmt = $db->prepare($sql);
