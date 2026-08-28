@@ -269,6 +269,7 @@ class InventoryController extends Controller {
                     $msg = str_replace(["\r", "\n"], ' ', $e->getMessage());
                     header('X-Toast-Type: error');
                     header('X-Toast-Message: ' . substr($msg, 0, 200));
+                    echo "Error de BD: " . $msg;
                     exit;
                 }
                 exit('Error Critico de Base de Datos: ' . $e->getMessage());
@@ -487,10 +488,13 @@ class InventoryController extends Controller {
                     }
                 }
             } catch (\Exception $e) {
+                error_log("Inventory Update Error: " . $e->getMessage());
                 if (isset($_SERVER['HTTP_HX_REQUEST'])) {
                     http_response_code(400);
+                    $msg = str_replace(["\r", "\n"], ' ', $e->getMessage());
                     header('X-Toast-Type: error');
-                    header('X-Toast-Message: Error (BDD Duplicado)');
+                    header('X-Toast-Message: ' . substr($msg, 0, 200));
+                    echo "Error de BD: " . $msg;
                     exit;
                 }
             }
