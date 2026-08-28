@@ -278,8 +278,16 @@ document.addEventListener("DOMContentLoaded", function() {
         let ingOptions = '<option value="">-- Elige qué vas a incluir --</option>';
         ingredientsData.forEach(i => {
             const selected = data.ingredient_id == i.id ? "selected" : "";
+            let displayStock = i.stock;
             let visualUnit = (i.base_type === 'peso') ? 'g' : ((i.base_type === 'volumen') ? 'ml' : 'uds');
-            ingOptions += `<option value="${i.id}" ${selected}>${i.name.replace(/</g, '&lt;')} (Inv: ${fmt(i.stock, 0)}${visualUnit})</option>`;
+            
+            if (i.sale_unit_factor && parseFloat(i.sale_unit_factor) > 0) {
+                displayStock = parseFloat(i.stock) / parseFloat(i.sale_unit_factor);
+                visualUnit = i.sale_unit_abbr || visualUnit;
+            }
+            
+            let displayStr = Number.isInteger(displayStock) ? displayStock : parseFloat(displayStock).toFixed(2).replace(/\.00$/, '');
+            ingOptions += `<option value="${i.id}" ${selected}>${i.name.replace(/</g, '&lt;')} (Inv: ${displayStr}${visualUnit})</option>`;
         });
 
         row.innerHTML = `

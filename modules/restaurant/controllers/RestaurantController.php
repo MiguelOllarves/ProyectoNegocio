@@ -55,9 +55,11 @@ class RestaurantController extends Controller {
 
     private function getIngredients() {
         $sql = "SELECT p.id, p.name, p.unit_cost, p.stock, p.min_stock,
-                       p.base_unit_id as unit_id, u.name as unit_name, u.abbreviation as unit_abbr, u.base_type
+                       p.base_unit_id as unit_id, u.name as unit_name, u.abbreviation as unit_abbr, u.base_type,
+                       u2.abbreviation as sale_unit_abbr, u2.conversion_to_base as sale_unit_factor
                 FROM products p
-                LEFT JOIN units_of_measure u ON p.base_unit_id = u.id";
+                LEFT JOIN units_of_measure u ON p.base_unit_id = u.id
+                LEFT JOIN units_of_measure u2 ON p.sale_unit_id = u2.id";
         $params = [];
         if (isset($_SESSION['business_id'])) {
             $sql .= " WHERE p.tenant_id = :tenant_id AND p.is_dish = FALSE AND (u.base_type IN ('peso', 'volumen') OR LOWER(p.unit_of_measure) IN ('kg', 'kilogramos', 'g', 'gramos', 'l', 'litros', 'ml', 'mililitros'))";
