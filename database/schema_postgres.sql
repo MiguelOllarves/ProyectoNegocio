@@ -180,6 +180,14 @@ CREATE TABLE IF NOT EXISTS products (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE TABLE IF NOT EXISTS product_meta (
+    id SERIAL PRIMARY KEY,
+    product_id INTEGER NOT NULL REFERENCES products(id) ON DELETE CASCADE,
+    meta_key VARCHAR(100) NOT NULL,
+    meta_value TEXT,
+    UNIQUE(product_id, meta_key)
+);
+
 -- 8.5 Presentaciones Adicionales
 CREATE TABLE IF NOT EXISTS product_presentations (
     id SERIAL PRIMARY KEY,
