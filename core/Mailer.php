@@ -70,7 +70,10 @@ class Mailer {
         $logMsg .= "$body\n";
         $logMsg .= "---------------------------------------------------\n";
         
-        file_put_contents(__DIR__ . '/../error_log_sales.txt', $logMsg, FILE_APPEND);
+        // En entornos Serverless/Vercel el sistema de archivos es de solo lectura.
+        // Se envía al error_log estándar para que aparezca en los logs del servidor.
+        error_log($logMsg);
+        
         return true; // Retornamos true simulando éxito para no romper el flujo
     }
 }

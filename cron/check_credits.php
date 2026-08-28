@@ -112,7 +112,7 @@ try {
             // 3. Simulación de WhatsApp / Push
             if (!empty($credit['client_phone'])) {
                 $logMsg = "[WhatsApp Simulation] A {$credit['client_phone']} ({$credit['client_name']}): $message\n";
-                file_put_contents(__DIR__ . '/../error_log_sales.txt', $logMsg, FILE_APPEND);
+                error_log($logMsg);
             }
             
             $processedCount++;

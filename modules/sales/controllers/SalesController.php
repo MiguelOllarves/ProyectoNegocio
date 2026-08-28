@@ -124,7 +124,7 @@ class SalesController extends Controller {
                     $this->jsonResponse(['success' => false, 'message' => 'Datos inválidos o carrito vacío'], 400);
                 }
             } catch (\Throwable $th) {
-                file_put_contents(__DIR__ . '/../../../error_log_sales.txt', $th->getMessage() . "\n" . $th->getTraceAsString());
+                error_log($th->getMessage() . "\n" . $th->getTraceAsString());
                 $this->jsonResponse(['success' => false, 'message' => $th->getMessage(), 'file' => $th->getFile(), 'line' => $th->getLine()], 500);
             }
         }
