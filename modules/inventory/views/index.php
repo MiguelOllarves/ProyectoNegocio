@@ -206,7 +206,7 @@
                                     <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1.5">Precio de Venta</label>
                                     <div class="relative">
                                         <span class="absolute left-3 top-2 text-brand-500 font-bold">$</span>
-                                        <input type="number" step="0.01" min="0" name="price" x-model.number="finalPrice" @input="calculateMargin" class="w-full bg-white dark:bg-slate-900 border border-brand-200 dark:border-brand-700 shadow-inner rounded-lg pl-8 pr-3 py-2 text-sm text-xl text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-brand-500 font-black text-brand-700 dark:text-brand-400">
+                                        <input type="number" step="0.01" min="0" name="price" x-model.number="finalPrice" @input="calculateMargin" class="w-full bg-white dark:bg-slate-900 border border-brand-200 dark:border-brand-700 shadow-inner rounded-lg pl-8 pr-3 py-2 text-xl focus:outline-none focus:ring-2 focus:ring-brand-500 font-black text-brand-700 dark:text-brand-400">
                                     </div>
                                 </div>
                             </div>
@@ -341,7 +341,7 @@ function productForm() {
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
 <!-- QR / Barcode Modal -->
-<div id="qrModal" class="fixed inset-0 bg-slate-900/60 z-50 hidden flex items-center justify-center backdrop-blur-sm transition-opacity">
+<div id="qrModal" class="fixed inset-0 bg-slate-900/60 z-50 hidden items-center justify-center backdrop-blur-sm transition-opacity">
     <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl p-6 w-full max-w-sm m-4 relative border border-gray-100 dark:border-gray-700 animate-fade-in-up">
         <button onclick="closeQrModal()" class="modal-close absolute top-4 right-4">
             <i class="fas fa-times"></i>
@@ -352,7 +352,7 @@ function productForm() {
             <!-- Barcode Image -->
             <div id="barcodeContainer" class="flex justify-center mb-3"><svg id="barcodeSvg"></svg></div>
             <!-- QR Image -->
-            <div id="qrContainer" class="flex justify-center bg-white p-4 rounded-2xl border border-gray-100 inline-block mx-auto shadow-sm"></div>
+            <div id="qrContainer" class="flex justify-center bg-white p-4 rounded-2xl border border-gray-100 mx-auto shadow-sm"></div>
             <div class="mt-4 flex justify-center gap-3">
                 <button onclick="printLabel()" class="bg-brand-600 hover:bg-brand-700 text-white text-xs font-bold px-4 py-2 rounded-lg transition-colors"><i class="fas fa-print mr-1"></i> Imprimir Etiqueta</button>
             </div>
@@ -552,7 +552,7 @@ function productForm() {
                                 <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1.5">Precio de Venta</label>
                                 <div class="relative">
                                     <span class="absolute left-3 top-2 text-brand-500 font-bold">$</span>
-                                    <input type="number" step="0.01" min="0" name="price" id="edit-price" x-model.number="finalPrice" @input="calculateMargin" class="w-full bg-white dark:bg-slate-900 border border-brand-200 dark:border-brand-700 shadow-inner rounded-lg pl-8 pr-3 py-2 text-sm text-xl text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-brand-500 font-black text-brand-700 dark:text-brand-400">
+                                    <input type="number" step="0.01" min="0" name="price" id="edit-price" x-model.number="finalPrice" @input="calculateMargin" class="w-full bg-white dark:bg-slate-900 border border-brand-200 dark:border-brand-700 shadow-inner rounded-lg pl-8 pr-3 py-2 text-xl focus:outline-none focus:ring-2 focus:ring-brand-500 font-black text-brand-700 dark:text-brand-400">
                                 </div>
                             </div>
                         </div>
@@ -890,7 +890,7 @@ function processBulkImport(dataArray) {
                 <!-- Header Info -->
                 <div class="flex items-center gap-4 bg-gray-50 dark:bg-slate-800 p-4 rounded-xl border border-gray-100 dark:border-gray-700">
                     <img id="vs-image" src="" class="w-16 h-16 rounded-lg object-cover shadow-sm bg-white hidden border border-gray-200">
-                    <div id="vs-no-image" class="w-16 h-16 rounded-lg bg-gray-200 dark:bg-slate-700 flex items-center justify-center text-gray-400 hidden"><i class="fas fa-image text-2xl"></i></div>
+                    <div id="vs-no-image" class="w-16 h-16 rounded-lg bg-gray-200 dark:bg-slate-700 items-center justify-center text-gray-400 hidden"><i class="fas fa-image text-2xl"></i></div>
                     
                     <div class="flex-1">
                         <h4 id="vs-name" class="text-lg font-black text-gray-900 dark:text-white">Nombre</h4>
