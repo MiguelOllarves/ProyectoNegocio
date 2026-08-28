@@ -496,7 +496,9 @@
             updateLabels(); 
         }
 
-        btnAddPres.addEventListener("click", () => addPresentationRow('', 1, false));
+        if (btnAddPres) {
+            btnAddPres.addEventListener("click", () => addPresentationRow('', 1, false));
+        }
 
         function updateLabels() {
             try {
