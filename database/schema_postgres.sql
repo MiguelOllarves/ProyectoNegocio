@@ -1,10 +1,7 @@
 -- ============================================================
--- TuInventarioApp v3.0 - Schema Completo PostgreSQL
--- EJECUTAR EN SUPABASE -- MODO LIMPIO Y RECONSTRUCCIÓN TOTAL
+-- TuInventarioApp v4.0 - Schema PostgreSQL Optimizado
+-- Solo CREATE IF NOT EXISTS - Seguro para re-ejecución
 -- ============================================================
-
--- IMPORTANTE: Para que todo funcione sin conflictos, borraremos las tablas existentes en orden.
--- Esto asegura una instalación limpia sin el error 42703.
 
 -- 1. Negocios / Inquilinos
 CREATE TABLE IF NOT EXISTS businesses (
@@ -14,13 +11,17 @@ CREATE TABLE IF NOT EXISTS businesses (
     rif VARCHAR(50),
     owner_phone VARCHAR(50),
     business_phone VARCHAR(50),
-    document_id VARCHAR(50) NOT NULL,
-    email VARCHAR(255) NOT NULL,
+    document_id VARCHAR(50) NOT NULL UNIQUE,
+    email VARCHAR(255) NOT NULL UNIQUE,
     category VARCHAR(100) NOT NULL,
     slug VARCHAR(255),
-    -- Campos adicionales
     subscription_status VARCHAR(50) DEFAULT 'trial',
     trial_ends_at TIMESTAMP,
+    logo_base64 TEXT,
+    ticket_header TEXT,
+    ticket_footer TEXT,
+    menu_file_base64 TEXT,
+    menu_file_type TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -33,20 +34,20 @@ CREATE TABLE IF NOT EXISTS plans (
     features_json TEXT
 );
 
--- 1.2 Registro de Pagos / Reportes Binance-BDV
+-- 1.2 Registro de Pagos
 CREATE TABLE IF NOT EXISTS payments (
     id SERIAL PRIMARY KEY,
     tenant_id INTEGER REFERENCES businesses(id) ON DELETE CASCADE,
     plan_id INTEGER REFERENCES plans(id),
     amount DECIMAL(10, 2) NOT NULL,
-    payment_method VARCHAR(50) NOT NULL, -- 'binance', 'bdv'
+    payment_method VARCHAR(50) NOT NULL,
     reference_number VARCHAR(100) NOT NULL,
-    proof_image TEXT, -- Base64 for the receipt if any
-    status VARCHAR(50) DEFAULT 'pending', -- pending, approved, rejected
+    proof_image TEXT,
+    status VARCHAR(50) DEFAULT 'pending',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- 2. Usuarios y Roles (RBAC actualizado)
+-- 2. Usuarios y Roles
 CREATE TABLE IF NOT EXISTS users (
     id SERIAL PRIMARY KEY,
     business_id INTEGER REFERENCES businesses(id) ON DELETE CASCADE,
@@ -56,6 +57,10 @@ CREATE TABLE IF NOT EXISTS users (
     role VARCHAR(50) DEFAULT 'vendedor' CHECK (role IN ('super_admin', 'administrador', 'empleado', 'vendedor')),
     status SMALLINT DEFAULT 1,
     permissions_json JSONB,
+    active_session_id VARCHAR(255),
+    last_ip VARCHAR(45),
+    last_device VARCHAR(255),
+    last_location VARCHAR(255),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -97,10 +102,19 @@ CREATE TABLE IF NOT EXISTS clients (
     phone VARCHAR(50),
     email VARCHAR(255),
     address TEXT,
+    extra_phones TEXT,
+    workplace TEXT,
+    workplace_component TEXT,
+    workplace_detail TEXT,
+    workplace_address TEXT,
+    monthly_income NUMERIC(15,2),
+    ip_address TEXT,
+    user_agent TEXT,
+    gps_location TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- 7. Configuración de Tienda Pública (Nuevo Fase 4/5)
+-- 7. Configuración de Tienda Pública
 CREATE TABLE IF NOT EXISTS store_config (
     id SERIAL PRIMARY KEY,
     business_id INTEGER REFERENCES businesses(id) ON DELETE CASCADE,
@@ -113,6 +127,8 @@ CREATE TABLE IF NOT EXISTS store_config (
     facebook VARCHAR(255),
     tiktok VARCHAR(255),
     twitter VARCHAR(255),
+    store_name TEXT,
+    background_image TEXT,
     show_prices INTEGER DEFAULT 1,
     is_published INTEGER DEFAULT 1,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -128,7 +144,7 @@ CREATE TABLE IF NOT EXISTS units_of_measure (
     conversion_to_base NUMERIC(15, 6) DEFAULT 1.0
 );
 
--- 8. Productos
+-- 8. Productos (Inventario General)
 CREATE TABLE IF NOT EXISTS products (
     id SERIAL PRIMARY KEY,
     tenant_id INTEGER REFERENCES businesses(id) ON DELETE CASCADE,
@@ -136,19 +152,16 @@ CREATE TABLE IF NOT EXISTS products (
     brand_id INTEGER REFERENCES brands(id) ON DELETE SET NULL,
     supplier_id INTEGER REFERENCES suppliers(id) ON DELETE SET NULL,
     name VARCHAR(255) NOT NULL,
-    sku VARCHAR(100) UNIQUE,
+    sku VARCHAR(100),
     barcode VARCHAR(100),
-    
     cost_type VARCHAR(50) DEFAULT 'unit',
     unit_cost NUMERIC(15,2),
     bulk_cost NUMERIC(15,2),
     units_per_bulk INTEGER DEFAULT 1,
     currency VARCHAR(10) DEFAULT 'USD',
-    
     profit_margin NUMERIC(15,2) DEFAULT 0.0,
     price NUMERIC(15,2) NOT NULL,
     is_tax_exempt BOOLEAN DEFAULT FALSE,
-    
     stock NUMERIC(15,2) DEFAULT 0,
     unit_of_measure VARCHAR(50) DEFAULT 'unidades',
     measurement_type VARCHAR(20) DEFAULT 'unidad',
@@ -161,7 +174,7 @@ CREATE TABLE IF NOT EXISTS products (
     conversion_factor NUMERIC(15,2) DEFAULT 1.0,
     min_stock NUMERIC(15,2) DEFAULT 5,
     image TEXT,
-    dynamic_attributes TEXT, -- Para propiedades dinámicas (JSON)
+    dynamic_attributes TEXT,
     is_dish BOOLEAN DEFAULT FALSE,
     prep_time INTEGER,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -177,12 +190,28 @@ CREATE TABLE IF NOT EXISTS product_presentations (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Recetas de Platos (Ingredientes por Plato - Módulo Restaurante)
+-- ==========================================
+-- 8.6 Insumos de Cocina (Inventario Separado para Gastronomía)
+-- ==========================================
+CREATE TABLE IF NOT EXISTS kitchen_ingredients (
+    id SERIAL PRIMARY KEY,
+    tenant_id INTEGER REFERENCES businesses(id) ON DELETE CASCADE,
+    name VARCHAR(255) NOT NULL,
+    unit_id INTEGER REFERENCES units_of_measure(id),
+    cost_per_unit NUMERIC(15,4) DEFAULT 0,
+    stock NUMERIC(15,4) DEFAULT 0,
+    min_stock NUMERIC(15,4) DEFAULT 0,
+    supplier_id INTEGER REFERENCES suppliers(id) ON DELETE SET NULL,
+    image TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 8.7 Recetas de Platos (Apuntan a kitchen_ingredients)
 CREATE TABLE IF NOT EXISTS recipe_items (
     id SERIAL PRIMARY KEY,
     tenant_id INTEGER REFERENCES businesses(id) ON DELETE CASCADE,
     dish_id INTEGER NOT NULL REFERENCES products(id) ON DELETE CASCADE,
-    ingredient_id INTEGER NOT NULL REFERENCES products(id) ON DELETE CASCADE,
+    ingredient_id INTEGER NOT NULL REFERENCES kitchen_ingredients(id) ON DELETE CASCADE,
     quantity NUMERIC(15,4) NOT NULL,
     unit_id INTEGER REFERENCES units_of_measure(id),
     notes TEXT,
@@ -259,7 +288,7 @@ CREATE TABLE IF NOT EXISTS expenses (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- 15. Arqueo de Caja (Cashbox)
+-- 15. Arqueo de Caja
 CREATE TABLE IF NOT EXISTS arqueo_caja (
     id SERIAL PRIMARY KEY,
     user_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
@@ -293,35 +322,36 @@ CREATE TABLE IF NOT EXISTS kardex (
 -- 17. Auditoría
 CREATE TABLE IF NOT EXISTS audit_logs (
     id SERIAL PRIMARY KEY,
-    user_id INTEGER,
-    action VARCHAR(50),
-    table_name VARCHAR(100),
-    record_id INTEGER,
+    user_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
+    business_id INTEGER REFERENCES businesses(id) ON DELETE SET NULL,
+    action VARCHAR(255) NOT NULL,
+    target VARCHAR(255),
     details TEXT,
+    ip_address VARCHAR(45),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- 18. Configuraciones y Empresa
+-- 18. Configuraciones
 CREATE TABLE IF NOT EXISTS settings (
     key VARCHAR(255) PRIMARY KEY,
     value TEXT,
     category VARCHAR(100) DEFAULT 'general',
+    tenant_id INTEGER,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- 19. Métodos de Pago Habilitados
+-- 19. Métodos de Pago
 CREATE TABLE IF NOT EXISTS payment_methods (
     id SERIAL PRIMARY KEY,
-    name VARCHAR(255) NOT NULL, 
-    code VARCHAR(100) UNIQUE NOT NULL,
+    tenant_id INTEGER,
+    name VARCHAR(255) NOT NULL,
+    code VARCHAR(100) NOT NULL,
     currency VARCHAR(10) DEFAULT 'VES',
     applies_igtf BOOLEAN DEFAULT FALSE,
     is_active BOOLEAN DEFAULT TRUE
 );
 
--- ==========================================
--- 20. Créditos / Fiados (Cuentas por Cobrar)
--- ==========================================
+-- 20. Créditos / Fiados
 CREATE TABLE IF NOT EXISTS credits (
     id SERIAL PRIMARY KEY,
     tenant_id INTEGER REFERENCES businesses(id) ON DELETE CASCADE,
@@ -338,7 +368,7 @@ CREATE TABLE IF NOT EXISTS credits (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- 21. Historial de Abonos / Pagos de Crédito
+-- 21. Pagos de Crédito
 CREATE TABLE IF NOT EXISTS credit_payments (
     id SERIAL PRIMARY KEY,
     credit_id INTEGER NOT NULL REFERENCES credits(id) ON DELETE CASCADE,
@@ -353,7 +383,7 @@ CREATE TABLE IF NOT EXISTS credit_payments (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- 22. Notificaciones del Sistema
+-- 22. Notificaciones
 CREATE TABLE IF NOT EXISTS notifications (
     id SERIAL PRIMARY KEY,
     tenant_id INTEGER REFERENCES businesses(id) ON DELETE CASCADE,
@@ -368,23 +398,107 @@ CREATE TABLE IF NOT EXISTS notifications (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+-- 23. Sesiones (para Vercel serverless)
+CREATE TABLE IF NOT EXISTS sessions (
+    id VARCHAR(255) PRIMARY KEY,
+    data TEXT,
+    last_accessed TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 24. Pedidos de Tienda Web
+CREATE TABLE IF NOT EXISTS store_orders (
+    id SERIAL PRIMARY KEY,
+    tenant_id INTEGER REFERENCES businesses(id) ON DELETE CASCADE,
+    customer_name VARCHAR(255),
+    customer_phone VARCHAR(50),
+    customer_email VARCHAR(255),
+    customer_address TEXT,
+    items_json TEXT,
+    total_usd NUMERIC(15,2) DEFAULT 0,
+    status VARCHAR(50) DEFAULT 'pendiente',
+    notes TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 25. Visitas al Sitio
+CREATE TABLE IF NOT EXISTS site_visits (
+    id SERIAL PRIMARY KEY,
+    ip_address VARCHAR(45),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 26. Seguridad: IPs Baneadas
+CREATE TABLE IF NOT EXISTS banned_ips (
+    id SERIAL PRIMARY KEY,
+    ip_address VARCHAR(45) UNIQUE,
+    reason TEXT,
+    banned_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 27. Seguridad: Rate Limiting
+CREATE TABLE IF NOT EXISTS rate_limits (
+    id SERIAL PRIMARY KEY,
+    ip_address VARCHAR(45),
+    action VARCHAR(50),
+    attempts INTEGER DEFAULT 0,
+    last_attempt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(ip_address, action)
+);
+
+-- 28. Historial de Sesiones de Login
+CREATE TABLE IF NOT EXISTS login_sessions (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    ip_address VARCHAR(45),
+    user_agent TEXT,
+    device_type VARCHAR(20),
+    os_name VARCHAR(50),
+    browser_name VARCHAR(50),
+    location VARCHAR(255),
+    fingerprint VARCHAR(255),
+    logged_in_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 29. QR Menú Gratis
+CREATE TABLE IF NOT EXISTS free_qr_menus (
+    slug TEXT PRIMARY KEY,
+    edit_code TEXT,
+    menu_base64 TEXT,
+    menu_type TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
 -- ==========================================
--- DATOS POR DEFECTO PARA INICIAR EL SISTEMA
+-- ÍNDICES PARA RENDIMIENTO
+-- ==========================================
+CREATE UNIQUE INDEX IF NOT EXISTS idx_cat_tenant_name ON categories(tenant_id, name);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_brand_tenant_name ON brands(tenant_id, name);
+CREATE INDEX IF NOT EXISTS idx_created_at_sales ON sales(created_at);
+CREATE INDEX IF NOT EXISTS idx_tenant_id_products ON products(tenant_id);
+CREATE INDEX IF NOT EXISTS idx_kitchen_tenant ON kitchen_ingredients(tenant_id);
+CREATE INDEX IF NOT EXISTS idx_recipe_dish ON recipe_items(dish_id);
+
+-- ==========================================
+-- DATOS POR DEFECTO
 -- ==========================================
 
--- A) Primero creamos un negocio base (obligatorio para el usuario global)
+-- A) Negocio base
 INSERT INTO businesses (owner_name, business_name, document_id, email, category)
-VALUES ('Demo Owner', 'TuInventarioApp', '000000', 'admin', 'general')
+VALUES ('Demo Owner', 'TuInventarioApp', '000000', 'admin@sistema.local', 'general')
 ON CONFLICT DO NOTHING;
 
--- B) Insertamos el administrador PRINCIPAL (vinculado a ese negocio)
--- Usuario maestro global. Usaremos role = 'administrador'
-INSERT INTO users (business_id, username, full_name, password, role, status) 
-VALUES (1, 'admin', 'Administrador Principal', '$2y$10$uNsBBWuU8WbvVEWXUFhw4uhzFxChRa937Mg/HuLlrmzFIIkrgQIPK', 'administrador', 1) 
+-- B) Administrador Principal
+INSERT INTO users (business_id, username, full_name, password, role, status)
+VALUES (1, 'admin', 'Administrador Principal', '$2y$10$uNsBBWuU8WbvVEWXUFhw4uhzFxChRa937Mg/HuLlrmzFIIkrgQIPK', 'administrador', 1)
 ON CONFLICT DO NOTHING;
 
--- C) Métodos de Pago Base
-INSERT INTO payment_methods (name, code, currency, applies_igtf, is_active) VALUES 
+-- C) Super Admin Global
+INSERT INTO users (business_id, username, full_name, password, role, status)
+VALUES (NULL, 'superadmin', 'Desarrollador / Sistema', '$2y$10$uNsBBWuU8WbvVEWXUFhw4uhzFxChRa937Mg/HuLlrmzFIIkrgQIPK', 'super_admin', 1)
+ON CONFLICT DO NOTHING;
+
+-- D) Métodos de Pago Base
+INSERT INTO payment_methods (name, code, currency, applies_igtf, is_active) VALUES
 ('USD Efectivo', 'usd_cash', 'USD', TRUE, TRUE),
 ('BS Efectivo', 'bs_cash', 'VES', FALSE, TRUE),
 ('BS Pago Móvil', 'bs_pm', 'VES', FALSE, TRUE),
@@ -393,9 +507,9 @@ INSERT INTO payment_methods (name, code, currency, applies_igtf, is_active) VALU
 ('Zelle', 'zelle', 'USD', TRUE, TRUE)
 ON CONFLICT DO NOTHING;
 
--- D) Tasas de Cambio y Variables Base
-INSERT INTO settings (key, value, category) VALUES 
-('bcv_rate', '622.21', 'rates'),
+-- E) Configuraciones Base (BCV actualizado a 791.32)
+INSERT INTO settings (key, value, category) VALUES
+('bcv_rate', '791.32', 'rates'),
 ('parallel_rate', '0', 'rates'),
 ('cop_rate', '0', 'rates'),
 ('tax_iva', '16', 'fiscal'),
@@ -406,13 +520,8 @@ INSERT INTO settings (key, value, category) VALUES
 ('business_logo', '', 'company')
 ON CONFLICT DO NOTHING;
 
--- E) Super Admin Global (Desarrollador)
-INSERT INTO users (business_id, username, full_name, password, role, status) 
-VALUES (NULL, 'superadmin', 'Desarrollador / Sistema', '$2y$10$uNsBBWuU8WbvVEWXUFhw4uhzFxChRa937Mg/HuLlrmzFIIkrgQIPK', 'super_admin', 1) 
-ON CONFLICT DO NOTHING;
-
--- F) Unidades de Medida Iniciales
-INSERT INTO units_of_measure (id, name, abbreviation, base_type, base_unit_id, conversion_to_base) VALUES 
+-- F) Unidades de Medida
+INSERT INTO units_of_measure (id, name, abbreviation, base_type, base_unit_id, conversion_to_base) VALUES
 (1, 'Gramo', 'g', 'peso', 1, 1.0),
 (2, 'Mililitro', 'ml', 'volumen', 2, 1.0),
 (3, 'Unidad', 'und', 'unidad', 3, 1.0),
@@ -426,15 +535,4 @@ INSERT INTO units_of_measure (id, name, abbreviation, base_type, base_unit_id, c
 (14, 'Paquete', 'pqte', 'unidad', 3, 1.0)
 ON CONFLICT DO NOTHING;
 
-SELECT setval('units_of_measure_id_seq', (SELECT MAX(id) FROM units_of_measure));
-
-CREATE TABLE IF NOT EXISTS audit_logs (
-    id SERIAL PRIMARY KEY,
-    user_id INTEGER NULL REFERENCES users(id) ON DELETE SET NULL,
-    business_id INTEGER NULL REFERENCES businesses(id) ON DELETE SET NULL,
-    action VARCHAR(255) NOT NULL,
-    target VARCHAR(255) NULL,
-    details TEXT NULL,
-    ip_address VARCHAR(45) NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+SELECT setval('units_of_measure_id_seq', (SELECT COALESCE(MAX(id), 1) FROM units_of_measure));

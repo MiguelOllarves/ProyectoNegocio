@@ -54,16 +54,16 @@ class RestaurantController extends Controller {
        ============================================================ */
 
     private function getIngredients() {
-        $sql = "SELECT id, name, unit_cost, price, stock, measurement_type,
-                       sale_unit_id, base_unit_id, purchase_unit_id, contained_unit_id, content_per_purchase
-                FROM products
-                WHERE (is_dish = FALSE OR is_dish IS NULL)";
+        $sql = "SELECT ki.id, ki.name, ki.cost_per_unit as unit_cost, ki.stock, ki.min_stock,
+                       ki.unit_id, u.name as unit_name, u.abbreviation as unit_abbr, u.base_type
+                FROM kitchen_ingredients ki
+                LEFT JOIN units_of_measure u ON ki.unit_id = u.id";
         $params = [];
         if (isset($_SESSION['business_id'])) {
-            $sql .= " AND tenant_id = :tenant_id";
+            $sql .= " WHERE ki.tenant_id = :tenant_id";
             $params['tenant_id'] = $_SESSION['business_id'];
         }
-        $sql .= " ORDER BY name ASC";
+        $sql .= " ORDER BY ki.name ASC";
 
         $db = Database::getInstance()->getConnection();
         $stmt = $db->prepare($sql);
@@ -377,6 +377,131 @@ class RestaurantController extends Controller {
                     'available_servings' => $this->recipeModel->getAvailableServings($dishId)
                 ]
             ]);
+        } catch (Exception $e) {
+            $this->jsonResponse(['success' => false, 'message' => $e->getMessage()], 500);
+        }
+    }
+
+    /* ============================================================
+       INSUMOS DE COCINA (kitchen_ingredients) - CRUD
+       ============================================================ */
+
+    /**
+     * GET restaurant/insumos - Lista de insumos de cocina
+     */
+    public function insumos() {
+        $db = Database::getInstance()->getConnection();
+        $tenant_id = $_SESSION['business_id'] ?? 0;
+
+        $stmt = $db->prepare("SELECT ki.*, u.name as unit_name, u.abbreviation as unit_abbr, s.name as supplier_name
+                              FROM kitchen_ingredients ki
+                              LEFT JOIN units_of_measure u ON ki.unit_id = u.id
+                              LEFT JOIN suppliers s ON ki.supplier_id = s.id
+                              WHERE ki.tenant_id = ?
+                              ORDER BY ki.name ASC");
+        $stmt->execute([$tenant_id]);
+        $ingredients = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $units = UnitConversionService::getAllUnits();
+
+        // Proveedores del tenant
+        $stmtSup = $db->prepare("SELECT id, name FROM suppliers WHERE tenant_id = ? ORDER BY name");
+        $stmtSup->execute([$tenant_id]);
+        $suppliers = $stmtSup->fetchAll(PDO::FETCH_ASSOC);
+
+        $this->view('modules/restaurant/views/insumos', [
+            'ingredients' => $ingredients,
+            'units' => $units,
+            'suppliers' => $suppliers
+        ]);
+    }
+
+    /**
+     * POST restaurant/save_insumo - Crear o actualizar insumo
+     */
+    public function save_insumo() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            header('Location: ' . BASE_URL . 'restaurant/insumos');
+            exit;
+        }
+
+        $db = Database::getInstance()->getConnection();
+        $tenant_id = $_SESSION['business_id'] ?? 0;
+        $id = !empty($_POST['id']) ? (int)$_POST['id'] : null;
+        $name = trim($_POST['name'] ?? '');
+        $unit_id = !empty($_POST['unit_id']) ? (int)$_POST['unit_id'] : null;
+        $cost = (float)($_POST['cost_per_unit'] ?? 0);
+        $stock = (float)($_POST['stock'] ?? 0);
+        $min_stock = (float)($_POST['min_stock'] ?? 0);
+        $supplier_id = !empty($_POST['supplier_id']) ? (int)$_POST['supplier_id'] : null;
+
+        if (empty($name)) {
+            $this->jsonResponse(['success' => false, 'message' => 'El nombre es obligatorio'], 400);
+            return;
+        }
+
+        try {
+            if ($id) {
+                $stmt = $db->prepare("UPDATE kitchen_ingredients SET name=?, unit_id=?, cost_per_unit=?, stock=?, min_stock=?, supplier_id=? WHERE id=? AND tenant_id=?");
+                $stmt->execute([$name, $unit_id, $cost, $stock, $min_stock, $supplier_id, $id, $tenant_id]);
+            } else {
+                $stmt = $db->prepare("INSERT INTO kitchen_ingredients (tenant_id, name, unit_id, cost_per_unit, stock, min_stock, supplier_id) VALUES (?,?,?,?,?,?,?)");
+                $stmt->execute([$tenant_id, $name, $unit_id, $cost, $stock, $min_stock, $supplier_id]);
+            }
+            $this->jsonResponse(['success' => true, 'message' => 'Insumo guardado correctamente']);
+        } catch (Exception $e) {
+            $this->jsonResponse(['success' => false, 'message' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * POST restaurant/delete_insumo/{id}
+     */
+    public function delete_insumo($id) {
+        $db = Database::getInstance()->getConnection();
+        $tenant_id = $_SESSION['business_id'] ?? 0;
+
+        try {
+            $stmt = $db->prepare("DELETE FROM kitchen_ingredients WHERE id = ? AND tenant_id = ?");
+            $stmt->execute([$id, $tenant_id]);
+            $this->jsonResponse(['success' => true]);
+        } catch (Exception $e) {
+            $this->jsonResponse(['success' => false, 'message' => 'No se puede eliminar: ' . $e->getMessage()], 400);
+        }
+    }
+
+    /**
+     * POST restaurant/restock_insumo - Reabastecer insumo
+     */
+    public function restock_insumo() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') return;
+
+        $input = json_decode(file_get_contents('php://input'), true);
+        $id = (int)($input['id'] ?? 0);
+        $qty = (float)($input['quantity'] ?? 0);
+        $cost = isset($input['cost_per_unit']) ? (float)$input['cost_per_unit'] : null;
+
+        if ($id <= 0 || $qty <= 0) {
+            $this->jsonResponse(['success' => false, 'message' => 'Datos inválidos'], 400);
+            return;
+        }
+
+        $db = Database::getInstance()->getConnection();
+        $tenant_id = $_SESSION['business_id'] ?? 0;
+
+        try {
+            $sql = "UPDATE kitchen_ingredients SET stock = stock + ?";
+            $params = [$qty];
+            if ($cost !== null) {
+                $sql .= ", cost_per_unit = ?";
+                $params[] = $cost;
+            }
+            $sql .= " WHERE id = ? AND tenant_id = ?";
+            $params[] = $id;
+            $params[] = $tenant_id;
+
+            $db->prepare($sql)->execute($params);
+            $this->jsonResponse(['success' => true, 'message' => 'Stock actualizado']);
         } catch (Exception $e) {
             $this->jsonResponse(['success' => false, 'message' => $e->getMessage()], 500);
         }

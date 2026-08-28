@@ -30,7 +30,7 @@ class Recipe extends Model {
                 notes TEXT,
                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                 FOREIGN KEY (dish_id) REFERENCES products(id) ON DELETE CASCADE,
-                FOREIGN KEY (ingredient_id) REFERENCES products(id) ON DELETE CASCADE
+                FOREIGN KEY (ingredient_id) REFERENCES kitchen_ingredients(id) ON DELETE CASCADE
             )");
         } catch (\Exception $e) { }
     }
@@ -40,17 +40,15 @@ class Recipe extends Model {
      */
     public function getForDish($dishId) {
         $sql = "SELECT ri.*, 
-                       p.name as ingredient_name,
-                       p.stock as ingredient_stock,
-                       p.unit_cost as ingredient_cost,
-                       p.sale_unit_id as ingredient_sale_unit_id,
-                       p.base_unit_id as ingredient_base_unit_id,
-                       p.measurement_type as ingredient_measurement_type,
+                       ki.name as ingredient_name,
+                       ki.stock as ingredient_stock,
+                       ki.cost_per_unit as ingredient_cost,
+                       ki.unit_id as ingredient_unit_id,
                        u.name as unit_name,
                        u.abbreviation as unit_abbr,
                        u.conversion_to_base as unit_factor
                 FROM {$this->table} ri
-                JOIN products p ON ri.ingredient_id = p.id
+                JOIN kitchen_ingredients ki ON ri.ingredient_id = ki.id
                 LEFT JOIN units_of_measure u ON ri.unit_id = u.id
                 WHERE ri.dish_id = :dish_id";
         $params = ['dish_id' => $dishId];
@@ -58,7 +56,7 @@ class Recipe extends Model {
             $sql .= " AND ri.{$this->tenantColumn} = :tenant_id";
             $params['tenant_id'] = $_SESSION['business_id'];
         }
-        $sql .= " ORDER BY p.name ASC";
+        $sql .= " ORDER BY ki.name ASC";
         $stmt = $this->db->prepare($sql);
         $stmt->execute($params);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -189,10 +187,8 @@ class Recipe extends Model {
     public function consumeIngredients($dishId, $servings, $referenceType, $referenceId, $userId) {
         $items = $this->getForDish($dishId);
 
-        $stmtUpdate = $this->db->prepare("UPDATE products SET stock = stock - :qty WHERE id = :pid");
-        $stmtAfter  = $this->db->prepare("SELECT stock FROM products WHERE id = :pid");
-        $stmtKardex = $this->db->prepare("INSERT INTO kardex (product_id, type, quantity, stock_after, reference_type, reference_id, user_id)
-                                          VALUES (:pid, 'salida_receta', :qty, :stock_after, :ref_type, :ref_id, :uid)");
+        $stmtUpdate = $this->db->prepare("UPDATE kitchen_ingredients SET stock = stock - :qty WHERE id = :pid");
+        $stmtAfter  = $this->db->prepare("SELECT stock FROM kitchen_ingredients WHERE id = :pid");
 
         foreach ($items as $item) {
             $need = $this->qtyInBaseUnits((float)$item['quantity'] * $servings, $item['unit_id']);
@@ -201,15 +197,6 @@ class Recipe extends Model {
             $stmtUpdate->execute(['qty' => $need, 'pid' => $item['ingredient_id']]);
             $stmtAfter->execute(['pid' => $item['ingredient_id']]);
             $stockAfter = $stmtAfter->fetchColumn();
-
-            $stmtKardex->execute([
-                'pid'         => $item['ingredient_id'],
-                'qty'         => $need,
-                'stock_after' => $stockAfter,
-                'ref_type'    => $referenceType,
-                'ref_id'      => $referenceId,
-                'uid'         => $userId
-            ]);
         }
         return true;
     }
@@ -221,10 +208,8 @@ class Recipe extends Model {
     public function restoreIngredients($dishId, $servings, $referenceType, $referenceId, $userId) {
         $items = $this->getForDish($dishId);
 
-        $stmtUpdate = $this->db->prepare("UPDATE products SET stock = stock + :qty WHERE id = :pid");
-        $stmtAfter  = $this->db->prepare("SELECT stock FROM products WHERE id = :pid");
-        $stmtKardex = $this->db->prepare("INSERT INTO kardex (product_id, type, quantity, stock_after, reference_type, reference_id, user_id)
-                                          VALUES (:pid, 'entrada_anulacion', :qty, :stock_after, :ref_type, :ref_id, :uid)");
+        $stmtUpdate = $this->db->prepare("UPDATE kitchen_ingredients SET stock = stock + :qty WHERE id = :pid");
+        $stmtAfter  = $this->db->prepare("SELECT stock FROM kitchen_ingredients WHERE id = :pid");
 
         foreach ($items as $item) {
             $restore = $this->qtyInBaseUnits((float)$item['quantity'] * $servings, $item['unit_id']);
@@ -233,15 +218,6 @@ class Recipe extends Model {
             $stmtUpdate->execute(['qty' => $restore, 'pid' => $item['ingredient_id']]);
             $stmtAfter->execute(['pid' => $item['ingredient_id']]);
             $stockAfter = $stmtAfter->fetchColumn();
-
-            $stmtKardex->execute([
-                'pid'         => $item['ingredient_id'],
-                'qty'         => $restore,
-                'stock_after' => $stockAfter,
-                'ref_type'    => $referenceType,
-                'ref_id'      => $referenceId,
-                'uid'         => $userId
-            ]);
         }
         return true;
     }

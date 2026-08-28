@@ -107,15 +107,27 @@
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-slate-600 mb-1">Cédula <span class="text-red-500">*</span></label>
-                            <input type="text" name="document_id" required class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none text-sm font-medium">
+                            <div class="relative">
+                                <input type="text" name="document_id" id="document_id" required class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none text-sm font-medium pr-10">
+                                <span id="doc_status" class="absolute right-3 top-2.5 text-sm hidden"></span>
+                            </div>
+                            <p id="doc_msg" class="text-[10px] mt-1 hidden"></p>
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-slate-600 mb-1">Correo Electrónico <span class="text-red-500">*</span></label>
-                            <input type="email" name="email" required class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none text-sm font-medium">
+                            <div class="relative">
+                                <input type="email" name="email" id="reg_email" required class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none text-sm font-medium pr-10">
+                                <span id="email_status" class="absolute right-3 top-2.5 text-sm hidden"></span>
+                            </div>
+                            <p id="email_msg" class="text-[10px] mt-1 hidden"></p>
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-slate-600 mb-1">Teléfono <span class="text-red-500">*</span></label>
-                            <input type="text" name="owner_phone" required class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none text-sm font-medium">
+                            <div class="relative">
+                                <input type="text" name="owner_phone" id="owner_phone" required class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none text-sm font-medium pr-10">
+                                <span id="phone_status" class="absolute right-3 top-2.5 text-sm hidden"></span>
+                            </div>
+                            <p id="phone_msg" class="text-[10px] mt-1 hidden"></p>
                         </div>
                         <div x-data="{ show: false }">
                             <label class="block text-xs font-bold text-slate-600 mb-1">Contraseña <span class="text-red-500">*</span></label>
@@ -137,13 +149,74 @@
 
                 <div class="pt-4 flex flex-col sm:flex-row items-center justify-between gap-4">
                     <a href="<?= BASE_URL ?>?login=1" class="text-sm font-bold text-slate-500 hover:text-brand-600 transition">Ya tengo cuenta</a>
-                    <button type="submit" onclick="return document.getElementById('password').value === document.getElementById('confirm_password').value ? true : (alert('Las contraseñas no coinciden') || false)" class="w-full sm:w-auto bg-brand-600 hover:bg-brand-700 text-white font-bold py-3 px-8 rounded-xl shadow-lg shadow-brand-500/30 transition-all hover:-translate-y-0.5">
+                    <button type="submit" id="submitBtn" onclick="return document.getElementById('password').value === document.getElementById('confirm_password').value ? true : (alert('Las contraseñas no coinciden') || false)" class="w-full sm:w-auto bg-brand-600 hover:bg-brand-700 text-white font-bold py-3 px-8 rounded-xl shadow-lg shadow-brand-500/30 transition-all hover:-translate-y-0.5">
                         Registrar Negocio <i class="fas fa-arrow-right ml-2"></i>
                     </button>
                 </div>
             </form>
+
+            <script>
+            // === Validación AJAX en tiempo real ===
+            const BASE = '<?= BASE_URL ?>';
+            const fields = [
+                { input: 'document_id', field: 'document_id', status: 'doc_status', msg: 'doc_msg', label: 'cédula' },
+                { input: 'reg_email', field: 'email', status: 'email_status', msg: 'email_msg', label: 'correo' },
+                { input: 'owner_phone', field: 'phone', status: 'phone_status', msg: 'phone_msg', label: 'teléfono' }
+            ];
+            let validState = { document_id: true, reg_email: true, owner_phone: true };
+
+            fields.forEach(f => {
+                const el = document.getElementById(f.input);
+                if (!el) return;
+                let timer;
+                el.addEventListener('input', () => { clearTimeout(timer); timer = setTimeout(() => checkField(f), 500); });
+                el.addEventListener('blur', () => { clearTimeout(timer); checkField(f); });
+            });
+
+            async function checkField(f) {
+                const el = document.getElementById(f.input);
+                const val = el.value.trim();
+                const statusEl = document.getElementById(f.status);
+                const msgEl = document.getElementById(f.msg);
+                if (!val || val.length < 3) { statusEl.classList.add('hidden'); msgEl.classList.add('hidden'); return; }
+
+                try {
+                    const res = await fetch(BASE + 'auth/check_unique', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest'},
+                        body: JSON.stringify({ field: f.field, value: val })
+                    });
+                    const data = await res.json();
+                    statusEl.classList.remove('hidden');
+                    msgEl.classList.remove('hidden');
+                    
+                    if (data.available) {
+                        statusEl.innerHTML = '<i class="fas fa-check-circle text-green-500"></i>';
+                        el.classList.remove('border-red-400'); el.classList.add('border-green-400');
+                        msgEl.textContent = '✓ Disponible'; msgEl.className = 'text-[10px] mt-1 text-green-600 font-bold';
+                        validState[f.input] = true;
+                    } else {
+                        statusEl.innerHTML = '<i class="fas fa-times-circle text-red-500"></i>';
+                        el.classList.remove('border-green-400'); el.classList.add('border-red-400');
+                        msgEl.textContent = data.message || 'Ya registrado'; msgEl.className = 'text-[10px] mt-1 text-red-600 font-bold';
+                        validState[f.input] = false;
+                    }
+                    updateSubmitBtn();
+                } catch(e) {}
+            }
+
+            function updateSubmitBtn() {
+                const btn = document.getElementById('submitBtn');
+                const allValid = Object.values(validState).every(v => v);
+                btn.disabled = !allValid;
+                btn.style.opacity = allValid ? '1' : '0.5';
+                btn.style.pointerEvents = allValid ? 'auto' : 'none';
+            }
+            </script>
+
             <?php endif; ?>
         </div>
     </div>
 </body>
 </html>
+

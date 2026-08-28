@@ -192,44 +192,21 @@ document.addEventListener("DOMContentLoaded", function() {
         const ing = ingredientsData.find(i => i.id == sel.value);
         if (!ing || qty <= 0) return null;
 
-        let qtySale = qty;
         let qtyBase = qty;
         if (unitSel.value) {
             const fromUnit = unitsData.find(u => u.id == unitSel.value);
-            const toSale = unitsData.find(u => u.id == ing.sale_unit_id);
-            if (fromUnit) {
-                if (toSale && fromUnit.base_type === toSale.base_type && parseFloat(toSale.conversion_to_base) > 0) {
-                    qtyBase = qty * parseFloat(fromUnit.conversion_to_base);
-                    qtySale = qtyBase / parseFloat(toSale.conversion_to_base);
-                } else if (!toSale || toSale.id == fromUnit.id) {
-                    qtyBase = qty * parseFloat(fromUnit.conversion_to_base);
-                    qtySale = qty;
-                } else {
-                    const containedUnit = unitsData.find(u => u.id == ing.contained_unit_id);
-                    if (containedUnit && fromUnit.base_type === containedUnit.base_type && parseFloat(containedUnit.conversion_to_base) > 0) {
-                        qtyBase = qty * parseFloat(fromUnit.conversion_to_base);
-                        let qtyInContained = qtyBase / parseFloat(containedUnit.conversion_to_base);
-                        let contentPerPurchase = parseFloat(ing.content_per_purchase) || 1;
-                        qtySale = qtyInContained / contentPerPurchase;
-                    } else if (parseFloat(ing.content_per_purchase) > 1 && (fromUnit.base_type === 'peso' || fromUnit.base_type === 'volumen')) {
-                        let assumedContentInBase = 0;
-                        if (fromUnit.base_type === 'peso') {
-                            assumedContentInBase = parseFloat(ing.content_per_purchase) * 1000; 
-                        } else if (fromUnit.base_type === 'volumen') {
-                            assumedContentInBase = parseFloat(ing.content_per_purchase) * 1000; 
-                        }
-                        
-                        qtyBase = qty * parseFloat(fromUnit.conversion_to_base);
-                        let fractionOfContainer = qtyBase / assumedContentInBase;
-                        qtySale = fractionOfContainer;
-                    } else {
-                        qtySale = 0; 
-                        qtyBase = 0; 
-                    }
-                }
+            const ingUnit = unitsData.find(u => u.id == ing.unit_id);
+            
+            if (fromUnit && ingUnit && fromUnit.base_type === ingUnit.base_type) {
+                // Convertir la cantidad ingresada a la unidad base de la magnitud
+                let qtyInMagnitudeBase = qty * parseFloat(fromUnit.conversion_to_base);
+                // Convertir de la base de magnitud a la unidad en la que está costeado el insumo
+                qtyBase = qtyInMagnitudeBase / parseFloat(ingUnit.conversion_to_base);
+            } else if (fromUnit && !ingUnit) {
+                 qtyBase = qty * parseFloat(fromUnit.conversion_to_base);
             }
         }
-        return { ing, qtySale, qtyBase };
+        return { ing, qtyBase };
     }
 
     function updateSummary() {
@@ -249,8 +226,10 @@ document.addEventListener("DOMContentLoaded", function() {
             totalCost += rowCost;
             if (costSpan) costSpan.innerText = "$" + fmt(rowCost);
             
+            let ingStock = parseFloat(d.ing.stock || 0);
             if (d.qtyBase > 0) {
-                servings = Math.min(servings, Math.floor((parseFloat(d.ing.stock) || 0) / d.qtyBase));
+                let s = Math.floor(ingStock / d.qtyBase);
+                if (s < servings) servings = s;
             }
         });
 
@@ -325,28 +304,23 @@ document.addEventListener("DOMContentLoaded", function() {
         function populateUnits() {
             const ing = ingredientsData.find(i => i.id == ingSel.value);
             unitSel.innerHTML = '<option value="">Medida...</option>';
-            if (ing) {
-                const families = [
-                    ['unidad',  'Por Unidad'],
-                    ['peso',    'Por Peso (Ej: g, Kg)'],
-                    ['volumen', 'Por Líquido (Ej: ml, L)']
-                ];
-                const culinaryUnitIds = [1, 2, 4, 9, 3]; 
-                let defaultSet = false;
-                families.forEach(([family, label]) => {
-                    const list = (unitsByType[family] || []).filter(u => culinaryUnitIds.includes(parseInt(u.id)));
-                    if (!list.length) return;
+            if (ing && ing.unit_id) {
+                const ingUnit = unitsData.find(u => u.id == ing.unit_id);
+                if (ingUnit) {
+                    const familyList = unitsByType[ingUnit.base_type] || [];
+                    
                     let opts = '';
-                    list.forEach(u => {
+                    familyList.forEach(u => {
                         const selected = (data.unit_id && data.unit_id == u.id) ? "selected" : "";
-                        if (selected) defaultSet = true;
                         opts += `<option value="${u.id}" ${selected}>${u.name} (${u.abbreviation})</option>`;
                     });
-                    unitSel.innerHTML += `<optgroup label="${label}">${opts}</optgroup>`;
-                });
-                
-                if (!defaultSet && !data.unit_id && ing.sale_unit_id && culinaryUnitIds.includes(parseInt(ing.sale_unit_id))) {
-                    unitSel.value = ing.sale_unit_id;
+                    
+                    const labels = {'unidad': 'Por Unidad', 'peso': 'Por Peso', 'volumen': 'Por Líquido'};
+                    unitSel.innerHTML += `<optgroup label="${labels[ingUnit.base_type] || 'Medidas'}">${opts}</optgroup>`;
+                    
+                    if (!data.unit_id) {
+                        unitSel.value = ingUnit.id;
+                    }
                 }
             }
             updateSummary();

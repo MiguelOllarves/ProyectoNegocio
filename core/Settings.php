@@ -47,13 +47,13 @@ class Settings {
         $autoUpdate = self::get('bcv_auto_update', '1');
         
         $shouldUpdate = false;
-        $currentRate = 36.5; // Tasa por defecto de respaldo
+        $currentRate = 791.32; // Tasa por defecto de respaldo
 
         if ($row) {
             $currentRate = (float) $row['value'];
             $lastUpdated = strtotime($row['updated_at']);
-            // Si pasaron más de 2 horas y auto update está activo, o si la tasa está en 0
-            if ($autoUpdate === '1' && ( (time() - $lastUpdated) > (2 * 3600) || $currentRate <= 0.1) ) {
+            // Si pasaron más de 1 hora y auto update está activo, o si la tasa es muy vieja
+            if ($autoUpdate === '1' && ( (time() - $lastUpdated) > (1 * 3600) || $currentRate <= 622.21 || $currentRate <= 0.1) ) {
                 $shouldUpdate = true;
             }
         } else if ($autoUpdate === '1') {

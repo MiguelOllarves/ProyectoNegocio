@@ -47,6 +47,12 @@
         $menuItems = [
             ['dashboard',  'fa-tachometer-alt', 'Panel de Control',  null],
             ['inventory',  $inventoryIcon,      $inventoryLabel,     'inventory'],
+        ];
+        // Módulo de Platos SOLO para gastronomía
+        if ($category === 'gastronomia') {
+            $menuItems[] = ['restaurant', 'fa-utensils', 'Platos', 'inventory'];
+        }
+        $menuItems = array_merge($menuItems, [
             ['sales',      $salesIcon,          $salesLabel,         'pos'],
             ['purchases',  'fa-cart-arrow-down', 'Compras',          'inventory'],
             ['suppliers',  'fa-truck',           'Proveedores',      'inventory'],
@@ -55,7 +61,7 @@
             ['expenses',   'fa-money-bill-wave', 'Gastos',           'reports'],
             ['cashbox',    'fa-wallet',          'Arqueo de Caja',   'pos'],
             ['reports',    'fa-chart-line',      'Reportes',         'reports'],
-        ];
+        ]);
         
         $userRole = $_SESSION['role'] ?? 'vendedor';
         $userPerms = $_SESSION['permissions'] ?? [];

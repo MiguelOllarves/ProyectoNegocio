@@ -87,9 +87,8 @@ class Migration {
         try { $pdo->exec("CREATE INDEX IF NOT EXISTS idx_tenant_id_products ON products(tenant_id)"); } catch (\Exception $e) {}
     }
 
-    /**
      * Verifica que columnas críticas existan en tablas pre-existentes.
-     * SQLite solo soporta ADD COLUMN, no MODIFY ni DROP.
+     * PostgreSQL soporta ADD COLUMN IF NOT EXISTS, pero usamos check por compatibilidad.
      */
     private static function ensureColumns(PDO $pdo) {
         $requiredColumns = [
@@ -202,6 +201,9 @@ class Migration {
                 'reference_id'    => "ALTER TABLE notifications ADD COLUMN reference_id INTEGER",
                 'is_read'         => "ALTER TABLE notifications ADD COLUMN is_read BOOLEAN DEFAULT FALSE",
             ],
+            'kitchen_ingredients' => [
+                'image'           => "ALTER TABLE kitchen_ingredients ADD COLUMN image TEXT",
+            ],
         ];
 
         foreach ($requiredColumns as $table => $columns) {
@@ -238,7 +240,7 @@ class Migration {
     private static function seedDefaults(PDO $pdo) {
         // Settings por defecto
         $defaults = [
-            ['bcv_rate',       '622.21',    'rates'],
+            ['bcv_rate',       '791.32',    'rates'],
             ['parallel_rate',  '0',         'rates'],
             ['cop_rate',       '0',         'rates'],
             ['tax_iva',        '16',        'fiscal'],

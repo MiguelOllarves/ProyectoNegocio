@@ -55,12 +55,31 @@ class AuthController extends Controller {
             require_once __DIR__ . '/../../../config/Database.php';
             $db = Database::getInstance()->getConnection();
             
-            // Verificar que la cédula no exista
-            $stmtCheck = $db->prepare("SELECT id FROM users WHERE username = :usr");
-            $stmtCheck->execute(['usr' => $document_id]);
+            // === VALIDACIONES DE UNICIDAD ===
+            // 1. Verificar que la cédula no exista
+            $stmtCheck = $db->prepare("SELECT id FROM businesses WHERE document_id = ? UNION SELECT id FROM users WHERE username = ?");
+            $stmtCheck->execute([$document_id, $document_id]);
             if ($stmtCheck->fetch()) {
-                $this->view('modules/users/views/register', ['error' => 'Esta cédula ya se encuentra registrada en el sistema.']);
+                $this->view('modules/users/views/register', ['error' => 'Esta cédula ya se encuentra registrada en el sistema. Si ya tienes cuenta, inicia sesión.']);
                 return;
+            }
+            
+            // 2. Verificar que el email no exista
+            $stmtEmail = $db->prepare("SELECT id FROM businesses WHERE LOWER(email) = LOWER(?)");
+            $stmtEmail->execute([$email]);
+            if ($stmtEmail->fetch()) {
+                $this->view('modules/users/views/register', ['error' => 'Este correo electrónico ya está registrado. Usa otro o inicia sesión.']);
+                return;
+            }
+            
+            // 3. Verificar que el teléfono no exista
+            if (!empty($owner_phone)) {
+                $stmtPhone = $db->prepare("SELECT id FROM businesses WHERE owner_phone = ?");
+                $stmtPhone->execute([$owner_phone]);
+                if ($stmtPhone->fetch()) {
+                    $this->view('modules/users/views/register', ['error' => 'Este número de teléfono ya está registrado. Usa otro número.']);
+                    return;
+                }
             }
             
             try {
@@ -318,6 +337,7 @@ class AuthController extends Controller {
                 $_SESSION['full_name'] = $user['full_name'];
                 $_SESSION['business_id'] = $user['business_id'] ?? null;
                 $_SESSION['business_slug'] = $user['business_slug'] ?? $user['business_id'];
+                $_SESSION['business_category'] = $user['business_category'] ?? 'general';
                 
                 // Cargar permisos a la sesión
                 try {
@@ -452,5 +472,68 @@ class AuthController extends Controller {
         } catch (Exception $e) {
             echo "<h2>Error aplicando parche:</h2><p>" . $e->getMessage() . "</p>";
         }
+    }
+
+    /**
+     * AJAX endpoint para verificar unicidad de campos en registro
+     * POST auth/check_unique  { field: 'document_id'|'email'|'phone', value: '...' }
+     */
+    public function check_unique() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            echo json_encode(['available' => true]);
+            exit;
+        }
+        
+        $input = json_decode(file_get_contents('php://input'), true);
+        $field = $input['field'] ?? '';
+        $value = trim($input['value'] ?? '');
+        
+        if (empty($value)) {
+            echo json_encode(['available' => true]);
+            exit;
+        }
+
+        require_once __DIR__ . '/../../../config/Database.php';
+        $db = Database::getInstance()->getConnection();
+        
+        $available = true;
+        $message = '';
+        
+        try {
+            switch ($field) {
+                case 'document_id':
+                    $stmt = $db->prepare("SELECT id FROM businesses WHERE document_id = ? LIMIT 1");
+                    $stmt->execute([$value]);
+                    if ($stmt->fetch()) {
+                        $available = false;
+                        $message = 'Esta cédula ya está registrada en el sistema.';
+                    }
+                    break;
+                    
+                case 'email':
+                    $stmt = $db->prepare("SELECT id FROM businesses WHERE LOWER(email) = LOWER(?) LIMIT 1");
+                    $stmt->execute([$value]);
+                    if ($stmt->fetch()) {
+                        $available = false;
+                        $message = 'Este correo ya está registrado.';
+                    }
+                    break;
+                    
+                case 'phone':
+                    $stmt = $db->prepare("SELECT id FROM businesses WHERE owner_phone = ? LIMIT 1");
+                    $stmt->execute([$value]);
+                    if ($stmt->fetch()) {
+                        $available = false;
+                        $message = 'Este teléfono ya está registrado.';
+                    }
+                    break;
+            }
+        } catch (Exception $e) {
+            // Si falla, permitir (la validación server-side lo atrapará)
+        }
+        
+        header('Content-Type: application/json');
+        echo json_encode(['available' => $available, 'message' => $message]);
+        exit;
     }
 }
