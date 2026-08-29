@@ -60,7 +60,7 @@ class SuperadminController extends Controller {
 
         // Tráfico de últimos 7 días (para la gráfica)
         $daily_visits = [];
-        $stmtVisits = $db->query("SELECT DATE(visited_at) as day, COUNT(*) as count FROM site_visits WHERE visited_at >= NOW() - INTERVAL '7 days' GROUP BY day ORDER BY day ASC");
+        $stmtVisits = $db->query("SELECT DATE(created_at) as day, COUNT(*) as count FROM site_visits WHERE created_at >= NOW() - INTERVAL '7 days' GROUP BY day ORDER BY day ASC");
         $visits_data = $stmtVisits->fetchAll(PDO::FETCH_ASSOC);
         foreach($visits_data as $v) {
             $daily_visits[$v['day']] = $v['count'];
@@ -85,9 +85,9 @@ class SuperadminController extends Controller {
         $sql = "SELECT b.*, 
                        (SELECT COUNT(*) FROM users u WHERE u.business_id = b.id) as subusers_count,
                        (SELECT COUNT(*) FROM products p WHERE p.tenant_id = b.id) as products_count,
-                       (SELECT COALESCE(SUM(total), 0) FROM sales s WHERE s.tenant_id = b.id AND s.status = 'completed') as total_sales_amount,
-                       (SELECT COUNT(*) FROM sales s WHERE s.tenant_id = b.id) as total_sales_count,
-                       (SELECT COUNT(*) FROM expenses e WHERE e.tenant_id = b.id) as expenses_count
+                       (SELECT COALESCE(SUM(total), 0) FROM sales s WHERE s.user_id IN (SELECT id FROM users WHERE business_id = b.id) AND s.status = 'completed') as total_sales_amount,
+                       (SELECT COUNT(*) FROM sales s WHERE s.user_id IN (SELECT id FROM users WHERE business_id = b.id)) as total_sales_count,
+                       (SELECT COUNT(*) FROM expenses e WHERE e.user_id IN (SELECT id FROM users WHERE business_id = b.id)) as expenses_count
                 FROM businesses b 
                 ORDER BY b.created_at DESC";
         $stmt = $db->query($sql);
