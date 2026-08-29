@@ -31,7 +31,7 @@ if ($dbUrl) {
     define('DB_HOST', 'localhost');
     define('DB_PORT', 5432);
     define('DB_USER', 'postgres');
-    define('DB_PASS', 'postgres');
+    define('DB_PASS', '12345');
     define('DB_NAME', 'tu_inventario');
 }
 

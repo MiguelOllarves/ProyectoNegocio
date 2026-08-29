@@ -9,8 +9,8 @@
         <i class="fas fa-plus mr-2"></i> Registrar Producto
     </a>
     <!-- Modal Full Product Registration Alpine HTMX -->
-    <div x-show="openModal" class="fixed inset-0 z-50 overflow-y-auto" style="display: none;">
-        <div class="flex items-start justify-center min-h-screen px-4 pt-10 pb-20 text-center sm:p-0">
+    <div x-show="openModal" class="modal-wrapper" style="display: none;" x-cloak>
+        <div class="modal-container">
             <!-- Overlay -->
             <div x-show="openModal" x-transition.opacity class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm" @click="openModal = false"></div>
             
@@ -22,7 +22,7 @@
                  x-transition:leave="transition ease-in duration-200"
                  x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
                  x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-                 class="relative inline-block w-full max-w-4xl p-6 md:p-8 overflow-hidden text-left align-middle bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-gray-100 dark:border-gray-800 my-8"
+                 class="modal-card modal-card-md animate-fade-in-up p-6 md:p-8"
                  x-data="productForm()">
                  
                 <div class="flex justify-between items-center mb-6 border-b border-gray-100 dark:border-gray-800 pb-4">
@@ -289,9 +289,20 @@ function productForm() {
 
 <!-- Search + Actions Bar -->
 <div class="flex flex-col sm:flex-row items-center gap-3 mt-4 mb-4">
-    <div class="relative flex-1 w-full">
-        <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
-        <input type="text" data-table-search="#inventory-tbody" placeholder="Buscar producto, categoría, marca..." class="w-full bg-white dark:bg-slate-800 border border-gray-200 dark:border-gray-700 rounded-lg pl-10 pr-4 py-2.5 text-sm text-gray-800 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-500 transition-all shadow-sm">
+    <div class="relative flex-1 w-full flex gap-2 items-center">
+        <div class="relative flex-1">
+            <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+            <input type="text" data-table-search="#inventory-tbody" placeholder="Buscar producto, categoría, marca..." class="w-full bg-white dark:bg-slate-800 border border-gray-200 dark:border-gray-700 rounded-lg pl-10 pr-4 py-2.5 text-sm text-gray-800 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-500 transition-all shadow-sm">
+        </div>
+        <form method="GET" action="<?= BASE_URL ?>inventory" class="flex items-center gap-2" hx-get="<?= BASE_URL ?>inventory/list" hx-target="#inventory-tbody">
+            <label class="text-sm font-medium text-gray-500 dark:text-gray-400 hidden sm:block">Mostrar:</label>
+            <select name="limit" onchange="htmx.trigger(this.form, 'submit')" class="px-3 h-10 bg-white dark:bg-slate-900 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-800 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-brand-500">
+                <option value="5">5 filas</option>
+                <option value="10">10 filas</option>
+                <option value="50">50 filas</option>
+                <option value="100">100 filas</option>
+            </select>
+        </form>
     </div>
     <div class="flex gap-2 w-full sm:w-auto overflow-x-auto pb-1 sm:pb-0">
         <button onclick="triggerImport()" class="no-print flex-1 sm:flex-none justify-center bg-blue-50 dark:bg-blue-900/10 border border-blue-200 dark:border-blue-800/30 text-blue-600 dark:text-blue-500 px-4 py-2.5 rounded-lg text-sm font-medium hover:bg-blue-100 dark:hover:bg-blue-900/20 transition-colors shadow-sm flex items-center gap-2 whitespace-nowrap">
@@ -341,30 +352,33 @@ function productForm() {
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
 <!-- QR / Barcode Modal -->
-<div id="qrModal" class="fixed inset-0 bg-slate-900/60 z-50 hidden items-center justify-center backdrop-blur-sm transition-opacity">
-    <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl p-6 w-full max-w-sm m-4 relative border border-gray-100 dark:border-gray-700 animate-fade-in-up">
-        <button onclick="closeQrModal()" class="modal-close absolute top-4 right-4">
-            <i class="fas fa-times"></i>
-        </button>
-        <div class="text-center">
-            <h3 id="qrTitle" class="text-lg font-black text-gray-800 dark:text-white mb-1">Producto</h3>
-            <p id="qrSubtitle" class="text-[10px] uppercase font-bold tracking-widest text-brand-600 dark:text-brand-400 mb-4 bg-brand-50 dark:bg-brand-900/30 inline-block px-3 py-1 rounded-full"></p>
-            <!-- Barcode Image -->
-            <div id="barcodeContainer" class="flex justify-center mb-3"><svg id="barcodeSvg"></svg></div>
-            <!-- QR Image -->
-            <div id="qrContainer" class="flex justify-center bg-white p-4 rounded-2xl border border-gray-100 mx-auto shadow-sm"></div>
-            <div class="mt-4 flex justify-center gap-3">
-                <button onclick="printLabel()" class="bg-brand-600 hover:bg-brand-700 text-white text-xs font-bold px-4 py-2 rounded-lg transition-colors"><i class="fas fa-print mr-1"></i> Imprimir Etiqueta</button>
+<div id="qrModal" class="modal-wrapper" style="display: none;" z-index="50">
+    <div class="modal-container">
+        <div class="modal-backdrop" onclick="closeQrModal()"></div>
+        <div class="modal-card modal-card-sm animate-fade-in-up p-6">
+            <button onclick="closeQrModal()" class="modal-close absolute top-4 right-4">
+                <i class="fas fa-times"></i>
+            </button>
+            <div class="text-center">
+                <h3 id="qrTitle" class="text-lg font-black text-gray-800 dark:text-white mb-1">Producto</h3>
+                <p id="qrSubtitle" class="text-[10px] uppercase font-bold tracking-widest text-brand-600 dark:text-brand-400 mb-4 bg-brand-50 dark:bg-brand-900/30 inline-block px-3 py-1 rounded-full"></p>
+                <!-- Barcode Image -->
+                <div id="barcodeContainer" class="flex justify-center mb-3"><svg id="barcodeSvg"></svg></div>
+                <!-- QR Image -->
+                <div id="qrContainer" class="flex justify-center bg-white p-4 rounded-2xl border border-gray-100 mx-auto shadow-sm"></div>
+                <div class="mt-4 flex justify-center gap-3">
+                    <button onclick="printLabel()" class="bg-brand-600 hover:bg-brand-700 text-white text-xs font-bold px-4 py-2 rounded-lg transition-colors"><i class="fas fa-print mr-1"></i> Imprimir Etiqueta</button>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
 <!-- EDIT PRODUCT MODAL -->
-<div id="editModal" class="fixed inset-0 bg-slate-900/60 z-50 hidden overflow-y-auto backdrop-blur-sm" style="display: none;">
-    <div class="flex items-start justify-center min-h-screen px-4 pt-10 pb-20 text-center sm:p-0">
-        <div class="fixed inset-0" onclick="closeEditModal()"></div>
-        <div class="relative inline-block w-full max-w-4xl p-6 md:p-8 overflow-hidden text-left align-middle bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-gray-100 dark:border-gray-800 my-8 animate-fade-in-up"
+<div id="editModal" class="modal-wrapper" style="display: none;" z-index="50">
+    <div class="modal-container">
+        <div class="modal-backdrop" onclick="closeEditModal()"></div>
+        <div class="modal-card modal-card-md animate-fade-in-up p-6 md:p-8"
              x-data="productForm()"
              @load-edit-data.window="
                 costType = $event.detail.cost_type || 'unit';
@@ -585,7 +599,7 @@ function productForm() {
     let qrcodeContainer = null;
     
     function openQrModal(name, code) {
-        document.getElementById('qrModal').classList.remove('hidden');
+        document.getElementById('qrModal').style.display = 'block';
         document.getElementById('qrTitle').innerText = name;
         document.getElementById('qrSubtitle').innerText = code;
         
@@ -603,7 +617,7 @@ function productForm() {
     }
 
     function closeQrModal() {
-        document.getElementById('qrModal').classList.add('hidden');
+        document.getElementById('qrModal').style.display = 'none';
     }
 
     function printLabel() {
@@ -661,14 +675,12 @@ function productForm() {
                 form.setAttribute('hx-post', '<?= BASE_URL ?>inventory/update/' + p.id);
                 htmx.process(form); // Re-process HTMX attributes
                 
-                document.getElementById('editModal').classList.remove('hidden');
-                document.getElementById('editModal').style.display = '';
+                document.getElementById('editModal').style.display = 'block';
             })
-            .catch(err => alert('Error al cargar producto'));
+            .catch(() => Swal.fire('Error', 'Fallo de conexión al cargar datos', 'error'));
     }
 
     function closeEditModal() {
-        document.getElementById('editModal').classList.add('hidden');
         document.getElementById('editModal').style.display = 'none';
     }
 
@@ -868,10 +880,10 @@ function processBulkImport(dataArray) {
 </script>
 
 <!-- VIEW PRODUCT SPECS MODAL -->
-<div id="viewSpecsModal" class="fixed inset-0 bg-slate-900/60 z-50 hidden overflow-y-auto backdrop-blur-sm" style="display: none;">
-    <div class="flex items-start justify-center min-h-screen px-4 pt-10 pb-20 text-center sm:p-0">
-        <div class="fixed inset-0" onclick="closeViewSpecsModal()"></div>
-        <div class="relative inline-block w-full max-w-2xl p-6 md:p-8 text-left align-middle bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-gray-100 dark:border-gray-800 my-8 animate-fade-in-up">
+<div id="viewSpecsModal" class="modal-wrapper" style="display: none;" z-index="50">
+    <div class="modal-container">
+        <div class="modal-backdrop" onclick="closeViewSpecsModal()"></div>
+        <div class="modal-card modal-card-md animate-fade-in-up p-6 md:p-8">
             
             <div class="flex justify-between items-center mb-6 border-b border-gray-100 dark:border-gray-800 pb-4">
                 <h3 class="text-xl font-black text-gray-800 dark:text-white flex items-center">

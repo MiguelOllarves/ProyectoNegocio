@@ -80,13 +80,25 @@ class ReportsController extends Controller {
         }
 
         $productId = $_GET['product_id'] ?? null;
-        $kardex = $this->model->getKardex($productId);
+        $page = isset($_GET['page']) ? max(1, (int)$_GET['page']) : 1;
+        $limit = isset($_GET['limit']) ? max(1, (int)$_GET['limit']) : 5;
+        $offset = ($page - 1) * $limit;
+
+        $totalKardex = $this->model->getKardexCount($productId);
+        $totalPages = ceil($totalKardex / $limit);
+        if ($totalPages == 0) $totalPages = 1;
+
+        $kardex = $this->model->getKardexPaginated($productId, $limit, $offset);
         $products = $this->productModel->all();
 
         $this->view('modules/reports/views/kardex', [
             'kardex' => $kardex,
             'products' => $products,
-            'selectedProduct' => $productId
+            'selectedProduct' => $productId,
+            'page' => $page,
+            'limit' => $limit,
+            'totalPages' => $totalPages,
+            'totalRecords' => $totalKardex
         ]);
     }
     

@@ -27,11 +27,20 @@ class Sale extends Model {
         try { $this->db->exec("ALTER TABLE sales ADD COLUMN status VARCHAR(20) DEFAULT 'completada'"); } catch (\Exception $e) {}
     }
 
-    public function getDailySales($business_id) {
-        // Obtenemos la fecha actual desde PHP para asegurar compatibilidad universal entre SQLite y PostgreSQL
+    public function getDailySalesPaginated($business_id, $limit = 10, $offset = 0) {
         $todayStart = date('Y-m-d 00:00:00');
         $todayEnd = date('Y-m-d 23:59:59');
         
+        $countStmt = $this->db->prepare("
+            SELECT COUNT(*) 
+            FROM sales s 
+            JOIN users u ON s.user_id = u.id 
+            WHERE u.business_id = ? 
+              AND s.created_at >= ? AND s.created_at <= ?
+        ");
+        $countStmt->execute([$business_id, $todayStart, $todayEnd]);
+        $total = $countStmt->fetchColumn();
+
         $stmt = $this->db->prepare("
             SELECT s.*, u.username as cashier 
             FROM sales s 
@@ -39,9 +48,14 @@ class Sale extends Model {
             WHERE u.business_id = ? 
               AND s.created_at >= ? AND s.created_at <= ?
             ORDER BY s.id DESC
+            LIMIT " . (int)$limit . " OFFSET " . (int)$offset . "
         ");
         $stmt->execute([$business_id, $todayStart, $todayEnd]);
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+        return [
+            'data' => $stmt->fetchAll(PDO::FETCH_ASSOC),
+            'total' => $total
+        ];
     }
 
     public function voidSale($saleId, $userId) {

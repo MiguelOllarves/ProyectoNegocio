@@ -56,6 +56,7 @@ class RestaurantController extends Controller {
     private function getIngredients() {
         $sql = "SELECT p.id, p.name, p.unit_cost, p.stock, p.min_stock,
                        p.base_unit_id as unit_id, u.name as unit_name, u.abbreviation as unit_abbr, u.base_type,
+                       u.conversion_to_base as base_unit_factor,
                        u2.abbreviation as sale_unit_abbr, u2.conversion_to_base as sale_unit_factor
                 FROM products p
                 LEFT JOIN units_of_measure u ON p.base_unit_id = u.id

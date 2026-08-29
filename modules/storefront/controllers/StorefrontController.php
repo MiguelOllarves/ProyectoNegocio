@@ -546,11 +546,28 @@ class StorefrontController extends Controller {
         require_once __DIR__ . '/../../../config/Database.php';
         $db = Database::getInstance()->getConnection();
         
-        $stmt = $db->prepare("SELECT * FROM store_orders WHERE tenant_id = :tid ORDER BY created_at DESC");
+        $page = isset($_GET['page']) ? max(1, (int)$_GET['page']) : 1;
+        $limit = isset($_GET['limit']) ? max(1, (int)$_GET['limit']) : 5;
+        $offset = ($page - 1) * $limit;
+
+        $stmtCount = $db->prepare("SELECT COUNT(*) FROM store_orders WHERE tenant_id = :tid");
+        $stmtCount->execute(['tid' => $businessId]);
+        $totalOrders = $stmtCount->fetchColumn();
+
+        $totalPages = ceil($totalOrders / $limit);
+        if ($totalPages == 0) $totalPages = 1;
+
+        $stmt = $db->prepare("SELECT * FROM store_orders WHERE tenant_id = :tid ORDER BY created_at DESC LIMIT " . (int)$limit . " OFFSET " . (int)$offset);
         $stmt->execute(['tid' => $businessId]);
         $orders = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        $this->view('modules/storefront/views/orders', ['orders' => $orders]);
+        $this->view('modules/storefront/views/orders', [
+            'orders' => $orders,
+            'page' => $page,
+            'limit' => $limit,
+            'totalPages' => $totalPages,
+            'totalRecords' => $totalOrders
+        ]);
     }
 
     /**

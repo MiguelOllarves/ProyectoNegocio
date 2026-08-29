@@ -17,8 +17,16 @@ class SuppliersController extends Controller {
         header('Cache-Control: no-cache, no-store, must-revalidate');
         header('Pragma: no-cache');
         header('Expires: 0');
-        
-        $suppliers = $this->model->all();
+        $page = (int)($_GET['page'] ?? 1);
+        $limit = isset($_GET['limit']) ? max(1, (int)$_GET['limit']) : 5;
+        $offset = ($page - 1) * $limit;
+
+        $result = $this->model->paginate($limit, $offset, 'name ASC');
+        $suppliers = $result['data'];
+        $totalRecords = $result['total'];
+        $totalPages = ceil($totalRecords / $limit);
+        $baseUrl = BASE_URL . 'suppliers/list';
+
         if (empty($suppliers)) {
             echo "<tr><td colspan='4' class='p-8 text-center text-gray-400 dark:text-gray-500'><i class='fas fa-truck text-4xl mb-3 block opacity-30'></i>No hay proveedores registrados.</td></tr>";
             return;
@@ -40,6 +48,10 @@ class SuppliersController extends Controller {
                 </td>
             </tr>";
         }
+        
+        $colspan = 4;
+        $hxTarget = '#suppliers-tbody';
+        require __DIR__ . '/../../../includes/pagination.php';
     }
 
     public function create() {

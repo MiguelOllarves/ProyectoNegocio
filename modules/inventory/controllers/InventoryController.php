@@ -89,7 +89,17 @@ class InventoryController extends Controller {
         header('Cache-Control: no-cache, no-store, must-revalidate');
         header('Pragma: no-cache');
         header('Expires: 0');
-        $products = $this->productModel->allWithCategoriesAndBrands();
+        
+        $page = (int)($_GET['page'] ?? 1);
+        $limit = isset($_GET['limit']) ? max(1, (int)$_GET['limit']) : 5;
+        $offset = ($page - 1) * $limit;
+        
+        $result = $this->productModel->allWithCategoriesAndBrandsPaginated($limit, $offset);
+        $products = $result['data'];
+        $totalRecords = $result['total'];
+        $totalPages = ceil($totalRecords / $limit);
+        $baseUrl = BASE_URL . 'inventory/list';
+        
         require __DIR__ . '/../views/table_body.php';
     }
 

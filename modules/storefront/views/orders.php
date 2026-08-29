@@ -6,8 +6,17 @@
         <p class="text-gray-500 dark:text-gray-400 text-sm font-medium mt-1">Gestión de pedidos recibidos a través de la web</p>
     </div>
     
-    <div class="flex gap-2">
-        <a href="<?= BASE_URL ?>storefront" class="bg-white dark:bg-slate-800 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-slate-700 text-gray-700 dark:text-gray-300 font-bold py-2 px-4 rounded-lg shadow-sm transition-all text-sm flex items-center">
+    <div class="flex gap-2 items-center">
+        <form method="GET" action="<?= BASE_URL ?>storefront/orders" class="flex items-center gap-2">
+            <label class="text-sm font-medium text-gray-500 dark:text-gray-400">Mostrar:</label>
+            <select name="limit" onchange="this.form.submit()" class="px-3 py-1.5 bg-white dark:bg-slate-900 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-800 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-brand-500">
+                <option value="5" <?= (!isset($limit) || $limit == 5) ? 'selected' : '' ?>>5 filas</option>
+                <option value="10" <?= (isset($limit) && $limit == 10) ? 'selected' : '' ?>>10 filas</option>
+                <option value="50" <?= (isset($limit) && $limit == 50) ? 'selected' : '' ?>>50 filas</option>
+                <option value="100" <?= (isset($limit) && $limit == 100) ? 'selected' : '' ?>>100 filas</option>
+            </select>
+        </form>
+        <a href="<?= BASE_URL ?>storefront" class="bg-white dark:bg-slate-800 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-slate-700 text-gray-700 dark:text-gray-300 font-bold py-2 px-4 rounded-lg shadow-sm transition-all text-sm flex items-center h-full">
             <i class="fas fa-store mr-2"></i> Ir a Configuración
         </a>
     </div>
@@ -26,7 +35,7 @@
                     <th class="p-4 text-center">Acciones</th>
                 </tr>
             </thead>
-            <tbody class="divide-y divide-gray-50 dark:divide-gray-800/50">
+            <tbody id="store-orders-tbody" class="divide-y divide-gray-50 dark:divide-gray-800/50">
                 <?php if(empty($orders)): ?>
                     <tr>
                         <td colspan="6" class="p-12 text-center text-gray-400">
@@ -93,8 +102,11 @@
                                 <?php endif; ?>
                             </td>
                         </tr>
-                    <?php endforeach; ?>
-                <?php endif; ?>
+                    <?php endforeach; 
+                        $colspan = 6;
+                        $hxTarget = '#store-orders-tbody';
+                        require __DIR__ . '/../../../includes/pagination.php';
+                    endif; ?>
             </tbody>
         </table>
     </div>

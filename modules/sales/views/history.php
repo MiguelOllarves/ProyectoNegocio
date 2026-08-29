@@ -26,7 +26,7 @@
                     <th class="p-4 font-bold text-center">Acciones</th>
                 </tr>
             </thead>
-            <tbody class="divide-y divide-gray-100 dark:divide-gray-800 text-sm">
+            <tbody id="history-tbody" class="divide-y divide-gray-100 dark:divide-gray-800 text-sm">
                 <?php if(empty($sales)): ?>
                 <tr>
                     <td colspan="6" class="p-8 text-center text-gray-400">No hay ventas registradas el día de hoy.</td>
@@ -62,7 +62,13 @@
                             </div>
                         </td>
                     </tr>
-                    <?php endforeach; ?>
+                    <?php endforeach; 
+                    $colspan = 6;
+                    $hxTarget = '#history-tbody';
+                    // HTMX needs hx-select since the response contains the full page
+                    // We modify pagination.php inline or dynamically add hx-select here if needed
+                    ?>
+                    <?php require __DIR__ . '/../../../includes/pagination.php'; ?>
                 <?php endif; ?>
             </tbody>
         </table>

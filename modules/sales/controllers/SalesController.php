@@ -136,10 +136,23 @@ class SalesController extends Controller {
 
     public function history() {
         $business_id = $_SESSION['business_id'] ?? 1;
-        $sales = $this->saleModel->getDailySales($business_id);
+        $page = (int)($_GET['page'] ?? 1);
+        $limit = 5;
+        $offset = ($page - 1) * $limit;
+
+        $result = $this->saleModel->getDailySalesPaginated($business_id, $limit, $offset);
+        $sales = $result['data'];
+        $totalRecords = $result['total'];
+        $totalPages = ceil($totalRecords / $limit);
+        $baseUrl = BASE_URL . 'sales/history';
         
         $this->view('modules/sales/views/history', [
-            'sales' => $sales
+            'sales' => $sales,
+            'page' => $page,
+            'totalPages' => $totalPages,
+            'totalRecords' => $totalRecords,
+            'limit' => $limit,
+            'baseUrl' => $baseUrl
         ]);
     }
 

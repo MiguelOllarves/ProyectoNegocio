@@ -36,7 +36,7 @@
                         <th class="px-6 py-4">Detalles (JSON)</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-gray-100 dark:divide-gray-700/50">
+                <tbody id="audit-tbody" class="divide-y divide-gray-100 dark:divide-gray-700/50">
                     <?php if (empty($logs)): ?>
                         <tr>
                             <td colspan="6" class="px-6 py-12 text-center text-gray-500">No hay registros de auditoría aún.</td>
@@ -62,11 +62,8 @@
                                     <?php echo $log['action']; ?>
                                 </span>
                             </td>
-                            <td class="px-6 py-3 text-gray-700 dark:text-gray-400 font-mono text-xs">
-                                <?php echo $log['table_name']; ?>
-                            </td>
-                            <td class="px-6 py-3 text-gray-600 dark:text-gray-400 font-mono text-xs">
-                                #<?php echo $log['record_id']; ?>
+                            <td class="px-6 py-3 text-gray-700 dark:text-gray-400 font-mono text-xs" colspan="2">
+                                <?php echo htmlspecialchars($log['target'] ?? 'N/A'); ?>
                             </td>
                             <td class="px-6 py-3 max-w-xs truncate text-xs text-brand-600 dark:text-brand-400 font-mono cursor-pointer" onclick="Swal.fire({title: 'Detalle JSON', html: `<pre class='text-left text-xs bg-gray-100 dark:bg-gray-900 p-4 rounded-lg overflow-auto max-h-96' style='max-width: 100%; white-space: pre-wrap; word-break: break-all;'>${this.dataset.json.replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, '<br>')}</pre>`, confirmButtonText: 'Cerrar'})" data-json='<?php echo addslashes($log['details']); ?>'>
                                 <?php echo htmlspecialchars(substr($log['details'], 0, 50)) . '...'; ?>
@@ -74,48 +71,18 @@
                             </td>
                         </tr>
                         <?php endforeach; ?>
+                        
+                        <?php 
+                            $totalRecords = $totalLogs ?? 0;
+                            $colspan = 6;
+                            $hxTarget = '#audit-tbody';
+                            require __DIR__ . '/../../../includes/pagination.php';
+                        ?>
                     <?php endif; ?>
                 </tbody>
             </table>
         </div>
     </div>
-
-    <!-- Paginación -->
-    <?php if (isset($totalPages) && $totalPages > 1): ?>
-    <div class="p-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4 mt-6">
-        <p class="text-xs text-gray-500 dark:text-gray-400">
-            Mostrando página <span class="font-bold text-gray-700 dark:text-gray-300"><?= $page ?></span> de <span class="font-bold text-gray-700 dark:text-gray-300"><?= $totalPages ?></span> 
-            (Total de registros: <?= $totalLogs ?>)
-        </p>
-        
-        <?php
-            $buildUrl = function($p) use ($limit) {
-                return BASE_URL . "reports/auditoria?limit={$limit}&page={$p}";
-            };
-        ?>
-        <div class="flex items-center gap-1">
-            <?php if ($page > 1): ?>
-            <a href="<?= $buildUrl($page - 1) ?>" class="px-3 py-1.5 bg-white dark:bg-slate-700 border border-gray-200 dark:border-gray-600 rounded-lg text-sm text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-slate-600 transition-colors">
-                Anterior
-            </a>
-            <?php else: ?>
-            <span class="px-3 py-1.5 bg-gray-50 dark:bg-slate-800 border border-gray-100 dark:border-gray-700 rounded-lg text-sm text-gray-400 dark:text-gray-600 cursor-not-allowed">
-                Anterior
-            </span>
-            <?php endif; ?>
-
-            <?php if ($page < $totalPages): ?>
-            <a href="<?= $buildUrl($page + 1) ?>" class="px-3 py-1.5 bg-white dark:bg-slate-700 border border-gray-200 dark:border-gray-600 rounded-lg text-sm text-brand-600 dark:text-brand-400 hover:bg-gray-50 dark:hover:bg-slate-600 font-medium transition-colors">
-                Siguiente
-            </a>
-            <?php else: ?>
-            <span class="px-3 py-1.5 bg-gray-50 dark:bg-slate-800 border border-gray-100 dark:border-gray-700 rounded-lg text-sm text-gray-400 dark:text-gray-600 cursor-not-allowed">
-                Siguiente
-            </span>
-            <?php endif; ?>
-        </div>
-    </div>
-    <?php endif; ?>
 </main>
 
 <?php include __DIR__ . '/../../../includes/footer.php'; ?>

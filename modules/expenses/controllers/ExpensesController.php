@@ -16,8 +16,16 @@ class ExpensesController extends Controller {
         header('Cache-Control: no-cache, no-store, must-revalidate');
         header('Pragma: no-cache');
         header('Expires: 0');
+        $page = (int)($_GET['page'] ?? 1);
+        $limit = 5;
+        $offset = ($page - 1) * $limit;
         
-        $expenses = $this->model->allWithUser();
+        $result = $this->model->allWithUserPaginated($limit, $offset);
+        $expenses = $result['data'];
+        $totalRecords = $result['total'];
+        $totalPages = ceil($totalRecords / $limit);
+        $baseUrl = BASE_URL . 'expenses/list';
+
         if (empty($expenses)) {
             echo "<tr><td colspan='6' class='px-6 py-4 text-center text-gray-500 dark:text-gray-400'>No hay gastos registrados.</td></tr>";
             return;
@@ -49,6 +57,10 @@ class ExpensesController extends Controller {
             </tr>
             ";
         }
+        
+        $colspan = 6;
+        $hxTarget = '#expenses-tbody';
+        require __DIR__ . '/../../../includes/pagination.php';
     }
 
     public function create() {

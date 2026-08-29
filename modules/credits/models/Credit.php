@@ -51,6 +51,46 @@ class Credit extends Model {
         return $stmt->fetchAll();
     }
 
+    public function allWithClientsPaginated($statusFilter = null, $limit = 5, $offset = 0) {
+        $where = "WHERE 1=1";
+        $params = [];
+
+        if ($this->tenantColumn && isset($_SESSION['business_id'])) {
+            $where .= " AND c.tenant_id = :tenant_id";
+            $params['tenant_id'] = $_SESSION['business_id'];
+        }
+
+        if ($statusFilter) {
+            $where .= " AND c.status = :status";
+            $params['status'] = $statusFilter;
+        }
+
+        $countSql = "SELECT COUNT(*) FROM credits c JOIN clients cl ON cl.id = c.client_id $where";
+        $stmtCount = $this->db->prepare($countSql);
+        $stmtCount->execute($params);
+        $total = $stmtCount->fetchColumn();
+
+        $sql = "SELECT c.*, cl.name as client_name, cl.phone as client_phone, cl.document as client_document, cl.email as client_email
+                FROM credits c
+                JOIN clients cl ON cl.id = c.client_id
+                $where
+                ORDER BY CASE 
+                    WHEN c.status = 'Vencido' THEN 1 
+                    WHEN c.status = 'Pendiente' THEN 2 
+                    ELSE 3 
+                END, c.due_date ASC
+                LIMIT " . (int)$limit . " OFFSET " . (int)$offset;
+
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute($params);
+        $data = $stmt->fetchAll();
+
+        return [
+            'data' => $data,
+            'total' => $total
+        ];
+    }
+
     /**
      * Recalcula el saldo de un crédito basándose en los pagos aprobados.
      */

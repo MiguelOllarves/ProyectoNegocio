@@ -220,7 +220,8 @@ document.addEventListener("DOMContentLoaded", function() {
                 return;
             }
             hasAny = true;
-            let baseCost = parseFloat(d.ing.unit_cost || 0) / parseFloat(d.ing.sale_unit_factor || 1);
+            let factor = parseFloat(d.ing.sale_unit_factor || d.ing.base_unit_factor || 1);
+            let baseCost = parseFloat(d.ing.unit_cost || 0) / factor;
             let rowCost = d.qtyBase * baseCost;
             totalCost += rowCost;
             if (costSpan) costSpan.innerText = "$" + fmt(rowCost);

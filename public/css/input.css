@@ -55,11 +55,11 @@
   }
 
   .modal-container {
-    @apply flex items-start justify-center min-h-full px-4 pt-6 sm:pt-12 pb-24 sm:pb-12;
+    @apply flex items-center justify-center min-h-full p-4;
   }
 
   .modal-card {
-    @apply relative w-full bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden;
+    @apply relative w-full bg-white rounded-3xl shadow-2xl border border-gray-100 overflow-hidden transform transition-all;
   }
 
   .dark .modal-card {
@@ -83,11 +83,11 @@
   }
 
   .modal-header {
-    @apply flex justify-between items-center px-5 py-4 border-b border-gray-100;
+    @apply flex justify-between items-center px-6 py-5 border-b border-gray-100/60 bg-gray-50/50;
   }
 
   .dark .modal-header {
-    @apply border-gray-700;
+    @apply border-gray-700/60 bg-slate-800/50;
   }
 
   .modal-title {
@@ -107,11 +107,11 @@
   }
 
   .modal-body {
-    @apply p-5;
+    @apply p-6;
   }
 
   .modal-footer {
-    @apply flex gap-3 p-5 border-t border-gray-100;
+    @apply flex gap-3 px-6 py-5 border-t border-gray-100/60 bg-gray-50/50;
   }
 
   .dark .modal-footer {
@@ -189,21 +189,24 @@
   }
 
   .form-input {
-    @apply w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-shadow;
-    min-height: 40px;
+    @apply w-full rounded-2xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-800 shadow-sm transition-all focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20 placeholder-gray-400;
   }
 
   .dark .form-input {
-    @apply bg-slate-800 border-gray-700 text-gray-100;
+    @apply border-gray-700 bg-slate-900 text-white placeholder-gray-500 focus:border-brand-400 focus:ring-brand-400/20;
   }
 
   .form-select {
-    @apply w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-shadow appearance-none;
-    min-height: 40px;
+    @apply w-full rounded-2xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-800 shadow-sm transition-all focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20 appearance-none;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+    background-position: right 0.75rem center;
+    background-repeat: no-repeat;
+    background-size: 1.5em 1.5em;
   }
 
   .dark .form-select {
-    @apply bg-slate-800 border-gray-700 text-gray-100;
+    @apply border-gray-700 bg-slate-900 text-white focus:border-brand-400 focus:ring-brand-400/20;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%239ca3af' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
   }
 
   /* ═══════════════════════════════════════

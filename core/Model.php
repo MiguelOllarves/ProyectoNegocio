@@ -14,8 +14,9 @@ class Model {
         if ($this->table === 'audit_logs') return;
         try {
             $userId = $_SESSION['user_id'] ?? null;
-            $stmt = $this->db->prepare("INSERT INTO audit_logs (user_id, action, table_name, record_id, details) VALUES (?, ?, ?, ?, ?)");
-            $stmt->execute([$userId, $action, $this->table, $recordId, json_encode($details, JSON_UNESCAPED_UNICODE)]);
+            $stmt = $this->db->prepare("INSERT INTO audit_logs (user_id, action, target, details) VALUES (?, ?, ?, ?)");
+            $target = $this->table . ':' . $recordId;
+            $stmt->execute([$userId, $action, $target, json_encode($details, JSON_UNESCAPED_UNICODE)]);
         } catch (\Exception $e) { }
     }
 
@@ -29,6 +30,34 @@ class Model {
         $stmt = $this->db->prepare($sql);
         $stmt->execute($params);
         return $stmt->fetchAll();
+    }
+
+    public function paginate($limit, $offset, $orderBy = 'id DESC', $whereClause = "", $whereParams = []) {
+        $params = $whereParams;
+        $where = $whereClause;
+
+        if ($this->tenantColumn && isset($_SESSION['business_id'])) {
+            $prefix = empty($where) ? "WHERE" : "AND";
+            $where .= " $prefix {$this->tenantColumn} = :tenant_id";
+            $params['tenant_id'] = $_SESSION['business_id'];
+        } else if (!empty($where)) {
+            $where = "WHERE " . $where;
+        }
+
+        $countSql = "SELECT COUNT(*) FROM {$this->table} $where";
+        $stmtCount = $this->db->prepare($countSql);
+        $stmtCount->execute($params);
+        $total = $stmtCount->fetchColumn();
+
+        $sql = "SELECT * FROM {$this->table} $where ORDER BY $orderBy LIMIT " . (int)$limit . " OFFSET " . (int)$offset;
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute($params);
+        $data = $stmt->fetchAll();
+
+        return [
+            'data' => $data,
+            'total' => $total
+        ];
     }
 
     public function find($id) {

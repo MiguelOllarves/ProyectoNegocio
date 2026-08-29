@@ -259,7 +259,7 @@
                         </div>
                         
                         <!-- Mapa GPS -->
-                        <div id="gps-container" class="hidden flex flex-col gap-2">
+                        <div id="gps-container" class="hidden flex-col gap-2">
                             <span class="block text-xs font-bold text-red-500"><i class="fas fa-map-marker-alt mr-1"></i> Ubicación GPS exacta capturada</span>
                             <div id="client-map" class="w-full h-48 rounded-xl shadow-inner border border-gray-200 z-10"></div>
                         </div>
@@ -417,9 +417,20 @@
 
 <!-- Search + Actions Bar -->
 <div class="flex flex-col sm:flex-row items-center gap-3 mt-4 mb-4">
-    <div class="relative flex-1 w-full">
-        <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
-        <input type="text" data-table-search="#clients-tbody" placeholder="Buscar cliente..." class="form-input pl-10 h-10 w-full rounded-xl">
+    <div class="relative flex-1 w-full flex gap-2 items-center">
+        <div class="relative flex-1">
+            <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+            <input type="text" data-table-search="#clients-tbody" placeholder="Buscar cliente..." class="form-input pl-10 h-10 w-full rounded-xl">
+        </div>
+        <form method="GET" action="<?= BASE_URL ?>clients" class="flex items-center gap-2" hx-get="<?= BASE_URL ?>clients/list" hx-target="#clients-tbody">
+            <label class="text-sm font-medium text-gray-500 dark:text-gray-400 hidden sm:block">Mostrar:</label>
+            <select name="limit" onchange="htmx.trigger(this.form, 'submit')" class="px-3 h-10 bg-white dark:bg-slate-900 border border-gray-200 dark:border-gray-700 rounded-xl text-sm text-gray-800 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-brand-500">
+                <option value="5">5 filas</option>
+                <option value="10">10 filas</option>
+                <option value="50">50 filas</option>
+                <option value="100">100 filas</option>
+            </select>
+        </form>
     </div>
     <div class="flex gap-2 w-full sm:w-auto overflow-x-auto pb-1 sm:pb-0">
         <button onclick="triggerImportClients()" class="no-print btn-secondary flex-1 sm:flex-none justify-center">

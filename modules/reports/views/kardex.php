@@ -29,6 +29,15 @@
                 <?php endforeach; ?>
             </select>
         </div>
+        <div class="flex-none">
+            <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-1">Mostrar</label>
+            <select name="limit" class="w-full px-3 py-2 bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-800 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-brand-500 h-10 cursor-pointer">
+                <option value="5" <?= (!isset($limit) || $limit == 5) ? 'selected' : '' ?>>5 filas</option>
+                <option value="10" <?= (isset($limit) && $limit == 10) ? 'selected' : '' ?>>10 filas</option>
+                <option value="50" <?= (isset($limit) && $limit == 50) ? 'selected' : '' ?>>50 filas</option>
+                <option value="100" <?= (isset($limit) && $limit == 100) ? 'selected' : '' ?>>100 filas</option>
+            </select>
+        </div>
         <button type="submit" class="bg-gradient-to-r from-brand-600 to-accent-600 hover:from-brand-500 hover:to-accent-500 text-white font-bold h-10 px-5 rounded-lg shadow-sm shadow-brand-500/20 transition-all text-sm w-full sm:w-auto">
             Buscar
         </button>
@@ -56,7 +65,7 @@
                     <th class="p-4">Usuario</th>
                 </tr>
             </thead>
-            <tbody class="divide-y divide-gray-100 dark:divide-gray-800 text-sm">
+            <tbody id="kardex-tbody" class="divide-y divide-gray-100 dark:divide-gray-800 text-sm">
                 <?php if (empty($kardex)): ?>
                 <tr><td colspan="7" class="p-12 text-center text-gray-400 dark:text-gray-500 font-medium"><i class="fas fa-inbox text-3xl block mb-3 opacity-30"></i>No se registran movimientos para estos criterios.</td></tr>
                 <?php else: foreach ($kardex as $k): ?>
@@ -101,7 +110,11 @@
                         <?= htmlspecialchars($k['user_name'] ?? 'Sistema') ?>
                     </td>
                 </tr>
-                <?php endforeach; endif; ?>
+                <?php endforeach; 
+                    $colspan = 7;
+                    $hxTarget = '#kardex-tbody';
+                    require __DIR__ . '/../../../includes/pagination.php';
+                endif; ?>
             </tbody>
         </table>
     </div>

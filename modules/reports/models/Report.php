@@ -22,6 +22,41 @@ class Report extends Model {
         return $stmt->fetchAll();
     }
 
+    public function getKardexCount($productId = null) {
+        $business_id = $_SESSION['business_id'] ?? 1;
+        $sql = "SELECT COUNT(*) 
+                FROM kardex k 
+                JOIN products p ON k.product_id = p.id 
+                WHERE p.tenant_id = ?";
+        $params = [$business_id];
+        if ($productId) {
+            $sql .= " AND k.product_id = ? ";
+            $params[] = $productId;
+        }
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute($params);
+        return $stmt->fetchColumn();
+    }
+
+    public function getKardexPaginated($productId = null, $limit = 5, $offset = 0) {
+        $business_id = $_SESSION['business_id'] ?? 1;
+        $sql = "SELECT k.*, p.name as product_name, p.sku, u.username as user_name 
+                FROM kardex k 
+                JOIN products p ON k.product_id = p.id 
+                LEFT JOIN users u ON k.user_id = u.id 
+                WHERE p.tenant_id = ?";
+        $params = [$business_id];
+        if ($productId) {
+            $sql .= " AND k.product_id = ? ";
+            $params[] = $productId;
+        }
+        $sql .= " ORDER BY k.created_at DESC, k.id DESC LIMIT " . (int)$limit . " OFFSET " . (int)$offset;
+        
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute($params);
+        return $stmt->fetchAll();
+    }
+
     public function getFinancialSummary($startDate, $endDate) {
         $business_id = $_SESSION['business_id'] ?? 1;
         

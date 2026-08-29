@@ -155,7 +155,7 @@
             <div x-show="openModal" class="modal-backdrop" @click="openModal = false"></div>
             
             <div x-show="openModal" class="modal-card modal-card-md animate-fade-in-up">
-                <div class="flex items-center justify-between mb-4 pb-3 border-b border-gray-100 dark:border-gray-700">
+                <div class="modal-header">
                     <h3 class="modal-title">
                         <i class="fas fa-file-invoice-dollar text-brand-500 mr-2"></i> Nuevo Crédito
                     </h3>
@@ -164,7 +164,7 @@
                     </button>
                 </div>
                 
-                <div class="modal-body pb-0">
+                <div class="modal-body">
                     <form hx-post="<?= BASE_URL ?>credits/create" hx-swap="none" @htmx:after-request="if($event.target === $el && $event.detail.successful) { openModal = false; $el.reset(); Swal.fire({title: '¡Crédito Creado!', text: 'El registro se ha creado correctamente.', icon: 'success', timer: 2000, showConfirmButton: true, confirmButtonText: 'Continuar', confirmButtonColor: '#10b981', customClass: { popup: 'rounded-2xl' }}).then(() => { htmx.ajax('GET', '<?= BASE_URL ?>credits/list?t=' + new Date().getTime(), {target: '#credits-tbody'}); }); }" class="space-y-4">
                         <div class="grid grid-cols-2 gap-4">
                             <div>

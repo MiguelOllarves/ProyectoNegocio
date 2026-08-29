@@ -118,7 +118,23 @@
     }
 </script>
 
-<div class="card mt-4">
+<div class="flex flex-col sm:flex-row justify-between items-center gap-3 mt-4 mb-4">
+    <div class="relative w-full sm:w-1/3">
+        <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+        <input type="text" data-table-search="#suppliers-tbody" placeholder="Buscar proveedor..." class="form-input pl-10 h-10 w-full rounded-xl">
+    </div>
+    <form method="GET" action="<?= BASE_URL ?>suppliers" class="flex items-center gap-2" hx-get="<?= BASE_URL ?>suppliers/list" hx-target="#suppliers-tbody">
+        <label class="text-sm font-medium text-gray-500 dark:text-gray-400 hidden sm:block">Mostrar:</label>
+        <select name="limit" onchange="htmx.trigger(this.form, 'submit')" class="px-3 h-10 bg-white dark:bg-slate-900 border border-gray-200 dark:border-gray-700 rounded-xl text-sm text-gray-800 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-brand-500">
+            <option value="5">5 filas</option>
+            <option value="10">10 filas</option>
+            <option value="50">50 filas</option>
+            <option value="100">100 filas</option>
+        </select>
+    </form>
+</div>
+
+<div class="card mt-2">
     <div class="table-wrap">
         <table class="min-w-[600px] w-full text-left border-collapse">
             <thead>

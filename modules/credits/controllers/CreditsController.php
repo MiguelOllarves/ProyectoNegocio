@@ -45,7 +45,15 @@ class CreditsController extends Controller {
         header('Expires: 0');
         
         $filter = $_GET['status'] ?? null;
-        $credits = $this->creditModel->allWithClients($filter);
+        $page = (int)($_GET['page'] ?? 1);
+        $limit = 5;
+        $offset = ($page - 1) * $limit;
+        
+        $result = $this->creditModel->allWithClientsPaginated($filter, $limit, $offset);
+        $credits = $result['data'];
+        $totalRecords = $result['total'];
+        $totalPages = ceil($totalRecords / $limit);
+        $baseUrl = BASE_URL . 'credits/list' . ($filter ? '?status=' . urlencode($filter) : '');
 
         if (empty($credits)) {
             echo "<tr><td colspan='6' class='p-10 text-center text-gray-400 dark:text-gray-500'>
@@ -136,6 +144,10 @@ class CreditsController extends Controller {
                 </td>
             </tr>";
         }
+
+        $colspan = 6;
+        $hxTarget = '#credits-tbody';
+        require __DIR__ . '/../../../includes/pagination.php';
     }
 
     /**

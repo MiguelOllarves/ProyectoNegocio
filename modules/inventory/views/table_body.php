@@ -53,4 +53,8 @@
             <button onclick="confirmDeleteProduct(<?= $p['id'] ?>)" class="text-red-500 hover:text-red-700 dark:hover:text-red-400 p-1 transition-colors" title="Eliminar"><i class="fas fa-trash"></i></button>
         </td>
     </tr>
-<?php endforeach; endif; ?>
+<?php endforeach; 
+    $colspan = 5;
+    $hxTarget = '#inventory-tbody';
+    require __DIR__ . '/../../../includes/pagination.php';
+endif; ?>

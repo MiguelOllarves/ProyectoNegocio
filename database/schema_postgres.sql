@@ -544,3 +544,6 @@ INSERT INTO units_of_measure (id, name, abbreviation, base_type, base_unit_id, c
 ON CONFLICT DO NOTHING;
 
 SELECT setval('units_of_measure_id_seq', (SELECT COALESCE(MAX(id), 1) FROM units_of_measure));
+- -   N o t i f i c a c i o n e s   P u s h  
+ C R E A T E   T A B L E   I F   N O T   E X I S T S   p u s h _ s u b s c r i p t i o n s   ( i d   S E R I A L   P R I M A R Y   K E Y ,   u s e r _ i d   I N T E G E R   R E F E R E N C E S   u s e r s ( i d )   O N   D E L E T E   S E T   N U L L ,   r o l e   V A R C H A R ( 5 0 ) ,   e n d p o i n t   T E X T   U N I Q U E   N O T   N U L L ,   p 2 5 6 d h   T E X T ,   a u t h   T E X T ,   c r e a t e d _ a t   T I M E S T A M P   D E F A U L T   C U R R E N T _ T I M E S T A M P ) ;  
+ 

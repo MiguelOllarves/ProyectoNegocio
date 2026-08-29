@@ -474,28 +474,39 @@
             presContainer.appendChild(row);
             
             if(!fixed) {
-                row.querySelector(".remove-pres").addEventListener("click", () => { presContainer.removeChild(row); });
+                row.querySelector(".remove-pres")?.addEventListener("click", () => { presContainer.removeChild(row); });
                 
                 const costTrigger = row.querySelector('.cost-trigger-input');
                 const qtyInput = row.querySelector('.pres-qty-input');
-                costTrigger.addEventListener('input', function() {
+                costTrigger?.addEventListener('input', function() {
                     let totalPaid = parseFloat(this.value) || 0;
-                    let qty = parseFloat(qtyInput.value) || 0;
+                    let qty = parseFloat(qtyInput?.value) || 0;
                     if(totalPaid > 0 && qty > 0) {
                         let unitCost = totalPaid / qty;
                         let tc = document.getElementById('total_cost');
-                        tc.value = Number(unitCost.toFixed(4));
-                        tc.dispatchEvent(new Event('input'));
+                        if (tc) {
+                            tc.value = Number(unitCost.toFixed(4));
+                            tc.dispatchEvent(new Event('input'));
+                        }
                         
                         let wrap = document.getElementById('total_cost_wrapper');
                         if(wrap) {
                            wrap.classList.add('bg-yellow-200', 'ring-4', 'ring-yellow-400', 'scale-[1.02]');
                            setTimeout(() => wrap.classList.remove('bg-yellow-200', 'ring-4', 'ring-yellow-400', 'scale-[1.02]'), 600);
                         }
+
+                        let stockInput = document.getElementById('stock_containers');
+                        if (stockInput && (stockInput.value === "0" || stockInput.value === "")) {
+                            stockInput.value = qty;
+                            stockInput.dispatchEvent(new Event('input'));
+                            
+                            stockInput.classList.add('bg-yellow-100', 'ring-4', 'ring-yellow-300', 'transition-all');
+                            setTimeout(() => stockInput.classList.remove('bg-yellow-100', 'ring-4', 'ring-yellow-300'), 600);
+                        }
                     }
                 });
-                qtyInput.addEventListener('input', function() {
-                    if (costTrigger.value) costTrigger.dispatchEvent(new Event('input'));
+                qtyInput?.addEventListener('input', function() {
+                    if (costTrigger && costTrigger.value) costTrigger.dispatchEvent(new Event('input'));
                 });
             }
             updateLabels(); 
