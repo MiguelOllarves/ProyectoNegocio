@@ -34,18 +34,27 @@ class CostCalculationService {
      * @param float $costPerBaseUnit Costo por unidad base del producto (ej. $0.005)
      * @return float|string Costo calculado, o "MISSING_COST" si el costo base es nulo o <= 0 (si se requiere)
      */
-    public static function calculateIngredientCost($recipeQty, $recipeUnitId, $costPerBaseUnit) {
-        if ($costPerBaseUnit === null || $costPerBaseUnit === '') {
+    public static function calculateIngredientCost($recipeQty, $recipeUnitId, $costPerSaleUnit, $saleUnitFactor = 1.0) {
+        if ($costPerSaleUnit === null || $costPerSaleUnit === '') {
             return "MISSING_COST";
         }
         
-        $costPerBaseUnit = (float)$costPerBaseUnit;
-        if ($costPerBaseUnit == 0) {
+        $costPerSaleUnit = (float)$costPerSaleUnit;
+        if ($costPerSaleUnit == 0) {
            return "MISSING_COST";
         }
         
+        $factor = (float)$saleUnitFactor;
+        if ($factor <= 0) $factor = 1.0;
+        
+        $costPerBaseUnit = $costPerSaleUnit / $factor;
+        
         // Convertimos la cantidad de la receta a la unidad base
-        $qtyInBase = UnitConversionService::convertToBase($recipeQty, $recipeUnitId);
+        if ($recipeUnitId) {
+            $qtyInBase = UnitConversionService::convertToBase($recipeQty, $recipeUnitId);
+        } else {
+            $qtyInBase = (float)$recipeQty;
+        }
         
         $ingredientCost = $qtyInBase * $costPerBaseUnit;
         return $ingredientCost;

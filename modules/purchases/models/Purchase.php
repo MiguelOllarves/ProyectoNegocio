@@ -70,10 +70,10 @@ class Purchase extends Model {
                 $realQuantity = $item['quantity'] * $multiplier;
                 
                 $quantityInBaseUnits = \UnitConversionService::convertToBase($realQuantity, $calcUnitId);
-                $costPerBaseUnit = \CostCalculationService::calculateCostPerBaseUnit($totalItemCost, $realQuantity, $calcUnitId);
+                $costPerSaleUnit = $realQuantity > 0 ? $totalItemCost / $realQuantity : 0;
 
                 $stmtItem->execute([$purchaseId, $item['product_id'], $presentationId, $item['quantity'], $unitType, $item['cost']]);
-                $stmtStock->execute([$quantityInBaseUnits, $costPerBaseUnit, $item['cost'], $item['product_id']]);
+                $stmtStock->execute([$quantityInBaseUnits, $costPerSaleUnit, $item['cost'], $item['product_id']]);
 
                 $stmtStockAfter->execute([$item['product_id']]);
                 $stockAfter = $stmtStockAfter->fetchColumn();
@@ -294,12 +294,12 @@ class Purchase extends Model {
                 $realQuantity = clone $item['quantity'] * $multiplier;
                 
                 $quantityInBaseUnits = \UnitConversionService::convertToBase($realQuantity, $calcUnitId);
-                $costPerBaseUnit = \CostCalculationService::calculateCostPerBaseUnit($totalItemCost, $realQuantity, $calcUnitId);
+                $costPerSaleUnit = $realQuantity > 0 ? $totalItemCost / $realQuantity : 0;
 
                 $stmtItem->execute([$id, $item['product_id'], $presentationId, $item['quantity'], $unitType, $item['cost']]);
                 
                 // Add stock
-                $stmtStockAdd->execute([$quantityInBaseUnits, $costPerBaseUnit, $item['cost'], $item['product_id']]);
+                $stmtStockAdd->execute([$quantityInBaseUnits, $costPerSaleUnit, $item['cost'], $item['product_id']]);
                 $stmtStockAfter->execute([$item['product_id']]);
                 $stockAfter = $stmtStockAfter->fetchColumn();
 

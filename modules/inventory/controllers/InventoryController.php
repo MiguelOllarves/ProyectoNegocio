@@ -173,12 +173,10 @@ class InventoryController extends Controller {
             require_once __DIR__ . '/../../../core/CostCalculationService.php';
             $unitCost = 0;
             if ($totalCost > 0 && $contentPerPurchase > 0) {
-                // The purchase is $totalCost for $contentPerPurchase of $saleUnitId
-                $unitCost = \CostCalculationService::calculateCostPerBaseUnit($totalCost, $contentPerPurchase, $saleUnitId);
-            } elseif (!empty($_POST['unit_cost'])) {
-                $uCost = (float)$_POST['unit_cost'];
-                $saleUnitFactor = $saleUnit ? (float)$saleUnit['conversion_to_base'] : 1;
-                $unitCost = $saleUnitFactor > 0 ? $uCost / $saleUnitFactor : $uCost;
+                // The purchase is $totalCost for $contentPerPurchase of the Sale Unit.
+                $unitCost = $totalCost / $contentPerPurchase;
+            } elseif (isset($_POST['unit_cost']) && $_POST['unit_cost'] !== '') {
+                $unitCost = (float)$_POST['unit_cost'];
             }
 
             // Convertir stock introducido a unidad base
@@ -387,12 +385,10 @@ class InventoryController extends Controller {
             require_once __DIR__ . '/../../../core/CostCalculationService.php';
             $unitCost = $this->productModel->find($id)['unit_cost'] ?? 0; // Fallback to current cost
             if (isset($_POST['total_cost']) && $totalCost >= 0 && $contentPerPurchase > 0) {
-                // The purchase is $totalCost for $contentPerPurchase of $saleUnitId
-                $unitCost = \CostCalculationService::calculateCostPerBaseUnit($totalCost, $contentPerPurchase, $saleUnitId);
-            } elseif (isset($_POST['unit_cost'])) {
-                $uCost = (float)$_POST['unit_cost'];
-                $saleUnitFactor = $saleUnit ? (float)$saleUnit['conversion_to_base'] : 1;
-                $unitCost = $saleUnitFactor > 0 ? $uCost / $saleUnitFactor : $uCost;
+                // The purchase is $totalCost for $contentPerPurchase of the Sale Unit
+                $unitCost = $totalCost / $contentPerPurchase;
+            } elseif (isset($_POST['unit_cost']) && $_POST['unit_cost'] !== '') {
+                $unitCost = (float)$_POST['unit_cost'];
             }
             
             // OJO: Al actualizar, si el frontend envía el stock modificado, lo convertimos a base.

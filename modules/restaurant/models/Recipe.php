@@ -46,17 +46,19 @@ class Recipe extends Model {
                        p.base_unit_id as ingredient_unit_id,
                        u.name as unit_name,
                        u.abbreviation as unit_abbr,
-                       u.conversion_to_base as unit_factor
+                       u.conversion_to_base as unit_factor,
+                       u2.conversion_to_base as sale_unit_factor
                 FROM {$this->table} ri
                 JOIN products p ON ri.ingredient_id = p.id
                 LEFT JOIN units_of_measure u ON ri.unit_id = u.id
+                LEFT JOIN units_of_measure u2 ON p.sale_unit_id = u2.id
                 WHERE ri.dish_id = :dish_id";
         $params = ['dish_id' => $dishId];
         if ($this->tenantColumn && isset($_SESSION['business_id'])) {
             $sql .= " AND ri.{$this->tenantColumn} = :tenant_id";
             $params['tenant_id'] = $_SESSION['business_id'];
         }
-        $sql .= " ORDER BY ki.name ASC";
+        $sql .= " ORDER BY p.name ASC";
         $stmt = $this->db->prepare($sql);
         $stmt->execute($params);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -132,8 +134,9 @@ class Recipe extends Model {
         foreach ($items as $item) {
             $qty = (float)$item['quantity'];
             $ingredientCostStr = $item['ingredient_cost'] ?? 0;
+            $saleUnitFactor = $item['sale_unit_factor'] ?? 1.0;
             
-            $cost = \CostCalculationService::calculateIngredientCost($qty, $item['unit_id'], $ingredientCostStr);
+            $cost = \CostCalculationService::calculateIngredientCost($qty, $item['unit_id'], $ingredientCostStr, $saleUnitFactor);
             if ($cost === 'MISSING_COST') {
                 $cost = 0;
             }
@@ -187,8 +190,8 @@ class Recipe extends Model {
     public function consumeIngredients($dishId, $servings, $referenceType, $referenceId, $userId) {
         $items = $this->getForDish($dishId);
 
-        $stmtUpdate = $this->db->prepare("UPDATE kitchen_ingredients SET stock = stock - :qty WHERE id = :pid");
-        $stmtAfter  = $this->db->prepare("SELECT stock FROM kitchen_ingredients WHERE id = :pid");
+        $stmtUpdate = $this->db->prepare("UPDATE products SET stock = stock - :qty WHERE id = :pid");
+        $stmtAfter  = $this->db->prepare("SELECT stock FROM products WHERE id = :pid");
 
         foreach ($items as $item) {
             $need = $this->qtyInBaseUnits((float)$item['quantity'] * $servings, $item['unit_id']);
@@ -208,8 +211,8 @@ class Recipe extends Model {
     public function restoreIngredients($dishId, $servings, $referenceType, $referenceId, $userId) {
         $items = $this->getForDish($dishId);
 
-        $stmtUpdate = $this->db->prepare("UPDATE kitchen_ingredients SET stock = stock + :qty WHERE id = :pid");
-        $stmtAfter  = $this->db->prepare("SELECT stock FROM kitchen_ingredients WHERE id = :pid");
+        $stmtUpdate = $this->db->prepare("UPDATE products SET stock = stock + :qty WHERE id = :pid");
+        $stmtAfter  = $this->db->prepare("SELECT stock FROM products WHERE id = :pid");
 
         foreach ($items as $item) {
             $restore = $this->qtyInBaseUnits((float)$item['quantity'] * $servings, $item['unit_id']);

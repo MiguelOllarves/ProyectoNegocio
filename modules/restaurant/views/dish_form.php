@@ -198,10 +198,8 @@ document.addEventListener("DOMContentLoaded", function() {
             const ingUnit = unitsData.find(u => u.id == ing.unit_id);
             
             if (fromUnit && ingUnit && fromUnit.base_type === ingUnit.base_type) {
-                // Convertir la cantidad ingresada a la unidad base de la magnitud
-                let qtyInMagnitudeBase = qty * parseFloat(fromUnit.conversion_to_base);
-                // Convertir de la base de magnitud a la unidad en la que está costeado el insumo
-                qtyBase = qtyInMagnitudeBase / parseFloat(ingUnit.conversion_to_base);
+                // Convertir la cantidad ingresada a la unidad base de la magnitud (ej. g, ml)
+                qtyBase = qty * parseFloat(fromUnit.conversion_to_base);
             } else if (fromUnit && !ingUnit) {
                  qtyBase = qty * parseFloat(fromUnit.conversion_to_base);
             }
@@ -222,7 +220,8 @@ document.addEventListener("DOMContentLoaded", function() {
                 return;
             }
             hasAny = true;
-            let rowCost = d.qtyBase * parseFloat(d.ing.unit_cost || 0);
+            let baseCost = parseFloat(d.ing.unit_cost || 0) / parseFloat(d.ing.sale_unit_factor || 1);
+            let rowCost = d.qtyBase * baseCost;
             totalCost += rowCost;
             if (costSpan) costSpan.innerText = "$" + fmt(rowCost);
             
