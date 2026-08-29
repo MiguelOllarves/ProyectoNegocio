@@ -387,22 +387,27 @@ class RestaurantController extends Controller {
     }
 
     /* ============================================================
-       INSUMOS DE COCINA (kitchen_ingredients) - CRUD
+       INSUMOS DE COCINA (products con is_dish=FALSE) - CRUD
        ============================================================ */
 
     /**
      * GET restaurant/insumos - Lista de insumos de cocina
+     * Ahora lee directamente de products (ingredientes con unidades de peso/volumen)
      */
     public function insumos() {
         $db = Database::getInstance()->getConnection();
         $tenant_id = $_SESSION['business_id'] ?? 0;
 
-        $stmt = $db->prepare("SELECT ki.*, u.name as unit_name, u.abbreviation as unit_abbr, s.name as supplier_name
-                              FROM kitchen_ingredients ki
-                              LEFT JOIN units_of_measure u ON ki.unit_id = u.id
-                              LEFT JOIN suppliers s ON ki.supplier_id = s.id
-                              WHERE ki.tenant_id = ?
-                              ORDER BY ki.name ASC");
+        $stmt = $db->prepare("SELECT p.id, p.name, p.unit_cost as cost_per_unit, p.stock, p.min_stock,
+                                     p.base_unit_id as unit_id, p.supplier_id,
+                                     u.name as unit_name, u.abbreviation as unit_abbr,
+                                     s.name as supplier_name
+                              FROM products p
+                              LEFT JOIN units_of_measure u ON p.base_unit_id = u.id
+                              LEFT JOIN suppliers s ON p.supplier_id = s.id
+                              WHERE p.tenant_id = ? AND p.is_dish = FALSE
+                                AND (u.base_type IN ('peso', 'volumen') OR LOWER(p.unit_of_measure) IN ('kg', 'kilogramos', 'g', 'gramos', 'l', 'litros', 'ml', 'mililitros'))
+                              ORDER BY p.name ASC");
         $stmt->execute([$tenant_id]);
         $ingredients = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
@@ -421,7 +426,7 @@ class RestaurantController extends Controller {
     }
 
     /**
-     * POST restaurant/save_insumo - Crear o actualizar insumo
+     * POST restaurant/save_insumo - Crear o actualizar insumo en products
      */
     public function save_insumo() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -446,11 +451,15 @@ class RestaurantController extends Controller {
 
         try {
             if ($id) {
-                $stmt = $db->prepare("UPDATE kitchen_ingredients SET name=?, unit_id=?, cost_per_unit=?, stock=?, min_stock=?, supplier_id=? WHERE id=? AND tenant_id=?");
-                $stmt->execute([$name, $unit_id, $cost, $stock, $min_stock, $supplier_id, $id, $tenant_id]);
+                // Actualizar producto existente
+                $stmt = $db->prepare("UPDATE products SET name=?, base_unit_id=?, sale_unit_id=?, unit_cost=?, stock=?, min_stock=?, supplier_id=? WHERE id=? AND tenant_id=?");
+                $stmt->execute([$name, $unit_id, $unit_id, $cost, $stock, $min_stock, $supplier_id, $id, $tenant_id]);
             } else {
-                $stmt = $db->prepare("INSERT INTO kitchen_ingredients (tenant_id, name, unit_id, cost_per_unit, stock, min_stock, supplier_id) VALUES (?,?,?,?,?,?,?)");
-                $stmt->execute([$tenant_id, $name, $unit_id, $cost, $stock, $min_stock, $supplier_id]);
+                // Crear nuevo producto como insumo de cocina
+                $sku = 'INS-' . date('YmdHis') . rand(10, 99);
+                $stmt = $db->prepare("INSERT INTO products (tenant_id, name, sku, base_unit_id, sale_unit_id, unit_cost, price, stock, min_stock, supplier_id, is_dish, unit_of_measure, cost_type, measurement_type)
+                                      VALUES (?,?,?,?,?,?,0,?,?,?,FALSE,'Migrado','unit','peso')");
+                $stmt->execute([$tenant_id, $name, $sku, $unit_id, $unit_id, $cost, $stock, $min_stock, $supplier_id]);
             }
             $this->jsonResponse(['success' => true, 'message' => 'Insumo guardado correctamente']);
         } catch (Exception $e) {
@@ -466,7 +475,7 @@ class RestaurantController extends Controller {
         $tenant_id = $_SESSION['business_id'] ?? 0;
 
         try {
-            $stmt = $db->prepare("DELETE FROM kitchen_ingredients WHERE id = ? AND tenant_id = ?");
+            $stmt = $db->prepare("DELETE FROM products WHERE id = ? AND tenant_id = ? AND is_dish = FALSE");
             $stmt->execute([$id, $tenant_id]);
             $this->jsonResponse(['success' => true]);
         } catch (Exception $e) {
@@ -494,13 +503,13 @@ class RestaurantController extends Controller {
         $tenant_id = $_SESSION['business_id'] ?? 0;
 
         try {
-            $sql = "UPDATE kitchen_ingredients SET stock = stock + ?";
+            $sql = "UPDATE products SET stock = stock + ?";
             $params = [$qty];
             if ($cost !== null) {
-                $sql .= ", cost_per_unit = ?";
+                $sql .= ", unit_cost = ?";
                 $params[] = $cost;
             }
-            $sql .= " WHERE id = ? AND tenant_id = ?";
+            $sql .= " WHERE id = ? AND tenant_id = ? AND is_dish = FALSE";
             $params[] = $id;
             $params[] = $tenant_id;
 
