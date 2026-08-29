@@ -94,6 +94,15 @@
         }
 
         /* Custom positioning and rotation for phone mockups to match references perfectly */
+        @keyframes slideUpBottomSheet {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
+        @keyframes scaleUpModal {
+            from { transform: scale(0.95); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+        
         .phone-left-custom {
             position: absolute;
             top: 6%;
@@ -739,22 +748,26 @@
     </div>
 
     <!-- Modal Iniciar Sesión (UI) -->
-    <div id="login-modal" class="hidden fixed inset-0 z-[200] items-center justify-center">
+    <div id="login-modal" class="hidden fixed inset-0 z-[200] items-end sm:items-center justify-center p-0 sm:p-4">
         <!-- Backdrop -->
-        <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onclick="document.getElementById('login-modal').classList.add('hidden'); document.getElementById('login-modal').classList.remove('flex')"></div>
+        <div class="absolute inset-0 bg-slate-900/40 backdrop-blur-md transition-opacity" onclick="document.getElementById('login-modal').classList.add('hidden'); document.getElementById('login-modal').classList.remove('flex')"></div>
         
-        <!-- Modal Content -->
-        <div class="relative bg-white w-[95%] sm:w-[90%] max-w-md rounded-3xl sm:rounded-[30px] shadow-2xl p-6 sm:p-8 z-10 animate-[float_0.3s_ease-out]">
-            <button onclick="document.getElementById('login-modal').classList.add('hidden'); document.getElementById('login-modal').classList.remove('flex')" class="modal-close absolute top-4 right-4 z-10">
-                <i class="fas fa-times"></i>
+        <!-- Modal Content (Bottom Sheet on Mobile, Centered Modal on Desktop) -->
+        <div class="relative bg-white/95 backdrop-blur-2xl w-full sm:w-[90%] max-w-md rounded-t-[2rem] sm:rounded-[2rem] rounded-b-none sm:rounded-b-[2rem] shadow-[0_-10px_40px_rgba(0,0,0,0.1)] sm:shadow-2xl p-6 sm:p-8 pb-10 sm:pb-8 z-10 animate-[slideUpBottomSheet_0.4s_cubic-bezier(0.16,1,0.3,1)] sm:animate-[scaleUpModal_0.3s_cubic-bezier(0.16,1,0.3,1)] border border-white">
+            
+            <!-- Mobile Drag Handle -->
+            <div class="w-12 h-1.5 bg-slate-200 rounded-full mx-auto mb-6 sm:hidden"></div>
+
+            <button onclick="document.getElementById('login-modal').classList.add('hidden'); document.getElementById('login-modal').classList.remove('flex')" class="modal-close absolute top-5 right-5 sm:flex hidden w-8 h-8 items-center justify-center bg-slate-100 hover:bg-slate-200 text-slate-500 rounded-full transition-colors z-10 focus:outline-none">
+                <i class="fas fa-times text-sm"></i>
             </button>
             
-            <div class="text-center mb-8 mt-4 sm:mt-0">
-                <div class="w-20 h-20 sm:w-16 sm:h-16 bg-teal-50 rounded-[1.25rem] mx-auto flex items-center justify-center mb-5 shadow-inner">
-                    <img src="<?= BASE_URL ?>?serve_logo=1" alt="Logo" class="w-12 h-12 sm:w-10 sm:h-10 object-contain">
+            <div class="text-center mb-8 mt-2 sm:mt-0">
+                <div class="w-20 h-20 bg-gradient-to-tr from-teal-50 to-teal-100/50 rounded-3xl mx-auto flex items-center justify-center mb-5 shadow-[inset_0_2px_10px_rgba(255,255,255,1),0_5px_15px_-3px_rgba(54,178,145,0.15)] ring-1 ring-teal-900/5">
+                    <img src="<?= BASE_URL ?>?serve_logo=1" alt="Logo" class="w-12 h-12 object-contain drop-shadow-sm">
                 </div>
-                <h3 class="text-3xl sm:text-2xl font-black text-slate-800">Bienvenido de nuevo</h3>
-                <p class="text-slate-500 font-medium text-base sm:text-sm mt-2">Ingresa a tu panel de control</p>
+                <h3 class="text-3xl font-black text-slate-800 tracking-tight">Bienvenido</h3>
+                <p class="text-slate-500 font-medium text-base mt-2">Ingresa a tu panel de control</p>
             </div>
             
             <form action="<?= BASE_URL ?>auth/login" method="POST" class="space-y-5" id="loginForm">
@@ -763,34 +776,42 @@
                 <input type="hidden" name="geolocation" id="geolocation">
                 
                 <?php if (!empty($_SESSION['login_error'])): ?>
-                    <div class="bg-red-50 text-red-600 p-3.5 rounded-2xl text-xs font-bold mb-4 text-center border border-red-100">
+                    <div class="bg-red-50 text-red-600 p-3.5 rounded-2xl text-sm font-semibold mb-4 text-center border border-red-100 shadow-sm">
                         <?= $_SESSION['login_error'] ?>
                     </div>
-                    <button type="submit" name="force_close" value="1" class="w-full mb-4 bg-amber-50 hover:bg-amber-100 text-amber-600 border border-amber-200 font-bold py-2.5 rounded-xl transition-colors text-xs flex items-center justify-center gap-2 cursor-pointer">
+                    <button type="submit" name="force_close" value="1" class="w-full mb-4 bg-amber-50 hover:bg-amber-100 text-amber-600 border border-amber-200 font-bold py-3 rounded-2xl transition-colors text-sm flex items-center justify-center gap-2 cursor-pointer shadow-sm">
                         <i class="fas fa-power-off"></i> Cerrar sesión remota e iniciar aquí
                     </button>
                     <?php unset($_SESSION['login_error']); ?>
                 <?php endif; ?>
                 
                 <div>
-                    <label class="block text-sm font-bold text-slate-700 mb-1">Cédula de Identidad</label>
-                    <input type="text" name="username" required class="w-full bg-slate-50 border border-slate-200 text-slate-800 rounded-xl focus:ring-[#36B291] focus:border-[#36B291] block p-3.5 sm:p-3 outline-none transition-colors font-medium text-base" placeholder="V-12345678">
+                    <label class="block text-sm font-bold text-slate-700 mb-1.5 ml-1">Cédula de Identidad</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
+                            <i class="far fa-id-card text-lg"></i>
+                        </div>
+                        <input type="text" name="username" required maxlength="9" inputmode="numeric" pattern="[0-9]*" oninput="this.value = this.value.replace(/[^0-9]/g, ''); if(this.value.length > 9) this.value = this.value.slice(0,9);" class="w-full bg-slate-50/50 border-2 border-slate-100 text-slate-800 rounded-2xl focus:bg-white focus:ring-0 focus:border-[#36B291] block p-3.5 pl-12 outline-none transition-all font-semibold text-lg shadow-sm" placeholder="12345678">
+                    </div>
                 </div>
                 <div>
-                    <div class="flex justify-between items-center mb-1">
+                    <div class="flex justify-between items-center mb-1.5 ml-1 mr-1">
                         <label class="block text-sm font-bold text-slate-700">Contraseña</label>
-                        <a href="#" class="text-xs font-bold text-[#36B291] hover:underline">¿Olvidaste tu contraseña?</a>
+                        <a href="#" class="text-xs font-bold text-[#36B291] hover:text-teal-700 transition-colors">¿Olvidaste tu contraseña?</a>
                     </div>
                     <div class="relative">
-                        <input type="password" id="login_password" name="password" required class="w-full bg-slate-50 border border-slate-200 text-slate-800 rounded-xl focus:ring-[#36B291] focus:border-[#36B291] block p-3.5 sm:p-3 pr-12 outline-none transition-colors font-medium text-base" placeholder="••••••••">
-                        <button type="button" onclick="const p = document.getElementById('login_password'); const i = this.querySelector('i'); if(p.type === 'password'){ p.type = 'text'; i.classList.remove('fa-eye'); i.classList.add('fa-eye-slash'); } else { p.type = 'password'; i.classList.remove('fa-eye-slash'); i.classList.add('fa-eye'); }" class="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-400 hover:text-[#36B291] focus:outline-none">
+                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
+                            <i class="fas fa-lock text-lg"></i>
+                        </div>
+                        <input type="password" id="login_password" name="password" required class="w-full bg-slate-50/50 border-2 border-slate-100 text-slate-800 rounded-2xl focus:bg-white focus:ring-0 focus:border-[#36B291] block p-3.5 pl-12 pr-12 outline-none transition-all font-bold text-lg shadow-sm tracking-widest placeholder:tracking-normal" placeholder="••••••••">
+                        <button type="button" onclick="const p = document.getElementById('login_password'); const i = this.querySelector('i'); if(p.type === 'password'){ p.type = 'text'; i.classList.remove('fa-eye'); i.classList.add('fa-eye-slash'); p.classList.remove('tracking-widest'); } else { p.type = 'password'; i.classList.remove('fa-eye-slash'); i.classList.add('fa-eye'); p.classList.add('tracking-widest'); }" class="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-400 hover:text-[#36B291] transition-colors focus:outline-none">
                             <i class="fas fa-eye text-lg"></i>
                         </button>
                     </div>
                 </div>
                 
-                <button type="submit" class="w-full bg-[#36B291] hover:bg-[#2c967a] text-white font-bold py-3.5 rounded-xl transition-colors shadow-[0_8px_20px_-6px_rgba(54,178,145,0.5)] transform hover:-translate-y-0.5">
-                    Entrar al Sistema
+                <button type="submit" class="w-full bg-gradient-to-r from-[#36B291] to-[#2c967a] hover:from-[#2c967a] hover:to-[#227a62] text-white font-bold py-4 rounded-2xl transition-all shadow-[0_8px_25px_-8px_rgba(54,178,145,0.6)] transform hover:-translate-y-1 text-lg flex items-center justify-center gap-2 mt-2">
+                    Ingresar <i class="fas fa-arrow-right text-sm"></i>
                 </button>
             </form>
 
