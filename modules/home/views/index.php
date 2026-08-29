@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Tu Inventario - Toma el control absoluto de tu negocio</title>
     <link rel="icon" type="image/png" href="<?= BASE_URL ?>?serve_logo=1">
+    <link rel="manifest" href="<?= BASE_URL ?>manifest.json">
     <link rel="stylesheet" href="<?= BASE_URL ?>css/tailwind.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -810,7 +811,7 @@
                     </div>
                 </div>
                 
-                <button type="submit" class="w-full bg-gradient-to-r from-[#36B291] to-[#2c967a] hover:from-[#2c967a] hover:to-[#227a62] text-white font-bold py-4 rounded-2xl transition-all shadow-[0_8px_25px_-8px_rgba(54,178,145,0.6)] transform hover:-translate-y-1 text-lg flex items-center justify-center gap-2 mt-2">
+                <button type="submit" class="w-full text-white font-bold py-4 rounded-2xl transition-all shadow-[0_8px_25px_-8px_rgba(54,178,145,0.6)] transform hover:-translate-y-1 text-lg flex items-center justify-center gap-2 mt-2" style="background: linear-gradient(to right, #36B291, #2c967a);">
                     Ingresar <i class="fas fa-arrow-right text-sm"></i>
                 </button>
             </form>
@@ -961,10 +962,10 @@
                     btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Procesando...';
                 }
                 
-                // Pequeño delay para asegurar que el form hace submit antes de deshabilitar (para navegadores viejos)
+                // En lugar de usar btn.disabled = true, usamos pointer-events-none 
+                // para no interrumpir el ciclo nativo de envío del formulario en móviles.
                 setTimeout(function() {
-                    btn.disabled = true;
-                    btn.classList.add('opacity-75', 'cursor-wait');
+                    btn.classList.add('opacity-75', 'cursor-wait', 'pointer-events-none');
                 }, 10);
             }
         });
@@ -1012,6 +1013,25 @@
                 const newUrl = window.location.pathname + (urlParams.toString() ? '?' + urlParams.toString() : '') + window.location.hash;
                 window.history.replaceState({}, document.title, newUrl);
             }
+        }
+    </script>
+    <script>
+        // Registrar Service Worker para PWA
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('<?= BASE_URL ?>sw.js')
+                    .then(registration => {
+                        console.log('SW registrado con éxito:', registration.scope);
+                    })
+                    .catch(error => {
+                        console.log('Fallo al registrar el SW:', error);
+                    });
+            });
+            
+            // Manejar la solicitud de instalación PWA
+            window.addEventListener('beforeinstallprompt', (e) => {
+                // No llamamos preventDefault para dejar que el navegador muestre su prompt nativo en Android/Desktop si lo soporta.
+            });
         }
     </script>
 </body>

@@ -4,7 +4,7 @@
  *             Network-first para páginas dinámicas (PHP/HTML)
  *             Fallback offline graceful
  */
-const CACHE_NAME = 'tu-inventario-v12';
+const CACHE_NAME = 'tu-inventario-v13';
 const STATIC_ASSETS = [
     '/offline.html',
     '/icons/icon-512x512.png'
@@ -82,8 +82,8 @@ self.addEventListener('fetch', event => {
         return;
     }
 
-    // ------- STRATEGY 2: Cache-first for local images -------
-    if (url.pathname.match(/\.(png|jpg|jpeg|gif|webp|svg|ico|woff2?)$/)) {
+    // ------- STRATEGY 2: Cache-first for local assets (Images, CSS, JS) -------
+    if (url.pathname.match(/\.(png|jpg|jpeg|gif|webp|svg|ico|woff2?|css|js)$/)) {
         event.respondWith(
             caches.match(event.request).then(cached => {
                 if (cached) return cached;
