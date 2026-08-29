@@ -58,6 +58,17 @@ include __DIR__ . '/../../../includes/header.php';
                     <label class="block text-sm font-bold text-slate-700 dark:text-gray-300 mb-2">Minutos de preparación</label>
                     <input type="number" step="1" min="0" name="prep_time" value="<?= htmlspecialchars($product['prep_time'] ?? '') ?>" placeholder="Ej: 15 (minutos)" class="w-full rounded-xl border border-slate-200 dark:border-gray-600 bg-slate-50 dark:bg-slate-900 dark:text-white px-4 py-3 focus:outline-none focus:ring-2 focus:ring-brand-500 transition-all shadow-sm">
                 </div>
+                <div>
+                    <label class="block text-sm font-bold text-slate-700 dark:text-gray-300 mb-2">Categoría (Opcional)</label>
+                    <select name="category_id" id="cat_select" class="w-full rounded-xl border border-slate-200 dark:border-gray-600 bg-slate-50 dark:bg-slate-900 dark:text-white px-4 py-3 focus:outline-none focus:ring-2 focus:ring-brand-500 transition-all shadow-sm">
+                        <option value="">-- Sin categoría --</option>
+                        <option value="new" class="font-bold text-brand-600 dark:text-brand-400">+ Añadir Nueva Categoría</option>
+                        <?php foreach($categories ?? [] as $cat): ?>
+                            <option value="<?= $cat['id'] ?>" <?= (($product['category_id'] ?? '') == $cat['id']) ? 'selected' : '' ?>><?= htmlspecialchars($cat['name']) ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                    <input type="text" name="new_category" id="new_category" placeholder="Escribe la nueva categoría" class="hidden mt-2 w-full rounded-xl border border-brand-300 bg-brand-50 dark:bg-brand-900/30 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 dark:text-white transition-all shadow-sm">
+                </div>
                 <div class="sm:col-span-2">
                     <label class="block text-sm font-bold text-slate-700 dark:text-gray-300 mb-2">Imagen referencial (Opcional)</label>
                     <input type="file" name="image" accept="image/*" class="w-full rounded-xl border-2 border-dashed border-slate-300 dark:border-gray-500 bg-slate-50 hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-white px-4 py-4 focus:outline-none focus:ring-2 focus:ring-brand-500 transition-all text-sm file:mr-6 file:py-3 file:px-6 file:rounded-xl file:border-0 file:text-sm file:font-bold file:bg-brand-100 file:text-brand-700 hover:file:bg-brand-200 cursor-pointer shadow-sm">
@@ -171,6 +182,20 @@ include __DIR__ . '/../../../includes/header.php';
 
 <script>
 document.addEventListener("DOMContentLoaded", function() {
+    const catSelect = document.getElementById("cat_select");
+    const newCatInput = document.getElementById("new_category");
+    if (catSelect && newCatInput) {
+        catSelect.addEventListener("change", function() {
+            if (this.value === "new") {
+                newCatInput.classList.remove("hidden");
+                newCatInput.focus();
+            } else {
+                newCatInput.classList.add("hidden");
+                newCatInput.value = "";
+            }
+        });
+    }
+
     const rowsContainer = document.getElementById("recipe-rows");
     const priceInput = document.getElementById("price");
     const marginInput = document.getElementById("profit_margin");

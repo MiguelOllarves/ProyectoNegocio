@@ -94,7 +94,7 @@ class InventoryController extends Controller {
         $limit = isset($_GET['limit']) ? max(1, (int)$_GET['limit']) : 5;
         $offset = ($page - 1) * $limit;
         
-        $result = $this->productModel->allWithCategoriesAndBrandsPaginated($limit, $offset);
+        $result = $this->productModel->allWithCategoriesAndBrandsPaginated($limit, $offset, true);
         $products = $result['data'];
         $totalRecords = $result['total'];
         $totalPages = ceil($totalRecords / $limit);
@@ -131,7 +131,7 @@ class InventoryController extends Controller {
     }
 
     public function print() {
-        $products = $this->productModel->allWithCategoriesAndBrands();
+        $products = $this->productModel->allWithCategoriesAndBrands(true);
         $this->view('modules/inventory/views/print', ['products' => $products]);
     }
 

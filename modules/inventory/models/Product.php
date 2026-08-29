@@ -6,7 +6,7 @@ class Product extends Model {
     protected $tenantColumn = 'tenant_id';
 
     // Retrieve all products with their categories and brands
-    public function allWithCategoriesAndBrands() {
+    public function allWithCategoriesAndBrands($excludeDishes = false) {
         $sql = "SELECT p.id, p.tenant_id, p.category_id, p.brand_id, p.supplier_id, p.name, p.sku, p.barcode, 
                        p.cost_type, p.unit_cost, p.bulk_cost, p.units_per_bulk, p.currency, p.profit_margin, p.price, 
                        p.is_tax_exempt, p.stock, p.unit_of_measure, p.measurement_type, p.base_unit_id, p.purchase_unit_id, 
@@ -23,9 +23,16 @@ class Product extends Model {
                 LEFT JOIN units_of_measure u2 ON p.base_unit_id = u2.id";
         
         $params = [];
+        $whereConditions = [];
         if ($this->tenantColumn && isset($_SESSION['business_id'])) {
-            $sql .= " WHERE p.{$this->tenantColumn} = :tenant_id";
+            $whereConditions[] = "p.{$this->tenantColumn} = :tenant_id";
             $params['tenant_id'] = $_SESSION['business_id'];
+        }
+        if ($excludeDishes) {
+            $whereConditions[] = "(p.is_dish = FALSE OR p.is_dish IS NULL)";
+        }
+        if (!empty($whereConditions)) {
+            $sql .= " WHERE " . implode(" AND ", $whereConditions);
         }
         $sql .= " ORDER BY p.name ASC";
         
@@ -34,13 +41,17 @@ class Product extends Model {
         return $stmt->fetchAll();
     }
 
-    public function allWithCategoriesAndBrandsPaginated($limit, $offset) {
-        $where = "";
+    public function allWithCategoriesAndBrandsPaginated($limit, $offset, $excludeDishes = false) {
+        $whereConditions = [];
         $params = [];
         if ($this->tenantColumn && isset($_SESSION['business_id'])) {
-            $where = " WHERE p.{$this->tenantColumn} = :tenant_id";
+            $whereConditions[] = "p.{$this->tenantColumn} = :tenant_id";
             $params['tenant_id'] = $_SESSION['business_id'];
         }
+        if ($excludeDishes) {
+            $whereConditions[] = "(p.is_dish = FALSE OR p.is_dish IS NULL)";
+        }
+        $where = empty($whereConditions) ? "" : " WHERE " . implode(" AND ", $whereConditions);
 
         $countSql = "SELECT COUNT(*) FROM {$this->table} p $where";
         $stmtCount = $this->db->prepare($countSql);
@@ -76,10 +87,10 @@ class Product extends Model {
     }
 
     public function all() {
-        $sql = "SELECT id, tenant_id, category_id, brand_id, supplier_id, name, sku, barcode, cost_type, unit_cost, bulk_cost, units_per_bulk, currency, profit_margin, price, is_tax_exempt, stock, unit_of_measure, measurement_type, base_unit_id, purchase_unit_id, content_per_purchase, contained_unit_id, sale_unit_id, allow_fractional_sales, conversion_factor, min_stock, dynamic_attributes, is_dish, prep_time, created_at, (CASE WHEN length(image) > 255 THEN 'base64' ELSE image END) as image FROM {$this->table}";
+        $sql = "SELECT id, tenant_id, category_id, brand_id, supplier_id, name, sku, barcode, cost_type, unit_cost, bulk_cost, units_per_bulk, currency, profit_margin, price, is_tax_exempt, stock, unit_of_measure, measurement_type, base_unit_id, purchase_unit_id, content_per_purchase, contained_unit_id, sale_unit_id, allow_fractional_sales, conversion_factor, min_stock, dynamic_attributes, is_dish, prep_time, created_at, (CASE WHEN length(image) > 255 THEN 'base64' ELSE image END) as image FROM {$this->table} WHERE (is_dish = FALSE OR is_dish IS NULL)";
         $params = [];
         if ($this->tenantColumn && isset($_SESSION['business_id'])) {
-            $sql .= " WHERE {$this->tenantColumn} = :tenant_id";
+            $sql .= " AND {$this->tenantColumn} = :tenant_id";
             $params['tenant_id'] = $_SESSION['business_id'];
         }
         $stmt = $this->db->prepare($sql);

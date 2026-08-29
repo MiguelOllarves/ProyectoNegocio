@@ -65,6 +65,7 @@ include __DIR__ . '/../../../includes/header.php';
                 <div>
                     <h3 class="font-bold text-gray-800 dark:text-white leading-tight"><?= htmlspecialchars($dish['name']) ?></h3>
                     <p class="text-xs text-gray-400 mt-0.5">
+                        <?php if (!empty($dish['category_name'])): ?><span class="inline-block bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 px-2 py-0.5 rounded-full mr-1"><?= htmlspecialchars($dish['category_name']) ?></span><?php endif; ?>
                         <?php if (!empty($dish['prep_time'])): ?><i class="fas fa-clock mr-1"></i><?= (int)$dish['prep_time'] ?> min · <?php endif; ?>
                         <?= $dish['ingredients_count'] ?> ingrediente<?= $dish['ingredients_count'] == 1 ? '' : 'es' ?>
                     </p>
@@ -147,5 +148,23 @@ function deleteDish(id, name) {
     });
 }
 </script>
+
+<?php if (isset($_GET['success'])): ?>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    let msg = '<?= $_GET['success'] === 'created' ? 'El plato ha sido registrado correctamente.' : 'El plato ha sido actualizado correctamente.' ?>';
+    Swal.fire({
+        title: '¡Éxito!',
+        text: msg,
+        icon: 'success',
+        timer: 2500,
+        showConfirmButton: false,
+        customClass: { popup: 'rounded-2xl' }
+    });
+    // Remove the ?success param from URL cleanly
+    window.history.replaceState({}, document.title, "<?= BASE_URL ?>restaurant");
+});
+</script>
+<?php endif; ?>
 
 <?php include __DIR__ . '/../../../includes/footer.php'; ?>

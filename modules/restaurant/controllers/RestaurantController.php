@@ -4,14 +4,18 @@ require_once __DIR__ . '/../../../config/Database.php';
 require_once __DIR__ . '/../../../core/UnitConversionService.php';
 require_once __DIR__ . '/../models/Recipe.php';
 require_once __DIR__ . '/../../inventory/models/Product.php';
+require_once __DIR__ . '/../../inventory/models/Category.php';
 
 class RestaurantController extends Controller {
     private $recipeModel;
     private $productModel;
 
+    private $categoryModel;
+
     public function __construct() {
         $this->recipeModel = new Recipe();
         $this->productModel = new Product();
+        $this->categoryModel = new Category();
     }
 
     private function compressImageToBase64($tmpName, $type) {
@@ -77,13 +81,13 @@ class RestaurantController extends Controller {
     }
 
     private function getDishes() {
-        $sql = "SELECT * FROM products WHERE is_dish = TRUE";
+        $sql = "SELECT p.*, c.name as category_name FROM products p LEFT JOIN categories c ON p.category_id = c.id WHERE p.is_dish = TRUE";
         $params = [];
         if (isset($_SESSION['business_id'])) {
-            $sql .= " AND tenant_id = :tenant_id";
+            $sql .= " AND p.tenant_id = :tenant_id";
             $params['tenant_id'] = $_SESSION['business_id'];
         }
-        $sql .= " ORDER BY name ASC";
+        $sql .= " ORDER BY p.name ASC";
 
         $db = Database::getInstance()->getConnection();
         $stmt = $db->prepare($sql);
@@ -145,6 +149,7 @@ class RestaurantController extends Controller {
         $this->view('modules/restaurant/views/dish_form', [
             'mode' => 'create',
             'product' => null,
+            'categories' => $this->categoryModel->all(),
             'ingredients' => $this->getIngredients(),
             'units' => UnitConversionService::getAllUnits(),
             'recipeItems' => []
@@ -174,6 +179,7 @@ class RestaurantController extends Controller {
         $this->view('modules/restaurant/views/dish_form', [
             'mode' => 'edit',
             'product' => $product,
+            'categories' => $this->categoryModel->all(),
             'ingredients' => $this->getIngredients(),
             'units' => UnitConversionService::getAllUnits(),
             'recipeItems' => $this->recipeModel->getForDish($id)
@@ -210,6 +216,12 @@ class RestaurantController extends Controller {
                 if (in_array($fileMimeType, $allowedMimeTypes) && filesize($_FILES['image']['tmp_name']) <= 3 * 1024 * 1024) {
                     $imagePath = $this->compressImageToBase64($_FILES['image']['tmp_name'], $_FILES['image']['type']);
                 }
+            }
+
+            // Dynamic Category Creation
+            if (isset($_POST['category_id']) && $_POST['category_id'] === 'new' && !empty($_POST['new_category'])) {
+                $newCatId = $this->categoryModel->create(['name' => trim($_POST['new_category'])]);
+                $_POST['category_id'] = $newCatId;
             }
 
             $data = [
@@ -254,7 +266,7 @@ class RestaurantController extends Controller {
 
             $this->recipeModel->saveRecipe($dishId, $this->readRecipeItemsFromPost());
 
-            header('Location: ' . BASE_URL . 'restaurant');
+            header('Location: ' . BASE_URL . 'restaurant?success=created');
             exit;
         } catch (Exception $e) {
             error_log('[Restaurant] create: ' . $e->getMessage());
@@ -273,12 +285,18 @@ class RestaurantController extends Controller {
         }
 
         try {
+            // Dynamic Category Creation
+            if (isset($_POST['category_id']) && $_POST['category_id'] === 'new' && !empty($_POST['new_category'])) {
+                $newCatId = $this->categoryModel->create(['name' => trim($_POST['new_category'])]);
+                $_POST['category_id'] = $newCatId;
+            }
+
             $data = [
                 'name' => trim($_POST['name'] ?? ''),
                 'price' => (float)($_POST['price'] ?? 0),
                 'profit_margin' => (float)($_POST['profit_margin'] ?? 0),
                 'prep_time' => !empty($_POST['prep_time']) ? (int)$_POST['prep_time'] : null,
-                'is_dish' => 1
+                'is_dish' => true
             ];
             if (!empty($_POST['category_id'])) {
                 $data['category_id'] = (int)$_POST['category_id'];
@@ -297,7 +315,7 @@ class RestaurantController extends Controller {
             $this->productModel->update($id, $data);
             $this->recipeModel->saveRecipe($id, $this->readRecipeItemsFromPost());
 
-            header('Location: ' . BASE_URL . 'restaurant');
+            header('Location: ' . BASE_URL . 'restaurant?success=updated');
             exit;
         } catch (Exception $e) {
             error_log('[Restaurant] update: ' . $e->getMessage());

@@ -70,7 +70,7 @@ class Recipe extends Model {
      */
     public function saveRecipe($dishId, $items) {
         // Validar que el plato exista y pertenezca al tenant actual
-        $stmtCheck = $this->db->prepare("SELECT id FROM products WHERE id = :id AND is_dish = 1");
+        $stmtCheck = $this->db->prepare("SELECT id FROM products WHERE id = :id AND is_dish = TRUE");
         $stmtCheck->execute(['id' => $dishId]);
         if (!$stmtCheck->fetch()) {
             throw new Exception("El plato no existe o no está marcado como plato.");

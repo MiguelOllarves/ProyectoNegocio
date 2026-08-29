@@ -12,7 +12,7 @@ class DashboardController extends Controller {
         $business_id = $_SESSION['business_id'] ?? 1;
 
         // 1. Productos Registrados y Valor del Inventario
-        $stmtProd = $db->prepare("SELECT id, stock, price, unit_cost, conversion_factor as content_per_purchase, purchase_unit_id as contained_unit_id, sale_unit_id FROM products WHERE tenant_id = ? AND stock > 0");
+        $stmtProd = $db->prepare("SELECT id, stock, price, unit_cost, conversion_factor as content_per_purchase, purchase_unit_id as contained_unit_id, sale_unit_id FROM products WHERE tenant_id = ? AND stock > 0 AND (is_dish = FALSE OR is_dish IS NULL)");
         $stmtProd->execute([$business_id]);
         $products = $stmtProd->fetchAll(PDO::FETCH_ASSOC);
         
@@ -70,7 +70,7 @@ class DashboardController extends Controller {
         }
 
         // 3. Alertas de Stock
-        $stmtStock = $db->prepare("SELECT COUNT(*) FROM products WHERE stock <= min_stock AND tenant_id = ?");
+        $stmtStock = $db->prepare("SELECT COUNT(*) FROM products WHERE stock <= min_stock AND tenant_id = ? AND (is_dish = FALSE OR is_dish IS NULL)");
         $stmtStock->execute([$business_id]);
         $lowStock = $stmtStock->fetchColumn() ?: 0;
 
