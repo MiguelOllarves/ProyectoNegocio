@@ -476,7 +476,7 @@
             if(!fixed) {
                 row.querySelector(".remove-pres").addEventListener("click", () => { presContainer.removeChild(row); });
                 
-                const costTrigger = row.querySelector('.auto-cost-trigger');
+                const costTrigger = row.querySelector('.cost-trigger-input');
                 const qtyInput = row.querySelector('.pres-qty-input');
                 costTrigger.addEventListener('input', function() {
                     let totalPaid = parseFloat(this.value) || 0;
