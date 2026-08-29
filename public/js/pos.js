@@ -331,7 +331,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 card.className = `bg-white dark:bg-gray-850 hover:bg-gray-50 dark:hover:bg-gray-800 border-2 border-gray-100 dark:border-gray-800 hover:border-brand-500 dark:hover:border-brand-500 transition-all rounded-xl p-2 cursor-pointer shadow-sm dark:shadow-none group flex flex-col`;
                 card.innerHTML = `
                     <div class="aspect-square bg-gray-50 dark:bg-gray-800 rounded-lg mb-2 flex items-center justify-center overflow-hidden w-full relative">
-                        ${p.image ? `<img src="${(p.image.startsWith('data:image') || p.image.startsWith('http')) ? p.image : BASE_URL + '../' + p.image}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" alt="${p.name}">` 
+                        ${p.image ? `<img src="${(p.image === 'base64') ? BASE_URL + 'inventory/image?id=' + p.id : ((p.image.startsWith('data:image') || p.image.startsWith('http')) ? p.image : BASE_URL + '../' + p.image)}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" alt="${p.name}">` 
                         : `<i class="fas fa-image text-gray-300 dark:text-gray-600 text-2xl"></i>`}
                     </div>
                     <div class="flex-1 flex flex-col justify-between">

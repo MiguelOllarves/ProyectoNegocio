@@ -10,7 +10,13 @@
         <td class="p-4">
             <div class="flex items-center gap-3">
                 <?php if(!empty($p['image'])): ?>
-                    <?php $imgSrc = (strpos($p['image'], 'data:image') === 0 || strpos($p['image'], 'http') === 0) ? $p['image'] : BASE_URL . '../' . htmlspecialchars($p['image']); ?>
+                    <?php 
+                        if ($p['image'] === 'base64') {
+                            $imgSrc = BASE_URL . 'inventory/image?id=' . $p['id'];
+                        } else {
+                            $imgSrc = (strpos($p['image'], 'data:image') === 0 || strpos($p['image'], 'http') === 0) ? $p['image'] : BASE_URL . '../' . htmlspecialchars($p['image']); 
+                        }
+                    ?>
                     <img src="<?= htmlspecialchars($imgSrc, ENT_QUOTES) ?>" class="w-10 h-10 rounded-lg object-cover shadow-sm bg-gray-50 border border-gray-200 dark:border-gray-700">
                 <?php else: ?>
                     <div class="w-10 h-10 rounded-lg bg-gray-100 dark:bg-slate-700 flex items-center justify-center text-gray-400 border border-gray-200 dark:border-gray-700 shadow-sm"><i class="fas fa-image"></i></div>

@@ -963,7 +963,11 @@ function viewProductSpecs(id) {
             const imgEl = document.getElementById('vs-image');
             const noImg = document.getElementById('vs-no-image');
             if (data.image) {
-                imgEl.src = data.image.startsWith('data:') || data.image.startsWith('http') ? data.image : '<?= BASE_URL ?>../' + data.image;
+                if (data.image === 'base64') {
+                    imgEl.src = '<?= BASE_URL ?>inventory/image?id=' + data.id;
+                } else {
+                    imgEl.src = data.image.startsWith('data:') || data.image.startsWith('http') ? data.image : '<?= BASE_URL ?>../' + data.image;
+                }
                 imgEl.style.display = 'block';
                 noImg.style.display = 'none';
             } else {

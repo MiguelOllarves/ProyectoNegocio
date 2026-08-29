@@ -104,7 +104,11 @@
             <?php if (!empty($products)): foreach ($products as $p): 
                 $foto = '';
                 if(!empty($p['image'])){
-                    $foto = (strpos($p['image'], 'data:image') === 0 || strpos($p['image'], 'http') === 0) ? $p['image'] : BASE_URL . '../' . htmlspecialchars($p['image']);
+                    if ($p['image'] === 'base64') {
+                        $foto = BASE_URL . 'inventory/image?id=' . $p['id'];
+                    } else {
+                        $foto = (strpos($p['image'], 'data:image') === 0 || strpos($p['image'], 'http') === 0) ? $p['image'] : BASE_URL . '../' . htmlspecialchars($p['image']);
+                    }
                 }
                 // Precio del Paquete (bulk_cost * (1 + margin/100))
                 $bulkCost = $p['bulk_cost'] > 0 ? $p['bulk_cost'] : 0;

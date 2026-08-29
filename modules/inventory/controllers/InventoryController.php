@@ -93,6 +93,31 @@ class InventoryController extends Controller {
         require __DIR__ . '/../views/table_body.php';
     }
 
+    public function image() {
+        $id = (int)($_GET['id'] ?? 0);
+        if ($id > 0) {
+            $stmt = $this->productModel->db->prepare("SELECT image FROM products WHERE id = ?");
+            $stmt->execute([$id]);
+            $base64 = $stmt->fetchColumn();
+            if ($base64 && strpos($base64, 'data:image') === 0) {
+                list($type, $data) = explode(';', $base64);
+                list(, $data)      = explode(',', $data);
+                $imgData = base64_decode($data);
+                $mime = str_replace('data:', '', $type);
+                header("Content-Type: $mime");
+                header('Cache-Control: public, max-age=86400'); // Cache for 24 hours on CDN
+                echo $imgData;
+                exit;
+            }
+        }
+        
+        // Fallback transparent 1x1 image
+        header('Content-Type: image/png');
+        header('Cache-Control: public, max-age=86400');
+        echo base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=');
+        exit;
+    }
+
     public function print() {
         $products = $this->productModel->allWithCategoriesAndBrands();
         $this->view('modules/inventory/views/print', ['products' => $products]);
