@@ -35,9 +35,10 @@
 <form action="<?= BASE_URL ?>inventory/create" method="POST" enctype="multipart/form-data" class="max-w-7xl mx-auto pb-32 sm:pb-12 px-0 sm:px-6 lg:px-8">
     <div class="flex flex-col md:flex-row gap-4 sm:gap-6 lg:gap-8 mb-8 items-start">
         <!-- COLUMNA IZQUIERDA -->
-        <div class="flex-1 flex flex-col gap-4 sm:gap-6 lg:gap-8 min-w-0 md:w-1/2 w-full">
+        <!-- COLUMNA IZQUIERDA -->
+        <div class="contents md:flex-1 md:flex md:flex-col gap-4 sm:gap-6 lg:gap-8 min-w-0 md:w-1/2 w-full">
         <!-- Step 1: Información Principal -->
-        <div class="bg-white rounded-none sm:rounded-2xl shadow-sm hover:shadow-md transition-shadow border-y sm:border border-gray-100 p-4 sm:p-5 relative overflow-hidden flex flex-col w-full">
+        <div class="order-1 md:order-none bg-white rounded-none sm:rounded-2xl shadow-sm hover:shadow-md transition-shadow border-y sm:border border-gray-100 p-4 sm:p-5 relative overflow-hidden flex flex-col w-full">
             <div class="absolute top-0 left-0 w-2 h-full bg-blue-500"></div>
             <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
                 <span class="bg-blue-100 text-blue-600 rounded-full w-8 h-8 flex items-center justify-center mr-3 text-sm">1</span>
@@ -97,7 +98,7 @@
         </div>
 
         <!-- Step 3: Venta -->
-        <div class="bg-white rounded-none sm:rounded-2xl shadow-sm hover:shadow-md transition-shadow border-y sm:border border-gray-100 p-4 sm:p-5 relative overflow-hidden flex flex-col w-full">
+        <div class="order-3 md:order-none bg-white rounded-none sm:rounded-2xl shadow-sm hover:shadow-md transition-shadow border-y sm:border border-gray-100 p-4 sm:p-5 relative overflow-hidden flex flex-col w-full">
             <div class="absolute top-0 left-0 w-2 h-full bg-green-500"></div>
             <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
                 <span class="bg-green-100 text-green-600 rounded-full w-8 h-8 flex items-center justify-center mr-3 text-sm">3</span>
@@ -150,7 +151,7 @@
         </div>
 
         <!-- Step 4: Inventario -->
-        <div class="bg-white rounded-none sm:rounded-2xl shadow-sm hover:shadow-md transition-shadow border-y sm:border border-gray-100 p-4 sm:p-5 relative overflow-hidden flex flex-col w-full">
+        <div class="order-4 md:order-none bg-white rounded-none sm:rounded-2xl shadow-sm hover:shadow-md transition-shadow border-y sm:border border-gray-100 p-4 sm:p-5 relative overflow-hidden flex flex-col w-full">
             <div class="absolute top-0 left-0 w-2 h-full bg-orange-500"></div>
             <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
                 <span class="bg-orange-100 text-orange-600 rounded-full w-8 h-8 flex items-center justify-center mr-3 text-sm">4</span>
@@ -181,9 +182,9 @@
             </div> <!-- FIN COLUMNA IZQUIERDA -->
 
         <!-- COLUMNA DERECHA -->
-        <div class="flex-1 flex flex-col gap-4 sm:gap-6 lg:gap-8 min-w-0 md:w-1/2 w-full">
+        <div class="contents md:flex-1 md:flex md:flex-col gap-4 sm:gap-6 lg:gap-8 min-w-0 md:w-1/2 w-full">
         <!-- Step 2: Medición y Compra -->
-        <div class="bg-white rounded-none sm:rounded-2xl shadow-sm hover:shadow-md transition-shadow border-y sm:border border-gray-100 p-4 sm:p-5 relative overflow-hidden flex flex-col w-full">
+        <div class="order-2 md:order-none bg-white rounded-none sm:rounded-2xl shadow-sm hover:shadow-md transition-shadow border-y sm:border border-gray-100 p-4 sm:p-5 relative overflow-hidden flex flex-col w-full">
             <div class="absolute top-0 left-0 w-2 h-full bg-indigo-500"></div>
             <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
                 <span class="bg-indigo-100 text-indigo-600 rounded-full w-8 h-8 flex items-center justify-center mr-3 text-sm">2</span>

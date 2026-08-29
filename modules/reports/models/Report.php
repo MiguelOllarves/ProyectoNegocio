@@ -83,9 +83,28 @@ class Report extends Model {
         $stmtCost->execute([$startDate, $endDate, $business_id]);
         $salesCost = $stmtCost->fetchColumn();
 
-        $stmtInv = $this->db->prepare("SELECT COALESCE(SUM(stock * COALESCE(unit_cost, 0)), 0) FROM products WHERE tenant_id = ?");
+        $stmtInv = $this->db->prepare("SELECT id, stock, unit_cost, conversion_factor as content_per_purchase, purchase_unit_id as contained_unit_id FROM products WHERE tenant_id = ? AND stock > 0 AND (is_dish = FALSE OR is_dish IS NULL)");
         $stmtInv->execute([$business_id]);
-        $inventoryValue = $stmtInv->fetchColumn();
+        $products = $stmtInv->fetchAll(PDO::FETCH_ASSOC);
+
+        require_once __DIR__ . '/../../../core/UnitConversionService.php';
+        $units = UnitConversionService::getAllUnits();
+        $unitMap = [];
+        foreach($units as $u) {
+            $unitMap[$u['id']] = $u['conversion_to_base'];
+        }
+
+        $inventoryValue = 0;
+        foreach ($products as $p) {
+            $containedConv = $unitMap[$p['contained_unit_id']] ?? 1;
+            $factor = (float)$p['content_per_purchase'];
+            if ($factor <= 0) $factor = 1.0; 
+            
+            $contentInBase = $factor * $containedConv;
+            $costPerBase = (float)$p['unit_cost'] / $contentInBase;
+            
+            $inventoryValue += ((float)$p['stock'] * $costPerBase);
+        }
 
         return [
             'income' => $salesData['income'],
@@ -98,7 +117,7 @@ class Report extends Model {
     
     public function getSalesDetail($startDate, $endDate) {
         $business_id = $_SESSION['business_id'] ?? 1;
-        $aggFunc = (DB_DRIVER === 'pgsql') ? "STRING_AGG(si.quantity || ' ' || p.name, ' | ')" : "GROUP_CONCAT(si.quantity || ' ' || p.name, ' | ')";
+        $aggFunc = (DB_DRIVER === 'pgsql') ? "STRING_AGG(TRIM_SCALE(CAST(si.quantity AS NUMERIC)) || ' ' || p.name, ' | ')" : "GROUP_CONCAT((si.quantity + 0) || ' ' || p.name, ' | ')";
         
         $sql = "
             SELECT 
@@ -137,7 +156,7 @@ class Report extends Model {
 
     public function getSalesDetailPaginated($startDate, $endDate, $limit, $offset) {
         $business_id = $_SESSION['business_id'] ?? 1;
-        $aggFunc = (DB_DRIVER === 'pgsql') ? "STRING_AGG(si.quantity || ' ' || p.name, ' | ')" : "GROUP_CONCAT(si.quantity || ' ' || p.name, ' | ')";
+        $aggFunc = (DB_DRIVER === 'pgsql') ? "STRING_AGG(TRIM_SCALE(CAST(si.quantity AS NUMERIC)) || ' ' || p.name, ' | ')" : "GROUP_CONCAT((si.quantity + 0) || ' ' || p.name, ' | ')";
         
         $sql = "
             SELECT 

@@ -37,6 +37,7 @@ include __DIR__ . '/../../../includes/header.php';
             <div>
                 <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-1">Mostrar</label>
                 <select name="limit" class="w-full px-3 py-2 bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-800 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-brand-500 h-10">
+                    <option value="5" <?= $limit == 5 ? 'selected' : '' ?>>5 filas</option>
                     <option value="10" <?= $limit == 10 ? 'selected' : '' ?>>10 filas</option>
                     <option value="50" <?= $limit == 50 ? 'selected' : '' ?>>50 filas</option>
                     <option value="100" <?= $limit == 100 ? 'selected' : '' ?>>100 filas</option>
