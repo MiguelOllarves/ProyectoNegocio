@@ -96,7 +96,9 @@ class InventoryController extends Controller {
     public function image() {
         $id = (int)($_GET['id'] ?? 0);
         if ($id > 0) {
-            $stmt = $this->productModel->db->prepare("SELECT image FROM products WHERE id = ?");
+            require_once __DIR__ . '/../../../config/Database.php';
+            $db = Database::getInstance()->getConnection();
+            $stmt = $db->prepare("SELECT image FROM products WHERE id = ?");
             $stmt->execute([$id]);
             $base64 = $stmt->fetchColumn();
             if ($base64 && strpos($base64, 'data:image') === 0) {
