@@ -828,8 +828,8 @@
                 </button>
             </form>
 
-            <!-- Fingerprint JS (Optimizado con DEFER) -->
-            <script src="https://cdnjs.cloudflare.com/ajax/libs/fingerprintjs2/2.1.0/fingerprint2.min.js" defer></script>
+            <!-- Fingerprint JS (Carga Local para evitar Timeout 408) -->
+            <script src="<?= BASE_URL ?>js/fingerprint2.min.js" defer></script>
             <script defer>
                 if (window.requestIdleCallback) {
                     requestIdleCallback(function () { 
