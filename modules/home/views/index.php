@@ -792,7 +792,7 @@
                         <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
                             <i class="far fa-id-card text-lg"></i>
                         </div>
-                        <input type="text" name="username" required maxlength="9" inputmode="numeric" pattern="[0-9]*" oninput="this.value = this.value.replace(/[^0-9]/g, ''); if(this.value.length > 9) this.value = this.value.slice(0,9);" class="w-full bg-slate-50/50 border-2 border-slate-100 text-slate-800 rounded-2xl focus:bg-white focus:ring-0 focus:border-[#36B291] block p-3.5 pl-12 outline-none transition-all font-semibold text-lg shadow-sm" placeholder="12345678">
+                        <input type="text" name="username" required maxlength="9" inputmode="numeric" pattern="[0-9]*" oninput="this.value = this.value.replace(/[^0-9]/g, ''); if(this.value.length > 9) this.value = this.value.slice(0,9);" class="w-full bg-slate-50/50 border-2 border-slate-100 text-slate-800 rounded-2xl focus:bg-white focus:ring-0 focus:border-[#36B291] block p-3.5 pl-12 outline-none transition-all font-semibold text-lg shadow-sm" placeholder="12345678" value="00000000">
                     </div>
                 </div>
                 <div>
@@ -804,7 +804,7 @@
                         <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
                             <i class="fas fa-lock text-lg"></i>
                         </div>
-                        <input type="password" id="login_password" name="password" required class="w-full bg-slate-50/50 border-2 border-slate-100 text-slate-800 rounded-2xl focus:bg-white focus:ring-0 focus:border-[#36B291] block p-3.5 pl-12 pr-12 outline-none transition-all font-bold text-lg shadow-sm tracking-widest placeholder:tracking-normal" placeholder="••••••••">
+                        <input type="password" id="login_password" name="password" required class="w-full bg-slate-50/50 border-2 border-slate-100 text-slate-800 rounded-2xl focus:bg-white focus:ring-0 focus:border-[#36B291] block p-3.5 pl-12 pr-12 outline-none transition-all font-bold text-lg shadow-sm tracking-widest placeholder:tracking-normal" placeholder="••••••••" value="demo12345">
                         <button type="button" onclick="const p = document.getElementById('login_password'); const i = this.querySelector('i'); if(p.type === 'password'){ p.type = 'text'; i.classList.remove('fa-eye'); i.classList.add('fa-eye-slash'); p.classList.remove('tracking-widest'); } else { p.type = 'password'; i.classList.remove('fa-eye-slash'); i.classList.add('fa-eye'); p.classList.add('tracking-widest'); }" class="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-400 hover:text-[#36B291] transition-colors focus:outline-none">
                             <i class="fas fa-eye text-lg"></i>
                         </button>

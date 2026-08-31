@@ -68,7 +68,7 @@ if (isset($_GET['serve_logo'])) {
             $imgData = base64_decode($data);
             $mime = str_replace('data:', '', $type);
             header("Content-Type: $mime");
-            header('Cache-Control: max-age=86400');
+            header('Cache-Control: public, s-maxage=86400, max-age=86400');
             echo $imgData;
             exit;
         }
@@ -78,7 +78,7 @@ if (isset($_GET['serve_logo'])) {
     $file = __DIR__ . '/../iconos_negocio/logo1-t.png';
     if (file_exists($file)) {
         header('Content-Type: image/png');
-        header('Cache-Control: max-age=86400');
+        header('Cache-Control: public, s-maxage=86400, max-age=86400');
         readfile($file);
         exit;
     }
