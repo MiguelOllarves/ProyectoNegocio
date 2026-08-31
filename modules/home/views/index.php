@@ -6,8 +6,20 @@
     <title>Tu Inventario - Toma el control absoluto de tu negocio</title>
     <link rel="icon" type="image/png" href="<?= BASE_URL ?>?serve_logo=1">
     <link rel="manifest" href="<?= BASE_URL ?>manifest.json">
+    
+    <!-- Optimización: Preconexiones CDN para ganar milisegundos -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+
+    <!-- CSS (Tailwind nativo) -->
     <link rel="stylesheet" href="<?= BASE_URL ?>css/tailwind.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Optimización: FontAwesome en modo asíncrono para no bloquear pintura -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" media="print" onload="this.media='all'">
+    <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"></noscript>
+    
+    <!-- Optimización: Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Inter', sans-serif; }
@@ -816,9 +828,9 @@
                 </button>
             </form>
 
-            <!-- Fingerprint JS -->
-            <script src="https://cdnjs.cloudflare.com/ajax/libs/fingerprintjs2/2.1.0/fingerprint2.min.js"></script>
-            <script>
+            <!-- Fingerprint JS (Optimizado con DEFER) -->
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/fingerprintjs2/2.1.0/fingerprint2.min.js" defer></script>
+            <script defer>
                 if (window.requestIdleCallback) {
                     requestIdleCallback(function () { 
                         if (typeof Fingerprint2 !== 'undefined') {

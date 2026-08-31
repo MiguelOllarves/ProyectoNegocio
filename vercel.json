@@ -7,6 +7,17 @@
       "excludeFiles": "public/assets/video/**"
     }
   },
+  "headers": [
+    {
+      "source": "/(assets/.*|images/.*|css/.*|js/.*|sw\\.js|manifest\\.json|icons/.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    }
+  ],
   "routes": [
     {
       "src": "/iconos_negocio/(.*)",
