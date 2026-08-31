@@ -218,6 +218,8 @@ try {
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
+// Garantizar que la sesión se escriba en la BD antes de que se destruya el objeto PDO
+register_shutdown_function('session_write_close');
 
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
