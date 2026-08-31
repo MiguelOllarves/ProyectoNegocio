@@ -449,30 +449,7 @@ class AuthController extends Controller {
         exit;
     }
 
-    public function fixpostgres() {
-        require_once __DIR__ . '/../../../config/Database.php';
-        $db = Database::getInstance()->getConnection();
-        
-        try {
-            if ($db->getAttribute(PDO::ATTR_DRIVER_NAME) !== 'pgsql') {
-                die("Este parche solo aplica para la base de datos PostgreSQL de Vercel.");
-            }
-            
-            $db->exec("ALTER TABLE users DROP CONSTRAINT IF EXISTS users_role_check");
-            $db->exec("ALTER TABLE users ADD CONSTRAINT users_role_check CHECK (role IN ('super_admin', 'administrador', 'empleado', 'vendedor'))");
-            
-            $sql = 'INSERT INTO users (business_id, username, full_name, password, role, status) 
-                    VALUES (NULL, \'superadmin\', \'Desarrollador / Sistema\', \'$2y$10$uNsBBWuU8WbvVEWXUFhw4uhzFxChRa937Mg/HuLlrmzFIIkrgQIPK\', \'super_admin\', 1) 
-                    ON CONFLICT (username) DO NOTHING';
-            $db->exec($sql);
-            
-            echo "<h2>¡Parche Aplicado con Éxito en la Base de Datos de Supabase!</h2>";
-            echo "<p>El usuario <b>superadmin</b> con clave <b>123456</b> ahora tiene permiso para entrar.</p>";
-            echo "<a href='" . BASE_URL . "auth' style='display:inline-block; padding:10px 20px; background:#10b981; color:white; text-decoration:none; border-radius:5px;'>Ir Iniciar Sesión</a>";
-        } catch (Exception $e) {
-            echo "<h2>Error aplicando parche:</h2><p>" . $e->getMessage() . "</p>";
-        }
-    }
+
 
     /**
      * AJAX endpoint para verificar unicidad de campos en registro
