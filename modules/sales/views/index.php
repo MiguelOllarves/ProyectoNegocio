@@ -94,7 +94,7 @@
         <div class="px-3 md:px-5 py-2 md:py-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-850 justify-between items-center text-xs md:text-sm font-bold text-gray-600 dark:text-gray-300 shadow-sm hidden md:flex">
             <div class="flex items-center gap-2">
                 <i class="fas fa-coins text-brand-500"></i>
-                <span>Tasa BCV: Bs. <?= number_format($bcvRate ?? 622.21, 2) ?></span>
+                <span>Tasa BCV: Bs. <?= number_format($bcvRate ?? 794.99, 2) ?></span>
             </div>
             <span class="text-green-500 flex items-center animate-pulse"><i class="fas fa-circle text-[8px] mr-1"></i></span>
         </div>
@@ -160,6 +160,7 @@
                     <option value="bs_cash" data-currency="VES" data-igtf="0">BS Efectivo</option>
                     <option value="bs_pm" data-currency="VES" data-igtf="0">BS Pago Móvil</option>
                     <option value="bs_pos" data-currency="VES" data-igtf="0">BS Punto Venta</option>
+                    <option value="bs_biopago" data-currency="VES" data-igtf="0">Biopago (BDV)</option>
                     <option value="eur_cash" data-currency="EUR" data-igtf="1">EUR Efectivo (IGTF 3%)</option>
                 </select>
                 <div class="flex gap-2 w-full sm:w-[55%]">

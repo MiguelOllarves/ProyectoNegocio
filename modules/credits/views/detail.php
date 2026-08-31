@@ -254,6 +254,7 @@
                                 <option value="pago_movil">Pago Móvil</option>
                                 <option value="zelle">Zelle</option>
                                 <option value="punto">Punto de Venta</option>
+                                <option value="biopago">Biopago (BDV)</option>
                             </select>
                         </div>
                         <div>

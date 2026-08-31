@@ -47,7 +47,7 @@ class Settings {
         $autoUpdate = self::get('bcv_auto_update', '1');
         
         $shouldUpdate = false;
-        $currentRate = 791.32; // Tasa por defecto de respaldo
+        $currentRate = 794.99; // Tasa por defecto de respaldo
 
         if ($row) {
             $currentRate = (float) $row['value'];

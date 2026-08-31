@@ -524,7 +524,7 @@
         <!-- ========================================== -->
         <!-- SECCIÓN 3: PRODUCTOS MÁS VENDIDOS -->
         <!-- ========================================== -->
-        <?php $tasa_bcv = 779.64; ?>
+        <?php $tasa_bcv = 794.99; ?>
         <section id="productos" class="w-full px-6 py-6 lg:px-16 border-t border-gray-100 bg-white/40">
             <h2 class="text-3xl font-black text-slate-800 mb-8 text-center sm:text-left max-w-[1400px] mx-auto w-full">Publica tus productos</h2>
             

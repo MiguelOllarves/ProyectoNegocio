@@ -280,6 +280,7 @@ class Migration {
                 ['BS Efectivo',     'bs_cash',    'VES', 0],
                 ['BS Pago Móvil',   'bs_pm',      'VES', 0],
                 ['BS Punto Venta',  'bs_pos',     'VES', 0],
+                ['Biopago (BDV)',   'bs_biopago', 'VES', 0],
                 ['EUR Efectivo',    'eur_cash',   'EUR', 1],
                 ['Zelle',           'zelle',      'USD', 1],
             ];
