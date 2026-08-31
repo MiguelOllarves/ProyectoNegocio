@@ -269,9 +269,9 @@ class AuthController extends Controller {
                                       FROM users u 
                                       LEFT JOIN businesses b ON u.business_id = b.id 
                                       WHERE u.username = :usr 
-                                         OR (u.role = 'administrador' AND b.document_id = :usr2)
+                                      ORDER BY u.id ASC
                                       LIMIT 1");
-                $stmt->execute(['usr' => $username, 'usr2' => $username]);
+                $stmt->execute(['usr' => $username]);
                 $user = $stmt->fetch();
             } catch (Exception $e) {
                 if ($isAjax) {

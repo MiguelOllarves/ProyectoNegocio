@@ -26,18 +26,7 @@ try {
     $stmtSA->execute([$hashSuperAdmin]);
     echo "¡Cuenta Super Admin (182247576) generada con éxito!\n";
 
-    // 4. CREAR NEGOCIO PARA DEMO (id = 1)
-    $stmtBiz = $db->prepare("INSERT INTO businesses (owner_name, business_name, rif, owner_phone, business_phone, document_id, email, category, slug) VALUES ('Demo', 'Negocio Demo', 'J-00000000-0', '0000', '0000', '00000000', 'demo@tuinventario.app', 'general', 'negocio-demo')");
-    $stmtBiz->execute();
-    $biz_id = $db->lastInsertId();
-
-    // 5. INSERTAR AL USUARIO DEMO (id = 2) atado al negocio demo
-    $hashDemo = password_hash('demo12345', PASSWORD_DEFAULT);
-    $stmtDemo = $db->prepare("INSERT INTO users (business_id, username, full_name, password, role, status) VALUES (?, '00000000', 'Usuario Demo', ?, 'administrador', 1)");
-    $stmtDemo->execute([$biz_id, $hashDemo]);
-    echo "¡Cuenta Demo (00000000) generada con éxito dentro del Negocio Demo!\n";
-    
-    // Repoblar las configuraciones/planes por defecto
+    // (Demo Business and Demo User creation removed by request)
     require_once __DIR__ . '/../database/Migration.php';
     Migration::ensureTablesExist($db);
     echo "Configuraciones base (Settings, Payment Methods) re-sembradas con éxito.\n";
