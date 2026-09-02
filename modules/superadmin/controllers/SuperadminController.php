@@ -60,7 +60,7 @@ class SuperadminController extends Controller {
 
         // Tráfico de últimos 7 días (para la gráfica)
         $daily_visits = [];
-        $stmtVisits = $db->query("SELECT DATE(created_at) as day, COUNT(*) as count FROM site_visits WHERE created_at >= NOW() - INTERVAL '7 days' GROUP BY day ORDER BY day ASC");
+        $stmtVisits = $db->query("SELECT DATE(visited_at) as day, COUNT(*) as count FROM site_visits WHERE visited_at >= NOW() - INTERVAL '7 days' GROUP BY day ORDER BY day ASC");
         $visits_data = $stmtVisits->fetchAll(PDO::FETCH_ASSOC);
         foreach($visits_data as $v) {
             $daily_visits[$v['day']] = $v['count'];
