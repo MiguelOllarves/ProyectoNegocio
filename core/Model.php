@@ -13,11 +13,20 @@ class Model {
     protected function logAudit($action, $recordId, $details = []) {
         if ($this->table === 'audit_logs') return;
         try {
+            $inTransaction = $this->db->inTransaction();
+            if ($inTransaction) {
+                $this->db->exec("SAVEPOINT savepoint_audit");
+            }
             $userId = $_SESSION['user_id'] ?? null;
             $stmt = $this->db->prepare("INSERT INTO audit_logs (user_id, action, target, details) VALUES (?, ?, ?, ?)");
             $target = $this->table . ':' . $recordId;
             $stmt->execute([$userId, $action, $target, json_encode($details, JSON_UNESCAPED_UNICODE)]);
-        } catch (\Exception $e) { }
+        } catch (\Exception $e) { 
+            if (isset($inTransaction) && $inTransaction) {
+                $this->db->exec("ROLLBACK TO SAVEPOINT savepoint_audit");
+            }
+            error_log("Audit log failed: " . $e->getMessage());
+        }
     }
 
     public function all() {

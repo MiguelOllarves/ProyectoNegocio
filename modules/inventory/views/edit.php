@@ -33,11 +33,10 @@
 </datalist>
 
 <form action="<?= BASE_URL ?>inventory/update/<?= $product['id'] ?>" method="POST" enctype="multipart/form-data" class="max-w-7xl mx-auto pb-32 sm:pb-12 px-0 sm:px-6 lg:px-8">
-    <div class="flex flex-col md:flex-row gap-4 sm:gap-6 lg:gap-8 mb-8 items-start">
-        <!-- COLUMNA IZQUIERDA -->
-        <div class="contents md:flex-1 md:flex md:flex-col gap-4 sm:gap-6 lg:gap-8 min-w-0 md:w-1/2 w-full">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 lg:gap-8 mb-8 items-start">
+        
         <!-- Step 1: Información Principal -->
-        <div class="order-1 md:order-none bg-white rounded-none sm:rounded-2xl shadow-sm hover:shadow-md transition-shadow border-y sm:border border-gray-100 p-4 sm:p-5 relative overflow-hidden flex flex-col w-full">
+        <div class="bg-white rounded-none sm:rounded-2xl shadow-sm hover:shadow-md transition-shadow border-y sm:border border-gray-100 p-4 sm:p-5 relative overflow-hidden flex flex-col w-full">
             <div class="absolute top-0 left-0 w-2 h-full bg-blue-500"></div>
             <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
                 <span class="bg-blue-100 text-blue-600 rounded-full w-8 h-8 flex items-center justify-center mr-3 text-sm">1</span>
@@ -96,98 +95,8 @@
             </div>
         </div>
 
-        <!-- Step 3: Venta -->
-        <div class="order-3 md:order-none bg-white rounded-none sm:rounded-2xl shadow-sm hover:shadow-md transition-shadow border-y sm:border border-gray-100 p-4 sm:p-5 relative overflow-hidden flex flex-col w-full">
-            <div class="absolute top-0 left-0 w-2 h-full bg-green-500"></div>
-            <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
-                <span class="bg-green-100 text-green-600 rounded-full w-8 h-8 flex items-center justify-center mr-3 text-sm">3</span>
-                ¿A cuánto lo vas a vender?
-            </h3>
-            
-            <div class="mb-6 bg-green-50 border-l-4 border-green-500 p-4 rounded-r-xl shadow-sm">
-                <p class="text-sm text-green-900 leading-relaxed"><i class="fas fa-tags text-green-600 mr-2"></i><b>Ganancia comercial:</b> Dinos a qué precio se lo vas a ofrecer al cliente final. Automáticamente restaremos el costo matemático que llenaste en el paso 2 y te diremos de cuánto es tu porcentaje de ganancia real.</p>
-            </div>
-            
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                <div>
-                    <label class="block text-sm font-bold text-green-800 mb-2">Precio de Venta (por <span class="lbl_unit_name"></span>)</label>
-                    <div class="relative">
-                        <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-green-800 font-bold text-xl">$</span>
-                        <input type="number" step="0.01" name="price" id="sale_price" required value="<?= number_format((float)($product['price'] ?? 0), 2, '.', '') ?>" class="w-full text-2xl font-bold text-green-900 rounded-xl border-2 border-green-300 bg-green-50 pl-10 pr-4 py-3 focus:outline-none focus:bg-white focus:ring-4 focus:ring-green-100 focus:border-green-500 transition-all shadow-sm">
-                    </div>
-                    <div class="mt-2 text-[11px] font-bold text-green-700 opacity-80 pl-2">Equivale a: <span id="ves_sale_price">Bs. 0,00</span> 🇻🇪</div>
-                </div>
-                
-                <div>
-                    <div class="flex flex-wrap justify-between sm:justify-start items-center gap-2 mb-2 w-full">
-                        <label class="block text-sm font-bold text-slate-700 whitespace-nowrap">% Ganancia</label>
-                        <select id="margin_type" class="text-xs bg-transparent text-brand-600 font-bold focus:outline-none cursor-pointer pb-0.5 border-b border-dashed border-brand-200">
-                            <option value="margin">Comercial (Costo / %)</option>
-                            <option value="markup">Simple (Costo + %)</option>
-                        </select>
-                    </div>
-                    <div class="relative">
-                        <input type="number" step="0.01" name="profit_margin" id="profit_margin" value="<?= number_format((float)($product['profit_margin'] ?? 0), 2, '.', '') ?>" class="w-full text-lg rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 focus:outline-none focus:bg-white focus:ring-2 focus:ring-brand-500 transition-all shadow-sm">
-                        <span class="absolute inset-y-0 right-0 flex items-center pr-4 text-slate-500 font-bold">%</span>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="flex items-center gap-5 mt-4">
-                <div>
-                    <label class="block text-sm font-bold text-slate-700 mb-1">Moneda</label>
-                    <select name="currency" class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-2 text-sm focus:outline-none focus:bg-white focus:ring-2 focus:ring-brand-500 transition-all shadow-sm">
-                        <option value="USD" <?= $product['currency'] == 'USD' ? 'selected' : '' ?>>USD</option>
-                        <option value="VES" <?= $product['currency'] == 'VES' ? 'selected' : '' ?>>VES</option>
-                        <option value="COP" <?= $product['currency'] == 'COP' ? 'selected' : '' ?>>COP</option>
-                    </select>
-                </div>
-                <div class="flex items-center pt-5">
-                    <input type="checkbox" name="is_tax_exempt" id="is_tax_exempt" value="1" <?= $product['is_tax_exempt'] ? 'checked' : '' ?> class="w-4 h-4 text-brand-600 rounded cursor-pointer">
-                    <label for="is_tax_exempt" class="ml-2 text-sm font-bold text-slate-700 cursor-pointer">Exento de IVA (E)</label>
-                </div>
-            </div>
-        </div>
-
-        <!-- Step 4: Inventario -->
-        <div class="order-4 md:order-none bg-white rounded-none sm:rounded-2xl shadow-sm hover:shadow-md transition-shadow border-y sm:border border-gray-100 p-4 sm:p-5 relative overflow-hidden flex flex-col w-full">
-            <div class="absolute top-0 left-0 w-2 h-full bg-orange-500"></div>
-            <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
-                <span class="bg-orange-100 text-orange-600 rounded-full w-8 h-8 flex items-center justify-center mr-3 text-sm">4</span>
-                Cantidades en Inventario
-            </h3>
-            
-            <div class="mb-6 bg-orange-50 border-l-4 border-orange-500 p-4 rounded-r-xl shadow-sm">
-                <p class="text-sm text-orange-900 leading-relaxed"><i class="fas fa-boxes text-orange-600 mr-2"></i><b>Conteo actual:</b> Si tu caja física tiene mercancía para vender suelta (por ejemplo: si te quedan 2 bultos enteros allá atrás), esto significa que cuentas con <b>esos mismos individuales multiplicados</b>. En la vista de listado de inventario prodrás ver tu stock real completo.</p>
-            </div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                <div>
-                    <label class="block text-sm font-bold text-slate-800 mb-2">Inventario Físico (En <span class="lbl_unit_name text-orange-600">Unidad</span>)</label>
-                    <?php
-                        $stockInSaleUnit = $product['stock'] ?? 0;
-                        $stockContainersVal = is_float($stockInSaleUnit) && floor($stockInSaleUnit) != $stockInSaleUnit ? number_format($stockInSaleUnit, 3, '.', '') : $stockInSaleUnit;
-                    ?>
-                    <input type="number" step="0.001" name="stock" id="stock_containers" value="<?= $stockContainersVal ?>" class="w-full text-xl font-bold rounded-xl border-2 border-slate-300 bg-slate-50 px-4 py-3 focus:outline-none focus:bg-white focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all shadow-sm">
-                </div>
-                <div>
-                    <label class="block text-sm font-bold text-slate-700 mb-2">Stock Mínimo (Alerta en <span class="lbl_unit_name"></span>)</label>
-                    <input type="number" step="0.001" name="min_stock" value="<?= htmlspecialchars($product['min_stock'] ?? 5) ?>"  class="w-full text-lg rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 focus:outline-none focus:bg-white focus:ring-2 focus:ring-brand-500 transition-all shadow-sm">
-                </div>
-            </div>
-            <input type="hidden" id="real_stock" value="0">
-            
-            <div class="mt-4 p-4 bg-orange-50 border border-orange-200 rounded-lg text-orange-900 font-medium">
-                <i class="fas fa-boxes mr-2 text-orange-600"></i> Inventario Total para este producto: <b><span id="calc_total_stock" class="text-xl">0</span> <span class="lbl_unit_name"></span></b>
-            </div>
-        </div>
-        
-            </div> <!-- FIN COLUMNA IZQUIERDA -->
-
-        <!-- COLUMNA DERECHA -->
-        <div class="contents md:flex-1 md:flex md:flex-col gap-4 sm:gap-6 lg:gap-8 min-w-0 md:w-1/2 w-full">
         <!-- Step 2: Medición y Compra -->
-        <div class="order-2 md:order-none bg-white rounded-none sm:rounded-2xl shadow-sm hover:shadow-md transition-shadow border-y sm:border border-gray-100 p-4 sm:p-5 relative overflow-hidden flex flex-col w-full">
+        <div class="bg-white rounded-none sm:rounded-2xl shadow-sm hover:shadow-md transition-shadow border-y sm:border border-gray-100 p-4 sm:p-5 relative overflow-hidden flex flex-col w-full">
             <div class="absolute top-0 left-0 w-2 h-full bg-indigo-500"></div>
             <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
                 <span class="bg-indigo-100 text-indigo-600 rounded-full w-8 h-8 flex items-center justify-center mr-3 text-sm">2</span>
@@ -268,10 +177,94 @@
             </div>
         </div>
 
-                </div> <!-- FIN COLUMNA DERECHA -->
+                <!-- Step 3: Venta -->
+        <div class="bg-white rounded-none sm:rounded-2xl shadow-sm hover:shadow-md transition-shadow border-y sm:border border-gray-100 p-4 sm:p-5 relative overflow-hidden flex flex-col w-full">
+            <div class="absolute top-0 left-0 w-2 h-full bg-green-500"></div>
+            <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                <span class="bg-green-100 text-green-600 rounded-full w-8 h-8 flex items-center justify-center mr-3 text-sm">3</span>
+                ¿A cuánto lo vas a vender?
+            </h3>
+            
+            <div class="mb-6 bg-green-50 border-l-4 border-green-500 p-4 rounded-r-xl shadow-sm">
+                <p class="text-sm text-green-900 leading-relaxed"><i class="fas fa-tags text-green-600 mr-2"></i><b>Ganancia comercial:</b> Dinos a qué precio se lo vas a ofrecer al cliente final. Automáticamente restaremos el costo matemático que llenaste en el paso 2 y te diremos de cuánto es tu porcentaje de ganancia real.</p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div>
+                    <label class="block text-sm font-bold text-green-800 mb-2">Precio de Venta (por <span class="lbl_unit_name"></span>)</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-green-800 font-bold text-xl">$</span>
+                        <input type="number" step="0.01" name="price" id="sale_price" required value="<?= number_format((float)($product['price'] ?? 0), 2, '.', '') ?>" class="w-full text-2xl font-bold text-green-900 rounded-xl border-2 border-green-300 bg-green-50 pl-10 pr-4 py-3 focus:outline-none focus:bg-white focus:ring-4 focus:ring-green-100 focus:border-green-500 transition-all shadow-sm">
+                    </div>
+                    <div class="mt-2 text-[11px] font-bold text-green-700 opacity-80 pl-2">Equivale a: <span id="ves_sale_price">Bs. 0,00</span> 🇻🇪</div>
+                </div>
+                
+                <div>
+                    <div class="flex flex-wrap justify-between sm:justify-start items-center gap-2 mb-2 w-full">
+                        <label class="block text-sm font-bold text-slate-700 whitespace-nowrap">% Ganancia</label>
+                        <select id="margin_type" class="text-xs bg-transparent text-brand-600 font-bold focus:outline-none cursor-pointer pb-0.5 border-b border-dashed border-brand-200">
+                            <option value="margin">Comercial (Costo / %)</option>
+                            <option value="markup">Simple (Costo + %)</option>
+                        </select>
+                    </div>
+                    <div class="relative">
+                        <input type="number" step="0.01" name="profit_margin" id="profit_margin" value="<?= number_format((float)($product['profit_margin'] ?? 0), 2, '.', '') ?>" class="w-full text-lg rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 focus:outline-none focus:bg-white focus:ring-2 focus:ring-brand-500 transition-all shadow-sm">
+                        <span class="absolute inset-y-0 right-0 flex items-center pr-4 text-slate-500 font-bold">%</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-5 mt-4">
+                <div>
+                    <label class="block text-sm font-bold text-slate-700 mb-1">Moneda</label>
+                    <select name="currency" class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-2 text-sm focus:outline-none focus:bg-white focus:ring-2 focus:ring-brand-500 transition-all shadow-sm">
+                        <option value="USD" <?= $product['currency'] == 'USD' ? 'selected' : '' ?>>USD</option>
+                        <option value="VES" <?= $product['currency'] == 'VES' ? 'selected' : '' ?>>VES</option>
+                        <option value="COP" <?= $product['currency'] == 'COP' ? 'selected' : '' ?>>COP</option>
+                    </select>
+                </div>
+                <div class="flex items-center pt-5">
+                    <input type="checkbox" name="is_tax_exempt" id="is_tax_exempt" value="1" <?= $product['is_tax_exempt'] ? 'checked' : '' ?> class="w-4 h-4 text-brand-600 rounded cursor-pointer">
+                    <label for="is_tax_exempt" class="ml-2 text-sm font-bold text-slate-700 cursor-pointer">Exento de IVA (E)</label>
+                </div>
+            </div>
+        </div>
 
-    </div> <!-- FIN DEL FLEX ROW -->
+        <!-- Step 4: Inventario -->
+        <div class="bg-white rounded-none sm:rounded-2xl shadow-sm hover:shadow-md transition-shadow border-y sm:border border-gray-100 p-4 sm:p-5 relative overflow-hidden flex flex-col w-full">
+            <div class="absolute top-0 left-0 w-2 h-full bg-orange-500"></div>
+            <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                <span class="bg-orange-100 text-orange-600 rounded-full w-8 h-8 flex items-center justify-center mr-3 text-sm">4</span>
+                Cantidades en Inventario
+            </h3>
+            
+            <div class="mb-6 bg-orange-50 border-l-4 border-orange-500 p-4 rounded-r-xl shadow-sm">
+                <p class="text-sm text-orange-900 leading-relaxed"><i class="fas fa-boxes text-orange-600 mr-2"></i><b>Conteo actual:</b> Si tu caja física tiene mercancía para vender suelta (por ejemplo: si te quedan 2 bultos enteros allá atrás), esto significa que cuentas con <b>esos mismos individuales multiplicados</b>. En la vista de listado de inventario prodrás ver tu stock real completo.</p>
+            </div>
 
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <div>
+                    <label class="block text-sm font-bold text-slate-800 mb-2">Inventario Físico (En <span class="lbl_unit_name text-orange-600">Unidad</span>)</label>
+                    <?php
+                        $stockInSaleUnit = $product['stock'] ?? 0;
+                        $stockContainersVal = is_float($stockInSaleUnit) && floor($stockInSaleUnit) != $stockInSaleUnit ? number_format($stockInSaleUnit, 3, '.', '') : $stockInSaleUnit;
+                    ?>
+                    <input type="number" step="0.001" name="stock" id="stock_containers" value="<?= $stockContainersVal ?>" class="w-full text-xl font-bold rounded-xl border-2 border-slate-300 bg-slate-50 px-4 py-3 focus:outline-none focus:bg-white focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all shadow-sm">
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-slate-700 mb-2">Stock Mínimo (Alerta en <span class="lbl_unit_name"></span>)</label>
+                    <input type="number" step="0.001" name="min_stock" value="<?= htmlspecialchars($product['min_stock'] ?? 5) ?>"  class="w-full text-lg rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 focus:outline-none focus:bg-white focus:ring-2 focus:ring-brand-500 transition-all shadow-sm">
+                </div>
+            </div>
+            <input type="hidden" id="real_stock" value="0">
+            
+            <div class="mt-4 p-4 bg-orange-50 border border-orange-200 rounded-lg text-orange-900 font-medium">
+                <i class="fas fa-boxes mr-2 text-orange-600"></i> Inventario Total para este producto: <b><span id="calc_total_stock" class="text-xl">0</span> <span class="lbl_unit_name"></span></b>
+            </div>
+        </div>
+        
+            
+    </div> 
 
     <!-- Extra Options (Barcode & Attributes) -->
     <details class="group mb-10">
