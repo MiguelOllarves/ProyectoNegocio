@@ -432,19 +432,30 @@
                         title: 'Sesión Expirada',
                         text: evt.detail.value || 'Tu sesión ha expirado o el token de seguridad es inválido. Por favor recarga la página e intenta de nuevo.',
                         confirmButtonColor: '#10b981',
-                        confirmButtonText: 'Recargar Página',
+                        confirmButtonText: 'Ir al Inicio',
                         allowOutsideClick: false
                     }).then(function(result) {
                         if (result.isConfirmed) {
-                            window.location.reload();
+                            window.location.href = '/';
                         }
                     });
                 } else {
                     alert('Sesión Expirada. Por favor recarga la página e intenta de nuevo.');
-                    window.location.reload();
+                    window.location.href = '/';
                 }
             });
         })();
+
+        // Protección Anticopia/Anti-Inspección Global
+        document.addEventListener('contextmenu', event => event.preventDefault());
+        document.addEventListener('keydown', event => {
+            if (event.key === 'F12' || 
+               (event.ctrlKey && event.shiftKey && (event.key === 'I' || event.key === 'C' || event.key === 'J')) || 
+               (event.ctrlKey && event.key === 'U')) {
+                event.preventDefault();
+                return false;
+            }
+        });
     </script>
 </body>
 </html>
