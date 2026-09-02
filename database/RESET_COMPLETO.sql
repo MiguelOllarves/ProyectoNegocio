@@ -1,7 +1,10 @@
 -- ============================================================
--- TuInventarioApp v4.0 - Schema PostgreSQL Optimizado
--- Solo CREATE IF NOT EXISTS - Seguro para re-ejecución
+-- SQL DE RESETEO DE FÁBRICA - TuInventarioApp
+-- PELIGRO: ESTO BORRARÁ ABSOLUTAMENTE TODA LA BASE DE DATOS
 -- ============================================================
+
+DROP SCHEMA public CASCADE;
+CREATE SCHEMA public;
 
 -- 1. Negocios / Inquilinos
 CREATE TABLE IF NOT EXISTS businesses (
@@ -490,19 +493,28 @@ CREATE INDEX IF NOT EXISTS idx_recipe_dish ON recipe_items(dish_id);
 -- DATOS POR DEFECTO
 -- ==========================================
 
--- A) Negocio base
+-- A) Plan Básico
+INSERT INTO plans (name, price, duration_days, features_json) VALUES
+('Plan Básico', 10.00, 30, '{"limit_users": 2, "limit_products": 100, "custom_module": true}'),
+('Plan Anual', 199.00, 365, '{"limit_users": 4, "limit_products": 200, "custom_module": true}')
+ON CONFLICT DO NOTHING;
+
+-- B) Negocios 
+-- Como es un factory reset absoluto, el negocio de demo debe ser el ID 1 o al menos estar aislado
 INSERT INTO businesses (id, owner_name, business_name, document_id, email, category, slug, subscription_status)
 VALUES (1, 'Usuario Demo', 'Negocio Demo', '00000000', 'demo@sistema.local', 'general', 'demo', 'active')
 ON CONFLICT DO NOTHING;
+SELECT setval('businesses_id_seq', (SELECT COALESCE(MAX(id), 1) FROM businesses));
 
--- B) Administrador Demo
-INSERT INTO users (business_id, username, full_name, password, role, status)
-VALUES (1, '00000000', 'Administrador Demo', '$2y$10$SaSgH8hC.HnRdqMiiejSjuU4PD3NdwI2WZhKDkEJ7Yg/pigOpX7kG', 'administrador', 1)
-ON CONFLICT DO NOTHING;
-
--- C) Super Admin Global
+-- C) Usuarios 
+-- 1. Super Admin Global
 INSERT INTO users (business_id, username, full_name, password, role, status)
 VALUES (NULL, '182247576', 'Super Administrador', '$2y$10$FdMFxslXhRhiK2iZ2qb64e3o7kiK1dfJOEOkp6RI2z2z3fqN8woP6', 'super_admin', 1)
+ON CONFLICT DO NOTHING;
+
+-- 2. Administrador Demo
+INSERT INTO users (business_id, username, full_name, password, role, status)
+VALUES (1, '00000000', 'Administrador Demo', '$2y$10$SaSgH8hC.HnRdqMiiejSjuU4PD3NdwI2WZhKDkEJ7Yg/pigOpX7kG', 'administrador', 1)
 ON CONFLICT DO NOTHING;
 
 -- D) Métodos de Pago Base
@@ -515,7 +527,7 @@ INSERT INTO payment_methods (name, code, currency, applies_igtf, is_active) VALU
 ('Zelle', 'zelle', 'USD', TRUE, TRUE)
 ON CONFLICT DO NOTHING;
 
--- E) Configuraciones Base (BCV actualizado a 791.32)
+-- E) Configuraciones Base
 INSERT INTO settings (key, value, category) VALUES
 ('bcv_rate', '791.32', 'rates'),
 ('parallel_rate', '0', 'rates'),
@@ -542,10 +554,4 @@ INSERT INTO units_of_measure (id, name, abbreviation, base_type, base_unit_id, c
 (13, 'Bulto', 'bulto', 'unidad', 3, 1.0),
 (14, 'Paquete', 'pqte', 'unidad', 3, 1.0)
 ON CONFLICT DO NOTHING;
-
 SELECT setval('units_of_measure_id_seq', (SELECT COALESCE(MAX(id), 1) FROM units_of_measure));
-- -   N o t i f i c a c i o n e s   P u s h 
- 
- C R E A T E   T A B L E   I F   N O T   E X I S T S   p u s h _ s u b s c r i p t i o n s   ( i d   S E R I A L   P R I M A R Y   K E Y ,   u s e r _ i d   I N T E G E R   R E F E R E N C E S   u s e r s ( i d )   O N   D E L E T E   S E T   N U L L ,   r o l e   V A R C H A R ( 5 0 ) ,   e n d p o i n t   T E X T   U N I Q U E   N O T   N U L L ,   p 2 5 6 d h   T E X T ,   a u t h   T E X T ,   c r e a t e d _ a t   T I M E S T A M P   D E F A U L T   C U R R E N T _ T I M E S T A M P ) ; 
- 
- 
