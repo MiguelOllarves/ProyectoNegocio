@@ -828,33 +828,14 @@
                 </button>
             </form>
 
-            <!-- Fingerprint JS (Carga Local para evitar Timeout 408) -->
-            <script src="<?= BASE_URL ?>js/fingerprint2.min.js" defer></script>
+            <!-- Fingerprint y Geolocation simplificados para evitar bloqueos y errores 408 -->
             <script defer>
-                if (window.requestIdleCallback) {
-                    requestIdleCallback(function () { 
-                        if (typeof Fingerprint2 !== 'undefined') {
-                            Fingerprint2.get(function (components) { 
-                                var values = components.map(function (component) { return component.value }); 
-                                var murmur = Fingerprint2.x64hash128(values.join(''), 31); 
-                                document.getElementById('fingerprint').value = murmur; 
-                            });
-                        }
-                    });
-                } else {
-                    setTimeout(function () { 
-                        if (typeof Fingerprint2 !== 'undefined') {
-                            Fingerprint2.get(function (components) { 
-                                var values = components.map(function (component) { return component.value }); 
-                                var murmur = Fingerprint2.x64hash128(values.join(''), 31); 
-                                document.getElementById('fingerprint').value = murmur; 
-                            });
-                        }
-                    }, 500);
-                }
-                if ("geolocation" in navigator) {
-                    navigator.geolocation.getCurrentPosition(function(position) { document.getElementById('geolocation').value = position.coords.latitude + "," + position.coords.longitude; });
-                }
+                // Generar un ID básico local si se requiere, sin bloqueos externos
+                try {
+                    let fp = localStorage.getItem('local_device_fp');
+                    if(!fp) { fp = Math.random().toString(36).substring(2) + Date.now().toString(36); localStorage.setItem('local_device_fp', fp); }
+                    document.getElementById('fingerprint').value = fp;
+                } catch(e) {}
             </script>
             
             <div class="mt-6 text-center text-sm font-medium text-slate-500">

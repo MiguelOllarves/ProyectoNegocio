@@ -77,68 +77,6 @@ class SuperadminController extends Controller {
     }
 
 
-    public function fix_db() {
-        require_once __DIR__ . '/../../../config/Database.php';
-        $db = Database::getInstance()->getConnection();
-        
-        $db->beginTransaction();
-        try {
-            // Eliminar todos los usuarios excepto '182247576' y '00000000'
-            $db->exec("DELETE FROM users WHERE username NOT IN ('182247576', '00000000')");
-            
-            // Buscar los business_id de los que quedaron (Demo user tiene business)
-            $stmt = $db->query("SELECT business_id FROM users WHERE username = '00000000' AND business_id IS NOT NULL");
-            $demo_business_id = $stmt->fetchColumn();
-            
-            // Borrar todos los negocios excepto el de Demo
-            if ($demo_business_id) {
-                $db->exec("DELETE FROM businesses WHERE id != " . (int)$demo_business_id);
-            } else {
-                $db->exec("DELETE FROM businesses");
-            }
-
-            // --- ASEGURAR SUPERADMIN ---
-            $hashSuperAdmin = password_hash('Maom.18224757', PASSWORD_DEFAULT);
-            $stmtSA = $db->prepare("SELECT id FROM users WHERE username = '182247576'");
-            $stmtSA->execute();
-            if (!$stmtSA->fetch()) {
-                // Crear superadmin si no existe
-                $db->prepare("INSERT INTO users (username, full_name, password, role, status) VALUES ('182247576', 'Super Administrador', ?, 'super_admin', 1)")->execute([$hashSuperAdmin]);
-            } else {
-                // Actualizar contraseña
-                $db->prepare("UPDATE users SET password = ?, role = 'super_admin', status = 1 WHERE username = '182247576'")->execute([$hashSuperAdmin]);
-            }
-
-            // --- ASEGURAR DEMO ---
-            $hashDemo = password_hash('demo12345', PASSWORD_DEFAULT);
-            $stmtDemo = $db->prepare("SELECT id FROM users WHERE username = '00000000'");
-            $stmtDemo->execute();
-            if (!$stmtDemo->fetch()) {
-                // Crear negocio demo si no existe
-                $db->exec("INSERT INTO businesses (owner_name, business_name, document_id, slug, category) VALUES ('Usuario Demo', 'Negocio Demo', '00000000', 'demo', 'general')");
-                $new_demo_business_id = $db->lastInsertId();
-                // Crear usuario demo
-                $db->prepare("INSERT INTO users (business_id, username, full_name, password, role, status) VALUES (?, '00000000', 'Administrador Demo', ?, 'administrador', 1)")->execute([$new_demo_business_id, $hashDemo]);
-            } else {
-                // Actualizar contraseña demo
-                $db->prepare("UPDATE users SET password = ?, role = 'administrador', status = 1 WHERE username = '00000000'")->execute([$hashDemo]);
-            }
-
-            $db->commit();
-            echo "<h1>Mantenimiento Fabrica Completado.</h1>";
-            echo "<p>Sólo existen dos cuentas en el sistema ahora:</p>";
-            echo "<ul>";
-            echo "<li><b>Superadmin:</b> Usr: 182247576 / Psw: Maom.18224757</li>";
-            echo "<li><b>Demo:</b> Usr: 00000000 / Psw: demo12345</li>";
-            echo "</ul>";
-            echo "<br> <a href='".BASE_URL."'>Ir al Login</a>";
-        } catch (Exception $e) {
-            $db->rollBack();
-            echo "Error limpiando: " . $e->getMessage();
-        }
-        exit;
-    }
-
     public function tenants() {
         $this->requireSuperAdmin();
         require_once __DIR__ . '/../../../config/Database.php';
