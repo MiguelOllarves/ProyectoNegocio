@@ -66,5 +66,5 @@ define('SMTP_FROM_EMAIL', getenv('SMTP_FROM_EMAIL') ?: '');
 define('SMTP_FROM_NAME', getenv('SMTP_FROM_NAME') ?: 'Tu Inventario');
 
 // --- Configuración WebPush (VAPID) ---
-define('VAPID_PUBLIC_KEY', getenv('VAPID_PUBLIC_KEY') ?: '');
-define('VAPID_PRIVATE_KEY', getenv('VAPID_PRIVATE_KEY') ?: '');
+define('VAPID_PUBLIC_KEY', getenv('VAPID_PUBLIC_KEY') ?: 'BJzzwIhusRlae2mlE2iLTDCNRSwAd3BFU-DCnJEXdn6ycRI2-2iYMTEpFxggNa7K8WVvsUAIgje4KtJnZ0CU_zU');
+define('VAPID_PRIVATE_KEY', getenv('VAPID_PRIVATE_KEY') ?: 'O8C2F1eq9rIAp1_k3faOPaebwVYDLL23Y49foHU2EiM');
