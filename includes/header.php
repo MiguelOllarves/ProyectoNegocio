@@ -59,6 +59,20 @@
         .gradient-header { background: linear-gradient(135deg, #ecfdf5 0%, #ecfeff 100%); }
         .dark .gradient-header { background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); }
 
+        /* Fix Form Inputs Visibility in Dark Mode Globally */
+        .dark input:not([type="submit"]):not([type="button"]):not([type="hidden"]),
+        .dark textarea, 
+        .dark select {
+            color: rgba(255, 255, 255, 0.95) !important;
+        }
+        .dark input::placeholder, .dark textarea::placeholder {
+            color: rgba(255, 255, 255, 0.5) !important;
+        }
+        /* Autofill dark mode fix */
+        .dark input:-webkit-autofill {
+            -webkit-text-fill-color: rgba(255, 255, 255, 0.95) !important;
+        }
+
         /* Universal modal scroll fix (legacy support for existing modals) */
         .fixed.inset-0[class*="z-50"],
         .fixed.inset-0[class*="z-[60]"] {
