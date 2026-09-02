@@ -60,16 +60,25 @@
         .dark .gradient-header { background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); }
 
         /* Fix Form Inputs Visibility in Dark Mode Globally */
-        .dark input:not([type="submit"]):not([type="button"]):not([type="hidden"]),
+        .dark input:not([type="submit"]):not([type="button"]):not([type="hidden"]):not([type="checkbox"]):not([type="radio"]),
         .dark textarea, 
         .dark select {
             color: rgba(255, 255, 255, 0.95) !important;
+            background-color: #1e293b !important; /* bg-slate-800 */
+            border-color: #334155 !important;
+        }
+        .dark input:focus:not([type="submit"]):not([type="button"]):not([type="hidden"]):not([type="checkbox"]):not([type="radio"]),
+        .dark textarea:focus, 
+        .dark select:focus {
+            background-color: #0f172a !important; /* bg-slate-900 */
+            border-color: #10b981 !important;
         }
         .dark input::placeholder, .dark textarea::placeholder {
             color: rgba(255, 255, 255, 0.5) !important;
         }
         /* Autofill dark mode fix */
         .dark input:-webkit-autofill {
+            -webkit-box-shadow: 0 0 0 30px #1e293b inset !important;
             -webkit-text-fill-color: rgba(255, 255, 255, 0.95) !important;
         }
 
