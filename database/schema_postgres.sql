@@ -479,8 +479,6 @@ CREATE TABLE IF NOT EXISTS free_qr_menus (
 -- ==========================================
 -- ÍNDICES PARA RENDIMIENTO
 -- ==========================================
-CREATE UNIQUE INDEX IF NOT EXISTS idx_cat_tenant_name ON categories(tenant_id, name);
-CREATE UNIQUE INDEX IF NOT EXISTS idx_brand_tenant_name ON brands(tenant_id, name);
 CREATE INDEX IF NOT EXISTS idx_created_at_sales ON sales(created_at);
 CREATE INDEX IF NOT EXISTS idx_tenant_id_products ON products(tenant_id);
 CREATE INDEX IF NOT EXISTS idx_kitchen_tenant ON kitchen_ingredients(tenant_id);
