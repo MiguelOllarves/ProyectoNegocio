@@ -91,7 +91,7 @@ class SuperadminController extends Controller {
         $sql = "SELECT b.*, 
                        (SELECT COUNT(*) FROM users u WHERE u.business_id = b.id) as subusers_count,
                        (SELECT COUNT(*) FROM products p WHERE p.tenant_id = b.id) as products_count,
-                       (SELECT COALESCE(SUM(total), 0) FROM sales s WHERE s.user_id IN (SELECT id FROM users WHERE business_id = b.id) AND s.status = 'completed') as total_sales_amount,
+                       (SELECT COALESCE(SUM(total), 0) FROM sales s WHERE s.user_id IN (SELECT id FROM users WHERE business_id = b.id)) as total_sales_amount,
                        (SELECT COUNT(*) FROM sales s WHERE s.user_id IN (SELECT id FROM users WHERE business_id = b.id)) as total_sales_count,
                        (SELECT COUNT(*) FROM expenses e WHERE e.user_id IN (SELECT id FROM users WHERE business_id = b.id)) as expenses_count
                 FROM businesses b 

@@ -553,3 +553,16 @@ INSERT INTO units_of_measure (id, name, abbreviation, base_type, base_unit_id, c
 (14, 'Paquete', 'pqte', 'unidad', 3, 1.0)
 ON CONFLICT DO NOTHING;
 SELECT setval('units_of_measure_id_seq', (SELECT COALESCE(MAX(id), 1) FROM units_of_measure));
+
+-- ==========================================
+-- 30. Notificaciones Push
+-- ==========================================
+CREATE TABLE IF NOT EXISTS push_subscriptions (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+    role VARCHAR(50),
+    endpoint TEXT UNIQUE NOT NULL,
+    p256dh TEXT,
+    auth TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
