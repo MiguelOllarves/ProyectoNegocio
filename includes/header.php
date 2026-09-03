@@ -30,12 +30,12 @@
     <title>Tu Inventario</title>
     <meta name="csrf-token" content="<?= $_SESSION['csrf_token'] ?? '' ?>">
     <link rel="stylesheet" href="<?= BASE_URL ?? "" ?>css/tailwind.css">
-    <script src="https://unpkg.com/htmx.org@1.9.11"></script>
+    <script defer src="https://unpkg.com/htmx.org@1.9.11"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="https://unpkg.com/dexie@4.0.8/dist/dexie.js"></script>
-    <script src="<?= BASE_URL ?>js/offline-sync.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script defer src="https://unpkg.com/dexie@4.0.8/dist/dexie.js"></script>
+    <script defer src="<?= BASE_URL ?>js/offline-sync.js"></script>
     <script>
         window.BASE_URL = "<?= BASE_URL ?>";
         if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
@@ -62,7 +62,8 @@
             evt.detail.headers['X-CSRF-Token'] = window.csrfToken;
         });
     </script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" media="print" onload="this.media='all'" crossorigin="anonymous" referrerpolicy="no-referrer">
+    <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"></noscript>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
         /* Gradient definitions (not expressible in Tailwind config) */

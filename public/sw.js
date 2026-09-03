@@ -4,7 +4,7 @@
  *             Network-first para páginas dinámicas (PHP/HTML)
  *             Fallback offline graceful
  */
-const CACHE_NAME = 'tu-inventario-v13';
+const CACHE_NAME = 'tu-inventario-v14';
 const STATIC_ASSETS = [
     '/offline.html',
     '/icons/icon-512x512.png'
@@ -12,11 +12,19 @@ const STATIC_ASSETS = [
 
 // CDN resources to pre-cache on install for ultra-fast loads
 const CDN_ASSETS = [
-    'https://cdn.tailwindcss.com',
     'https://unpkg.com/htmx.org@1.9.11',
     'https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js',
     'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css',
     'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap'
+];
+
+// Domains that MUST NOT be intercepted by the SW (analytics, ads, tracking)
+const BYPASS_DOMAINS = [
+    'www.googletagmanager.com',
+    'www.google-analytics.com',
+    'googletagmanager.com',
+    'analytics.google.com',
+    'stats.g.doubleclick.net'
 ];
 
 // ============================================================
@@ -64,6 +72,9 @@ self.addEventListener('fetch', event => {
 
     // Skip non-HTTP protocols
     if (!url.protocol.startsWith('http')) return;
+
+    // ------- BYPASS: Never intercept analytics/tracking requests -------
+    if (BYPASS_DOMAINS.includes(url.hostname)) return;
 
     // ------- STRATEGY 1: Cache-first for CDN resources -------
     if (url.origin !== location.origin) {

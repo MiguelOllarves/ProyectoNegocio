@@ -9,7 +9,7 @@
   },
   "headers": [
     {
-      "source": "/(assets/.*|images/.*|css/.*|js/.*|sw\\.js|manifest\\.json|icons/.*)",
+      "source": "/(assets/.*|images/.*|css/.*|js/.*|sw\\.js|manifest\\.json|icons/.*|uploads/.*)",
       "headers": [
         {
           "key": "Cache-Control",
@@ -24,7 +24,7 @@
       "dest": "/iconos_negocio/$1"
     },
     {
-      "src": "/(assets/.*|images/.*|css/.*|js/.*|sw\\.js|manifest\\.json|icons/.*)",
+      "src": "/(assets/.*|images/.*|css/.*|js/.*|sw\\.js|manifest\\.json|icons/.*|uploads/.*)",
       "dest": "/public/$1"
     },
     {
