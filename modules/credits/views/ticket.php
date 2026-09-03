@@ -2,7 +2,7 @@
 // Fetch business configuration if not fully complete in $business
 require_once __DIR__ . '/../../../config/Database.php';
 $db = Database::getInstance()->getConnection();
-$stmtBiz = $db->prepare("SELECT business_name, logo_base64, ticket_header, ticket_footer FROM businesses WHERE id = ?");
+$stmtBiz = $db->prepare("SELECT business_name, (logo_base64 IS NOT NULL AND logo_base64 != '') as has_logo, ticket_header, ticket_footer FROM businesses WHERE id = ?");
 $tenant_id = $_SESSION['business_id'] ?? 1;
 $stmtBiz->execute([$tenant_id]);
 $biz = $stmtBiz->fetch(PDO::FETCH_ASSOC);

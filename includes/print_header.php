@@ -4,7 +4,7 @@ $db = Database::getInstance()->getConnection();
 $tenantId = $_SESSION['business_id'] ?? $_SESSION['tenant_id'] ?? 1;
 
 // Obtener datos del negocio desde la tabla businesses
-$stmt = $db->prepare("SELECT owner_name, business_name, rif, business_phone, logo_base64 FROM businesses WHERE id = ?");
+$stmt = $db->prepare("SELECT owner_name, business_name, rif, business_phone, (logo_base64 IS NOT NULL AND logo_base64 != '') as has_logo FROM businesses WHERE id = ?");
 $stmt->execute([$tenantId]);
 $biz = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -24,8 +24,8 @@ $bPhone = !empty($storeCfg['whatsapp']) ? $storeCfg['whatsapp'] : ($biz['busines
 $bLogo = '';
 if (!empty($storeCfg['logo_url'])) {
     $bLogo = BASE_URL . $storeCfg['logo_url']; // Ej. uploads/logo.png
-} elseif (!empty($biz['logo_base64'])) {
-    $bLogo = $biz['logo_base64'];
+} elseif (!empty($biz['has_logo'])) {
+    $bLogo = BASE_URL . "?serve_logo=1&tenant=" . $tenantId . "&t=" . time();
 }
 
 $reportTitle = $printTitle ?? 'Documento';
