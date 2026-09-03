@@ -576,19 +576,19 @@
         if(isset($_SESSION['business_id'])) {
             require_once __DIR__ . '/../config/Database.php';
             $dbPrint = Database::getInstance()->getConnection();
-            $stmtPrint = $dbPrint->prepare("SELECT business_name, logo_base64, ticket_header FROM businesses WHERE id = ?");
+            $stmtPrint = $dbPrint->prepare("SELECT business_name, ticket_header, (logo_base64 IS NOT NULL AND logo_base64 != '') as has_logo FROM businesses WHERE id = ?");
             $stmtPrint->execute([$_SESSION['business_id']]);
             $bizDataPrint = $stmtPrint->fetch(PDO::FETCH_ASSOC);
             if($bizDataPrint) {
                 $printBizName = $bizDataPrint['business_name'] ?: 'Tu Inventario';
-                $printLogo = $bizDataPrint['logo_base64'];
+                $printHasLogo = !empty($bizDataPrint['has_logo']);
                 $printAddress = $bizDataPrint['ticket_header'];
             }
         }
     ?>
     <div class="print-header" style="display:none;">
-        <?php if(!empty($printLogo)): ?>
-            <img src="<?= $printLogo ?>" alt="Logo Print" style="max-height: 60px; margin: 0 auto 10px; display: block; object-fit: contain;">
+        <?php if(!empty($printHasLogo)): ?>
+            <img src="<?= BASE_URL ?>?serve_logo=1&tenant=<?= $_SESSION['business_id'] ?>&t=<?= time() ?>" alt="Logo Print" style="max-height: 60px; margin: 0 auto 10px; display: block; object-fit: contain;">
         <?php endif; ?>
         <h1><?= htmlspecialchars($printBizName) ?></h1>
         <?php if(!empty($printAddress)): ?>

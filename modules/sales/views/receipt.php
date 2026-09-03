@@ -11,7 +11,7 @@ $stmtSale->execute([$sale_id]);
 $sale = $stmtSale->fetch(PDO::FETCH_ASSOC);
 
 // Fetch business configuration
-$stmtBiz = $db->prepare("SELECT business_name, logo_base64, ticket_header, ticket_footer FROM businesses WHERE id = ?");
+$stmtBiz = $db->prepare("SELECT business_name, ticket_header, ticket_footer, (logo_base64 IS NOT NULL AND logo_base64 != '') as has_logo FROM businesses WHERE id = ?");
 $stmtBiz->execute([$sale['business_id']]);
 $biz = $stmtBiz->fetch(PDO::FETCH_ASSOC);
 
@@ -59,9 +59,9 @@ $titleClass = $width === '58' ? 'text-sm' : 'text-xl';
 
     <div class="ticket-container bg-white p-4 sm:p-5 w-full <?= $widthClass ?> shadow-2xl text-black <?= $fontSizeClass ?> flex flex-col mx-auto transition-all">
         <!-- Logo -->
-        <?php if (!empty($biz['logo_base64'])): ?>
+        <?php if (!empty($biz['has_logo'])): ?>
         <div class="flex justify-center mb-2">
-            <img src="<?= $biz['logo_base64'] ?>" alt="Logo" class="max-w-full <?= $width === '58' ? 'h-10' : 'h-16' ?> object-contain grayscale" style="filter: grayscale(100%) contrast(1.2);">
+            <img src="<?= BASE_URL ?>?serve_logo=1&tenant=<?= $sale['business_id'] ?>&t=<?= time() ?>" alt="Logo" class="max-w-full <?= $width === '58' ? 'h-10' : 'h-16' ?> object-contain grayscale" style="filter: grayscale(100%) contrast(1.2);">
         </div>
         <?php endif; ?>
 

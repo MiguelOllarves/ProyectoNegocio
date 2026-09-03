@@ -42,9 +42,9 @@ $headerSize = $width === '58' ? 'text-[11px]' : 'text-sm';
 
     <div class="ticket-container bg-white p-4 sm:p-5 w-full <?= $widthClass ?> shadow-2xl text-black <?= $fontSizeClass ?> flex flex-col mx-auto transition-all">
         <!-- Logo -->
-        <?php if (!empty($biz['logo_base64'])): ?>
+        <?php if (!empty($biz['has_logo'])): ?>
         <div class="flex justify-center mb-2">
-            <img src="<?= $biz['logo_base64'] ?>" alt="Logo" class="max-w-full <?= $width === '58' ? 'h-10' : 'h-16' ?> object-contain grayscale" style="filter: grayscale(100%) contrast(1.2);">
+            <img src="<?= BASE_URL ?>?serve_logo=1&tenant=<?= $credit['tenant_id'] ?>&t=<?= time() ?>" alt="Logo" class="max-w-full <?= $width === '58' ? 'h-10' : 'h-16' ?> object-contain grayscale" style="filter: grayscale(100%) contrast(1.2);">
         </div>
         <?php endif; ?>
 
