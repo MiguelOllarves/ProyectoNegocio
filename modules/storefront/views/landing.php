@@ -395,19 +395,7 @@
                     </div>
                 </template>
 
-                <!-- Payment Methods -->
-                <template x-if="items.length > 0">
-                    <div class="mt-6 pt-5 border-t border-gray-100">
-                        <h4 class="font-bold text-gray-700 text-xs uppercase tracking-wider mb-3">
-                            <i class="fas fa-credit-card mr-1.5 text-gray-400"></i>Métodos de Pago
-                        </h4>
-                        <div class="flex flex-wrap gap-2">
-                            <?php foreach ($paymentMethods ?? [] as $pm): ?>
-                                <span class="bg-gray-100 text-gray-600 text-[11px] px-3 py-1.5 rounded-lg font-semibold"><?= htmlspecialchars($pm['name']) ?></span>
-                            <?php endforeach; ?>
-                        </div>
-                    </div>
-                </template>
+
             </div>
 
             <!-- Cart Footer: Total + Checkout -->
