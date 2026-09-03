@@ -109,15 +109,15 @@
                 <div class="mb-4">
                     <input type="file" id="menu_file" accept=".pdf, image/png, image/jpeg, image/webp" class="block w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-brand-50 file:text-brand-700 hover:file:bg-brand-100 dark:file:bg-brand-900/30 cursor-pointer">
                     <p class="text-[10px] text-gray-400 mt-1">Soporta PDF o Imágenes (Máx 6MB).</p>
-                    <input type="hidden" name="menu_file_base64" id="menu_file_base64" value="<?= !empty($bizData['menu_file_base64']) ? 'HAS_FILE' : '' ?>">
+                    <input type="hidden" name="menu_file_base64" id="menu_file_base64" value="<?= !empty($bizData['has_menu']) ? 'HAS_FILE' : '' ?>">
                 </div>
-                <div id="menu_status" class="text-xs font-bold mb-4 <?= !empty($bizData['menu_file_base64']) ? 'text-green-600' : 'text-gray-400' ?>">
-                    <?= !empty($bizData['menu_file_base64']) ? '<i class="fas fa-check-circle mr-1"></i> Menú activo.' : '<i class="fas fa-info-circle mr-1"></i> Ningún menú subido' ?>
+                <div id="menu_status" class="text-xs font-bold mb-4 <?= !empty($bizData['has_menu']) ? 'text-green-600' : 'text-gray-400' ?>">
+                    <?= !empty($bizData['has_menu']) ? '<i class="fas fa-check-circle mr-1"></i> Menú activo.' : '<i class="fas fa-info-circle mr-1"></i> Ningún menú subido' ?>
                 </div>
                 
                 <div class="mt-auto w-full flex gap-2 flex-wrap">
                     <button type="submit" class="btn-primary flex-1 text-xs py-2 min-h-0"><i class="fas fa-upload mr-1"></i> Guardar</button>
-                    <?php if(!empty($bizData['menu_file_base64'])): ?>
+                    <?php if(!empty($bizData['has_menu'])): ?>
                     <button type="button" id="btn-delete-menu" class="btn-danger w-10 text-xs py-2 min-h-0" title="Borrar Menú"><i class="fas fa-trash-alt"></i></button>
                     <a href="<?= BASE_URL ?>?serve_menu=1&tenant=<?= $_SESSION['business_id'] ?>" target="_blank" class="btn-secondary w-10 text-xs py-2 min-h-0 flex items-center justify-center" title="Ver Menú Actual"><i class="fas fa-external-link-alt"></i></a>
                     <?php endif; ?>

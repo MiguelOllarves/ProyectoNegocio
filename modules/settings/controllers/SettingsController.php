@@ -21,8 +21,11 @@ class SettingsController extends Controller {
         $paymentsQuery = $db->query("SELECT * FROM payment_methods ORDER BY id ASC");
         $paymentMethods = $paymentsQuery->fetchAll(PDO::FETCH_ASSOC);
 
-        // Obtener infos del negocio
-        $stmtBiz = $db->prepare("SELECT logo_base64, ticket_header, ticket_footer, menu_file_base64, menu_file_type, slug FROM businesses WHERE id = ?");
+        // Obtener infos del negocio sin cargar los Base64 (para evitar 'FUNCTION_RESPONSE_PAYLOAD_TOO_LARGE')
+        $stmtBiz = $db->prepare("SELECT ticket_header, ticket_footer, menu_file_type, slug, 
+            (logo_base64 IS NOT NULL AND logo_base64 != '') as has_logo,
+            (menu_file_base64 IS NOT NULL AND menu_file_base64 != '') as has_menu
+        FROM businesses WHERE id = ?");
         $stmtBiz->execute([$_SESSION['business_id']]);
         $bizData = $stmtBiz->fetch(PDO::FETCH_ASSOC);
 
@@ -291,7 +294,16 @@ class SettingsController extends Controller {
         foreach ($tables as $tableName => $condition) {
             $stmt = $db->prepare("SELECT * FROM {$tableName} WHERE {$condition}");
             $stmt->execute([$tenant_id]);
-            $data['tables'][$tableName] = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $fetched = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+            // Remover campos pesados base64 para evitar exceder el límite de Vercel Serverless (4.5MB)
+            if ($tableName === 'businesses') {
+                foreach ($fetched as &$row) {
+                    unset($row['logo_base64']);
+                    unset($row['menu_file_base64']);
+                }
+            }
+            $data['tables'][$tableName] = $fetched;
         }
         
         // Also get sale_items for the tenant's sales
