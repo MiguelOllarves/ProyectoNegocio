@@ -13,8 +13,10 @@ class SettingsController extends Controller {
 
         $db = $this->getDb();
         
-        // Obtener configuraciones como key => value, ignorando campos pesados
-        $settingsQuery = $db->query("SELECT key, value FROM settings WHERE key NOT LIKE '%base64%'");
+        $allowedKeys = ['bcv_rate', 'bcv_auto_update', 'parallel_rate', 'cop_rate', 'tax_iva', 'tax_igtf', 'calc_method', 'iva_method', 'business_name'];
+        $inQuery = implode(',', array_fill(0, count($allowedKeys), '?'));
+        $settingsQuery = $db->prepare("SELECT key, value FROM settings WHERE key IN ($inQuery)");
+        $settingsQuery->execute($allowedKeys);
         $settings = $settingsQuery->fetchAll(PDO::FETCH_KEY_PAIR);
         
         // Obtener métodos de pago
@@ -28,6 +30,14 @@ class SettingsController extends Controller {
         FROM businesses WHERE id = ?");
         $stmtBiz->execute([$_SESSION['business_id']]);
         $bizData = $stmtBiz->fetch(PDO::FETCH_ASSOC);
+        
+        // Safeguard against accidentally pasted base64 strings in text fields
+        if ($bizData && strlen($bizData['ticket_header'] ?? '') > 2000) {
+            $bizData['ticket_header'] = substr($bizData['ticket_header'], 0, 2000) . "\n[TEXTO DEMASIADO LARGO TRUNCADO]";
+        }
+        if ($bizData && strlen($bizData['ticket_footer'] ?? '') > 2000) {
+            $bizData['ticket_footer'] = substr($bizData['ticket_footer'], 0, 2000) . "\n[TEXTO DEMASIADO LARGO TRUNCADO]";
+        }
 
         $this->view('modules/settings/views/index', [
             'settings' => $settings,
