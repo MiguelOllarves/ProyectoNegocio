@@ -19,8 +19,8 @@ class SettingsController extends Controller {
         $settingsQuery->execute($allowedKeys);
         $settings = $settingsQuery->fetchAll(PDO::FETCH_KEY_PAIR);
         
-        // Obtener métodos de pago
-        $paymentsQuery = $db->query("SELECT * FROM payment_methods ORDER BY id ASC");
+        // Obtener métodos de pago (LIMIT 50 como salvaguarda contra duplicados masivos)
+        $paymentsQuery = $db->query("SELECT * FROM payment_methods ORDER BY id ASC LIMIT 50");
         $paymentMethods = $paymentsQuery->fetchAll(PDO::FETCH_ASSOC);
 
         // Obtener infos del negocio sin cargar los Base64 (para evitar 'FUNCTION_RESPONSE_PAYLOAD_TOO_LARGE')
@@ -137,6 +137,21 @@ class SettingsController extends Controller {
 
         if (empty($name) || empty($code)) {
             $this->jsonResponse(['success' => false, 'message' => 'Nombre y código son requeridos'], 400);
+            return;
+        }
+
+        // Verificar que no exista ya un método con el mismo código
+        $checkStmt = $db->prepare("SELECT COUNT(*) FROM payment_methods WHERE code = ?");
+        $checkStmt->execute([$code]);
+        if ($checkStmt->fetchColumn() > 0) {
+            $this->jsonResponse(['success' => false, 'message' => 'Ya existe un método de pago con el código: ' . $code], 400);
+            return;
+        }
+
+        // Límite de seguridad: máximo 20 métodos de pago
+        $countStmt = $db->query("SELECT COUNT(*) FROM payment_methods");
+        if ($countStmt->fetchColumn() >= 20) {
+            $this->jsonResponse(['success' => false, 'message' => 'Límite máximo de 20 métodos de pago alcanzado'], 400);
             return;
         }
 

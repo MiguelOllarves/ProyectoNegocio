@@ -12,3 +12,15 @@ database/tu_inventario.db
 Thumbs.db
 node_modules/
 vendor/
+
+# Archivos de desarrollo/debug que NO deben ir a producción
+check_lengths.php
+output.html
+composer.phar
+*.bak
+
+# Carpeta de imágenes de desarrollo
+Imagenes/
+
+# Videos pesados (se excluyen del serverless pero no del repo)
+public/assets/video/*.mp4
