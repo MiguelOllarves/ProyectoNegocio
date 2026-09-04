@@ -13,8 +13,8 @@ class SettingsController extends Controller {
 
         $db = $this->getDb();
         
-        // Obtener configuraciones como key => value
-        $settingsQuery = $db->query("SELECT key, value FROM settings");
+        // Obtener configuraciones como key => value, ignorando campos pesados
+        $settingsQuery = $db->query("SELECT key, value FROM settings WHERE key NOT LIKE '%base64%'");
         $settings = $settingsQuery->fetchAll(PDO::FETCH_KEY_PAIR);
         
         // Obtener métodos de pago
