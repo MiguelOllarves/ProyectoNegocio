@@ -247,16 +247,24 @@ class StorefrontController extends Controller {
 
         // Métodos de pago activos
         $isActiveTrue = $db->getAttribute(PDO::ATTR_DRIVER_NAME) === 'pgsql' ? 'TRUE' : '1';
-        $paymentMethods = [];
+        $paymentMethodsRaw = [];
         try {
             $stmtPay = $db->prepare("SELECT * FROM payment_methods WHERE is_active = $isActiveTrue AND (tenant_id = :tid OR tenant_id IS NULL)");
             $stmtPay->execute(['tid' => $businessId]);
-            $paymentMethods = $stmtPay->fetchAll(PDO::FETCH_ASSOC);
+            $paymentMethodsRaw = $stmtPay->fetchAll(PDO::FETCH_ASSOC);
         } catch(PDOException $e) {
             $stmtPay = $db->prepare("SELECT * FROM payment_methods WHERE is_active = $isActiveTrue");
             $stmtPay->execute();
-            $paymentMethods = $stmtPay->fetchAll(PDO::FETCH_ASSOC);
+            $paymentMethodsRaw = $stmtPay->fetchAll(PDO::FETCH_ASSOC);
         }
+
+        $uniquePM = [];
+        foreach ($paymentMethodsRaw as $pm) {
+            if (!isset($uniquePM[$pm['name']])) {
+                $uniquePM[$pm['name']] = $pm;
+            }
+        }
+        $paymentMethods = array_values($uniquePM);
 
         require_once __DIR__ . '/../../../core/Settings.php';
         $bcvRate = Settings::getBcvRate();

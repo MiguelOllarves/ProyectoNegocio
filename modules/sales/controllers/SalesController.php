@@ -24,7 +24,15 @@ class SalesController extends Controller {
         // Leer métodos de pago activos desde la BD
         $db = Database::getInstance()->getConnection();
         $pmStmt = $db->query("SELECT * FROM payment_methods WHERE is_active = true ORDER BY id");
-        $paymentMethods = $pmStmt->fetchAll(PDO::FETCH_ASSOC);
+        $paymentMethodsRaw = $pmStmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $uniquePM = [];
+        foreach ($paymentMethodsRaw as $pm) {
+            if (!isset($uniquePM[$pm['name']])) {
+                $uniquePM[$pm['name']] = $pm;
+            }
+        }
+        $paymentMethods = array_values($uniquePM);
 
         $this->view('modules/sales/views/index', [
             'products'        => $products,
