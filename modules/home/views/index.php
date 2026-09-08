@@ -707,7 +707,7 @@
         <!-- ========================================== -->
         <section class="w-full px-6 py-20 lg:px-16 bg-[#0c1a16] text-white overflow-hidden relative">
             <div class="absolute inset-0 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] mix-blend-overlay"></div>
-            <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full h-[500px] bg-[#36B291]/30 filter blur-[100px] rounded-full z-0 pointer-events-none"></div>
+            <div class="hidden md:block absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full h-[500px] bg-[#36B291]/30 filter blur-[100px] rounded-full z-0 pointer-events-none"></div>
 
             <div class="relative z-10 text-center max-w-3xl mx-auto mb-12">
                 <h2 class="text-3xl sm:text-5xl font-black text-white mb-4">Mira Cómo Funciona</h2>
@@ -723,89 +723,87 @@
         <!-- ========================================== -->
         <!-- SECCIÓN: DESCARGA APP (APK) -->
         <!-- ========================================== -->
-        <section id="app-descarga" class="w-full px-6 py-20 lg:px-16 bg-white relative overflow-hidden border-t border-gray-100">
-            <!-- Patrón de fondo sutil -->
-            <div class="absolute inset-0 opacity-[0.03] bg-[url('data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'none\' fill-rule=\'evenodd\'%3E%3Cg fill=\'%2336B291\' fill-opacity=\'1\'%3E%3Cpath d=\'M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')] z-0"></div>
-
-            <div class="max-w-[1200px] mx-auto relative z-10 flex flex-col lg:flex-row items-center gap-12 lg:gap-20">
+        <section id="app-descarga" class="w-full px-5 py-12 lg:py-20 lg:px-16 bg-slate-50 relative overflow-hidden border-t border-gray-100">
+            <div class="max-w-[1200px] mx-auto relative z-10 flex flex-col lg:flex-row items-center gap-10 lg:gap-16">
                 <!-- Izquierda: Textos y CTA -->
                 <div class="w-full lg:w-1/2 flex flex-col justify-center text-center lg:text-left">
-                    <div class="inline-flex items-center justify-center lg:justify-start gap-2 px-4 py-2 rounded-full bg-emerald-50 text-emerald-700 font-bold mb-6 mx-auto lg:mx-0 w-max border border-emerald-100 shadow-sm">
-                        <i class="fab fa-android text-emerald-500 text-lg"></i> App Oficial para Android
+                    <div class="inline-flex items-center justify-center lg:justify-start gap-2 px-4 py-1.5 rounded-full bg-[#36B291]/10 text-[#2c967a] font-black text-xs uppercase tracking-widest mb-4 mx-auto lg:mx-0 w-max border border-[#36B291]/20">
+                        <i class="fab fa-android text-lg"></i> App Exclusiva Android
                     </div>
                     
-                    <h2 class="text-4xl sm:text-5xl font-black text-slate-800 tracking-tight mb-6 leading-tight">
-                        Lleva <span class="text-[#36B291]">Tu Inventario</span> siempre contigo en tu bolsillo.
+                    <h2 class="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-800 tracking-tight mb-4 leading-tight">
+                        ¿Cansado de que se olviden de pagarte? 🤦‍♂️💸
                     </h2>
                     
-                    <p class="text-slate-600 text-lg font-medium leading-relaxed mb-8">
-                        Descarga nuestra app <strong class="text-slate-800">PagaPues</strong> y gestiona ventas, inventario y clientes desde cualquier lugar. Al ser una herramienta exclusiva y privada para nuestros negocios aliados, no está en la Play Store, pero su instalación es rápida y 100% segura.
+                    <p class="text-slate-600 text-base sm:text-lg font-medium leading-relaxed mb-6">
+                        Recupera tu dinero sin estrés con <strong class="text-slate-800">PagaPues</strong>. La herramienta definitiva en Venezuela para controlar cobros, ventas y capital en la calle. <br><br>
+                        ✨ <strong class="text-[#36B291]">Cobro en 1 Toque:</strong> Envía recordatorios educados por WhatsApp automáticamente. <br>
+                        📵 <strong class="text-[#36B291]">100% Sin Internet:</strong> Tus datos están seguros en tu teléfono. <br>
+                        💵 <strong class="text-[#36B291]">Multimoneda:</strong> Tasa BCV o manual al instante.
                     </p>
 
                     <!-- Botón de Descarga -->
-                    <div class="flex flex-col items-center lg:items-start gap-4">
-                        <a href="<?= BASE_URL ?>assets/PagaPues.apk" download class="bg-slate-900 hover:bg-slate-800 text-white font-bold py-4 px-8 rounded-2xl transition-all shadow-[0_10px_25px_-5px_rgba(0,0,0,0.3)] transform hover:-translate-y-1 text-lg flex items-center justify-center gap-4 w-full sm:w-auto min-w-[280px]">
+                    <div class="flex flex-col items-center lg:items-start gap-3">
+                        <a href="<?= BASE_URL ?>assets/PagaPues.apk" download class="bg-gradient-to-r from-slate-900 to-slate-800 hover:from-slate-800 hover:to-slate-700 text-white font-black py-4 px-6 rounded-2xl transition-transform transform hover:scale-105 shadow-xl text-lg flex items-center justify-center gap-3 w-full sm:w-auto border border-slate-700">
                             <i class="fab fa-android text-3xl text-[#36B291]"></i>
                             <div class="text-left flex flex-col">
-                                <span class="text-[10px] uppercase tracking-widest text-slate-400">Descargar APK Libre</span>
-                                <span class="text-xl font-black leading-none mt-1">Para Android</span>
+                                <span class="text-[9px] uppercase tracking-widest text-slate-300">Descargar APK Libre</span>
+                                <span class="text-xl leading-none mt-0.5">Instalar PagaPues</span>
                             </div>
-                            <i class="fas fa-download ml-auto text-xl opacity-70"></i>
+                            <i class="fas fa-download ml-3 text-lg opacity-80"></i>
                         </a>
-                        <p class="text-xs text-slate-500 font-medium flex items-center justify-center lg:justify-start gap-2 mt-2">
+                        <p class="text-xs text-slate-500 font-bold flex items-center justify-center lg:justify-start gap-1">
                             <i class="fas fa-shield-alt text-[#36B291]"></i> Libre de virus, verificado y seguro.
                         </p>
                     </div>
                 </div>
 
-                <!-- Derecha: Instrucciones visuales (Glassmorphism card) -->
+                <!-- Derecha: Instrucciones visuales compactas -->
                 <div class="w-full lg:w-1/2">
-                    <div class="bg-white p-8 rounded-[30px] border border-gray-100 shadow-[0_20px_50px_-12px_rgba(0,0,0,0.1)] relative">
+                    <div class="bg-white p-6 sm:p-8 rounded-[24px] border border-gray-100 shadow-xl relative">
                         <!-- Cinta decorativa -->
-                        <div class="absolute top-0 right-8 transform -translate-y-1/2 bg-[#36B291] text-white text-xs font-black px-4 py-1.5 rounded-full shadow-lg uppercase tracking-wider">
-                            Guía de Instalación
+                        <div class="absolute -top-3 left-6 lg:right-8 lg:left-auto bg-[#36B291] text-white text-[10px] font-black px-3 py-1 rounded-full shadow-md uppercase tracking-wider">
+                            Guía Rápida
                         </div>
 
-                        <h3 class="text-2xl font-black text-slate-800 mb-6 flex items-center gap-3">
-                            <i class="fas fa-info-circle text-amber-500"></i> ¿Cómo instalar?
+                        <h3 class="text-xl font-black text-slate-800 mb-5 flex items-center gap-2">
+                            <i class="fas fa-info-circle text-amber-500"></i> ¿Cómo instalar la app?
                         </h3>
                         
-                        <div class="space-y-6">
+                        <div class="space-y-4">
                             <!-- Paso 1 -->
-                            <div class="flex gap-4 items-start">
-                                <div class="w-10 h-10 rounded-full bg-blue-50 text-blue-600 font-black flex items-center justify-center shrink-0 border border-blue-100 shadow-sm">1</div>
+                            <div class="flex gap-3 items-start">
+                                <div class="w-8 h-8 rounded-full bg-slate-100 text-slate-600 font-black flex items-center justify-center shrink-0 text-sm">1</div>
                                 <div>
-                                    <h4 class="text-slate-800 font-bold text-lg mb-1">Descarga el archivo APK</h4>
-                                    <p class="text-slate-600 text-sm font-medium">Toca el botón negro de descarga y espera a que el archivo <strong>PagaPues.apk</strong> se guarde en tu celular.</p>
+                                    <h4 class="text-slate-800 font-bold text-base mb-0.5">Descarga el archivo APK</h4>
+                                    <p class="text-slate-500 text-xs font-medium">Toca el botón negro y guarda el archivo en tu celular.</p>
                                 </div>
                             </div>
 
                             <!-- Paso 2 -->
-                            <div class="flex gap-4 items-start">
-                                <div class="w-10 h-10 rounded-full bg-amber-50 text-amber-600 font-black flex items-center justify-center shrink-0 border border-amber-100 shadow-sm">2</div>
+                            <div class="flex gap-3 items-start">
+                                <div class="w-8 h-8 rounded-full bg-slate-100 text-slate-600 font-black flex items-center justify-center shrink-0 text-sm">2</div>
                                 <div>
-                                    <h4 class="text-slate-800 font-bold text-lg mb-1">Mensaje de "Archivo dañino"</h4>
-                                    <p class="text-slate-600 text-sm font-medium leading-relaxed">
-                                        Google Play Protect suele mostrar una alerta indicando que el archivo podría ser dañino por ser de un <strong>desarrollador desconocido</strong>. No te preocupes, esto ocurre porque la app es privada.
-                                    </p>
+                                    <h4 class="text-slate-800 font-bold text-base mb-0.5">Alerta de seguridad</h4>
+                                    <p class="text-slate-500 text-xs font-medium leading-relaxed">Google puede decir que es dañino por ser desarrollador desconocido. Es normal, la app es privada.</p>
                                 </div>
                             </div>
 
                             <!-- Paso 3 -->
-                            <div class="flex gap-4 items-start">
-                                <div class="w-10 h-10 rounded-full bg-emerald-50 text-emerald-600 font-black flex items-center justify-center shrink-0 border border-emerald-100 shadow-sm">3</div>
+                            <div class="flex gap-3 items-start">
+                                <div class="w-8 h-8 rounded-full bg-emerald-50 text-emerald-600 font-black flex items-center justify-center shrink-0 text-sm">3</div>
                                 <div class="w-full">
-                                    <h4 class="text-slate-800 font-bold text-lg mb-2">Instala de todas formas</h4>
-                                    <p class="text-slate-600 text-sm font-medium mb-3">
-                                        Cuando aparezca la alerta de seguridad, simplemente toca en <strong class="text-slate-800">"Más detalles"</strong> y luego selecciona <strong class="text-[#36B291]">"Instalar de todas formas"</strong>.
+                                    <h4 class="text-slate-800 font-bold text-base mb-1">Instala de todas formas</h4>
+                                    <p class="text-slate-500 text-xs font-medium mb-3">
+                                        Toca en <strong class="text-slate-700">"Más detalles"</strong> y luego en <strong class="text-[#36B291]">"Instalar de todas formas"</strong>.
                                     </p>
-                                    <!-- Mini mockup del diálogo -->
-                                    <div class="bg-gray-50 rounded-xl p-4 border border-gray-200 text-left">
-                                        <p class="text-[13px] text-gray-500 mb-2"><i class="fas fa-shield-virus mr-1 text-red-500"></i> Google Play Protect</p>
-                                        <p class="text-[14px] font-bold text-gray-800 mb-3">¿Instalar aplicación desconocida?</p>
-                                        <div class="flex justify-between items-center border-t border-gray-200 pt-3">
-                                            <span class="text-[13px] font-medium text-slate-500">Más detalles <i class="fas fa-chevron-down text-[10px] ml-1"></i></span>
-                                            <span class="text-[13px] font-bold text-slate-800 bg-white px-3 py-1.5 rounded-lg shadow-sm border border-gray-200">Instalar de todas formas</span>
+                                    
+                                    <!-- Mini mockup ultracompacto -->
+                                    <div class="bg-gray-50 rounded-lg p-3 border border-gray-200">
+                                        <p class="text-[12px] font-bold text-gray-800 mb-2">¿Instalar aplicación desconocida?</p>
+                                        <div class="flex justify-between items-center border-t border-gray-200 pt-2">
+                                            <span class="text-[11px] font-medium text-slate-500">Más detalles <i class="fas fa-chevron-down text-[8px] ml-0.5"></i></span>
+                                            <span class="text-[11px] font-bold text-slate-800 bg-white px-2 py-1 rounded shadow-sm border border-gray-200">Instalar de todas formas</span>
                                         </div>
                                     </div>
                                 </div>
@@ -821,7 +819,7 @@
         <!-- ========================================== -->
         <section id="contacto" class="w-full px-6 py-20 lg:px-16 bg-gradient-to-b from-[#0c1a16] to-[#ebfbf1] relative overflow-hidden">
             <!-- Glow decorativo -->
-            <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-[#36B291]/15 filter blur-[120px] rounded-full pointer-events-none z-0"></div>
+            <div class="hidden md:block absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-[#36B291]/15 filter blur-[120px] rounded-full pointer-events-none z-0"></div>
 
             <div class="max-w-[1000px] mx-auto relative z-10 glass-panel p-8 sm:p-12 md:p-16 rounded-[40px] border border-white/40 shadow-2xl text-center">
                 <!-- Icono decorativo -->

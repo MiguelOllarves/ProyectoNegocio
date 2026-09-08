@@ -4,7 +4,7 @@
   "functions": {
     "api/index.php": {
       "runtime": "vercel-php@0.6.2",
-      "excludeFiles": "public/assets/{video/**,*.apk}"
+      "excludeFiles": "public/assets/**"
     }
   },
   "headers": [
