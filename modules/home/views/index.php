@@ -738,7 +738,7 @@
                 
                 <!-- Encabezado premium -->
                 <div class="text-center mb-14">
-                    <div class="inline-flex items-center gap-2.5 px-5 py-2 rounded-full bg-[#36B291]/15 border border-[#36B291]/25 text-[#36B291] font-black text-xs uppercase tracking-[0.2em] mb-6 backdrop-blur-sm">
+                    <div class="inline-flex items-center gap-2.5 px-5 py-2 rounded-full bg-[#36B291]/20 border border-[#36B291]/40 text-emerald-300 font-black text-xs uppercase tracking-[0.2em] mb-6 backdrop-blur-sm shadow-[0_0_20px_rgba(54,178,145,0.3)]">
                         <i class="fab fa-android text-base"></i> App Móvil Exclusiva
                     </div>
                     <h2 class="text-4xl sm:text-5xl lg:text-6xl font-black text-white tracking-tight mb-5 leading-[1.1]">
@@ -762,7 +762,7 @@
                                 </div>
                                 <div>
                                     <h3 class="text-2xl font-black text-white leading-tight">PagaPues</h3>
-                                    <span class="text-[11px] font-bold text-[#36B291] uppercase tracking-wider">v1.0 • APK Libre</span>
+                                    <span class="text-[11px] font-bold text-emerald-300 uppercase tracking-wider">v1.0 • APK Libre</span>
                                 </div>
                             </div>
 
@@ -778,21 +778,21 @@
                                         <i class="fas fa-hand-pointer text-[#36B291] text-lg"></i>
                                     </div>
                                     <h4 class="text-white font-bold text-sm mb-1">Cobro en 1 Toque</h4>
-                                    <p class="text-gray-400 text-xs font-medium leading-relaxed">Envía recordatorios por WhatsApp automáticamente</p>
+                                    <p class="text-gray-300 text-xs font-medium leading-relaxed">Envía recordatorios por WhatsApp automáticamente</p>
                                 </div>
                                 <div class="bg-white/[0.05] rounded-2xl p-4 border border-white/[0.06] hover:bg-white/[0.08] transition-colors group">
                                     <div class="w-10 h-10 rounded-xl bg-[#36B291]/15 flex items-center justify-center mb-3 group-hover:bg-[#36B291]/25 transition-colors">
                                         <i class="fas fa-wifi-slash text-[#36B291] text-lg"></i>
                                     </div>
                                     <h4 class="text-white font-bold text-sm mb-1">100% Sin Internet</h4>
-                                    <p class="text-gray-400 text-xs font-medium leading-relaxed">Tus datos seguros en tu teléfono, offline</p>
+                                    <p class="text-gray-300 text-xs font-medium leading-relaxed">Tus datos seguros en tu teléfono, offline</p>
                                 </div>
                                 <div class="bg-white/[0.05] rounded-2xl p-4 border border-white/[0.06] hover:bg-white/[0.08] transition-colors group">
                                     <div class="w-10 h-10 rounded-xl bg-[#36B291]/15 flex items-center justify-center mb-3 group-hover:bg-[#36B291]/25 transition-colors">
                                         <i class="fas fa-coins text-[#36B291] text-lg"></i>
                                     </div>
                                     <h4 class="text-white font-bold text-sm mb-1">Multimoneda</h4>
-                                    <p class="text-gray-400 text-xs font-medium leading-relaxed">Tasa BCV o manual al instante</p>
+                                    <p class="text-gray-300 text-xs font-medium leading-relaxed">Tasa BCV o manual al instante</p>
                                 </div>
                             </div>
 
