@@ -19,13 +19,14 @@ class QrMenuController extends Controller {
             $this->jsonResponse(['success' => false, 'message' => 'Ningún archivo subido.'], 400);
             return;
         }
-        if (strlen($base64) > 8000000) {
-            $this->jsonResponse(['success' => false, 'message' => 'El archivo supera el tamaño máximo de 5MB.'], 400);
+
+        require_once __DIR__ . '/../../../core/ImageValidator.php';
+        $validation = ImageValidator::validateFile($base64, 'menu');
+        if (!$validation['valid']) {
+            $this->jsonResponse(['success' => false, 'message' => $validation['error']], 400);
             return;
         }
-
-        $parts = explode(';', $base64);
-        $mime = count($parts) > 1 ? str_replace('data:', '', $parts[0]) : 'application/pdf';
+        $mime = $validation['mime'];
 
         // Generate unique SLUG
         $slug = substr(md5(uniqid(rand(), true)), 0, 8); // 8 chars slug
@@ -34,7 +35,7 @@ class QrMenuController extends Controller {
 
         try {
             $stmt = $db->prepare("INSERT INTO free_qr_menus (slug, edit_code, menu_base64, menu_type) VALUES (?, ?, ?, ?)");
-            $stmt->execute([$slug, $code, $base64, $mime]);
+            $stmt->execute([$slug, $code, $validation['clean_base64'], $mime]);
             
             $this->jsonResponse([
                 'success' => true, 
@@ -61,13 +62,13 @@ class QrMenuController extends Controller {
             return;
         }
 
-        if (strlen($base64) > 8000000) {
-            $this->jsonResponse(['success' => false, 'message' => 'El archivo supera el tamaño máximo de 5MB.'], 400);
+        require_once __DIR__ . '/../../../core/ImageValidator.php';
+        $validation = ImageValidator::validateFile($base64, 'menu');
+        if (!$validation['valid']) {
+            $this->jsonResponse(['success' => false, 'message' => $validation['error']], 400);
             return;
         }
-        
-        $parts = explode(';', $base64);
-        $mime = count($parts) > 1 ? str_replace('data:', '', $parts[0]) : 'application/pdf';
+        $mime = $validation['mime'];
 
         try {
             // Verify code
@@ -82,7 +83,7 @@ class QrMenuController extends Controller {
 
             // Update
             $update = $db->prepare("UPDATE free_qr_menus SET menu_base64 = ?, menu_type = ? WHERE slug = ?");
-            $update->execute([$base64, $mime, $slug]);
+            $update->execute([$validation['clean_base64'], $mime, $slug]);
             
             $this->jsonResponse(['success' => true, 'message' => 'Menú actualizado correctamente.']);
         } catch(PDOException $e) {

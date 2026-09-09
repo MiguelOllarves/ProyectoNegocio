@@ -68,7 +68,7 @@ if (isset($_GET['serve_logo'])) {
 
         if ($base64 && strlen($base64) > 100) {
             // Validar formato antes de decodificar
-            if (preg_match('/^data:image\/(jpeg|png|webp);base64,/', $base64)) {
+            if (preg_match('/^data:image\/(jpeg|png|webp|gif);base64,/', $base64)) {
                 list($type, $data) = explode(';', $base64);
                 list(, $data)      = explode(',', $data);
                 $imgData = base64_decode($data);
@@ -77,14 +77,20 @@ if (isset($_GET['serve_logo'])) {
                 // Validar que la imagen sea realmente una imagen válida
                 $finfo = new finfo(FILEINFO_MIME_TYPE);
                 $detectedMime = $finfo->buffer($imgData);
-                $allowedMimes = ['image/jpeg', 'image/png', 'image/webp'];
+                $allowedMimes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
                 
-                if (in_array($detectedMime, $allowedMimes)) {
+                if (in_array($detectedMime, $allowedMimes) && $detectedMime === $mime) {
                     header("Content-Type: $detectedMime");
                     header('Cache-Control: public, s-maxage=3600, max-age=3600');
                     header('X-Content-Type-Options: nosniff');
                     echo $imgData;
                     exit;
+                } else {
+                    // Logo no válido: limpiar automáticamente la BD
+                    try {
+                        $db->prepare("UPDATE businesses SET logo_base64 = NULL WHERE id = ?")->execute([$tenant_id]);
+                        error_log("Logo eliminado por validación fallida: tenant $tenant_id, MIME detectado: $detectedMime");
+                    } catch(Exception $e){}
                 }
             }
         }

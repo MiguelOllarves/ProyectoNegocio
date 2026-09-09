@@ -107,6 +107,7 @@ class InventoryController extends Controller {
         $id = (int)($_GET['id'] ?? 0);
         if ($id > 0) {
             require_once __DIR__ . '/../../../config/Database.php';
+            require_once __DIR__ . '/../../../core/ImageValidator.php';
             $db = Database::getInstance()->getConnection();
             $stmt = $db->prepare("SELECT image FROM products WHERE id = ?");
             $stmt->execute([$id]);
@@ -115,17 +116,27 @@ class InventoryController extends Controller {
                 list($type, $data) = explode(';', $base64);
                 list(, $data)      = explode(',', $data);
                 $imgData = base64_decode($data);
-                $mime = str_replace('data:', '', $type);
-                header("Content-Type: $mime");
-                header('Cache-Control: public, max-age=86400'); // Cache for 24 hours on CDN
-                echo $imgData;
-                exit;
+                
+                // Validar que sea una imagen real (anti-inyección)
+                $finfo = new finfo(FILEINFO_MIME_TYPE);
+                $realMime = $finfo->buffer($imgData);
+                $allowed = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+                
+                if (in_array($realMime, $allowed)) {
+                    $mime = $realMime;
+                    header("Content-Type: $mime");
+                    header('Cache-Control: public, max-age=86400');
+                    header('X-Content-Type-Options: nosniff');
+                    echo $imgData;
+                    exit;
+                }
             }
         }
         
         // Fallback transparent 1x1 image
         header('Content-Type: image/png');
         header('Cache-Control: public, max-age=86400');
+        header('X-Content-Type-Options: nosniff');
         echo base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=');
         exit;
     }
@@ -191,6 +202,19 @@ class InventoryController extends Controller {
                 
                 // Comprimiendo a Base64 para guardarlo directamente en base de datos
                 $imagePath = $this->compressImageToBase64($_FILES['image']['tmp_name'], $_FILES['image']['type']);
+                
+                // Validación extra de seguridad: verificar que la imagen comprimida es real y limpia
+                if ($imagePath) {
+                    require_once __DIR__ . '/../../../core/ImageValidator.php';
+                    $validation = ImageValidator::validateImage($imagePath, 'product');
+                    if (!$validation['valid']) {
+                        if (isset($_SERVER['HTTP_HX_REQUEST'])) {
+                            http_response_code(400); header('X-Toast-Type: error'); header('X-Toast-Message: ' . $validation['error']); exit;
+                        }
+                        exit($validation['error']);
+                    }
+                    $imagePath = $validation['clean_base64'];
+                }
             }
 
             // Unit of measure engine
@@ -488,7 +512,15 @@ class InventoryController extends Controller {
 
                 $base64 = $this->compressImageToBase64($_FILES['image']['tmp_name'], $_FILES['image']['type']);
                 if ($base64) {
-                    $data['image'] = $base64;
+                    require_once __DIR__ . '/../../../core/ImageValidator.php';
+                    $validation = ImageValidator::validateImage($base64, 'product');
+                    if (!$validation['valid']) {
+                        if (isset($_SERVER['HTTP_HX_REQUEST'])) {
+                            http_response_code(400); header('X-Toast-Type: error'); header('X-Toast-Message: ' . $validation['error']); exit;
+                        }
+                        exit($validation['error']);
+                    }
+                    $data['image'] = $validation['clean_base64'];
                 }
             }
 

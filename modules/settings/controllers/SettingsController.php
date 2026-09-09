@@ -81,33 +81,29 @@ class SettingsController extends Controller {
             $params[] = $_POST['ticket_footer'];
         }
         if (!empty($_POST['logo_base64'])) {
-            $base64 = $_POST['logo_base64'];
-            if (strlen($base64) > 4000000) {
-                $this->jsonResponse(['success' => false, 'message' => 'La imagen de logo es demasiado grande (Máx 3MB)'], 400);
-                return;
-            }
-            if (!str_starts_with($base64, 'data:image/jpeg') && !str_starts_with($base64, 'data:image/png') && !str_starts_with($base64, 'data:image/webp')) {
-                $this->jsonResponse(['success' => false, 'message' => 'Formato de imagen inválido (solo JPG, PNG, WEBP)'], 400);
+            require_once __DIR__ . '/../../../core/ImageValidator.php';
+            $validation = ImageValidator::validateImage($_POST['logo_base64'], 'logo');
+            if (!$validation['valid']) {
+                $this->jsonResponse(['success' => false, 'message' => $validation['error']], 400);
                 return;
             }
             $updates[] = "logo_base64 = ?";
-            $params[] = $base64;
+            $params[] = $validation['clean_base64'];
         }
         
         if (isset($_POST['menu_file_base64'])) {
+            require_once __DIR__ . '/../../../core/ImageValidator.php';
             $base64 = $_POST['menu_file_base64'];
             if (!empty($base64)) {
-                if (strlen($base64) > 8000000) { // ~6MB
-                    $this->jsonResponse(['success' => false, 'message' => 'El archivo del menú es demasiado grande (Máx 6MB)'], 400);
+                $validation = ImageValidator::validateFile($base64, 'menu');
+                if (!$validation['valid']) {
+                    $this->jsonResponse(['success' => false, 'message' => $validation['error']], 400);
                     return;
                 }
-                $parts = explode(';', $base64);
-                $mime = count($parts) > 1 ? str_replace('data:', '', $parts[0]) : 'application/pdf';
-                
                 $updates[] = "menu_file_base64 = ?";
-                $params[] = $base64;
+                $params[] = $validation['clean_base64'];
                 $updates[] = "menu_file_type = ?";
-                $params[] = $mime;
+                $params[] = $validation['mime'];
             } else {
                 $updates[] = "menu_file_base64 = NULL";
                 $updates[] = "menu_file_type = NULL";
