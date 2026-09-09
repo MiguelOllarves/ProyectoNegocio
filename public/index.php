@@ -52,33 +52,52 @@ register_shutdown_function(function() {
 if (isset($_GET['serve_logo'])) {
     require_once __DIR__ . '/../config/Database.php';
     session_start();
-    $tenant_id = $_SESSION['business_id'] ?? 1;
+    $tenant_id = $_SESSION['business_id'] ?? null;
     if (isset($_GET['tenant'])) $tenant_id = (int)$_GET['tenant'];
+    
+    // Validación de tenant: solo servir logo si hay tenant válido o sesión activa
+    if ($tenant_id === null || $tenant_id <= 0) {
+        $tenant_id = 1; // Default solo para landing pages públicas
+    }
 
     try {
         $db = Database::getInstance()->getConnection();
-        $stmt = $db->prepare("SELECT logo_base64 FROM businesses WHERE id = ?");
+        $stmt = $db->prepare("SELECT logo_base64 FROM businesses WHERE id = ? AND logo_base64 IS NOT NULL AND logo_base64 != ''");
         $stmt->execute([$tenant_id]);
         $base64 = $stmt->fetchColumn();
 
-        if ($base64) {
-            // base64 looks like "data:image/png;base64,iVBORw0KGgo..."
-            list($type, $data) = explode(';', $base64);
-            list(, $data)      = explode(',', $data);
-            $imgData = base64_decode($data);
-            $mime = str_replace('data:', '', $type);
-            header("Content-Type: $mime");
-            header('Cache-Control: public, s-maxage=86400, max-age=86400');
-            echo $imgData;
-            exit;
+        if ($base64 && strlen($base64) > 100) {
+            // Validar formato antes de decodificar
+            if (preg_match('/^data:image\/(jpeg|png|webp);base64,/', $base64)) {
+                list($type, $data) = explode(';', $base64);
+                list(, $data)      = explode(',', $data);
+                $imgData = base64_decode($data);
+                $mime = str_replace('data:', '', $type);
+                
+                // Validar que la imagen sea realmente una imagen válida
+                $finfo = new finfo(FILEINFO_MIME_TYPE);
+                $detectedMime = $finfo->buffer($imgData);
+                $allowedMimes = ['image/jpeg', 'image/png', 'image/webp'];
+                
+                if (in_array($detectedMime, $allowedMimes)) {
+                    header("Content-Type: $detectedMime");
+                    header('Cache-Control: public, s-maxage=3600, max-age=3600');
+                    header('X-Content-Type-Options: nosniff');
+                    echo $imgData;
+                    exit;
+                }
+            }
         }
-    } catch(Exception $e){}
+    } catch(Exception $e){
+        error_log("Logo serve error: " . $e->getMessage());
+    }
     
-    // Fallback static
+    // Fallback static - logo por defecto del sistema
     $file = __DIR__ . '/../iconos_negocio/logo1-t.png';
     if (file_exists($file)) {
         header('Content-Type: image/png');
         header('Cache-Control: public, s-maxage=86400, max-age=86400');
+        header('X-Content-Type-Options: nosniff');
         readfile($file);
         exit;
     }

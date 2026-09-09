@@ -1,3 +1,8 @@
+# Variables de entorno (NUNCA subir a repositorios)
+.env
+.env.local
+.env.production
+
 # Base de datos local
 database/tu_inventario.db
 *.db
