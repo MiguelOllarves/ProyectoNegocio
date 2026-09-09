@@ -13,7 +13,21 @@ class Database {
             // PDO attributes
             $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
             $this->pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
-            $this->pdo->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
+            // EMULATE_PREPARES=true es OBLIGATORIO con Supabase pooler (PgBouncer):
+            // PgBouncer en modo transacción no soporta prepared statements nativos del
+            // servidor porque las conexiones se migran entre backends PostgreSQL.
+            // Con emulación cliente, PDO escapa los parámetros localmente (seguro contra
+            // inyección SQL) y evita el error "Invalid sql statement name".
+            $this->pdo->setAttribute(PDO::ATTR_EMULATE_PREPARES, true);
+
+            // PgBouncer necesita desactivar prepared statements persistentes a nivel driver
+            if (defined('PDO::PGSQL_ATTR_DISABLE_PREPARES')) {
+                try {
+                    $this->pdo->setAttribute(\PDO::PGSQL_ATTR_DISABLE_PREPARES, true);
+                } catch (\PDOException $e) {
+                    // Opcional: no rompe la conexión si el driver no lo soporta
+                }
+            }
 
             // Auto-migración: garantizar que todas las tablas existan
             require_once __DIR__ . '/../database/Migration.php';
