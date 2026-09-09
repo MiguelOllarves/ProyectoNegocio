@@ -21,7 +21,7 @@ $headerSize = $width === '58' ? 'text-[11px]' : 'text-sm';
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ticket Compromiso Legal - <?= htmlspecialchars($client['name']) ?></title>
     <!-- Use Tailwind via CDN for easy styling -->
-    <link rel="stylesheet" href="<?= BASE_URL ?? "" ?>css/tailwind.css">
+    <link rel="stylesheet" href="<?= BASE_URL ?? "" ?>css/tailwind.css?v=<?= CSS_VERSION ?>">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400;1,700&display=swap');
         

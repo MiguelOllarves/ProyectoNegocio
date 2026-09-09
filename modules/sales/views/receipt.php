@@ -28,7 +28,7 @@ $titleClass = $width === '58' ? 'text-sm' : 'text-xl';
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ticket #<?= htmlspecialchars($sale_id) ?></title>
     <!-- Use Tailwind via CDN for easy styling; when printed it strips unnecessary stuff -->
-    <link rel="stylesheet" href="<?= BASE_URL ?? "" ?>css/tailwind.css">
+    <link rel="stylesheet" href="<?= BASE_URL ?? "" ?>css/tailwind.css?v=<?= CSS_VERSION ?>">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400;1,700&display=swap');
         

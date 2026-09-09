@@ -29,7 +29,7 @@
     <link rel="apple-touch-icon" href="<?= BASE_URL ?>icons/icon-512x512.png">
     <title>Tu Inventario</title>
     <meta name="csrf-token" content="<?= $_SESSION['csrf_token'] ?? '' ?>">
-    <link rel="stylesheet" href="<?= BASE_URL ?? "" ?>css/tailwind.css">
+    <link rel="stylesheet" href="<?= BASE_URL ?? "" ?>css/tailwind.css?v=<?= CSS_VERSION ?>">
     <script defer src="https://unpkg.com/htmx.org@1.9.11"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>

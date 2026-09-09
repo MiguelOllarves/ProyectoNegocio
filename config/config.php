@@ -99,3 +99,8 @@ define('VAPID_PRIVATE_KEY', $vapidPriv ?: '');
 
 // --- Analíticas (Google Tag Manager) ---
 define('GTM_ID', getenv('GTM_ID') ?: 'GTM-NHRNGKB2');
+
+// --- Versionado de CSS (cache-busting): Vercel sirve css/* con Cache-Control immutable 1 año.
+// --- Sin versión en la URL, los navegadores jamás recargan tailwind.css tras un redeploy.
+$cssFile = dirname(__DIR__) . '/public/css/tailwind.css';
+define('CSS_VERSION', is_file($cssFile) ? (string) @filemtime($cssFile) : '1');

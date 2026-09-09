@@ -46,7 +46,7 @@
     <meta name="twitter:title" content="<?= htmlspecialchars($storeName) ?> — Tienda Online">
     <meta name="twitter:description" content="<?= htmlspecialchars($storeDesc) ?>">
     <meta name="twitter:image" content="<?= htmlspecialchars($storeLogo) ?>">
-    <link rel="stylesheet" href="<?= BASE_URL ?? "" ?>css/tailwind.css">
+    <link rel="stylesheet" href="<?= BASE_URL ?? "" ?>css/tailwind.css?v=<?= CSS_VERSION ?>">
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.3/dist/cdn.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
