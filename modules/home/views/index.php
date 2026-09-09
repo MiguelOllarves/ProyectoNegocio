@@ -367,6 +367,7 @@
                         <a href="#inicio" class="hover:text-[#36B291] transition-colors whitespace-nowrap">Inicio</a>
                         <a href="#funcionalidades" class="hover:text-[#36B291] transition-colors whitespace-nowrap">Características</a>
                         <a href="<?= BASE_URL ?>qrmenu" class="hover:text-[#36B291] transition-colors whitespace-nowrap flex items-center gap-2"><i class="fas fa-qrcode"></i> Menú QR</a>
+                        <a href="#app-descarga" class="hover:text-[#36B291] transition-colors whitespace-nowrap flex items-center gap-2"><i class="fab fa-android"></i> PagaPues</a>
                         <a href="#contacto" class="hover:text-[#36B291] transition-colors whitespace-nowrap">Contacto</a>
                     </nav>
                 </div>
@@ -390,6 +391,7 @@
         <div id="mobile-menu" class="hidden lg:hidden flex-col bg-white/95 backdrop-blur-xl absolute top-[70px] left-0 w-full p-6 shadow-2xl border-b border-gray-100 z-50 rounded-b-3xl">
             <a href="#inicio" class="py-3 text-lg font-semibold text-slate-700 border-b border-gray-50">Inicio</a>
             <a href="#funcionalidades" class="py-3 text-lg font-semibold text-slate-700 border-b border-gray-50">Soluciones</a>
+            <a href="#app-descarga" class="py-3 text-lg font-semibold text-slate-700 border-b border-gray-50 flex items-center gap-2"><i class="fab fa-android text-[#36B291]"></i> PagaPues</a>
             <a href="#contacto" class="py-3 text-lg font-semibold text-slate-700 border-b border-gray-50 mb-4">Contacto</a>
             <button onclick="document.getElementById('login-modal').classList.remove('hidden'); document.getElementById('login-modal').classList.add('flex')" class="w-full text-center py-3 text-lg font-bold text-[#36B291] bg-teal-50 rounded-xl mb-3 focus:outline-none">Inicia Sesión</button>
             <button onclick="document.getElementById('login-modal').classList.remove('hidden'); document.getElementById('login-modal').classList.add('flex')" class="w-full text-center py-3 text-lg font-bold text-white bg-[#36B291] rounded-xl shadow-lg focus:outline-none">Regístrate</button>
@@ -723,7 +725,7 @@
         <!-- ========================================== -->
         <!-- SECCIÓN: DESCARGA APP (APK) - PagaPues -->
         <!-- ========================================== -->
-        <section id="app-descarga" class="w-full relative overflow-hidden">
+        <section id="app-descarga" class="w-full relative overflow-hidden scroll-mt-20">
             <!-- Fondo premium degradado -->
             <div class="absolute inset-0 bg-gradient-to-br from-[#0f172a] via-[#1e293b] to-[#0c4a3e]"></div>
             <!-- Efectos de brillo decorativos -->
@@ -841,29 +843,49 @@
                                     </div>
                                     <div class="pt-1">
                                         <h4 class="text-white font-bold text-base mb-1">Descarga el archivo APK</h4>
-                                        <p class="text-gray-400 text-sm font-medium leading-relaxed">Toca el botón verde y guarda el archivo en tu celular.</p>
+                                        <p class="text-gray-300 text-sm font-medium leading-relaxed">Toca el botón verde y guarda el archivo en tu celular.</p>
                                     </div>
                                 </div>
 
                                 <!-- Paso 2 -->
                                 <div class="flex gap-4 items-start group">
                                     <div class="relative">
-                                        <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 text-white font-black flex items-center justify-center shrink-0 text-sm shadow-lg shadow-amber-400/20 group-hover:scale-110 transition-transform">2</div>
+                                        <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-sky-400 to-blue-500 text-white font-black flex items-center justify-center shrink-0 text-sm shadow-lg shadow-sky-400/20 group-hover:scale-110 transition-transform">2</div>
                                         <div class="absolute top-10 left-1/2 -translate-x-1/2 w-[2px] h-3 bg-white/10"></div>
                                     </div>
-                                    <div class="pt-1">
-                                        <h4 class="text-white font-bold text-base mb-1">Alerta de seguridad</h4>
-                                        <p class="text-gray-400 text-sm font-medium leading-relaxed">Google puede advertir por ser desarrollador desconocido. <strong class="text-gray-300">Es completamente normal.</strong></p>
+                                    <div class="pt-1 flex-1">
+                                        <h4 class="text-white font-bold text-base mb-2">Activa "Instalar apps desconocidas"</h4>
+                                        <p class="text-gray-300 text-sm font-medium mb-3">
+                                            Para que el teléfono deje instalar la app, primero debes aprobarlo en los ajustes:
+                                        </p>
+                                        <div class="bg-white/[0.06] rounded-2xl p-4 border border-white/[0.08] backdrop-blur-sm text-gray-300 text-[13px] font-medium leading-relaxed">
+                                            <p class="flex items-center gap-2"><i class="fas fa-cog text-sky-400"></i> <strong class="text-white font-bold">Ajustes</strong> → Seguridad (o Privacidad)</p>
+                                            <p class="flex items-center gap-2 mt-1.5"><i class="fas fa-chevron-right text-sky-400 text-xs"></i> <span><strong class="text-white font-bold">Instalar apps desconocidas</strong></span></p>
+                                            <p class="flex items-center gap-2 mt-1.5"><i class="fas fa-chevron-right text-sky-400 text-xs"></i> <span>Permitir a <strong class="text-white font-bold">Chrome</strong> (o tu navegador)</span></p>
+                                            <p class="flex items-center gap-2 mt-1.5"><i class="fas fa-toggle-on text-sky-400"></i> <span>Activa el interruptor <strong class="text-white font-bold">"Permitir de esta fuente"</strong></span></p>
+                                        </div>
                                     </div>
                                 </div>
 
                                 <!-- Paso 3 -->
                                 <div class="flex gap-4 items-start group">
-                                    <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-[#36B291] to-emerald-500 text-white font-black flex items-center justify-center shrink-0 text-sm shadow-lg shadow-[#36B291]/20 group-hover:scale-110 transition-transform">3</div>
+                                    <div class="relative">
+                                        <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 text-white font-black flex items-center justify-center shrink-0 text-sm shadow-lg shadow-amber-400/20 group-hover:scale-110 transition-transform">3</div>
+                                        <div class="absolute top-10 left-1/2 -translate-x-1/2 w-[2px] h-3 bg-white/10"></div>
+                                    </div>
+                                    <div class="pt-1">
+                                        <h4 class="text-white font-bold text-base mb-1">Alerta de seguridad</h4>
+                                        <p class="text-gray-300 text-sm font-medium leading-relaxed">Google puede advertir por ser desarrollador desconocido. <strong class="text-gray-100">Es completamente normal.</strong></p>
+                                    </div>
+                                </div>
+
+                                <!-- Paso 4 -->
+                                <div class="flex gap-4 items-start group">
+                                    <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-[#36B291] to-emerald-500 text-white font-black flex items-center justify-center shrink-0 text-sm shadow-lg shadow-[#36B291]/20 group-hover:scale-110 transition-transform">4</div>
                                     <div class="pt-1 flex-1">
                                         <h4 class="text-white font-bold text-base mb-2">Instala de todas formas</h4>
-                                        <p class="text-gray-400 text-sm font-medium mb-3">
-                                            Toca <strong class="text-gray-300">"Más detalles"</strong> y luego <strong class="text-[#36B291]">"Instalar de todas formas"</strong>.
+                                        <p class="text-gray-300 text-sm font-medium mb-3">
+                                            Toca <strong class="text-gray-100">"Más detalles"</strong> y luego <strong class="text-[#36B291]">"Instalar de todas formas"</strong>.
                                         </p>
                                         
                                         <!-- Mockup visual del diálogo -->
@@ -875,7 +897,7 @@
                                                 <p class="text-[13px] font-bold text-white/90">¿Instalar aplicación desconocida?</p>
                                             </div>
                                             <div class="flex justify-between items-center border-t border-white/[0.06] pt-3">
-                                                <span class="text-[12px] font-medium text-gray-400 flex items-center gap-1">Más detalles <i class="fas fa-chevron-down text-[8px]"></i></span>
+                                                <span class="text-[12px] font-medium text-gray-300 flex items-center gap-1">Más detalles <i class="fas fa-chevron-down text-[8px]"></i></span>
                                                 <span class="text-[12px] font-bold text-[#36B291] bg-[#36B291]/15 px-3 py-1.5 rounded-lg border border-[#36B291]/20">Instalar de todas formas</span>
                                             </div>
                                         </div>
@@ -891,7 +913,7 @@
                                     </div>
                                     <div>
                                         <p class="text-white/90 text-sm font-bold mb-0.5">100% Seguro y Privado</p>
-                                        <p class="text-gray-400 text-xs font-medium leading-relaxed">Tu información nunca sale de tu dispositivo. Sin servidores, sin tracking, sin sorpresas.</p>
+                                        <p class="text-gray-300 text-xs font-medium leading-relaxed">Tu información nunca sale de tu dispositivo. Sin servidores, sin tracking, sin sorpresas.</p>
                                     </div>
                                 </div>
                             </div>
@@ -924,7 +946,7 @@
         <!-- ========================================== -->
         <!-- SECCIÓN 6: CONTACTO & CTA -->
         <!-- ========================================== -->
-        <section id="contacto" class="w-full px-6 py-20 lg:px-16 bg-gradient-to-b from-[#0c1a16] to-[#ebfbf1] relative overflow-hidden">
+        <section id="contacto" class="w-full px-6 py-20 lg:px-16 bg-gradient-to-b from-[#0c1a16] to-[#ebfbf1] relative overflow-hidden scroll-mt-20">
             <!-- Glow decorativo -->
             <div class="hidden md:block absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-[#36B291]/15 filter blur-[120px] rounded-full pointer-events-none z-0"></div>
 

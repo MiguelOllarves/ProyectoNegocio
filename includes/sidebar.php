@@ -84,6 +84,13 @@
 
         <!-- Divider -->
         <div class="border-t border-white/10 my-3"></div>
+
+        <!-- PagaPues: App Móvil -->
+        <a href="<?= rtrim(BASE_URL, '/') ?>#app-descarga" class="flex items-center px-3 py-2.5 rounded-lg transition-all text-sm font-medium border-l-[3px] border-transparent text-white/70 hover:bg-white/10 hover:text-white bg-[#36B291]/10 border-[#36B291]/40">
+            <i class="fab fa-android w-5 text-center mr-3 text-sm text-[#36B291]"></i>
+            <span>PagaPues</span>
+            <i class="fas fa-download ml-auto text-[10px] text-white/50"></i>
+        </a>
         
         <?php if($isAdmin || in_array('inventory', $userPerms)): ?>
         <!-- Kardex (acceso directo solicitado) -->
