@@ -488,22 +488,12 @@ CREATE INDEX IF NOT EXISTS idx_recipe_dish ON recipe_items(dish_id);
 -- DATOS POR DEFECTO
 -- ==========================================
 
--- A) Negocio base
-INSERT INTO businesses (id, owner_name, business_name, document_id, email, category, slug, subscription_status)
-VALUES (1, 'Usuario Demo', 'Negocio Demo', '00000000', 'demo@sistema.local', 'general', 'demo', 'active')
-ON CONFLICT DO NOTHING;
-
--- B) Administrador Demo
-INSERT INTO users (business_id, username, full_name, password, role, status)
-VALUES (1, '00000000', 'Administrador Demo', '$2y$10$SaSgH8hC.HnRdqMiiejSjuU4PD3NdwI2WZhKDkEJ7Yg/pigOpX7kG', 'administrador', 1)
-ON CONFLICT DO NOTHING;
-
--- C) Super Admin Global
+-- A) Super Admin Global
 INSERT INTO users (business_id, username, full_name, password, role, status)
 VALUES (NULL, '182247576', 'Super Administrador', '$2y$10$FdMFxslXhRhiK2iZ2qb64e3o7kiK1dfJOEOkp6RI2z2z3fqN8woP6', 'super_admin', 1)
 ON CONFLICT DO NOTHING;
 
--- D) Métodos de Pago Base
+-- B) Métodos de Pago Base
 INSERT INTO payment_methods (name, code, currency, applies_igtf, is_active) VALUES
 ('USD Efectivo', 'usd_cash', 'USD', TRUE, TRUE),
 ('BS Efectivo', 'bs_cash', 'VES', FALSE, TRUE),
@@ -513,7 +503,7 @@ INSERT INTO payment_methods (name, code, currency, applies_igtf, is_active) VALU
 ('Zelle', 'zelle', 'USD', TRUE, TRUE)
 ON CONFLICT DO NOTHING;
 
--- E) Configuraciones Base (BCV actualizado a 791.32)
+-- C) Configuraciones Base (BCV actualizado a 791.32)
 INSERT INTO settings (key, value, category) VALUES
 ('bcv_rate', '791.32', 'rates'),
 ('parallel_rate', '0', 'rates'),
@@ -526,7 +516,7 @@ INSERT INTO settings (key, value, category) VALUES
 ('business_logo', '', 'company')
 ON CONFLICT DO NOTHING;
 
--- F) Unidades de Medida
+-- D) Unidades de Medida
 INSERT INTO units_of_measure (id, name, abbreviation, base_type, base_unit_id, conversion_to_base) VALUES
 (1, 'Gramo', 'g', 'peso', 1, 1.0),
 (2, 'Mililitro', 'ml', 'volumen', 2, 1.0),

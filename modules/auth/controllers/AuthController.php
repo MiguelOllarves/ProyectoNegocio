@@ -15,6 +15,8 @@ class AuthController extends Controller {
             header('Location: ' . BASE_URL . 'dashboard');
             exit;
         }
+        $_SESSION['register_form_ts'] = time();
+        $_SESSION['register_csrf'] = $_POST['csrf_token'] ?? ($_SESSION['csrf_token'] ?? '');
         $this->view('modules/users/views/register');
     }
     
@@ -22,6 +24,27 @@ class AuthController extends Controller {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (!Middleware::checkRateLimit('register', 3, 15)) {
                 $this->view('modules/users/views/register', ['error' => 'Demasiados intentos de registro. Por favor, espera 15 minutos.']);
+                return;
+            }
+            
+            // ==== ANTI-BOT ====
+            // Honeypot: bots rellenan todos los campos. Un humano no ve este campo.
+            if (!empty($_POST['website']) || !empty($_POST['url_hidden'])) {
+                http_response_code(403);
+                echo 'Acceso denegado.';
+                exit;
+            }
+            // Tiempo mínimo de relleno del formulario (bot suele enviar en < 3s)
+            $formTs = $_SESSION['register_form_ts'] ?? 0;
+            if (!$formTs || (time() - $formTs) < 3) {
+                $this->view('modules/users/views/register', ['error' => 'Registro demasiado rápido. Recarga la página e inténtalo de nuevo.']);
+                return;
+            }
+            // CSRF para el registro
+            $expectedToken = $_SESSION['register_csrf'] ?? ($_SESSION['csrf_token'] ?? '');
+            $sentToken = $_POST['csrf_token'] ?? '';
+            if (empty($expectedToken) || !hash_equals($expectedToken, $sentToken)) {
+                $this->view('modules/users/views/register', ['error' => 'Sesión de seguridad expirada. Recarga la página.']);
                 return;
             }
             $owner_name = $_POST['owner_name'] ?? '';
@@ -36,6 +59,16 @@ class AuthController extends Controller {
             $email = $_POST['email'] ?? '';
             $password = $_POST['password'] ?? '';
             $confirm_password = $_POST['confirm_password'] ?? '';
+            
+            // ==== ANTI-BOT: Blacklist de identidades de bots conocidas ====
+            $blockedDoc = preg_match('/^0+$/', trim($document_id));
+            $blockedEmail = in_array(strtolower(trim($email)), ['demo@sistema.local', 'demo@sistema.com', 'demosistema.local', 'demo@demo.local']);
+            $blockedBizName = in_array(strtolower(trim($business_name)), ['negocio demo', 'demo', 'negocio demo luis', 'demo luis']);
+            $blockedOwner = in_array(strtolower(trim($owner_name)), ['administrador demo', 'demo', 'demo admin']);
+            if ($blockedDoc || $blockedEmail || $blockedBizName || $blockedOwner) {
+                $this->view('modules/users/views/register', ['error' => 'Esta información no es válida para registrarse.']);
+                return;
+            }
             
             if (empty($email) || empty($password) || empty($business_name)) {
                 $this->view('modules/users/views/register', ['error' => 'Faltan campos obligatorios.']);

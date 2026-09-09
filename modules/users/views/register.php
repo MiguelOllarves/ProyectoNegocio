@@ -64,6 +64,12 @@
             <form action="<?= BASE_URL ?>auth/process_register" method="POST" id="registerForm" class="space-y-6">
                 <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?? '' ?>">
                 
+                <!-- Campo honeypot anti-bot (no debería ser llenado por humanos) -->
+                <div class="absolute left-[-9999px] top-[-9999px] opacity-0 h-0 w-0 pointer-events-none" aria-hidden="true">
+                    <label for="website">No completar este campo</label>
+                    <input type="text" name="website" id="website" tabindex="-1" autocomplete="off">
+                </div>
+                
                 <!-- Sección Negocio -->
                 <div>
                     <h3 class="text-sm font-black text-brand-600 uppercase tracking-wider mb-4 border-b pb-2"><i class="fas fa-store mr-2"></i> Datos del Negocio</h3>
