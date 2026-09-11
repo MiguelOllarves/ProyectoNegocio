@@ -174,7 +174,7 @@ class InventoryController extends Controller {
             $name = trim($_POST['name'] ?? '');
             if (empty($name)) {
                 if (isset($_SERVER['HTTP_HX_REQUEST'])) {
-                    http_response_code(400); header('X-Toast-Type: error'); header('X-Toast-Message: Nombre requerido'); exit;
+                    http_response_code(400); header('X-Toast-Type: error'); header('X-Toast-Message: Nombre requerido'); echo "Nombre requerido"; exit;
                 }
                 exit('Nombre de producto requerido');
             }
@@ -187,7 +187,7 @@ class InventoryController extends Controller {
                 
                 if (!in_array($fileMimeType, $allowedMimeTypes)) {
                     if (isset($_SERVER['HTTP_HX_REQUEST'])) {
-                        http_response_code(400); header('X-Toast-Type: error'); header('X-Toast-Message: Tipo de imagen no permitido (solo JPG/PNG/WEBP)'); exit;
+                        http_response_code(400); header('X-Toast-Type: error'); header('X-Toast-Message: Tipo de imagen no permitido (solo JPG/PNG/WEBP)'); echo "Tipo de imagen no permitido"; exit;
                     }
                     exit('Formato no permitido');
                 }
@@ -195,7 +195,7 @@ class InventoryController extends Controller {
                 // Límite de 3MB
                 if(filesize($_FILES['image']['tmp_name']) > 3 * 1024 * 1024) {
                     if (isset($_SERVER['HTTP_HX_REQUEST'])) {
-                        http_response_code(400); header('X-Toast-Type: error'); header('X-Toast-Message: Imagen muy pesada (Max 3MB)'); exit;
+                        http_response_code(400); header('X-Toast-Type: error'); header('X-Toast-Message: Imagen muy pesada (Max 3MB)'); echo "Imagen muy pesada (Max 3MB)"; exit;
                     }
                     exit('Imagen muy pesada');
                 }
@@ -209,7 +209,7 @@ class InventoryController extends Controller {
                     $validation = ImageValidator::validateImage($imagePath, 'product');
                     if (!$validation['valid']) {
                         if (isset($_SERVER['HTTP_HX_REQUEST'])) {
-                            http_response_code(400); header('X-Toast-Type: error'); header('X-Toast-Message: ' . $validation['error']); exit;
+                            http_response_code(400); header('X-Toast-Type: error'); header('X-Toast-Message: ' . $validation['error']); echo $validation['error']; exit;
                         }
                         exit($validation['error']);
                     }
@@ -334,7 +334,7 @@ class InventoryController extends Controller {
                     }
                     $error = "Error al guardar el producto.";
                 }
-            } catch (\Exception $e) {
+            } catch (\Throwable $e) {
                 error_log("Inventory Create Error: " . $e->getMessage());
                 if (isset($_SERVER['HTTP_HX_REQUEST'])) {
                     http_response_code(400);
@@ -342,10 +342,10 @@ class InventoryController extends Controller {
                     $msg = str_replace(["\r", "\n"], ' ', $e->getMessage());
                     header('X-Toast-Type: error');
                     header('X-Toast-Message: ' . substr($msg, 0, 200));
-                    echo "Error de BD: " . $msg;
+                    echo "Error de Servidor/BD: " . $msg;
                     exit;
                 }
-                exit('Error Critico de Base de Datos: ' . $e->getMessage());
+                exit('Error Critico: ' . $e->getMessage());
             }
         }
     }
@@ -424,7 +424,7 @@ class InventoryController extends Controller {
             $name = trim($_POST['name'] ?? '');
             if (empty($name)) {
                 if (isset($_SERVER['HTTP_HX_REQUEST'])) {
-                    http_response_code(400); header('X-Toast-Type: error'); header('X-Toast-Message: Nombre requerido'); exit;
+                    http_response_code(400); header('X-Toast-Type: error'); header('X-Toast-Message: Nombre requerido'); echo "Nombre requerido"; exit;
                 }
                 exit('Nombre de producto requerido');
             }
