@@ -104,7 +104,7 @@ class Middleware {
      * Valida que el usuario tenga un permiso específico en su JSON de permisos.
      * Si es 'administrador' o 'super_admin', se le permite acceso total.
      */
-    public static function requirePermission($perm) {
+    public static function requirePermission(string $perm) {
         self::requireAuth();
 
         $role = $_SESSION['role'] ?? '';
@@ -129,7 +129,7 @@ class Middleware {
     /**
      * Devuelve true si el usuario actual tiene el rol dado.
      */
-    public static function hasRole($role) {
+    public static function hasRole(string $role) {
         return ($_SESSION['role'] ?? '') === $role;
     }
 
@@ -143,31 +143,48 @@ class Middleware {
     /**
      * Rate Limiting: Bloquea intentos excesivos de una acción específica por IP.
      */
-    public static function checkRateLimit($action, $maxAttempts = 5, $lockoutMinutes = 15) {
+    public static function checkRateLimit(string $action, int $maxAttempts = 5, int $lockoutMinutes = 15) {
         require_once __DIR__ . '/../config/Database.php';
         $db = Database::getInstance()->getConnection();
         $ip = $_SERVER['HTTP_CF_CONNECTING_IP'] ?? $_SERVER['HTTP_X_FORWARDED_FOR'] ?? $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1';
-        
-        $stmt = $db->prepare("SELECT attempts, last_attempt FROM rate_limits WHERE ip_address = ? AND action = ?");
-        $stmt->execute([$ip, $action]);
-        $row = $stmt->fetch();
-        
-        $now = time();
-        if ($row) {
-            $last = strtotime($row['last_attempt']);
-            if ($now - $last > $lockoutMinutes * 60) {
-                // Reset
-                $db->prepare("UPDATE rate_limits SET attempts = 1, last_attempt = CURRENT_TIMESTAMP WHERE ip_address = ? AND action = ?")->execute([$ip, $action]);
-                return true;
-            } else {
-                if ($row['attempts'] >= $maxAttempts) {
-                    return false; // Blocked
+
+        try {
+            $stmt = $db->prepare("SELECT attempts, last_attempt FROM rate_limits WHERE ip_address = ? AND action = ?");
+            $stmt->execute([$ip, $action]);
+            $row = $stmt->fetch();
+
+            $now = time();
+            if ($row) {
+                $last = strtotime($row['last_attempt']);
+                if ($now - $last > $lockoutMinutes * 60) {
+                    // Reset
+                    $db->prepare("UPDATE rate_limits SET attempts = 1, last_attempt = CURRENT_TIMESTAMP WHERE ip_address = ? AND action = ?")->execute([$ip, $action]);
+                    return true;
+                } else {
+                    if ($row['attempts'] >= $maxAttempts) {
+                        return false; // Blocked
+                    }
+                    $db->prepare("UPDATE rate_limits SET attempts = attempts + 1, last_attempt = CURRENT_TIMESTAMP WHERE ip_address = ? AND action = ?")->execute([$ip, $action]);
+                    return true;
                 }
-                $db->prepare("UPDATE rate_limits SET attempts = attempts + 1, last_attempt = CURRENT_TIMESTAMP WHERE ip_address = ? AND action = ?")->execute([$ip, $action]);
+            } else {
+                // Usamos UPSERT (ON CONFLICT) en vez de un INSERT simple: si dos peticiones
+                // llegan casi al mismo tiempo desde la misma IP (doble clic, reintento del
+                // navegador, etc.), la restricción UNIQUE(ip_address, action) hacía que la
+                // segunda lanzara una excepción no controlada -> error 500. Con ON CONFLICT
+                // simplemente incrementamos en vez de fallar.
+                $db->prepare("
+                    INSERT INTO rate_limits (ip_address, action, attempts, last_attempt)
+                    VALUES (?, ?, 1, CURRENT_TIMESTAMP)
+                    ON CONFLICT (ip_address, action)
+                    DO UPDATE SET attempts = rate_limits.attempts + 1, last_attempt = CURRENT_TIMESTAMP
+                ")->execute([$ip, $action]);
                 return true;
             }
-        } else {
-            $db->prepare("INSERT INTO rate_limits (ip_address, action, attempts) VALUES (?, ?, 1)")->execute([$ip, $action]);
+        } catch (Exception $e) {
+            // Si el rate limiting falla por cualquier razón (BD caída, tabla ausente, etc.)
+            // no debe tumbar el login/registro entero: se registra el error y se deja pasar.
+            error_log('[Middleware] checkRateLimit error: ' . $e->getMessage());
             return true;
         }
     }
@@ -175,7 +192,7 @@ class Middleware {
     /**
      * Rate Limiting: Reinicia los intentos tras un éxito.
      */
-    public static function resetRateLimit($action) {
+    public static function resetRateLimit(string $action) {
         require_once __DIR__ . '/../config/Database.php';
         $db = Database::getInstance()->getConnection();
         $ip = $_SERVER['HTTP_CF_CONNECTING_IP'] ?? $_SERVER['HTTP_X_FORWARDED_FOR'] ?? $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1';
@@ -186,7 +203,7 @@ class Middleware {
      * Valida la complejidad de una contraseña.
      * Retorna true si es válida, o un string con el error si no lo es.
      */
-    public static function validatePasswordComplexity($password) {
+    public static function validatePasswordComplexity(string $password) {
         if (strlen($password) < 8) {
             return "La contraseña debe tener al menos 8 caracteres.";
         }
@@ -225,4 +242,3 @@ class Middleware {
         }
     }
 }
-
