@@ -183,6 +183,7 @@ class POSController {
                     <div class="flex justify-between items-start mb-2">
                         <div class="flex-1 pr-2">
                             <h4 class="text-sm font-bold text-gray-800 dark:text-gray-200 leading-tight">${item.name}</h4>
+                            ${item.options && item.options.length > 0 ? `<div class="flex flex-wrap gap-1 mt-1">${item.options.map(o => `<span class="text-[10px] bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 px-1.5 py-0.5 rounded-full">${o.product_name}${o.price_delta > 0 ? ' +$' + o.price_delta.toFixed(2) : ''}</span>`).join('')}</div>` : ''}
                             <span class="text-brand-500 dark:text-brand-400 font-bold text-xs mt-1 block">$${parseFloat(item.price).toFixed(2)} / ${unitAbbr} ${item.exempt ? '<span class="text-gray-400 dark:text-gray-500 font-normal">(E)</span>' : ''}</span>
                         </div>
                         <div class="text-right">
@@ -346,6 +347,23 @@ document.addEventListener('DOMContentLoaded', () => {
                     const editMode = window.posState.cart.some(i => i.id === p.id);
                     if (p.measurement_type === 'peso' || p.measurement_type === 'volumen') {
                         window.dispatchEvent(new CustomEvent('open-weight-modal', { detail: { product: p, existingItem: editMode } }));
+                    } else if (p.is_dish == 1) {
+                        // Verificar si tiene opciones configuradas
+                        fetch(BASE_URL + 'restaurant/get_option_groups/' + p.id)
+                            .then(r => r.json())
+                            .then(data => {
+                                if (data.success && data.data.length > 0) {
+                                    openPosOptionsModal(p, data.data);
+                                } else {
+                                    window.posState.addProduct(p, 1);
+                                    if (typeof Alpine !== 'undefined') {
+                                        window.dispatchEvent(new CustomEvent('notify', { detail: { message: `${p.name} añadido al carrito`, type: 'success' } }));
+                                    }
+                                }
+                            })
+                            .catch(() => {
+                                window.posState.addProduct(p, 1);
+                            });
                     } else {
                         window.posState.addProduct(p, 1);
                         if (typeof Alpine !== 'undefined') {
@@ -478,3 +496,187 @@ document.addEventListener('DOMContentLoaded', () => {
     // Iniciar con cálculo en cero
     window.posState.calculate();
 });
+
+// ============================================================
+// POS Options Modal - Selección de opciones para platos
+// ============================================================
+let _posOptionsProduct = null;
+let _posOptionsGroups = [];
+let _posOptionsSelected = {};
+let _posOptionsSubmitCount = {};
+
+function openPosOptionsModal(product, groups) {
+    _posOptionsProduct = product;
+    _posOptionsGroups = groups;
+    _posOptionsSelected = {};
+    _posOptionsSubmitCount = {};
+
+    document.getElementById('opt-modal-title').textContent = product.name;
+    
+    const groupsContainer = document.getElementById('opt-modal-groups');
+    groupsContainer.innerHTML = '';
+
+    groups.forEach(group => {
+        _posOptionsSubmitCount[group.id] = 0;
+        const groupDiv = document.createElement('div');
+        groupDiv.className = 'border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden';
+        groupDiv.dataset.groupId = group.id;
+
+        let optionsHtml = '';
+        group.options.forEach(opt => {
+            const deltaStr = opt.price_delta > 0 ? `+$${opt.price_delta.toFixed(2)}` : (opt.price_delta < 0 ? `-$${Math.abs(opt.price_delta).toFixed(2)}` : '');
+            optionsHtml += `
+                <label onclick="posToggleOption(${group.id}, ${opt.id}, ${opt.price_delta || 0})" 
+                       class="pos-opt-label flex items-center gap-3 p-3 rounded-xl border-2 border-gray-200 dark:border-gray-700 cursor-pointer transition-all hover:border-gray-300 dark:hover:border-gray-600"
+                       data-opt-id="${opt.id}">
+                    <div class="w-5 h-5 rounded-full border-2 border-gray-300 dark:border-gray-600 flex items-center justify-center shrink-0 pos-opt-check">
+                        <i class="fas fa-check text-white text-[10px] hidden"></i>
+                    </div>
+                    <div class="flex-1">
+                        <p class="text-sm font-bold text-gray-800 dark:text-white">${opt.product_name}</p>
+                    </div>
+                    ${deltaStr ? `<span class="text-xs font-bold ${opt.price_delta > 0 ? 'text-green-600' : 'text-red-500'}">${deltaStr}</span>` : ''}
+                </label>`;
+        });
+
+        groupDiv.innerHTML = `
+            <div class="bg-gray-50 dark:bg-gray-900 px-4 py-3 flex items-center justify-between">
+                <div>
+                    <h4 class="font-bold text-sm text-gray-800 dark:text-white">${group.name}</h4>
+                    <p class="text-[11px] text-gray-400">Mín: ${group.min_selections} · Máx: ${group.max_selections}</p>
+                </div>
+                <span class="text-xs font-bold text-brand-600 pos-group-count">0/${group.max_selections}</span>
+            </div>
+            <div class="p-3 space-y-2">${optionsHtml}</div>
+            <div class="pos-group-error px-4 py-2 bg-red-50 dark:bg-red-900/20 border-t border-red-100 dark:border-red-800 hidden">
+                <p class="text-xs text-red-600 dark:text-red-400 font-medium">
+                    <i class="fas fa-exclamation-circle mr-1"></i>
+                    Selecciona al menos ${group.min_selections} opción(es)
+                </p>
+            </div>`;
+        groupsContainer.appendChild(groupDiv);
+    });
+
+    updatePosOptionsTotal();
+    document.getElementById('options-modal').classList.remove('hidden');
+}
+
+function closeOptionsModal() {
+    document.getElementById('options-modal').classList.add('hidden');
+    _posOptionsProduct = null;
+    _posOptionsGroups = [];
+    _posOptionsSelected = {};
+}
+
+function posToggleOption(groupId, optId, priceDelta) {
+    if (optId in _posOptionsSelected) {
+        delete _posOptionsSelected[optId];
+    } else {
+        const group = _posOptionsGroups.find(g => g.id === groupId);
+        if (group) {
+            const count = posGetSelectedCount(groupId);
+            if (count >= group.max_selections) {
+                const firstInGroup = group.options.find(o => o.id in _posOptionsSelected && o.id !== optId);
+                if (firstInGroup) delete _posOptionsSelected[firstInGroup.id];
+            }
+        }
+        _posOptionsSelected[optId] = { group_id: groupId, price_delta: priceDelta };
+    }
+    posUpdateLabels();
+    updatePosOptionsTotal();
+}
+
+function posGetSelectedCount(groupId) {
+    let count = 0;
+    for (const key in _posOptionsSelected) {
+        if (_posOptionsSelected[key].group_id === groupId) count++;
+    }
+    return count;
+}
+
+function posUpdateLabels() {
+    _posOptionsGroups.forEach(group => {
+        const count = posGetSelectedCount(group.id);
+        const card = document.querySelector(`.pos-opt-label[data-opt-id]`);
+        const groupCard = document.querySelector(`[data-group-id="${group.id}"]`);
+        if (groupCard) {
+            const countEl = groupCard.querySelector('.pos-group-count');
+            if (countEl) countEl.textContent = `${count}/${group.max_selections}`;
+            
+            const errorEl = groupCard.querySelector('.pos-group-error');
+            if (errorEl) {
+                if (group.min_selections > 0 && count < group.min_selections) {
+                    errorEl.classList.remove('hidden');
+                } else {
+                    errorEl.classList.add('hidden');
+                }
+            }
+        }
+
+        group.options.forEach(opt => {
+            const label = document.querySelector(`.pos-opt-label[data-opt-id="${opt.id}"]`);
+            if (label) {
+                const check = label.querySelector('.pos-opt-check');
+                const icon = check?.querySelector('i');
+                if (opt.id in _posOptionsSelected) {
+                    label.className = label.className.replace('border-gray-200 dark:border-gray-700', 'border-brand-500 bg-brand-50 dark:bg-brand-900/30');
+                    check.className = check.className.replace('border-gray-300 dark:border-gray-600', 'border-brand-500 bg-brand-500');
+                    if (icon) icon.classList.remove('hidden');
+                } else {
+                    label.className = label.className.replace('border-brand-500 bg-brand-50 dark:bg-brand-900/30', 'border-gray-200 dark:border-gray-700');
+                    check.className = check.className.replace('border-brand-500 bg-brand-500', 'border-gray-300 dark:border-gray-600');
+                    if (icon) icon.classList.add('hidden');
+                }
+            }
+        });
+    });
+}
+
+function updatePosOptionsTotal() {
+    let price = _posOptionsProduct?.price || 0;
+    for (const key in _posOptionsSelected) {
+        price += _posOptionsSelected[key].price_delta || 0;
+    }
+    document.getElementById('opt-modal-total').textContent = `$${Math.max(0, price).toFixed(2)}`;
+}
+
+function posOptionsIsValid() {
+    for (const group of _posOptionsGroups) {
+        const count = posGetSelectedCount(group.id);
+        if (group.min_selections > 0 && count < group.min_selections) return false;
+    }
+    return true;
+}
+
+function confirmOptions() {
+    if (!posOptionsIsValid()) {
+        posUpdateLabels();
+        return;
+    }
+
+    const options = [];
+    for (const key in _posOptionsSelected) {
+        const sel = _posOptionsSelected[key];
+        const group = _posOptionsGroups.find(g => g.id === sel.group_id);
+        const opt = group?.options.find(o => o.id == key);
+        options.push({
+            group_id: sel.group_id,
+            option_id: parseInt(key),
+            product_name: opt?.product_name || '',
+            price_delta: sel.price_delta || 0
+        });
+    }
+
+    let price = _posOptionsProduct.price || 0;
+    options.forEach(o => price += o.price_delta || 0);
+
+    const configuredProduct = {
+        ..._posOptionsProduct,
+        price: Math.max(0, price),
+        options: options,
+        configKey: [_posOptionsProduct.id, ...options.map(o => `${o.group_id}:${o.option_id}`)].sort().join('|')
+    };
+
+    closeOptionsModal();
+    window.posState.addProduct(configuredProduct, 1);
+}

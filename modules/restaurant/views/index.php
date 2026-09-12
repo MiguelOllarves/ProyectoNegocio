@@ -108,7 +108,10 @@ include __DIR__ . '/../../../includes/header.php';
         <!-- Acciones -->
         <div class="mt-auto flex gap-2 pt-2">
             <a href="<?= BASE_URL ?>restaurant/edit_dish_view/<?= $dish['id'] ?>" class="flex-1 inline-flex items-center justify-center gap-2 bg-brand-50 dark:bg-brand-900/30 border border-brand-100 dark:border-brand-800 text-brand-700 dark:text-brand-300 hover:bg-brand-100 dark:hover:bg-brand-900/50 font-bold py-2.5 rounded-xl transition-all text-xs">
-                <i class="fas fa-edit"></i> Editar Plato
+                <i class="fas fa-edit"></i> Editar
+            </a>
+            <a href="<?= BASE_URL ?>restaurant/options_view/<?= $dish['id'] ?>" class="inline-flex items-center justify-center gap-2 bg-purple-50 dark:bg-purple-900/30 border border-purple-100 dark:border-purple-800 text-purple-700 dark:text-purple-300 hover:bg-purple-100 dark:hover:bg-purple-900/50 font-bold py-2.5 px-3 rounded-xl transition-all text-xs" title="Configurar opciones (contornos, extras)">
+                <i class="fas fa-sliders-h"></i>
             </a>
             <button type="button" onclick="deleteDish(<?= $dish['id'] ?>, '<?= htmlspecialchars($dish['name'], ENT_QUOTES) ?>')" class="inline-flex items-center justify-center w-11 bg-red-50 dark:bg-red-900/30 border border-red-100 dark:border-red-800 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/50 rounded-xl transition-all" title="Eliminar Plato">
                 <i class="fas fa-trash-alt"></i>

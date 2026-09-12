@@ -332,6 +332,41 @@
         background: rgba(107, 114, 128, 1); 
     }
 </style>
+
+<!-- Modal de Opciones del Plato -->
+<div id="options-modal" class="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm hidden">
+    <div class="bg-white dark:bg-gray-800 rounded-2xl w-full max-w-lg max-h-[85vh] flex flex-col shadow-2xl border border-gray-100 dark:border-gray-700">
+        <div class="px-5 py-4 border-b border-gray-100 dark:border-gray-700 flex items-center justify-between shrink-0">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-lg bg-brand-100 dark:bg-brand-900/30 flex items-center justify-center">
+                    <i class="fas fa-sliders-h text-brand-600 dark:text-brand-400"></i>
+                </div>
+                <div>
+                    <h3 id="opt-modal-title" class="font-bold text-gray-800 dark:text-white"></h3>
+                    <p class="text-xs text-gray-400">Selecciona las opciones para este plato</p>
+                </div>
+            </div>
+            <button onclick="closeOptionsModal()" class="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-gray-500 hover:text-gray-700 dark:hover:text-white">
+                <i class="fas fa-times text-sm"></i>
+            </button>
+        </div>
+        
+        <div id="opt-modal-groups" class="flex-1 overflow-y-auto p-5 space-y-4">
+            <!-- Se llena dinámicamente -->
+        </div>
+
+        <div class="px-5 py-4 border-t border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 shrink-0">
+            <div class="flex items-center justify-between mb-3">
+                <span class="text-sm text-gray-500">Precio total</span>
+                <span id="opt-modal-total" class="text-lg font-black text-gray-800 dark:text-white">$0.00</span>
+            </div>
+            <button id="opt-modal-confirm" onclick="confirmOptions()" class="w-full py-3 bg-brand-600 hover:bg-brand-500 text-white rounded-xl font-bold shadow-lg transition-colors flex justify-center items-center">
+                <i class="fas fa-cart-plus mr-2"></i> Agregar al carrito
+            </button>
+        </div>
+    </div>
+</div>
+
 <script src="<?= BASE_URL ?>js/pos.js?v=1"></script>
 </body>
 </html>

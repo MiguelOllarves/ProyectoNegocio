@@ -538,4 +538,124 @@ class RestaurantController extends Controller {
             $this->jsonResponse(['success' => false, 'message' => $e->getMessage()], 500);
         }
     }
+
+    /* ============================================================
+       OPCIONES DE RESTAURANTE (grupos y opciones para platos)
+       ============================================================ */
+
+    public function options_view($dishId) {
+        $db = Database::getInstance()->getConnection();
+        $tenantId = $_SESSION['business_id'] ?? 0;
+
+        $stmt = $db->prepare("SELECT id, name, price FROM products WHERE id = ? AND tenant_id = ? AND is_dish = TRUE");
+        $stmt->execute([$dishId, $tenantId]);
+        $dish = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$dish) {
+            header('Location: ' . BASE_URL . 'restaurant');
+            exit;
+        }
+
+        require_once __DIR__ . '/../models/RestaurantOption.php';
+        $optionModel = new RestaurantOption();
+        $groups = $optionModel->getGroupsForDish($dishId);
+
+        $stmtProducts = $db->prepare("SELECT id, name, price, stock FROM products WHERE tenant_id = ? AND is_dish = FALSE ORDER BY name ASC");
+        $stmtProducts->execute([$tenantId]);
+        $products = $stmtProducts->fetchAll(PDO::FETCH_ASSOC);
+
+        $this->view('modules/restaurant/views/options', [
+            'dish' => $dish,
+            'groups' => $groups,
+            'products' => $products
+        ]);
+    }
+
+    public function save_option_group($dishId) {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            $this->jsonResponse(['success' => false, 'message' => 'Método no permitido'], 405);
+        }
+
+        require_once __DIR__ . '/../models/RestaurantOption.php';
+        $optionModel = new RestaurantOption();
+
+        $data = json_decode(file_get_contents('php://input'), true);
+        $name = trim($data['name'] ?? '');
+        $minSelections = (int)($data['min_selections'] ?? 0);
+        $maxSelections = (int)($data['max_selections'] ?? 1);
+
+        if (empty($name)) {
+            $this->jsonResponse(['success' => false, 'message' => 'Nombre del grupo es obligatorio'], 400);
+        }
+
+        try {
+            $groupId = $optionModel->createGroup($dishId, $name, $minSelections, $maxSelections);
+            $this->jsonResponse(['success' => true, 'group_id' => $groupId]);
+        } catch (Exception $e) {
+            $this->jsonResponse(['success' => false, 'message' => $e->getMessage()], 500);
+        }
+    }
+
+    public function save_option($groupId) {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            $this->jsonResponse(['success' => false, 'message' => 'Método no permitido'], 405);
+        }
+
+        require_once __DIR__ . '/../models/RestaurantOption.php';
+        $optionModel = new RestaurantOption();
+
+        $data = json_decode(file_get_contents('php://input'), true);
+        $productId = (int)($data['product_id'] ?? 0);
+        $priceDelta = (float)($data['price_delta'] ?? 0);
+
+        if ($productId <= 0) {
+            $this->jsonResponse(['success' => false, 'message' => 'Selecciona un producto'], 400);
+        }
+
+        try {
+            $optionId = $optionModel->addOption($groupId, $productId, $priceDelta);
+            $this->jsonResponse(['success' => true, 'option_id' => $optionId]);
+        } catch (Exception $e) {
+            $this->jsonResponse(['success' => false, 'message' => $e->getMessage()], 500);
+        }
+    }
+
+    public function delete_option_group($groupId) {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            $this->jsonResponse(['success' => false, 'message' => 'Método no permitido'], 405);
+        }
+
+        require_once __DIR__ . '/../models/RestaurantOption.php';
+        $optionModel = new RestaurantOption();
+
+        try {
+            $optionModel->deleteGroup($groupId);
+            $this->jsonResponse(['success' => true]);
+        } catch (Exception $e) {
+            $this->jsonResponse(['success' => false, 'message' => $e->getMessage()], 500);
+        }
+    }
+
+    public function delete_option($optionId) {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            $this->jsonResponse(['success' => false, 'message' => 'Método no permitido'], 405);
+        }
+
+        require_once __DIR__ . '/../models/RestaurantOption.php';
+        $optionModel = new RestaurantOption();
+
+        try {
+            $optionModel->deleteOption($optionId);
+            $this->jsonResponse(['success' => true]);
+        } catch (Exception $e) {
+            $this->jsonResponse(['success' => false, 'message' => $e->getMessage()], 500);
+        }
+    }
+
+    public function get_option_groups($dishId) {
+        require_once __DIR__ . '/../models/RestaurantOption.php';
+        $optionModel = new RestaurantOption();
+        $groups = $optionModel->getGroupsForDish($dishId);
+        $this->jsonResponse(['success' => true, 'data' => $groups]);
+    }
 }

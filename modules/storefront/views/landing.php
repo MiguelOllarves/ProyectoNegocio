@@ -708,6 +708,97 @@
 
 
     <!-- ============================= -->
+    <!-- MODAL: SELECCIÓN DE OPCIONES  -->
+    <!-- ============================= -->
+    <div x-data="optionsModal()" x-show="open" class="fixed inset-0 z-[90] flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm" style="display: none;" x-transition.opacity>
+        <div @click.away="close()" class="bg-white dark:bg-gray-800 rounded-t-2xl sm:rounded-2xl w-full sm:max-w-lg max-h-[85vh] flex flex-col shadow-2xl border border-gray-100 dark:border-gray-700" x-show="open" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="translate-y-full sm:translate-y-0 sm:scale-95" x-transition:enter-end="translate-y-0 sm:scale-100">
+            
+            <!-- Header -->
+            <div class="px-5 py-4 border-b border-gray-100 dark:border-gray-700 flex items-center justify-between shrink-0">
+                <div class="flex items-center gap-3">
+                    <template x-if="product?.image">
+                        <img :src="product.image" class="w-10 h-10 rounded-lg object-cover" alt="">
+                    </template>
+                    <div>
+                        <h3 class="font-bold text-gray-800 dark:text-white" x-text="product?.name || ''"></h3>
+                        <p class="text-xs text-gray-400">Selecciona las opciones para tu plato</p>
+                    </div>
+                </div>
+                <button @click="close()" class="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-gray-500 hover:text-gray-700 dark:hover:text-white">
+                    <i class="fas fa-times text-sm"></i>
+                </button>
+            </div>
+
+            <!-- Body: Grupos de opciones -->
+            <div class="flex-1 overflow-y-auto p-5 space-y-5">
+                <template x-for="group in groups" :key="group.id">
+                    <div class="border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden">
+                        <!-- Header del grupo -->
+                        <div class="bg-gray-50 dark:bg-gray-900 px-4 py-3 flex items-center justify-between">
+                            <div>
+                                <h4 class="font-bold text-sm text-gray-800 dark:text-white" x-text="group.name"></h4>
+                                <p class="text-[11px] text-gray-400">
+                                    <span x-show="group.min_selections > 0" x-text="'Mín: ' + group.min_selections"></span>
+                                    <span x-show="group.max_selections > 0" x-text="' · Máx: ' + group.max_selections"></span>
+                                </p>
+                            </div>
+                            <span class="text-xs font-bold text-brand-600 dark:text-brand-400" x-text="getSelectedCount(group.id) + '/' + group.max_selections"></span>
+                        </div>
+                        
+                        <!-- Opciones -->
+                        <div class="p-3 space-y-2">
+                            <template x-for="opt in group.options" :key="opt.id">
+                                <label @click="toggleOption(group, opt)" 
+                                       :class="isSelected(opt.id) ? 'border-brand-500 bg-brand-50 dark:bg-brand-900/30 ring-1 ring-brand-500' : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'"
+                                       class="flex items-center gap-3 p-3 rounded-xl border-2 cursor-pointer transition-all">
+                                    <div class="w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0"
+                                         :class="isSelected(opt.id) ? 'border-brand-500 bg-brand-500' : 'border-gray-300 dark:border-gray-600'">
+                                        <i x-show="isSelected(opt.id)" class="fas fa-check text-white text-[10px]"></i>
+                                    </div>
+                                    <div class="flex-1">
+                                        <p class="text-sm font-bold text-gray-800 dark:text-white" x-text="opt.product_name"></p>
+                                    </div>
+                                    <span x-show="opt.price_delta != 0" 
+                                          :class="opt.price_delta > 0 ? 'text-green-600 dark:text-green-400' : 'text-red-500'"
+                                          class="text-xs font-bold" x-text="(opt.price_delta > 0 ? '+$' : '-$') + Math.abs(opt.price_delta).toFixed(2)"></span>
+                                </label>
+                            </template>
+                        </div>
+
+                        <!-- Mensaje de validación -->
+                        <div x-show="getSelectedCount(group.id) < group.min_selections && group.min_selections > 0 && submitted" 
+                             class="px-4 py-2 bg-red-50 dark:bg-red-900/20 border-t border-red-100 dark:border-red-800">
+                            <p class="text-xs text-red-600 dark:text-red-400 font-medium">
+                                <i class="fas fa-exclamation-circle mr-1"></i>
+                                Selecciona al menos <span x-text="group.min_selections"></span> opción(es)
+                            </p>
+                        </div>
+                    </div>
+                </template>
+
+                <div x-show="groups.length === 0" class="text-center py-8 text-gray-400">
+                    <i class="fas fa-check-circle text-3xl mb-3 text-green-400"></i>
+                    <p class="text-sm font-medium">Este plato no tiene opciones adicionales</p>
+                </div>
+            </div>
+
+            <!-- Footer: Precio total y botón agregar -->
+            <div class="px-5 py-4 border-t border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 shrink-0">
+                <div class="flex items-center justify-between mb-3">
+                    <span class="text-sm text-gray-500">Precio total</span>
+                    <span class="text-lg font-black text-gray-800 dark:text-white" x-text="'$' + totalPrice().toFixed(2)"></span>
+                </div>
+                <button @click="confirm()" 
+                        :disabled="!isValid()"
+                        class="w-full py-3 bg-brand-600 hover:bg-brand-500 disabled:bg-gray-300 disabled:dark:bg-gray-700 text-white rounded-xl font-bold shadow-lg transition-colors flex justify-center items-center">
+                    <i class="fas fa-cart-plus mr-2"></i> Agregar al carrito
+                </button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ============================= -->
     <!-- TOAST NOTIFICATION            -->
     <!-- ============================= -->
     <div x-show="toast.show" 
@@ -737,6 +828,106 @@
                     localStorage.setItem('cookie_consent', level);
                     localStorage.setItem('cookie_consent_date', new Date().toISOString());
                     this.visible = false;
+                }
+            }
+        }
+
+        function optionsModal() {
+            return {
+                open: false,
+                product: null,
+                groups: [],
+                selected: {},
+                submitted: false,
+                onConfirmCallback: null,
+
+                init() {
+                    // Registrar función global para abrir el modal desde fuera
+                    window._openOptionsModal = (product, groups, onConfirm) => {
+                        this.product = product;
+                        this.groups = groups;
+                        this.selected = {};
+                        this.submitted = false;
+                        this.onConfirmCallback = onConfirm;
+                        this.open = true;
+                    };
+                },
+
+                close() {
+                    this.open = false;
+                    this.product = null;
+                    this.groups = [];
+                    this.selected = {};
+                },
+
+                toggleOption(group, opt) {
+                    const maxSel = group.max_selections || 99;
+                    const count = this.getSelectedCount(group.id);
+
+                    if (this.isSelected(opt.id)) {
+                        delete this.selected[opt.id];
+                    } else {
+                        if (count >= maxSel) {
+                            const firstInGroup = group.options.find(o => this.isSelected(o.id) && o.id !== opt.id);
+                            if (firstInGroup) delete this.selected[firstInGroup.id];
+                        }
+                        this.selected[opt.id] = opt;
+                    }
+                },
+
+                isSelected(optionId) {
+                    return optionId in this.selected;
+                },
+
+                getSelectedCount(groupId) {
+                    let count = 0;
+                    for (const key in this.selected) {
+                        if (this.selected[key].group_id == groupId) count++;
+                    }
+                    return count;
+                },
+
+                totalPrice() {
+                    let price = this.product?.price || 0;
+                    for (const key in this.selected) {
+                        price += this.selected[key].price_delta || 0;
+                    }
+                    return Math.max(0, price);
+                },
+
+                isValid() {
+                    for (const group of this.groups) {
+                        const count = this.getSelectedCount(group.id);
+                        if (group.min_selections > 0 && count < group.min_selections) return false;
+                    }
+                    return true;
+                },
+
+                confirm() {
+                    this.submitted = true;
+                    if (!this.isValid()) return;
+
+                    const options = [];
+                    for (const key in this.selected) {
+                        const opt = this.selected[key];
+                        options.push({
+                            group_id: opt.group_id,
+                            option_id: opt.option_id,
+                            product_name: opt.product_name,
+                            price_delta: opt.price_delta
+                        });
+                    }
+
+                    const adjustedProduct = {
+                        ...this.product,
+                        price: this.totalPrice(),
+                        options: options
+                    };
+
+                    this.open = false;
+                    if (this.onConfirmCallback) {
+                        this.onConfirmCallback(adjustedProduct);
+                    }
                 }
             }
         }
@@ -787,7 +978,28 @@
                 },
 
                 addToCart(product, event) {
-                    const existing = this.items.find(i => i.id === product.id);
+                    // Si el plato podría tener opciones, verificar desde el servidor
+                    if (product.is_dish == 1) {
+                        fetch(BASE_URL + 'restaurant/get_option_groups/' + product.id)
+                            .then(r => r.json())
+                            .then(data => {
+                                if (data.success && data.data.length > 0) {
+                                    window._openOptionsModal(product, data.data, (configuredProduct) => {
+                                        this._doAddToCart(configuredProduct, event);
+                                    });
+                                } else {
+                                    this._doAddToCart(product, event);
+                                }
+                            })
+                            .catch(() => this._doAddToCart(product, event));
+                        return;
+                    }
+                    this._doAddToCart(product, event);
+                },
+
+                _doAddToCart(product, event) {
+                    const optKey = JSON.stringify(product.options || []);
+                    const existing = this.items.find(i => i.id === product.id && JSON.stringify(i.options || []) === optKey);
                     if (existing) {
                         existing.qty++;
                     } else {
