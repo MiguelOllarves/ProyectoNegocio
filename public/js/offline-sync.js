@@ -1,14 +1,15 @@
 /**
  * TuInventario - Offline Synchronization System
  * Uses Dexie.js to manage IndexedDB
+ * Handles restaurant options (product configurations) in offline payloads.
  */
 
 // Initialize Dexie Database
 const db = new Dexie("TuInventarioDB");
 
-// Define schema
-db.version(1).stores({
-    pending_sales: '++id, payload, created_at, status' // status can be 'pending', 'syncing'
+// Define schema - v2 adds options support
+db.version(2).stores({
+    pending_sales: '++id, payload, created_at, status'
 });
 
 window.offlineSync = {

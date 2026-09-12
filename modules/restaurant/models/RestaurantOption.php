@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../../core/Model.php';
+require_once __DIR__ . '/../../../core/Model.php';
 
 /**
  * RestaurantOption - Gestiona grupos de opciones y opciones para platos configurables.

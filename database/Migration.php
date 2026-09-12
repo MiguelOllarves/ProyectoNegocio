@@ -241,6 +241,13 @@ class Migration {
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )");
             try { $pdo->exec("CREATE INDEX IF NOT EXISTS idx_sio_item ON sale_item_options(sale_item_id)"); } catch (\Exception $e) {}
+
+            // Índices de rendimiento para restaurant options
+            try { $pdo->exec("CREATE INDEX IF NOT EXISTS idx_rog_dish ON restaurant_option_groups(dish_id)"); } catch (\Exception $e) {}
+            try { $pdo->exec("CREATE INDEX IF NOT EXISTS idx_ro_group ON restaurant_options(group_id)"); } catch (\Exception $e) {}
+            try { $pdo->exec("CREATE INDEX IF NOT EXISTS idx_rod_group ON restaurant_option_dishes(group_id)"); } catch (\Exception $e) {}
+            try { $pdo->exec("CREATE INDEX IF NOT EXISTS idx_soi_product ON store_order_items(product_id)"); } catch (\Exception $e) {}
+            try { $pdo->exec("CREATE INDEX IF NOT EXISTS idx_si_product ON sale_items(product_id)"); } catch (\Exception $e) {}
         } catch (PDOException $e) {
             error_log('[Migration] ensureStructuredOrders: ' . $e->getMessage());
         }
