@@ -73,7 +73,7 @@ class StorefrontController extends Controller {
         $store_name = trim($_POST['store_name'] ?? '');
         $hero_title = $_POST['hero_title'] ?? '';
         $hero_subtitle = $_POST['hero_subtitle'] ?? '';
-        $primary_color = $_POST['primary_color'] ?? '#10b981';
+        $primary_color = $_POST['primary_color'] ?? '#2563eb';
         $whatsapp = $_POST['whatsapp'] ?? '';
         $instagram = $_POST['instagram'] ?? '';
         $facebook = $_POST['facebook'] ?? '';
@@ -240,10 +240,23 @@ class StorefrontController extends Controller {
             return;
         }
 
-        // Productos disponibles (stock > 0)
+        // Productos disponibles (stock > 0 o platos)
         $stmtProd = $db->prepare("SELECT p.*, c.name as category_name FROM products p LEFT JOIN categories c ON p.category_id = c.id WHERE p.tenant_id = :tid AND (p.stock > 0 OR p.is_dish = TRUE) ORDER BY p.name ASC");
         $stmtProd->execute(['tid' => $businessId]);
         $products = $stmtProd->fetchAll(PDO::FETCH_ASSOC);
+
+        // [FIX] Inyectar configuración pública de opciones de restaurante en el catálogo
+        // para que el cliente nunca necesite hacer fetch autenticado
+        require_once __DIR__ . '/../../restaurant/models/RestaurantOption.php';
+        $optionModel = new RestaurantOption();
+        foreach ($products as &$product) {
+            if (!empty($product['is_dish'])) {
+                $product['restaurant_options'] = $optionModel->getGroupsForDish($product['id']);
+            } else {
+                $product['restaurant_options'] = [];
+            }
+        }
+        unset($product);
 
         // Métodos de pago activos
         $isActiveTrue = $db->getAttribute(PDO::ATTR_DRIVER_NAME) === 'pgsql' ? 'TRUE' : '1';
@@ -356,16 +369,14 @@ class StorefrontController extends Controller {
             try {
                 require_once __DIR__ . '/../../credits/models/Notification.php';
                 $clientId = $db->lastInsertId();
-                $sessionWasNull = !isset($_SESSION['business_id']);
-                if ($sessionWasNull) $_SESSION['business_id'] = $tid;
                 
                 $msg = "El cliente " . trim($data['name'] ?? 'Público') . " requiere revisión para aprobar su solicitud de crédito mediante la tienda web.";
-                Notification::send('client_registration', 'Nueva Solicitud Cliente', $msg, 'administrador', 'client', $clientId);
+                // [SESSION FIX] Notification::send necesita business_id como parámetro explícito
+                Notification::sendWithContext('client_registration', 'Nueva Solicitud Cliente', $msg, 'administrador', 'client', $clientId, $tid);
                 
                 if (!empty($data['email'])) {
                     require_once __DIR__ . '/../../../core/Mailer.php';
                     require_once __DIR__ . '/../../../core/Settings.php';
-                    // We also need the business name since tenant isolation applies
                     $stmtBizName = $db->prepare("SELECT business_name FROM businesses WHERE id = ?");
                     $stmtBizName->execute([$tid]);
                     $bizName = $stmtBizName->fetchColumn() ?: 'la Tienda';
@@ -373,9 +384,9 @@ class StorefrontController extends Controller {
                     $clientName = trim($data['name']);
                     Mailer::send($data['email'], 'Solicitud de Crédito Recibida', "Hola $clientName, hemos recibido tu solicitud de cliente en $bizName. El administrador la revisará pronto.");
                 }
-                
-                if ($sessionWasNull) unset($_SESSION['business_id']);
-            } catch (\Exception $e) {}
+            } catch (\Exception $e) {
+                error_log('[Storefront] registerClient notification: ' . $e->getMessage());
+            }
             
             echo json_encode(['success' => true]);
         } catch (\Exception $e) {
@@ -386,6 +397,7 @@ class StorefrontController extends Controller {
 
     /**
      * API: Procesa el carrito de compras desde el storefront.
+     * El business_id se resuelve por slug/contexto, NO se acepta del cliente para contaminar sesión.
      */
     public function checkout() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') return;
@@ -408,9 +420,13 @@ class StorefrontController extends Controller {
         
         $db = Database::getInstance()->getConnection();
         
-        $sessionWasNull = !isset($_SESSION['business_id']);
-        if ($sessionWasNull) {
-            $_SESSION['business_id'] = $data['business_id'];
+        // SECURITY: Resolver tenant desde el business_id validado, NO contaminar sesión
+        $resolvedTenantId = (int)$data['business_id'];
+        $stmtTenantCheck = $db->prepare("SELECT id, slug FROM businesses WHERE id = ?");
+        $stmtTenantCheck->execute([$resolvedTenantId]);
+        if (!$stmtTenantCheck->fetch()) {
+            echo json_encode(['success' => false, 'message' => 'Negocio no válido.']);
+            return;
         }
         
         $paymentMethod = $data['payment_method'] ?? '';
@@ -422,7 +438,6 @@ class StorefrontController extends Controller {
             $customerDocument = $data['customer_document'] ?? '';
             
             if (empty($customerDocument)) {
-                if ($sessionWasNull) unset($_SESSION['business_id']);
                 echo json_encode(['success' => false, 'message' => 'Para comprar a crédito es obligatorio ingresar tu Cédula de Identidad en los datos de entrega.']);
                 return;
             }
@@ -433,7 +448,7 @@ class StorefrontController extends Controller {
             
             $stmtClient = $db->prepare("SELECT id FROM clients WHERE tenant_id = :tid AND document = :doc AND (phone = :phone OR phone LIKE :phone_like OR extra_phones LIKE :phone_like)");
             $stmtClient->execute([
-                'tid' => $data['business_id'],
+                'tid' => $resolvedTenantId,
                 'doc' => $cleanDoc,
                 'phone' => $cleanPhone,
                 'phone_like' => '%' . $cleanPhone . '%'
@@ -441,7 +456,6 @@ class StorefrontController extends Controller {
             $client = $stmtClient->fetch(PDO::FETCH_ASSOC);
             
             if (!$client) {
-                if ($sessionWasNull) unset($_SESSION['business_id']);
                 echo json_encode(['success' => false, 'message' => 'Para comprar a crédito, debes estar registrado como cliente de confianza con esa Cédula y Número de Teléfono exactos. Si no estás registrado, solicita el crédito en el botón superior.']);
                 return;
             }
@@ -452,10 +466,26 @@ class StorefrontController extends Controller {
         // [SECURITY FIX] Recalcular total real desde la fuente de verdad en BD
         $realTotalUsd = 0;
         $finalItems = [];
+        $hasInvalidConfig = false;
         require_once __DIR__ . '/../../inventory/models/Product.php';
         require_once __DIR__ . '/../../../core/ProductConfigurationService.php';
         $productModel = new Product();
         $configService = new ProductConfigurationService();
+        
+        // Temporarily set tenant context for ProductConfigurationService (sin contaminar sesión)
+        $_SESSION['business_id'] = $resolvedTenantId;
+        
+        // [IDEMPOTENCY] Verificar si ya existe un pedido con esta key
+        $idempotencyKey = $data['idempotency_key'] ?? null;
+        if ($idempotencyKey) {
+            $stmtIdem = $db->prepare("SELECT id FROM store_orders WHERE idempotency_key = ? AND tenant_id = ?");
+            $stmtIdem->execute([$idempotencyKey, $resolvedTenantId]);
+            $existingOrder = $stmtIdem->fetch(PDO::FETCH_ASSOC);
+            if ($existingOrder) {
+                echo json_encode(['success' => true, 'order_id' => $existingOrder['id'], 'duplicate' => true]);
+                return;
+            }
+        }
         
         foreach ($data['items'] as $item) {
             $prod = $productModel->find($item['id'] ?? 0);
@@ -466,19 +496,28 @@ class StorefrontController extends Controller {
                 // Si tiene opciones, calcular precio desde BD (backend es la fuente de verdad)
                 if (!empty($options)) {
                     $configPrice = $configService->validateConfiguration($item['id'], $options);
+                    if (!$configPrice['valid']) {
+                        $hasInvalidConfig = true;
+                        break;
+                    }
                     $price = (float)$prod['price'] + $configPrice['price_delta'];
                     $realTotalUsd += ($price * $qty);
                     $item['price'] = $price;
-                    $item['options_valid'] = $configPrice['valid'];
                 } else {
                     $price = (float)$prod['price'];
                     $realTotalUsd += ($price * $qty);
                     $item['price'] = $price;
-                    $item['options_valid'] = true;
                 }
                 $finalItems[] = $item;
             }
         }
+        
+        if ($hasInvalidConfig) {
+            echo json_encode(['success' => false, 'code' => 'INVALID_CONFIGURATION', 'message' => 'La configuración seleccionada no es válida.']);
+            http_response_code(422);
+            return;
+        }
+        
         $data['items'] = $finalItems;
         $data['total_usd'] = $realTotalUsd;
         
@@ -488,11 +527,11 @@ class StorefrontController extends Controller {
         $realTotalBs = $realTotalUsd * $bcvRate;
         $data['total_bs'] = $realTotalBs;
 
-        $sql = "INSERT INTO store_orders (tenant_id, customer_name, customer_phone, customer_address, notes, payment_method, total_usd, total_bs, items_json) 
-                VALUES (:tid, :cname, :cphone, :caddr, :notes, :pmethod, :tusd, :tbs, :items)";
+        $sql = "INSERT INTO store_orders (tenant_id, customer_name, customer_phone, customer_address, notes, payment_method, total_usd, total_bs, items_json, idempotency_key) 
+                VALUES (:tid, :cname, :cphone, :caddr, :notes, :pmethod, :tusd, :tbs, :items, :idem)";
         $stmt = $db->prepare($sql);
         $stmt->execute([
-            'tid' => $data['business_id'],
+            'tid' => $resolvedTenantId,
             'cname' => $data['customer_name'] ?? '',
             'cphone' => $data['customer_phone'] ?? '',
             'caddr' => $data['customer_address'] ?? '',
@@ -500,18 +539,20 @@ class StorefrontController extends Controller {
             'pmethod' => $paymentMethod,
             'tusd' => $data['total_usd'] ?? 0,
             'tbs' => $data['total_bs'] ?? 0,
-            'items' => json_encode($data['items'])
+            'items' => json_encode($data['items']),
+            'idem' => $idempotencyKey
         ]);
         
         $orderId = $db->lastInsertId();
         
         // Guardar items estructurados en store_order_items
-        $stmtOrderItem = $db->prepare("INSERT INTO store_order_items (order_id, product_id, quantity, unit_price, total_price, product_name_snapshot) VALUES (:oid, :pid, :qty, :up, :tp, :pname)");
+        $stmtOrderItem = $db->prepare("INSERT INTO store_order_items (order_id, tenant_id, product_id, quantity, unit_price, total_price, product_name_snapshot) VALUES (:oid, :tid, :pid, :qty, :up, :tp, :pname)");
         $stmtOrderItemOption = $db->prepare("INSERT INTO store_order_item_options (order_item_id, group_id, option_product_id, group_name_snapshot, option_name_snapshot, price_delta) VALUES (:oiid, :gid, :opid, :gn, :on, :pd)");
         
         foreach ($data['items'] as $item) {
             $stmtOrderItem->execute([
                 'oid' => $orderId,
+                'tid' => $resolvedTenantId,
                 'pid' => $item['id'],
                 'qty' => $item['qty'] ?? 1,
                 'up' => $item['price'] ?? 0,
@@ -550,14 +591,14 @@ class StorefrontController extends Controller {
             
             $creditModel->create([
                 'client_id' => $clientId,
-                'sale_id' => null, // Opcional, si existiera una vinculación directa
+                'sale_id' => null,
                 'credit_type' => 'producto',
                 'interest_rate' => 0,
                 'down_payment' => 0,
                 'base_amount' => $totalUsd,
                 'total_amount' => $totalUsd,
                 'remaining_amount' => $totalUsd,
-                'due_date' => date('Y-m-d', strtotime('+15 days')), // Por defecto 15 días
+                'due_date' => date('Y-m-d', strtotime('+15 days')),
                 'notes' => $creditNotes,
                 'status' => 'activo'
             ]);
@@ -571,7 +612,7 @@ class StorefrontController extends Controller {
             
             // Enviar Correo Electrónico
             $stmtAdmin = $db->prepare("SELECT email FROM businesses WHERE id = ?");
-            $stmtAdmin->execute([$data['business_id']]);
+            $stmtAdmin->execute([$resolvedTenantId]);
             $adminData = $stmtAdmin->fetch(PDO::FETCH_ASSOC);
             
             if ($adminData && !empty($adminData['email'])) {
@@ -593,10 +634,6 @@ class StorefrontController extends Controller {
             
         } catch (\Exception $e) {
             error_log("Error enviando notificación de pedido: " . $e->getMessage());
-        }
-
-        if ($sessionWasNull) {
-            unset($_SESSION['business_id']);
         }
 
         echo json_encode(['success' => true, 'order_id' => $orderId]);
@@ -663,6 +700,8 @@ class StorefrontController extends Controller {
 
     /**
      * Admin: Actualizar estado de pedido
+     * Transiciones válidas: pendiente→confirmado, confirmado→preparando, preparando→listo, listo→despachado
+     * Cualquier estado → cancelado
      */
     public function updateOrderStatus() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') return;
@@ -673,16 +712,105 @@ class StorefrontController extends Controller {
 
         if (!$orderId || !$status || !$businessId) return;
 
+        // [STATUS TRANSITIONS] Definir transiciones válidas
+        $validTransitions = [
+            'pendiente'   => ['confirmado', 'cancelado'],
+            'confirmado'  => ['preparando', 'cancelado'],
+            'preparando'  => ['listo', 'cancelado'],
+            'listo'       => ['despachado', 'cancelado'],
+            'despachado'  => [], // Estado final
+            'cancelado'   => [], // Estado final
+        ];
+
         require_once __DIR__ . '/../../../config/Database.php';
         $db = Database::getInstance()->getConnection();
         
-        $stmt = $db->prepare("UPDATE store_orders SET status = :st WHERE id = :id AND tenant_id = :tid");
+        // Obtener estado actual
+        $stmtCurrent = $db->prepare("SELECT status FROM store_orders WHERE id = ? AND tenant_id = ?");
+        $stmtCurrent->execute([$orderId, $businessId]);
+        $currentStatus = $stmtCurrent->fetchColumn();
+        
+        if (!$currentStatus) {
+            header('Location: ' . BASE_URL . 'storefront/orders');
+            return;
+        }
+        
+        // Validar transición
+        if (!in_array($status, $validTransitions[$currentStatus] ?? [])) {
+            header('Location: ' . BASE_URL . 'storefront/orders');
+            return;
+        }
+        
+        $stmt = $db->prepare("UPDATE store_orders SET status = :st, updated_at = CURRENT_TIMESTAMP WHERE id = :id AND tenant_id = :tid");
         $stmt->execute([
             'st' => $status,
             'id' => $orderId,
             'tid' => $businessId
         ]);
         
+        // [CANCELACIÓN] Si se cancela, restaurar inventario
+        if ($status === 'cancelado') {
+            $this->restoreInventoryForCancelledOrder($db, $orderId, $businessId);
+        }
+        
         header('Location: ' . BASE_URL . 'storefront/orders');
+    }
+
+    /**
+     * Restaura el inventario al cancelar un pedido que ya consumió stock.
+     */
+    private function restoreInventoryForCancelledOrder($db, $orderId, $tenantId) {
+        require_once __DIR__ . '/../../inventory/models/Product.php';
+        require_once __DIR__ . '/../../restaurant/models/Recipe.php';
+        require_once __DIR__ . '/../../../core/InventoryConsumptionService.php';
+        
+        // Obtener items del pedido
+        $stmtItems = $db->prepare("SELECT soi.product_id, soi.quantity, p.is_dish 
+                                    FROM store_order_items soi 
+                                    JOIN products p ON soi.product_id = p.id 
+                                    WHERE soi.order_id = ? AND p.tenant_id = ?");
+        $stmtItems->execute([$orderId, $tenantId]);
+        $items = $stmtItems->fetchAll(PDO::FETCH_ASSOC);
+        
+        // Obtener opciones del pedido
+        $stmtOpts = $db->prepare("SELECT soio.option_product_id, soio.quantity, p.is_dish 
+                                    FROM store_order_item_options soio 
+                                    JOIN store_order_items soi ON soio.order_item_id = soi.id
+                                    JOIN products p ON soio.option_product_id = p.id 
+                                    WHERE soi.order_id = ? AND p.tenant_id = ?");
+        $stmtOpts->execute([$orderId, $tenantId]);
+        $options = $stmtOpts->fetchAll(PDO::FETCH_ASSOC);
+        
+        $inventoryService = new InventoryConsumptionService();
+        
+        // Restaurar items principales
+        foreach ($items as $item) {
+            try {
+                $inventoryService->restore(
+                    (int)$item['product_id'],
+                    (float)$item['quantity'],
+                    'store_order_cancel',
+                    $orderId,
+                    $_SESSION['user_id'] ?? 0
+                );
+            } catch (\Exception $e) {
+                error_log("[Storefront] Error restaurando item: " . $e->getMessage());
+            }
+        }
+        
+        // Restaurar opciones
+        foreach ($options as $opt) {
+            try {
+                $inventoryService->restore(
+                    (int)$opt['option_product_id'],
+                    (float)$opt['quantity'],
+                    'store_order_option_cancel',
+                    $orderId,
+                    $_SESSION['user_id'] ?? 0
+                );
+            } catch (\Exception $e) {
+                error_log("[Storefront] Error restaurando opción: " . $e->getMessage());
+            }
+        }
     }
 }

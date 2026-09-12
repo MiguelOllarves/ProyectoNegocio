@@ -34,7 +34,7 @@
         <div class="summary-item">Ingresos Brutos <strong>$<?= number_format((float)($summary['revenue'] ?? 0), 2) ?></strong></div>
         <div class="summary-item">Costos <strong>$<?= number_format((float)($summary['costs'] ?? 0), 2) ?></strong></div>
         <div class="summary-item">Margen / Ganancia <strong>$<?= number_format((float)($summary['profit'] ?? 0), 2) ?></strong></div>
-        <div class="summary-item">Transacciones Totales <strong style="color:#059669;"><?= $summary['count'] ?? 0 ?></strong></div>
+        <div class="summary-item">Transacciones Totales <strong style="color:#1d4ed8;"><?= $summary['count'] ?? 0 ?></strong></div>
     </div>
 
     <table>
@@ -56,7 +56,7 @@
                 <td style="font-size: 10px;"><?= htmlspecialchars($s['payment_methods'] ?? 'No especificado') ?></td>
                 <td class="text-right">$<?= number_format((float)($s['total_cost'] ?? 0), 2) ?></td>
                 <td class="text-right" style="color: #65a30d;">$<?= number_format((float)($s['total_profit'] ?? 0), 2) ?></td>
-                <td class="text-right font-bold" style="color: #059669;">$<?= number_format((float)($s['total_amount'] ?? 0), 2) ?></td>
+                <td class="text-right font-bold" style="color: #1d4ed8;">$<?= number_format((float)($s['total_amount'] ?? 0), 2) ?></td>
             </tr>
             <?php endforeach; else: ?>
             <tr>

@@ -12,7 +12,7 @@
     
     <style>
         body { font-family: 'Outfit', sans-serif; background-color: #f8fafc; }
-        .bg-gradient { background: linear-gradient(135deg, #064e3b 0%, #0e7490 50%, #155e75 100%); }
+        .bg-gradient { background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 50%, #0ea5e9 100%); }
     </style>
 </head>
 <body class="flex items-center justify-center min-h-screen text-slate-800 p-4">

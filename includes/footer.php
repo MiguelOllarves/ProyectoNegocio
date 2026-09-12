@@ -40,7 +40,7 @@
                           @htmx:after-request="if($event.detail.successful) { show = false }">
                         <input type="hidden" name="payment_id" :value="paymentId">
                         <input type="hidden" name="notification_id" :value="notifId">
-                        <button type="submit" class="w-full px-4 py-2.5 rounded-xl font-bold text-white bg-emerald-600 hover:bg-emerald-700 transition-colors text-sm shadow-sm flex items-center justify-center gap-2">
+                        <button type="submit" class="w-full px-4 py-2.5 rounded-xl font-bold text-white bg-brand-600 hover:bg-brand-700 transition-colors text-sm shadow-sm flex items-center justify-center gap-2">
                             <i class="fas fa-check"></i> Aprobar Pago
                         </button>
                     </form>
@@ -318,7 +318,7 @@
                 duration = duration || 4000;
                 
                 var colors = {
-                    success: 'border-emerald-500 bg-emerald-50 text-emerald-800 dark:bg-emerald-900/80 dark:text-emerald-200 dark:border-emerald-600',
+                    success: 'border-brand-500 bg-brand-50 text-brand-800 dark:bg-brand-900/80 dark:text-brand-200 dark:border-brand-600',
                     error:   'border-red-500 bg-red-50 text-red-800 dark:bg-red-900/80 dark:text-red-200 dark:border-red-600',
                     warning: 'border-amber-500 bg-amber-50 text-amber-800 dark:bg-amber-900/80 dark:text-amber-200 dark:border-amber-600',
                     info:    'border-sky-500 bg-sky-50 text-sky-800 dark:bg-sky-900/80 dark:text-sky-200 dark:border-sky-600'
@@ -431,7 +431,7 @@
                         icon: 'warning',
                         title: 'Sesión Expirada',
                         text: evt.detail.value || 'Tu sesión ha expirado o el token de seguridad es inválido. Por favor recarga la página e intenta de nuevo.',
-                        confirmButtonColor: '#10b981',
+                        confirmButtonColor: '#2563eb',
                         confirmButtonText: 'Ir al Inicio',
                         allowOutsideClick: false
                     }).then(function(result) {

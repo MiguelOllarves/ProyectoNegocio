@@ -189,39 +189,52 @@ class Recipe extends Model {
      * Descuenta los ingredientes del inventario al vender un plato.
      * Debe ejecutarse DENTRO de la transacción de la venta (misma conexión PDO).
      * No recursivo: los ingredientes deben ser insumos, no otros platos.
+     * [ROLLBACK FIX] Si cualquier ingrediente quedaría en negativo, lanza excepción para abortar la transacción.
      */
     public function consumeIngredients($dishId, $servings, $referenceType, $referenceId, $userId) {
         $items = $this->getForDish($dishId);
         $tenantId = $_SESSION['business_id'] ?? null;
 
-        $stmtUpdate = $this->db->prepare("UPDATE products SET stock = stock - :qty WHERE id = :pid AND tenant_id = :tid");
-        $stmtAfter  = $this->db->prepare("SELECT stock FROM products WHERE id = :pid AND tenant_id = :tid");
+        $stmtCheck = $this->db->prepare("SELECT stock FROM products WHERE id = :pid AND tenant_id = :tid");
+        $stmtUpdate = $this->db->prepare("UPDATE products SET stock = stock - :qty WHERE id = :pid AND tenant_id = :tid AND stock >= :qty_check");
 
         foreach ($items as $item) {
             $need = $this->qtyInBaseUnits((float)$item['quantity'] * $servings, $item['unit_id']);
             if ($need <= 0) continue;
 
-            $stmtUpdate->execute(['qty' => $need, 'pid' => $item['ingredient_id'], 'tid' => $tenantId]);
-            $stmtAfter->execute(['pid' => $item['ingredient_id'], 'tid' => $tenantId]);
-            $stockAfter = $stmtAfter->fetchColumn();
+            // Verificar stock antes de descontar
+            $stmtCheck->execute(['pid' => $item['ingredient_id'], 'tid' => $tenantId]);
+            $currentStock = (float)$stmtCheck->fetchColumn();
+            if ($currentStock < $need) {
+                throw new Exception("Stock insuficiente de '{$item['ingredient_name']}' (necesario: " . round($need, 3) . ", disponible: " . round($currentStock, 3) . ")");
+            }
+
+            $stmtUpdate->execute(['qty' => $need, 'pid' => $item['ingredient_id'], 'tid' => $tenantId, 'qty_check' => $need]);
+            if ($stmtUpdate->rowCount() === 0) {
+                throw new Exception("Error de concurrencia al descontar '{$item['ingredient_name']}'. Stock insuficiente.");
+            }
         }
         return true;
     }
 
+    /**
+     * Restaura los ingredientes del inventario al cancelar una venta de plato.
+     * Debe ejecutarse DENTRO de la transacción de la cancelación (misma conexión PDO).
+     */
     public function restoreIngredients($dishId, $servings, $referenceType, $referenceId, $userId) {
         $items = $this->getForDish($dishId);
         $tenantId = $_SESSION['business_id'] ?? null;
 
         $stmtUpdate = $this->db->prepare("UPDATE products SET stock = stock + :qty WHERE id = :pid AND tenant_id = :tid");
-        $stmtAfter  = $this->db->prepare("SELECT stock FROM products WHERE id = :pid AND tenant_id = :tid");
 
         foreach ($items as $item) {
             $restore = $this->qtyInBaseUnits((float)$item['quantity'] * $servings, $item['unit_id']);
             if ($restore <= 0) continue;
 
             $stmtUpdate->execute(['qty' => $restore, 'pid' => $item['ingredient_id'], 'tid' => $tenantId]);
-            $stmtAfter->execute(['pid' => $item['ingredient_id'], 'tid' => $tenantId]);
-            $stockAfter = $stmtAfter->fetchColumn();
+            if ($stmtUpdate->rowCount() === 0) {
+                error_log("[Recipe] restoreIngredients: No se pudo restaurar ingrediente {$item['ingredient_id']} del plato $dishId");
+            }
         }
         return true;
     }

@@ -154,7 +154,7 @@
                              alt="<?= htmlspecialchars($storeName) ?>" 
                              class="h-10 w-auto object-contain rounded-lg">
                     <?php else: ?>
-                        <div class="w-10 h-10 rounded-xl flex items-center justify-center text-white font-black text-lg shadow-md bg-gradient-to-r from-emerald-600 to-cyan-600">
+                        <div class="w-10 h-10 rounded-xl flex items-center justify-center text-white font-black text-lg shadow-md bg-gradient-to-r from-brand-600 to-accent-500">
                             <?= strtoupper(substr($business['business_name'] ?? 'T', 0, 1)) ?>
                         </div>
                     <?php endif; ?>
@@ -174,7 +174,7 @@
                         <i class="fas fa-address-card text-brand-600"></i> <span class="hidden sm:inline">Solicitar Crédito</span>
                     </button>
                     <!-- Cart Icon -->
-                    <button @click="cartOpen = true" class="relative text-white w-9 h-9 rounded-xl flex items-center justify-center transition-colors shadow bg-gradient-to-r from-emerald-600 to-cyan-600 border-none" id="cart-toggle">
+                    <button @click="cartOpen = true" class="relative text-white w-9 h-9 rounded-xl flex items-center justify-center transition-colors shadow bg-gradient-to-r from-brand-600 to-accent-500 border-none" id="cart-toggle">
                         <i class="fas fa-shopping-cart text-white text-lg"></i>
                         <span x-show="itemCount > 0" 
                               x-transition.scale
@@ -209,13 +209,13 @@
         <?php if (!empty($categories)): ?>
         <div class="category-scroll overflow-x-auto flex gap-2 px-4 pb-3">
             <button @click="activeCategory = ''; filterProducts()" 
-                    :class="activeCategory === '' ? 'text-white font-bold shadow-md bg-gradient-to-r from-emerald-600 to-cyan-600' : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50 font-medium'"
+                    :class="activeCategory === '' ? 'text-white font-bold shadow-md bg-gradient-to-r from-brand-600 to-accent-500' : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50 font-medium'"
                     class="px-4 py-2 rounded-full text-xs whitespace-nowrap transition-all flex-shrink-0">
                 Todos
             </button>
             <?php foreach ($categories as $cat): ?>
             <button @click="activeCategory = '<?= addslashes($cat) ?>'; filterProducts()" 
-                    :class="activeCategory === '<?= addslashes($cat) ?>' ? 'text-white font-bold shadow-md bg-gradient-to-r from-emerald-600 to-cyan-600' : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50 font-medium'"
+                    :class="activeCategory === '<?= addslashes($cat) ?>' ? 'text-white font-bold shadow-md bg-gradient-to-r from-brand-600 to-accent-500' : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50 font-medium'"
                     class="px-4 py-2 rounded-full text-xs whitespace-nowrap transition-all flex-shrink-0">
                 <?= htmlspecialchars($cat) ?>
             </button>
@@ -276,7 +276,7 @@
                         <?php endif; ?>
 
                         <?php if ($isLowStock): ?>
-                            <div class="absolute top-2 left-2 text-white text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md shadow bg-gradient-to-r from-emerald-600 to-cyan-600">
+                            <div class="absolute top-2 left-2 text-white text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md shadow bg-gradient-to-r from-brand-600 to-accent-500">
                                 ¡Últimos!
                             </div>
                         <?php endif; ?>
@@ -309,7 +309,7 @@
                             <?php endif; ?>
 
                             <button @click="addToCart({ id: <?= $prod['id'] ?>, name: '<?= $prodNameJS ?>', price: <?= $prod['price'] ?> }, $event)" 
-                                    :class="isInCart(<?= $prod['id'] ?>) ? 'bg-green-500' : 'bg-gradient-to-r from-emerald-600 to-cyan-600'"
+                                    :class="isInCart(<?= $prod['id'] ?>) ? 'bg-brand-500' : 'bg-gradient-to-r from-brand-600 to-accent-500'"
                                     class="w-9 h-9 rounded-xl text-white flex items-center justify-center transition-all active:scale-90 shadow-md text-sm"
                                     id="add-btn-<?= $prod['id'] ?>">
                                 <i :class="isInCart(<?= $prod['id'] ?>) ? 'fas fa-check' : 'fas fa-plus'" class="text-xs"></i>
@@ -336,7 +336,7 @@
     <!-- FLOATING — "Ver mi pedido"    -->
     <!-- ============================= -->
     <div x-show="itemCount > 0" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="translate-y-full opacity-0" x-transition:enter-end="translate-y-0 opacity-100" x-transition:leave="transition ease-in duration-200" x-transition:leave-start="translate-y-0 opacity-100" x-transition:leave-end="translate-y-full opacity-0" class="fixed bottom-0 left-0 right-0 z-40 px-4 pb-4 safe-bottom" style="display: none;">
-        <button @click="cartOpen = true" class="w-full text-white font-bold py-4 rounded-2xl float-shadow transition-all active:scale-[0.98] flex items-center justify-between px-6 bg-gradient-to-r from-emerald-600 to-cyan-600 border-none">
+        <button @click="cartOpen = true" class="w-full text-white font-bold py-4 rounded-2xl float-shadow transition-all active:scale-[0.98] flex items-center justify-between px-6 bg-gradient-to-r from-brand-600 to-accent-500 border-none">
             <div class="flex items-center gap-3">
                 <div class="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
                     <i class="fas fa-shopping-bag text-sm"></i>
@@ -367,7 +367,7 @@
             <!-- Cart Header -->
             <div class="p-5 border-b border-gray-100 flex items-center justify-between bg-gray-50">
                 <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-xl flex items-center justify-center text-white bg-gradient-to-r from-emerald-600 to-cyan-600">
+                    <div class="w-10 h-10 rounded-xl flex items-center justify-center text-white bg-gradient-to-r from-brand-600 to-accent-500">
                         <i class="fas fa-shopping-bag"></i>
                     </div>
                     <div>
@@ -430,7 +430,7 @@
                 </div>
                 <button @click="openCheckout()" 
                         :disabled="items.length === 0" 
-                        class="w-full text-white font-bold py-4 rounded-2xl shadow-lg transition-all flex justify-center items-center gap-3 disabled:opacity-50 disabled:shadow-none active:scale-[0.98] bg-gradient-to-r from-emerald-600 to-cyan-600 border-none">
+                        class="w-full text-white font-bold py-4 rounded-2xl shadow-lg transition-all flex justify-center items-center gap-3 disabled:opacity-50 disabled:shadow-none active:scale-[0.98] bg-gradient-to-r from-brand-600 to-accent-500 border-none">
                     <i class="fab fa-whatsapp text-xl"></i> 
                     Enviar Pedido por WhatsApp
                 </button>
@@ -528,7 +528,7 @@
                 <button @click="checkoutModalOpen = false" class="flex-1 px-4 py-3.5 rounded-xl font-bold text-gray-600 bg-white border border-gray-200 hover:bg-gray-100 transition-colors text-sm">
                     Cancelar
                 </button>
-                <button @click="finalizeOrder()" class="flex-1 px-4 py-3.5 rounded-xl font-bold text-white shadow-lg bg-gradient-to-r from-emerald-600 to-cyan-600 border-none transition-all flex justify-center items-center gap-2 text-sm active:scale-[0.98]">
+                <button @click="finalizeOrder()" class="flex-1 px-4 py-3.5 rounded-xl font-bold text-white shadow-lg bg-gradient-to-r from-brand-600 to-accent-500 border-none transition-all flex justify-center items-center gap-2 text-sm active:scale-[0.98]">
                     <i class="fab fa-whatsapp text-lg"></i> Enviar Pedido
                 </button>
             </div>
@@ -627,7 +627,7 @@
 
             <!-- Footer -->
             <div class="p-5 border-t border-gray-100 bg-gray-50 safe-bottom">
-                <button @click="submitRegistration()" class="w-full text-white font-bold py-4 rounded-2xl shadow-lg transition-all flex justify-center items-center gap-3 active:scale-[0.98] bg-gradient-to-r from-emerald-600 to-cyan-600 border-none">
+                <button @click="submitRegistration()" class="w-full text-white font-bold py-4 rounded-2xl shadow-lg transition-all flex justify-center items-center gap-3 active:scale-[0.98] bg-gradient-to-r from-brand-600 to-accent-500 border-none">
                     <span x-show="!isRegistering">Enviar Solicitud de Crédito</span>
                     <span x-show="isRegistering"><i class="fas fa-spinner fa-spin mr-2"></i> Procesando...</span>
                 </button>
@@ -646,7 +646,7 @@
         if ($hasSocial): ?>
         <div class="flex items-center justify-center gap-3 mb-4">
             <?php if (!empty($config['whatsapp'])): ?>
-            <a href="https://wa.me/<?= preg_replace('/[^0-9]/', '', $config['whatsapp']) ?>" target="_blank" class="w-9 h-9 rounded-full bg-green-500 hover:bg-green-400 text-white flex items-center justify-center text-sm shadow-md hover:-translate-y-0.5 transition-all" title="WhatsApp">
+            <a href="https://wa.me/<?= preg_replace('/[^0-9]/', '', $config['whatsapp']) ?>" target="_blank" class="w-9 h-9 rounded-full bg-brand-500 hover:bg-green-400 text-white flex items-center justify-center text-sm shadow-md hover:-translate-y-0.5 transition-all" title="WhatsApp">
                 <i class="fab fa-whatsapp"></i>
             </a>
             <?php endif; ?>
@@ -698,7 +698,7 @@
                     <button @click="accept('essential')" class="flex-1 sm:flex-initial px-3 py-2 rounded-xl text-[11px] font-bold text-gray-600 bg-gray-100 hover:bg-gray-200 transition-colors whitespace-nowrap">
                         Solo esenciales
                     </button>
-                    <button @click="accept('all')" class="flex-1 sm:flex-initial px-3 py-2 rounded-xl text-[11px] font-bold text-white shadow-md transition-all hover:opacity-90 whitespace-nowrap bg-gradient-to-r from-emerald-600 to-cyan-600 border-none">
+                    <button @click="accept('all')" class="flex-1 sm:flex-initial px-3 py-2 rounded-xl text-[11px] font-bold text-white shadow-md transition-all hover:opacity-90 whitespace-nowrap bg-gradient-to-r from-brand-600 to-accent-500 border-none">
                         Aceptar todo
                     </button>
                 </div>

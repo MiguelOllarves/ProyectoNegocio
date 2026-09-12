@@ -24,7 +24,7 @@
             <div x-show="openModal" x-transition class="modal-card modal-card-sm animate-fade-in-up">
                 <div class="modal-header">
                     <h3 class="modal-title">
-                        <div class="w-8 h-8 rounded-lg bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 flex items-center justify-center"><i class="fas fa-lock-open"></i></div>
+                        <div class="w-8 h-8 rounded-lg bg-brand-50 dark:bg-brand-900/30 text-brand-600 dark:text-brand-400 flex items-center justify-center"><i class="fas fa-lock-open"></i></div>
                         Apertura de Caja
                     </h3>
                     <button @click="openModal = false" class="modal-close"><i class="fas fa-times"></i></button>

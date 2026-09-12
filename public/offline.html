@@ -1,93 +1,146 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sin Conexión | TuInventario</title>
-    <!-- CSS Dependencies from CDN (Loaded automatically from Cache by Service Worker) -->
-    <link rel="stylesheet" href="/css/tailwind.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
-        crossorigin="anonymous" referrerpolicy="no-referrer">
-
+    <meta name="theme-color" content="#1e40af">
+    <title>Sin Conexión - Tu Inventario</title>
     <style>
-        .animate-float {
-            animation: float 3s ease-in-out infinite;
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            text-align: center;
+            padding: 2rem;
         }
-
-        @keyframes float {
-            0% {
-                transform: translateY(0px);
-            }
-
-            50% {
-                transform: translateY(-15px);
-            }
-
-            100% {
-                transform: translateY(0px);
-            }
+        .container {
+            max-width: 400px;
+            animation: fadeIn 0.5s ease-out;
         }
-
-        .pulse-ring {
-            animation: pulse-ring 2s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+        .icon {
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(135deg, #1e40af, #2563eb, #0ea5e9);
+            border-radius: 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 2rem;
+            font-size: 3rem;
+            box-shadow: 0 0 40px rgba(59, 130, 246, 0.3);
         }
-
-        @keyframes pulse-ring {
-            0% {
-                transform: scale(0.8);
-                opacity: 0.5;
-            }
-
-            100% {
-                transform: scale(2);
-                opacity: 0;
-            }
+        h1 {
+            font-size: 2rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, #60a5fa, #38bdf8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .subtitle {
+            font-size: 1rem;
+            color: #94a3b8;
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: linear-gradient(135deg, #2563eb, #0ea5e9);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 0.75rem;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 30px rgba(59, 130, 246, 0.5);
+        }
+        .btn:active {
+            transform: scale(0.98);
+        }
+        .status {
+            margin-top: 2rem;
+            padding: 1rem;
+            background: rgba(30, 64, 175, 0.2);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            border-radius: 0.75rem;
+            font-size: 0.875rem;
+            color: #94a3b8;
+        }
+        .dots {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-top: 1.5rem;
+        }
+        .dot {
+            width: 8px;
+            height: 8px;
+            background: #3b82f6;
+            border-radius: 50%;
+            animation: pulse 1.5s infinite;
+        }
+        .dot:nth-child(2) { animation-delay: 0.3s; }
+        .dot:nth-child(3) { animation-delay: 0.6s; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 0.3; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.2); }
         }
     </style>
 </head>
-
-<body class="bg-slate-900 min-h-screen flex items-center justify-center p-4 relative overflow-hidden font-sans">
-
-    <!-- Animated background gradients -->
-    <div class="absolute top-0 left-0 w-full h-full overflow-hidden z-0 pointer-events-none">
-        <div
-            class="absolute -top-[20%] -left-[10%] w-[50%] h-[50%] rounded-full bg-emerald-600/20 blur-[100px] md:blur-[140px]">
-        </div>
-        <div
-            class="absolute top-[60%] -right-[10%] w-[60%] h-[60%] rounded-full bg-blue-600/10 blur-[100px] md:blur-[140px]">
-        </div>
-    </div>
-
-    <!-- Main Content Card with Glassmorphism -->
-    <div
-        class="relative z-10 w-full max-w-lg bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl p-8 md:p-12 text-center shadow-2xl">
-        <div class="relative w-32 h-32 mx-auto mb-8 flex justify-center items-center">
-            <div class="absolute inset-0 bg-emerald-500/20 rounded-full pulse-ring"></div>
-            <div
-                class="relative bg-emerald-500 text-white w-24 h-24 rounded-full flex items-center justify-center text-4xl shadow-lg shadow-emerald-500/40 animate-float">
-                <i class="fa-solid fa-satellite-dish"></i>
-            </div>
-        </div>
-
-        <h1 class="text-3xl md:text-4xl font-extrabold text-white mb-4 tracking-tight">
-            ¡Ups! Te has desconectado
-        </h1>
-        <p class="text-slate-300 text-lg mb-8 leading-relaxed">
-            Parece que perdiste la conexión a internet o nuestro sistema está inalcanzable.
+<body>
+    <div class="container">
+        <div class="icon">📦</div>
+        <h1>Sin Conexión</h1>
+        <p class="subtitle">
+            No se pudo conectar al servidor.<br>
+            Verifica tu conexión a internet e intenta de nuevo.
         </p>
-
-        <button onclick="window.location.reload()"
-            class="group relative inline-flex items-center justify-center gap-3 px-8 py-4 font-semibold text-white transition-all duration-300 ease-in-out bg-emerald-500 rounded-xl hover:bg-emerald-400 hover:scale-105 hover:shadow-emerald-500/50 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 focus:ring-offset-slate-900">
-            <i class="fa-solid fa-rotate-right group-hover:rotate-180 transition-transform duration-500"></i>
-            <span>Reintentar Conexión</span>
+        <button class="btn" onclick="window.location.reload()">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
+            </svg>
+            Reintentar
         </button>
-
-        <div class="mt-10 flex items-center justify-center gap-3 text-slate-400 text-sm border-t border-white/10 pt-6">
-            <i class="fa-solid fa-box-open text-emerald-400 text-lg"></i>
-            <span><b>TuInventario</b> es seguro. Tus datos te esperan.</span>
+        <div class="dots">
+            <div class="dot"></div>
+            <div class="dot"></div>
+            <div class="dot"></div>
         </div>
+        <div class="status" id="status">Verificando conexión...</div>
     </div>
+    <script>
+        function updateStatus() {
+            const status = document.getElementById('status');
+            if (navigator.onLine) {
+                status.textContent = '✅ Conexión restaurada. Recargando...';
+                status.style.borderColor = 'rgba(34, 197, 94, 0.5)';
+                status.style.background = 'rgba(34, 197, 94, 0.1)';
+                setTimeout(() => window.location.reload(), 1000);
+            } else {
+                status.textContent = '🔌 Sin conexión detectada';
+            }
+        }
+        window.addEventListener('online', updateStatus);
+        window.addEventListener('offline', updateStatus);
+        updateStatus();
+    </script>
 </body>
-
 </html>

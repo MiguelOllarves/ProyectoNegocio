@@ -424,7 +424,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 text: "Los inventarios se descontarán según armaste este combo cada vez que lo vendas.",
                 icon: 'question',
                 showCancelButton: true,
-                confirmButtonColor: '#10b981',
+                confirmButtonColor: '#2563eb',
                 cancelButtonColor: '#ef4444',
                 confirmButtonText: '<i class="fas fa-check mr-1"></i> Sí, guardar',
                 cancelButtonText: 'Revisar'

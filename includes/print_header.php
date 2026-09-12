@@ -30,7 +30,7 @@ if (!empty($storeCfg['logo_url'])) {
 
 $reportTitle = $printTitle ?? 'Documento';
 ?>
-<div class="header" style="text-align: center; margin-bottom: 20px; border-bottom: 2px solid #10b981; padding-bottom: 10px;">
+<div class="header" style="text-align: center; margin-bottom: 20px; border-bottom: 2px solid #2563eb; padding-bottom: 10px;">
     <table style="width: 100%; border: none;">
         <tr style="border: none;">
             <td style="width: 120px; text-align: left; border: none; vertical-align: middle;">
@@ -39,7 +39,7 @@ $reportTitle = $printTitle ?? 'Documento';
                 <?php endif; ?>
             </td>
             <td style="text-align: center; border: none; vertical-align: middle;">
-                <h1 style="margin: 0; font-size: 24px; color: #065f46; font-weight: 900; line-height: 1.2;"><?= htmlspecialchars($bName) ?></h1>
+                <h1 style="margin: 0; font-size: 24px; color: #1e40af; font-weight: 900; line-height: 1.2;"><?= htmlspecialchars($bName) ?></h1>
                 
                 <?php if(!empty($bRif) || !empty($bPhone)): ?>
                 <div style="font-size: 11px; margin-top: 4px; color: #4b5563;">

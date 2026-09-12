@@ -72,9 +72,19 @@ class ProductConfigurationService {
         $maxFromDish = $baseAvail['available'] ? $baseAvail['max_qty'] : 0;
 
         // Disponibilidad de cada opción seleccionada
+        // IMPORTANTE: option_id es restaurant_options.id, NO product_id
+        // Debemos resolver option_id -> product_id antes de verificar disponibilidad
         $maxFromOptions = PHP_FLOAT_MAX;
+        $optionModel = new \RestaurantOption();
         foreach ($selectedOptions as $opt) {
-            $optionProductId = $opt['option_id'] ?? 0;
+            $optionId = $opt['option_id'] ?? 0;
+            if ($optionId <= 0) continue;
+
+            // Resolver el product_id desde restaurant_options
+            $stmtOpt = $this->db->prepare("SELECT product_id FROM restaurant_options WHERE id = ? AND tenant_id = ?");
+            $stmtOpt->execute([$optionId, $this->tenantId]);
+            $optionProductId = (int)$stmtOpt->fetchColumn();
+
             if ($optionProductId <= 0) continue;
 
             $optAvail = $inventoryService->checkAvailability($optionProductId, 1);

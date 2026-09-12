@@ -61,7 +61,8 @@ class PurchasesController extends Controller {
                     $this->jsonResponse(['success' => false, 'message' => 'No se pudo anular la compra'], 400);
                 }
             } catch (\Exception $e) {
-                $this->jsonResponse(['success' => false, 'message' => 'Error BD: ' . $e->getMessage()], 500);
+                error_log('[Purchases] void: ' . $e->getMessage());
+                $this->jsonResponse(['success' => false, 'message' => 'Error al procesar la anulación'], 500);
             }
         }
     }
@@ -124,7 +125,8 @@ class PurchasesController extends Controller {
                         $this->jsonResponse(['success' => false, 'message' => 'Error indeterminado al procesar la compra'], 500);
                     }
                 } catch (\Exception $e) {
-                    $this->jsonResponse(['success' => false, 'message' => 'Error de BD: ' . $e->getMessage()], 500);
+                    error_log('[Purchases] create: ' . $e->getMessage());
+                    $this->jsonResponse(['success' => false, 'message' => 'Error al procesar la compra'], 500);
                 }
             } else {
                 $this->jsonResponse(['success' => false, 'message' => 'No hay productos en la compra'], 400);

@@ -74,10 +74,27 @@ define('BASE_URL', $base_url);
 
 // --- Configuración de la Aplicación ---
 define('APP_NAME', 'Tu Inventario');
-define('APP_VERSION', '0.0.0');
+define('APP_VERSION', '1.0.0');
+
+// --- Configuración de Suscripción ---
+define('SUBSCRIPTION_PRICE_USD', (float)(getenv('SUBSCRIPTION_PRICE_USD') ?: '3.00'));
+define('SUBSCRIPTION_CURRENCY', 'USD');
 
 // --- Zona Horaria ---
 date_default_timezone_set('America/Caracas');
+
+// --- Detección de Vercel ---
+define('IS_VERCEL', getenv('VERCEL') === '1' || isset($_SERVER['VERCEL']));
+
+// --- Performance Settings ---
+define('ENABLE_GZIP', function_exists('ob_gzhandler'));
+define('CACHE_STATIC_ASSETS', true); // CSS/JS/images - 1 year immutable
+define('CACHE_DYNAMIC_CONTENT', false); // HTML pages - no cache for auth'd content
+define('QUERY_CACHE_ENABLED', false); // Set true if using Redis/Memcached
+
+// --- Supabase Connection Pool ---
+define('DB_POOL_MIN', 1);
+define('DB_POOL_MAX', 5); // Keep low for free tier
 
 // --- Configuración SMTP (Para correos) ---
 define('SMTP_HOST', getenv('SMTP_HOST') ?: '');

@@ -14,7 +14,7 @@
         .header {
             text-align: center;
             margin-bottom: 20px;
-            border-bottom: 2px solid #10b981;
+            border-bottom: 2px solid #2563eb;
             padding-bottom: 10px;
         }
         .header h1 {
@@ -133,7 +133,7 @@
                 <td class="text-center font-bold">
                     <?= $p['stock'] ?> <span style="font-size:9px; color:#555;"><?= htmlspecialchars($p['unit_of_measure'] ?? 'Unidades') ?></span>
                 </td>
-                <td class="text-right font-bold" style="color: #059669;">
+                <td class="text-right font-bold" style="color: #1d4ed8;">
                     $<?= number_format($p['price'], 2) ?>
                 </td>
                 <td class="text-right">

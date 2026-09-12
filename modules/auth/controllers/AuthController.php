@@ -56,6 +56,13 @@ class AuthController extends Controller {
             $rif = $_POST['rif'] ?? '';
             $business_phone = $_POST['business_phone'] ?? '';
             
+            // [SECURITY FIX] Validar business_type contra lista de tipos válidos
+            require_once __DIR__ . '/../../../core/BusinessProfileService.php';
+            $validCategories = array_keys(BusinessProfileService::getAllProfiles());
+            if (!in_array($category, $validCategories)) {
+                $category = 'general'; // Fallback seguro
+            }
+            
             $email = $_POST['email'] ?? '';
             $password = $_POST['password'] ?? '';
             $confirm_password = $_POST['confirm_password'] ?? '';
@@ -133,9 +140,16 @@ class AuthController extends Controller {
                     $counter++;
                 }
 
-                $sqlBusiness = "INSERT INTO businesses (owner_name, business_name, rif, owner_phone, business_phone, document_id, email, category, slug)
-                                VALUES (:on, :bn, :rif, :op, :bp, :doc, :email, :cat, :slug)";
+                $sqlBusiness = "INSERT INTO businesses (owner_name, business_name, rif, owner_phone, business_phone, document_id, email, category, business_type_id, slug)
+                                VALUES (:on, :bn, :rif, :op, :bp, :doc, :email, :cat, :btid, :slug)";
                 $stmtBusiness = $db->prepare($sqlBusiness);
+                
+                // Resolver business_type_id desde el código
+                $btId = null;
+                $stmtBt = $db->prepare("SELECT id FROM business_types WHERE code = ?");
+                $stmtBt->execute([$category]);
+                $btId = $stmtBt->fetchColumn() ?: null;
+                
                 $stmtBusiness->execute([
                     'on' => $owner_name,
                     'bn' => $business_name,
@@ -145,6 +159,7 @@ class AuthController extends Controller {
                     'doc' => $document_id,
                     'email' => $email,
                     'cat' => $category,
+                    'btid' => $btId,
                     'slug' => $slug
                 ]);
                 $business_id = $db->lastInsertId();
@@ -194,7 +209,8 @@ class AuthController extends Controller {
                 $this->view('modules/users/views/register', ['success' => '¡Tu espacio de trabajo ha sido provisionado exitosamente!']);
             } catch (Exception $e) {
                 $db->rollBack();
-                $this->view('modules/users/views/register', ['error' => 'Ocurrió un error en la base de datos: ' . $e->getMessage()]);
+                error_log('[Auth] process_register: ' . $e->getMessage());
+                $this->view('modules/users/views/register', ['error' => 'Ocurrió un error al crear tu negocio. Por favor, intenta de nuevo.']);
             }
         }
     }
@@ -202,7 +218,15 @@ class AuthController extends Controller {
     private function seedBusinessData($db, $business_id, $category) {
         require_once __DIR__ . '/../../../core/BusinessProfileService.php';
         
-        $seedProducts = [
+        // [DATA-DRIVEN FIX] Leer perfiles desde BusinessProfileService (fuente de verdad desde BD)
+        $profile = BusinessProfileService::getProfile($category);
+        if (!$profile) {
+            $category = 'general';
+            $profile = BusinessProfileService::getProfile('general');
+        }
+        
+        // Productos semilla por defecto (solo para dar una experiencia inicial)
+        $defaultProducts = [
             'gastronomia' => [
                 ['name' => 'Refresco 2L', 'price' => 2.50, 'cat' => 'Bebidas'],
                 ['name' => 'Hamburguesa Clásica', 'price' => 5.00, 'cat' => 'Platos Principales'],
@@ -230,8 +254,8 @@ class AuthController extends Controller {
             ],
         ];
 
-        $categories = BusinessProfileService::getSeedCategories($category);
-        $products = $seedProducts[$category] ?? $seedProducts['general'];
+        $categories = $profile['categories'] ?? [];
+        $products = $defaultProducts[$category] ?? $defaultProducts['general'];
         $catMap = [];
 
         try {

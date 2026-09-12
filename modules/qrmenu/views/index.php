@@ -29,8 +29,8 @@
         [x-cloak] { display: none !important; }
         body { font-family: 'Poppins', sans-serif; background: linear-gradient(135deg, #fbfdfc 0%, #f0f9f6 50%, #e6f4f1 100%); }
         .glass-card { background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.9); box-shadow: 0 10px 40px -10px rgba(22, 163, 74, 0.1); }
-        .btn-gradient { background: linear-gradient(135deg, #16a34a, #10b981); box-shadow: 0 8px 20px -4px rgba(16, 185, 129, 0.5); transition: all 0.3s; }
-        .btn-gradient:hover { box-shadow: 0 15px 30px -5px rgba(16, 185, 129, 0.7); transform: translateY(-2px); background: linear-gradient(135deg, #15803d, #059669); }
+        .btn-gradient { background: linear-gradient(135deg, #16a34a, #2563eb); box-shadow: 0 8px 20px -4px rgba(16, 185, 129, 0.5); transition: all 0.3s; }
+        .btn-gradient:hover { box-shadow: 0 15px 30px -5px rgba(16, 185, 129, 0.7); transform: translateY(-2px); background: linear-gradient(135deg, #15803d, #1d4ed8); }
         .blob-1 { position: fixed; top: -10%; left: -10%; width: 500px; height: 500px; background: rgba(134, 239, 172, 0.3); border-radius: 50%; filter: blur(90px); z-index: -1; animation: float 8s infinite alternate; }
         .blob-2 { position: fixed; bottom: -10%; right: -10%; width: 600px; height: 600px; background: rgba(52, 211, 153, 0.2); border-radius: 50%; filter: blur(120px); z-index: -1; animation: float 10s infinite alternate-reverse; }
         @keyframes float { 0% { transform: translate(0, 0) scale(1); } 100% { transform: translate(30px, 50px) scale(1.1); } }

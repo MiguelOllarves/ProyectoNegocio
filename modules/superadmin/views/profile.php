@@ -81,7 +81,7 @@ document.addEventListener('alpine:init', () => {
                         icon: 'success',
                         title: 'Identidad Actualizada',
                         text: 'Tus credenciales de ingreso han sido actualizadas. Usa tu nuevo usuario en tu próximo ingreso.',
-                        confirmButtonColor: '#10b981'
+                        confirmButtonColor: '#2563eb'
                     }).then(() => {
                         this.form.password = '';
                     });

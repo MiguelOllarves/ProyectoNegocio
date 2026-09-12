@@ -29,3 +29,9 @@ Imagenes/
 
 # Videos pesados (se excluyen del serverless pero no del repo)
 public/assets/video/*.mp4
+
+# Tests (no van a producción)
+tests/
+
+# Archivos de reset/debug (protegidos en index.php)
+database/reset_database.sql

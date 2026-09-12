@@ -205,7 +205,7 @@
                     <div class="flex gap-1 flex-shrink-0">
                         <form hx-post="<?= BASE_URL ?>credits/approve" hx-swap="none" hx-confirm="¿Aprobar este abono de $<?= number_format($p['amount'], 2) ?>?" class="inline">
                             <input type="hidden" name="payment_id" value="<?= $p['id'] ?>">
-                            <button class="text-emerald-500 hover:text-emerald-600 bg-emerald-50 dark:bg-emerald-900/20 p-2 rounded-lg transition-colors" title="Aprobar">
+                            <button class="text-brand-500 hover:text-brand-600 bg-brand-50 dark:bg-brand-900/20 p-2 rounded-lg transition-colors" title="Aprobar">
                                 <i class="fas fa-check"></i>
                             </button>
                         </form>

@@ -137,8 +137,7 @@ class SalesController extends Controller {
                         $this->jsonResponse(['success' => true, 'sale_id' => $saleId]);
                     } else {
                         // Let's get the last DB error if possible
-                        $dbError = $this->saleModel->getDbError();
-                        $this->jsonResponse(['success' => false, 'message' => 'Error en base de datos', 'db_error' => $dbError], 500);
+                        $this->jsonResponse(['success' => false, 'message' => 'Error al procesar la venta. Verifica el stock disponible.'], 500);
                     }
                 } else {
                     $this->jsonResponse(['success' => false, 'message' => 'Datos inválidos o carrito vacío'], 400);
@@ -183,7 +182,8 @@ class SalesController extends Controller {
                 $this->saleModel->voidSale($id, $userId);
                 $this->jsonResponse(['success' => true, 'message' => 'Venta anulada correctamente. El inventario ha sido restaurado.']);
             } catch (\Exception $e) {
-                $this->jsonResponse(['success' => false, 'message' => $e->getMessage()], 400);
+                error_log('[Sales] voidSale: ' . $e->getMessage());
+                $this->jsonResponse(['success' => false, 'message' => 'Error al anular la venta'], 400);
             }
         }
     }

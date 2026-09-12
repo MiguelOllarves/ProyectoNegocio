@@ -53,7 +53,7 @@
                     <td class="py-4 px-6 text-center">
                         <?php 
                             if($b['subscription_status'] === 'active') {
-                                $badge = 'bg-emerald-100 text-emerald-800 border border-emerald-200';
+                                $badge = 'bg-brand-100 text-brand-800 border border-brand-200';
                                 $label = 'ACTIVO';
                             } else if ($b['subscription_status'] === 'trial') {
                                 $badge = 'bg-blue-100 text-blue-800 border border-blue-200';
@@ -93,7 +93,7 @@
                                 <i class="fas fa-ban"></i>
                             </button>
                         <?php else: ?>
-                            <button @click="toggleStatus(<?= $b['id'] ?>, 'activate')" class="text-emerald-500 hover:text-emerald-700 bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-900/20 dark:hover:bg-emerald-900/40 p-2 rounded-lg transition-colors inline-block tooltip" title="Quitar Bloqueo Manualmente">
+                            <button @click="toggleStatus(<?= $b['id'] ?>, 'activate')" class="text-brand-500 hover:text-brand-700 bg-brand-50 hover:bg-brand-100 dark:bg-brand-900/20 dark:hover:bg-brand-900/40 p-2 rounded-lg transition-colors inline-block tooltip" title="Quitar Bloqueo Manualmente">
                                 <i class="fas fa-unlock"></i>
                             </button>
                         <?php endif; ?>
@@ -136,9 +136,9 @@
                         <p class="text-[9px] sm:text-[10px] text-indigo-500 uppercase tracking-widest font-bold mb-1">Catálogo</p>
                         <p class="text-lg sm:text-2xl font-black text-indigo-700 dark:text-indigo-400" x-text="(activeTenant.products_count || 0) + ' Prod'"></p>
                     </div>
-                    <div class="bg-emerald-50 dark:bg-emerald-900/20 p-3 rounded-lg border border-emerald-100 dark:border-emerald-800 block text-center">
-                        <p class="text-[9px] sm:text-[10px] text-emerald-500 uppercase tracking-widest font-bold mb-1">Volumen Ventas</p>
-                        <p class="text-lg sm:text-2xl font-black text-emerald-700 dark:text-emerald-400 truncate" x-text="'$' + Number(activeTenant.total_sales_amount || 0).toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2})"></p>
+                    <div class="bg-brand-50 dark:bg-brand-900/20 p-3 rounded-lg border border-brand-100 dark:border-brand-800 block text-center">
+                        <p class="text-[9px] sm:text-[10px] text-brand-500 uppercase tracking-widest font-bold mb-1">Volumen Ventas</p>
+                        <p class="text-lg sm:text-2xl font-black text-brand-700 dark:text-brand-400 truncate" x-text="'$' + Number(activeTenant.total_sales_amount || 0).toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2})"></p>
                     </div>
                     <div class="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg border border-blue-100 dark:border-blue-800 block text-center">
                         <p class="text-[9px] sm:text-[10px] text-blue-500 uppercase tracking-widest font-bold mb-1">Tickets (#)</p>
@@ -212,7 +212,7 @@ document.addEventListener('alpine:init', () => {
                 text: isSuspend ? 'Se enviará a modo Solo-Lectura inmediatamente ignorando sus días restantes de suscripción.' : 'Volverá a estar activo manualmente.',
                 icon: 'warning',
                 showCancelButton: true,
-                confirmButtonColor: isSuspend ? '#ef4444' : '#10b981',
+                confirmButtonColor: isSuspend ? '#ef4444' : '#2563eb',
                 confirmButtonText: 'Confirmar',
                 cancelButtonText: 'Cancelar'
             });

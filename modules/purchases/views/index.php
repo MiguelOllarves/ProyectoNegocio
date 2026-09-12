@@ -154,7 +154,7 @@ function purchaseForm() {
                         timer: 2000,
                         showConfirmButton: true,
                         confirmButtonText: 'Continuar',
-                        confirmButtonColor: '#10b981',
+                        confirmButtonColor: '#2563eb',
                         customClass: { popup: 'rounded-2xl' }
                     }).then(() => {
                         location.reload();

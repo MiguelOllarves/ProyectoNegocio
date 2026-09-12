@@ -121,24 +121,88 @@ class RestaurantController extends Controller {
 
     /**
      * GET restaurant - Lista de platos creados
+     * [N+1 FIX] Carga todos los datos en batch queries en lugar de 4 queries por plato
      */
     public function index() {
-        $dishes = [];
-        foreach ($this->getDishes() as $dish) {
-            $cost = $this->recipeModel->calculateCost($dish['id']);
-            $servings = $this->recipeModel->getAvailableServings($dish['id']);
+        $dishes = $this->getDishes();
+        $dishIds = array_column($dishes, 'id');
+        
+        if (empty($dishIds)) {
+            $this->view('modules/restaurant/views/index', ['dishes' => []]);
+            return;
+        }
+        
+        $db = Database::getInstance()->getConnection();
+        $tenantId = $_SESSION['business_id'] ?? null;
+        $placeholders = implode(',', array_fill(0, count($dishIds), '?'));
+        
+        // Batch: obtener todos los costos de receta de una sola query
+        $recipeCosts = [];
+        $recipeItemsMap = [];
+        $stmtRecipe = $db->prepare("
+            SELECT ri.dish_id, 
+                   SUM(COALESCE(ri.quantity * COALESCE(uc.conversion_to_base, 1.0) * COALESCE(p.unit_cost, 0), 0)) as total_cost,
+                   COUNT(ri.id) as items_count
+            FROM recipe_items ri
+            JOIN products p ON ri.ingredient_id = p.id
+            LEFT JOIN units_of_measure uc ON ri.unit_id = uc.id
+            WHERE ri.dish_id IN ($placeholders) AND ri.tenant_id = ?
+            GROUP BY ri.dish_id
+        ");
+        $params = array_merge($dishIds, [$tenantId]);
+        $stmtRecipe->execute($params);
+        while ($row = $stmtRecipe->fetch(PDO::FETCH_ASSOC)) {
+            $recipeCosts[$row['dish_id']] = (float)$row['total_cost'];
+            $recipeItemsMap[$row['dish_id']] = (int)$row['items_count'];
+        }
+        
+        // Batch: obtener stock de ingredientes para calcular servings disponibles
+        $ingredientStock = [];
+        $stmtIng = $db->prepare("
+            SELECT ri.dish_id, ri.ingredient_id, ri.quantity, ri.unit_id,
+                   p.stock as ingredient_stock,
+                   COALESCE(uc.conversion_to_base, 1.0) as unit_factor
+            FROM recipe_items ri
+            JOIN products p ON ri.ingredient_id = p.id
+            LEFT JOIN units_of_measure uc ON ri.unit_id = uc.id
+            WHERE ri.dish_id IN ($placeholders) AND ri.tenant_id = ?
+        ");
+        $stmtIng->execute($params);
+        while ($row = $stmtIng->fetch(PDO::FETCH_ASSOC)) {
+            $dishId = $row['dish_id'];
+            if (!isset($ingredientStock[$dishId])) $ingredientStock[$dishId] = [];
+            $ingredientStock[$dishId][] = $row;
+        }
+        
+        // Calcular servings por plato
+        $servingsMap = [];
+        foreach ($ingredientStock as $dishId => $items) {
+            $maxServings = PHP_FLOAT_MAX;
+            foreach ($items as $item) {
+                $need = (float)$item['quantity'] * (float)$item['unit_factor'];
+                if ($need <= 0) continue;
+                $possible = floor((float)$item['ingredient_stock'] / $need);
+                $maxServings = min($maxServings, $possible);
+            }
+            $servingsMap[$dishId] = $maxServings === PHP_FLOAT_MAX ? null : max(0, (int)$maxServings);
+        }
+        
+        // Ensamblar resultado
+        $result = [];
+        foreach ($dishes as $dish) {
+            $id = $dish['id'];
+            $cost = $recipeCosts[$id] ?? 0;
             $price = (float)($dish['price'] ?? 0);
-
-            $dishes[] = array_merge($dish, [
+            $result[] = array_merge($dish, [
                 'recipe_cost' => $cost,
                 'profit' => $price - $cost,
-                'available_servings' => $servings,
-                'ingredients_count' => count($this->recipeModel->getForDish($dish['id']))
+                'available_servings' => $servingsMap[$id] ?? null,
+                'ingredients_count' => $recipeItemsMap[$id] ?? 0
             ]);
         }
 
         $this->view('modules/restaurant/views/index', [
-            'dishes' => $dishes
+            'dishes' => $result
         ]);
     }
 
@@ -560,8 +624,9 @@ class RestaurantController extends Controller {
         $optionModel = new RestaurantOption();
         $groups = $optionModel->getGroupsForDish($dishId);
 
-        $stmtProducts = $db->prepare("SELECT id, name, price, stock FROM products WHERE tenant_id = ? AND is_dish = FALSE ORDER BY name ASC");
-        $stmtProducts->execute([$tenantId]);
+        // Permitir productos simples Y platos elaborados como opciones
+        $stmtProducts = $db->prepare("SELECT id, name, price, stock, is_dish FROM products WHERE tenant_id = ? AND id != ? ORDER BY name ASC");
+        $stmtProducts->execute([$tenantId, $dishId]);
         $products = $stmtProducts->fetchAll(PDO::FETCH_ASSOC);
 
         $this->view('modules/restaurant/views/options', [

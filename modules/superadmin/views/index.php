@@ -10,7 +10,7 @@
             <i class="fas fa-eraser mr-2"></i> Resetear Visitas
         </button>
         <a href="<?= BASE_URL ?>superadmin/backup_db" class="bg-gray-800 hover:bg-black text-white px-4 py-2 rounded-lg text-sm font-bold shadow-md transition-all flex items-center">
-            <i class="fas fa-database mr-2 text-emerald-400"></i> Respaldar BD
+            <i class="fas fa-database mr-2 text-brand-400"></i> Respaldar BD
         </a>
     </div>
 </div>
@@ -63,9 +63,9 @@ function resetVisits() {
         <p class="text-[10px] uppercase tracking-wider text-gray-500 font-bold mb-1">Cuentas Inactivas</p>
         <p class="text-3xl font-black text-gray-800 dark:text-white"><?= number_format($stats['expired_accounts'] ?? 0) ?></p>
     </div>
-    <div class="bg-white dark:bg-slate-800 p-5 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm border-l-4 border-l-emerald-500">
+    <div class="bg-white dark:bg-slate-800 p-5 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm border-l-4 border-l-brand-500">
         <p class="text-[10px] uppercase tracking-wider text-gray-500 font-bold mb-1">Ganancias Brutas</p>
-        <p class="text-3xl font-black text-emerald-600 dark:text-emerald-400">$<?= number_format($stats['total_income'], 2) ?></p>
+        <p class="text-3xl font-black text-brand-600 dark:text-brand-400">$<?= number_format($stats['total_income'], 2) ?></p>
     </div>
 </div>
 

@@ -234,8 +234,8 @@ class DashboardController extends Controller {
                 $user = htmlspecialchars($act['user'] ?? 'Sistema');
                 ?>
                 <div class='flex items-start gap-4 pb-4 border-b border-gray-100 dark:border-gray-800/50 last:border-0 last:pb-0 group'>
-                    <div class='w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-50 to-emerald-100 dark:from-emerald-900/40 dark:to-emerald-800/20 flex flex-col items-center justify-center flex-shrink-0 border border-emerald-200/50 dark:border-emerald-700/30 group-hover:scale-110 transition-transform'>
-                        <i class='fas fa-tag text-emerald-600 dark:text-emerald-400 text-sm'></i>
+                    <div class='w-10 h-10 rounded-xl bg-gradient-to-br from-brand-50 to-brand-100 dark:from-brand-900/40 dark:to-brand-800/20 flex flex-col items-center justify-center flex-shrink-0 border border-brand-200/50 dark:border-brand-700/30 group-hover:scale-110 transition-transform'>
+                        <i class='fas fa-tag text-brand-600 dark:text-brand-400 text-sm'></i>
                     </div>
                     <div class='flex-1 min-w-0'>
                         <div class='flex justify-between items-start mb-1'>
@@ -251,7 +251,7 @@ class DashboardController extends Controller {
                             </p>
                             <div class='flex justify-between items-center'>
                                 <span class='text-[10px] font-bold text-gray-400 uppercase tracking-wider'>Ticket #<?= $act['id'] ?></span>
-                                <span class='font-black text-emerald-600 dark:text-emerald-400'>$<?= $total ?></span>
+                                <span class='font-black text-brand-600 dark:text-brand-400'>$<?= $total ?></span>
                             </div>
                         </div>
                     </div>

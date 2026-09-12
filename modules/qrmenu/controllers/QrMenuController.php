@@ -45,7 +45,8 @@ class QrMenuController extends Controller {
                 'edit_url' => rtrim(BASE_URL, '/') . '/qrmenu/manage/' . $slug . '?code=' . $code
             ]);
         } catch(PDOException $e) {
-            $this->jsonResponse(['success' => false, 'message' => 'Error de servidor: ' . $e->getMessage()], 500);
+            error_log('[QrMenu] api_create: ' . $e->getMessage());
+            $this->jsonResponse(['success' => false, 'message' => 'Error al crear el menú QR'], 500);
         }
     }
 

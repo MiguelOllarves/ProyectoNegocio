@@ -26,7 +26,7 @@
                 </div>
                 
                 <div class="modal-body pb-0">
-                    <form id="create-client-form" hx-post="<?= BASE_URL ?>clients/create" hx-swap="none" hx-trigger="submit-with-gps" @htmx:after-request="if($event.detail.successful) { openModal = false; $el.reset(); Swal.fire({title: '¡Registro Exitoso!', text: 'El cliente ha sido guardado correctamente.', icon: 'success', timer: 2000, showConfirmButton: true, confirmButtonText: 'Continuar', confirmButtonColor: '#10b981', customClass: { popup: 'rounded-2xl' }}).then(() => { htmx.ajax('GET', '<?= BASE_URL ?>clients/list?t=' + new Date().getTime(), {target: '#clients-tbody'}); }); }" class="space-y-4">
+                    <form id="create-client-form" hx-post="<?= BASE_URL ?>clients/create" hx-swap="none" hx-trigger="submit-with-gps" @htmx:after-request="if($event.detail.successful) { openModal = false; $el.reset(); Swal.fire({title: '¡Registro Exitoso!', text: 'El cliente ha sido guardado correctamente.', icon: 'success', timer: 2000, showConfirmButton: true, confirmButtonText: 'Continuar', confirmButtonColor: '#2563eb', customClass: { popup: 'rounded-2xl' }}).then(() => { htmx.ajax('GET', '<?= BASE_URL ?>clients/list?t=' + new Date().getTime(), {target: '#clients-tbody'}); }); }" class="space-y-4">
                         <input type="hidden" name="gps_location" value="">
                         <div>
                             <label class="form-label">Nombre *</label>
@@ -108,7 +108,7 @@
                 </div>
                 
                 <div class="modal-body pb-0">
-                    <form id="edit-client-form" hx-post="<?= BASE_URL ?>clients/edit/" hx-swap="none" hx-trigger="submit-with-gps" @htmx:after-request="if($event.detail.successful) { editModal = false; $el.reset(); Swal.fire({title: '¡Actualización Exitosa!', text: 'El cliente ha sido actualizado.', icon: 'success', timer: 2000, showConfirmButton: true, confirmButtonText: 'Continuar', confirmButtonColor: '#10b981', customClass: { popup: 'rounded-2xl' }}).then(() => { htmx.ajax('GET', '<?= BASE_URL ?>clients/list?t=' + new Date().getTime(), {target: '#clients-tbody'}); }); }" class="space-y-4">
+                    <form id="edit-client-form" hx-post="<?= BASE_URL ?>clients/edit/" hx-swap="none" hx-trigger="submit-with-gps" @htmx:after-request="if($event.detail.successful) { editModal = false; $el.reset(); Swal.fire({title: '¡Actualización Exitosa!', text: 'El cliente ha sido actualizado.', icon: 'success', timer: 2000, showConfirmButton: true, confirmButtonText: 'Continuar', confirmButtonColor: '#2563eb', customClass: { popup: 'rounded-2xl' }}).then(() => { htmx.ajax('GET', '<?= BASE_URL ?>clients/list?t=' + new Date().getTime(), {target: '#clients-tbody'}); }); }" class="space-y-4">
                         <input type="hidden" name="gps_location" id="edit-gps-location" value="">
                         <div>
                             <label class="form-label">Nombre *</label>
@@ -472,7 +472,7 @@
             text: "¡No podrás revertir esto!",
             icon: 'warning',
             showCancelButton: true,
-            confirmButtonColor: '#10b981',
+            confirmButtonColor: '#2563eb',
             cancelButtonColor: '#ef4444',
             confirmButtonText: '<i class="fas fa-trash mr-1"></i> Sí, eliminar',
             cancelButtonText: 'Cancelar',
@@ -589,7 +589,7 @@ function handleBulkImportClients(e) {
                 text: `Se encontraron ${json.length} clientes listos para procesar. ¿Desea iniciar la carga masiva?`,
                 icon: 'question',
                 showCancelButton: true,
-                confirmButtonColor: '#10b981',
+                confirmButtonColor: '#2563eb',
                 cancelButtonColor: '#ef4444',
                 confirmButtonText: '<i class="fas fa-check mr-1"></i> Iniciar Importación',
                 cancelButtonText: 'Cancelar',

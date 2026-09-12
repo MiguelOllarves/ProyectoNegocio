@@ -38,7 +38,7 @@
                 </div>
 
                 <form hx-post="<?= BASE_URL ?>inventory/create" hx-encoding="multipart/form-data" hx-swap="none" 
-                      @htmx:after-request="if($event.detail.successful) { openModal = false; $el.reset(); Swal.fire({title: '¡Registro Exitoso!', text: 'El producto ha sido guardado correctamente.', icon: 'success', timer: 2000, showConfirmButton: true, confirmButtonText: 'Continuar', confirmButtonColor: '#10b981', customClass: { popup: 'rounded-2xl' }}).then(() => { htmx.ajax('GET', '<?= BASE_URL ?>inventory/list?t=' + new Date().getTime(), {target: '#inventory-tbody'}); }); }" 
+                      @htmx:after-request="if($event.detail.successful) { openModal = false; $el.reset(); Swal.fire({title: '¡Registro Exitoso!', text: 'El producto ha sido guardado correctamente.', icon: 'success', timer: 2000, showConfirmButton: true, confirmButtonText: 'Continuar', confirmButtonColor: '#2563eb', customClass: { popup: 'rounded-2xl' }}).then(() => { htmx.ajax('GET', '<?= BASE_URL ?>inventory/list?t=' + new Date().getTime(), {target: '#inventory-tbody'}); }); }" 
                       class="space-y-6">
                     
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -398,7 +398,7 @@ function productForm() {
             </div>
             
             <form id="editForm" hx-encoding="multipart/form-data" hx-swap="none" class="space-y-6"
-                  @htmx:after-request="if($event.detail.successful) { closeEditModal(); Swal.fire({title: '¡Actualizado!', text: 'El producto ha sido modificado correctamente.', icon: 'success', timer: 2000, showConfirmButton: true, confirmButtonText: 'Continuar', confirmButtonColor: '#10b981', customClass: { popup: 'rounded-2xl' }}).then(() => { htmx.ajax('GET', '<?= BASE_URL ?>inventory/list?t=' + new Date().getTime(), {target: '#inventory-tbody'}); }); }">
+                  @htmx:after-request="if($event.detail.successful) { closeEditModal(); Swal.fire({title: '¡Actualizado!', text: 'El producto ha sido modificado correctamente.', icon: 'success', timer: 2000, showConfirmButton: true, confirmButtonText: 'Continuar', confirmButtonColor: '#2563eb', customClass: { popup: 'rounded-2xl' }}).then(() => { htmx.ajax('GET', '<?= BASE_URL ?>inventory/list?t=' + new Date().getTime(), {target: '#inventory-tbody'}); }); }">
                 <input type="hidden" id="edit-id" name="id">
                 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -695,7 +695,7 @@ function productForm() {
                 timer: 2000,
                 showConfirmButton: true,
                 confirmButtonText: 'Continuar',
-                confirmButtonColor: '#10b981',
+                confirmButtonColor: '#2563eb',
                 customClass: { popup: 'rounded-2xl' }
             }).then(() => {
                 htmx.ajax('GET', '<?= BASE_URL ?>inventory/list?t=' + new Date().getTime(), {target: '#inventory-tbody'});
@@ -710,7 +710,7 @@ function productForm() {
             text: "Esta acción no se puede deshacer.",
             icon: 'warning',
             showCancelButton: true,
-            confirmButtonColor: '#10b981',
+            confirmButtonColor: '#2563eb',
             cancelButtonColor: '#ef4444',
             confirmButtonText: '<i class="fas fa-trash mr-1"></i> Sí, eliminar',
             cancelButtonText: 'Cancelar',
@@ -736,7 +736,7 @@ function productForm() {
                             title: 'No se puede eliminar', 
                             text: 'Este producto está asociado a ventas o compras existentes en el historial.', 
                             icon: 'error',
-                            confirmButtonColor: '#10b981',
+                            confirmButtonColor: '#2563eb',
                             customClass: { popup: 'rounded-2xl' }
                         });
                     } else {
@@ -817,7 +817,7 @@ function handleBulkImport(e) {
                 text: `Se encontraron ${json.length} productos listos para procesar. ¿Desea iniciar la carga masiva?`,
                 icon: 'question',
                 showCancelButton: true,
-                confirmButtonColor: '#10b981',
+                confirmButtonColor: '#2563eb',
                 cancelButtonColor: '#ef4444',
                 confirmButtonText: '<i class="fas fa-check mr-1"></i> Iniciar Importación',
                 cancelButtonText: 'Cancelar',

@@ -20,7 +20,7 @@
     </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="theme-color" content="#10b981">
+    <meta name="theme-color" content="#1e40af">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Tu Inventario">
@@ -73,8 +73,8 @@
         .sidebar-scroll::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,0.3); }
         .dark .sidebar-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); }
         .dark .sidebar-scroll::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.4); }
-        .gradient-sidebar { background: linear-gradient(180deg, #064e3b 0%, #0e7490 100%); }
-        .gradient-header { background: linear-gradient(135deg, #ecfdf5 0%, #ecfeff 100%); }
+        .gradient-sidebar { background: linear-gradient(180deg, #1e3a8a 0%, #1e40af 50%, #2563eb 100%); }
+        .gradient-header { background: linear-gradient(135deg, #eff6ff 0%, #f0f9ff 100%); }
         .dark .gradient-header { background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); }
 
         /* Fix Form Inputs Visibility in Dark Mode Globally */
@@ -89,7 +89,7 @@
         .dark textarea:focus, 
         .dark select:focus {
             background-color: #0f172a !important; /* bg-slate-900 */
-            border-color: #10b981 !important;
+            border-color: #2563eb !important;
         }
         .dark input::placeholder, .dark textarea::placeholder {
             color: rgba(255, 255, 255, 0.5) !important;
@@ -178,7 +178,7 @@
                         icon: 'warning',
                         title: 'Error de Suscripción',
                         text: 'No pudimos activar las notificaciones. Verifica los permisos de tu navegador.',
-                        confirmButtonColor: '#10b981'
+                        confirmButtonColor: '#2563eb'
                     });
                 }
             }
@@ -195,7 +195,7 @@
                         icon: 'info',
                         title: 'Instala la Aplicación',
                         html: 'Para recibir notificaciones en tu iPhone, primero debes instalar la app.<br><br>Toca el ícono de <b>Compartir</b> <svg style="display:inline; width:20px; height:20px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg> y luego selecciona <b>Agregar a inicio</b>.',
-                        confirmButtonColor: '#10b981',
+                        confirmButtonColor: '#2563eb',
                         confirmButtonText: 'Entendido'
                     });
                 } else {
@@ -210,7 +210,7 @@
                         icon: 'error',
                         title: 'Navegador No Soportado',
                         text: 'Tu navegador actual no soporta notificaciones push.',
-                        confirmButtonColor: '#10b981'
+                        confirmButtonColor: '#2563eb'
                     });
                 }
                 return;
@@ -225,7 +225,7 @@
                             icon: 'error',
                             title: 'Permiso Denegado',
                             text: 'Has bloqueado las notificaciones. Debes permitirlas desde la configuración de tu navegador.',
-                            confirmButtonColor: '#10b981'
+                            confirmButtonColor: '#2563eb'
                         });
                     }
                 });
@@ -236,7 +236,7 @@
                     icon: 'error',
                     title: 'Permiso Denegado',
                     text: 'Las notificaciones están bloqueadas en tu navegador. Por favor actívalas manualmente.',
-                    confirmButtonColor: '#10b981'
+                    confirmButtonColor: '#2563eb'
                 });
             }
         }
@@ -843,7 +843,7 @@
                 <?php if($userRole === 'administrador'): 
                     $suscActive = strpos($uri, 'suscription') !== false;
                     $suscClass = $suscActive 
-                        ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-900/40 dark:text-emerald-300 font-bold border-emerald-100 dark:border-emerald-800 shadow-sm' 
+                        ? 'bg-brand-50 text-brand-600 dark:bg-brand-900/40 dark:text-brand-300 font-bold border-brand-100 dark:border-brand-800 shadow-sm' 
                         : 'text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-slate-800 font-medium border-transparent';
                 ?>
                 <a href="<?= BASE_URL ?>suscription" class="inline-flex items-center rounded-xl transition-all text-sm px-4 py-2 border <?= $suscClass ?>">

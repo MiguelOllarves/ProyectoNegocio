@@ -12,7 +12,7 @@ class EmailTemplates {
             <style>
                 body { font-family: 'Inter', 'Helvetica Neue', Helvetica, Arial, sans-serif; background-color: #f3f4f6; margin: 0; padding: 0; }
                 .container { max-width: 600px; margin: 40px auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.05); }
-                .header { background: linear-gradient(135deg, #10b981 0%, #059669 100%); padding: 40px 30px; text-align: center; color: white; }
+                .header { background: linear-gradient(135deg, #1e40af 0%, #2563eb 50%, #0ea5e9 100%); padding: 40px 30px; text-align: center; color: white; }
                 .header h1 { margin: 0; font-size: 28px; font-weight: 800; letter-spacing: -0.5px; }
                 .header p { margin: 10px 0 0 0; font-size: 16px; opacity: 0.9; }
                 .content { padding: 40px 30px; color: #374151; line-height: 1.6; }
@@ -21,9 +21,9 @@ class EmailTemplates {
                 .details-box { background-color: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px; padding: 24px; margin-bottom: 30px; }
                 .details-box p { margin: 8px 0; font-size: 15px; }
                 .details-box strong { color: #111827; display: inline-block; width: 140px; }
-                .details-box a { color: #10b981; text-decoration: none; font-weight: 600; }
+                .details-box a { color: #2563eb; text-decoration: none; font-weight: 600; }
                 .btn-container { text-align: center; margin: 40px 0 20px 0; }
-                .btn { display: inline-block; background-color: #10b981; color: #ffffff !important; text-decoration: none; padding: 16px 32px; border-radius: 8px; font-weight: bold; font-size: 16px; box-shadow: 0 4px 14px rgba(16, 185, 129, 0.3); transition: all 0.3s; }
+                .btn { display: inline-block; background-color: #2563eb; color: #ffffff !important; text-decoration: none; padding: 16px 32px; border-radius: 8px; font-weight: bold; font-size: 16px; box-shadow: 0 4px 14px rgba(37, 99, 235, 0.3); transition: all 0.3s; }
                 .footer { background-color: #f9fafb; padding: 24px; text-align: center; font-size: 14px; color: #6b7280; border-top: 1px solid #f3f4f6; }
                 .footer-brand { font-weight: bold; color: #111827; margin-top: 10px; display: block; }
             </style>

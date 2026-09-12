@@ -14,6 +14,7 @@ CREATE TABLE IF NOT EXISTS businesses (
     document_id VARCHAR(50) NOT NULL UNIQUE,
     email VARCHAR(255) NOT NULL UNIQUE,
     category VARCHAR(100) NOT NULL,
+    business_type_id INTEGER REFERENCES business_types(id) ON DELETE SET NULL,
     slug VARCHAR(255),
     subscription_status VARCHAR(50) DEFAULT 'trial',
     trial_ends_at TIMESTAMP,
@@ -245,6 +246,7 @@ CREATE TABLE IF NOT EXISTS sale_items (
     id SERIAL PRIMARY KEY,
     sale_id INTEGER REFERENCES sales(id) ON DELETE CASCADE,
     product_id INTEGER REFERENCES products(id) ON DELETE RESTRICT,
+    tenant_id INTEGER REFERENCES businesses(id) ON DELETE CASCADE,
     quantity NUMERIC(15,2) NOT NULL,
     normalized_quantity NUMERIC(15,2) DEFAULT 0,
     unit_id INTEGER,
@@ -423,9 +425,13 @@ CREATE TABLE IF NOT EXISTS store_orders (
     customer_address TEXT,
     items_json TEXT,
     total_usd NUMERIC(15,2) DEFAULT 0,
-    status VARCHAR(50) DEFAULT 'pendiente',
+    total_bs NUMERIC(15,2) DEFAULT 0,
+    payment_method VARCHAR(100),
+    status VARCHAR(50) DEFAULT 'pendiente' CHECK(status IN ('pendiente','confirmado','preparando','listo','despachado','cancelado')),
     notes TEXT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    idempotency_key VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- 25. Visitas al Sitio
