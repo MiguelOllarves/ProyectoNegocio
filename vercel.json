@@ -54,11 +54,5 @@
       "src": "/(.*)",
       "dest": "/api/index.php?url=$1"
     }
-  ],
-  "rewrites": [
-    {
-      "source": "/(.*)",
-      "destination": "/api/index.php"
-    }
   ]
 }
