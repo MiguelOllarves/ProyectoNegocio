@@ -31,11 +31,11 @@
     <meta name="csrf-token" content="<?= $_SESSION['csrf_token'] ?? '' ?>">
     <link rel="stylesheet" href="<?= BASE_URL ?? "" ?>css/tailwind.css?v=<?= CSS_VERSION ?>">
     <link rel="stylesheet" href="<?= BASE_URL ?>css/fontawesome.min.css">
-    <script defer src="https://unpkg.com/htmx.org@1.9.11"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script defer src="https://unpkg.com/dexie@4.0.8/dist/dexie.js"></script>
+    <script defer src="<?= BASE_URL ?>js/vendor/htmx.min.js"></script>
+    <script defer src="<?= BASE_URL ?>js/vendor/alpine.min.js"></script>
+    <script defer src="<?= BASE_URL ?>js/vendor/JsBarcode.all.min.js"></script>
+    <script defer src="<?= BASE_URL ?>js/vendor/sweetalert2.all.min.js"></script>
+    <script defer src="<?= BASE_URL ?>js/vendor/dexie.js"></script>
     <script defer src="<?= BASE_URL ?>js/offline-sync.js"></script>
     <script>
         window.BASE_URL = "<?= BASE_URL ?>";
@@ -64,7 +64,6 @@
         });
     </script>
     <link rel="stylesheet" href="<?= BASE_URL ?>css/fontawesome.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
         /* Gradient definitions (not expressible in Tailwind config) */
         .sidebar-scroll::-webkit-scrollbar { width: 4px; height: 6px; }

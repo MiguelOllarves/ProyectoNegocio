@@ -4,18 +4,14 @@
  *             Network-first para páginas dinámicas (PHP/HTML)
  *             Fallback offline graceful
  */
-const CACHE_NAME = 'tu-inventario-v15';
+const CACHE_NAME = 'tu-inventario-v16';
 const STATIC_ASSETS = [
     '/offline.html',
     '/icons/icon-512x512.png'
 ];
 
-// CDN resources to pre-cache on install for ultra-fast loads
-const CDN_ASSETS = [
-    'https://unpkg.com/htmx.org@1.9.11',
-    'https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js',
-    'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap'
-];
+// No dependemos de dominios externos en producción para evitar CORS y fallos 408.
+const CDN_ASSETS = [];
 
 // Domains that MUST NOT be intercepted by the SW (analytics, ads, tracking)
 const BYPASS_DOMAINS = [
