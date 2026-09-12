@@ -37,8 +37,7 @@ $panelRoute = $isSuperAdmin ? 'superadmin' : 'dashboard';
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= $errorCode ?> - <?= $error['title'] ?> | Tu Inventario</title>
     <link rel="stylesheet" href="<?= BASE_URL ?? "" ?>css/tailwind.css?v=<?= CSS_VERSION ?>">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="<?= BASE_URL ?>css/fontawesome.min.css">
     <script>
         if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
             document.documentElement.classList.add('dark');
