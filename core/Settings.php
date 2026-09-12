@@ -3,28 +3,45 @@ require_once __DIR__ . '/../config/Database.php';
 
 class Settings {
     public static function get($key, $default = null) {
-        $db = Database::getInstance()->getConnection();
-        $stmt = $db->prepare("SELECT value FROM settings WHERE key = ?");
-        $stmt->execute([$key]);
-        $val = $stmt->fetchColumn();
-        return $val !== false ? $val : $default;
+        try {
+            if (!Database::isAvailable()) {
+                return $default;
+            }
+            $db = Database::getInstance()->getConnection();
+            $stmt = $db->prepare("SELECT value FROM settings WHERE key = ?");
+            $stmt->execute([$key]);
+            $val = $stmt->fetchColumn();
+            return $val !== false ? $val : $default;
+        } catch (Throwable $e) {
+            error_log('[Settings::get] ' . $e->getMessage());
+            return $default;
+        }
     }
 
     public static function set($key, $value) {
-        $db = Database::getInstance()->getConnection();
-        $stmt = $db->prepare("INSERT INTO settings (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = CURRENT_TIMESTAMP");
-        // Nota: ON CONFLICT solo funciona en SQLite desde 3.24.0. Usaremos un fallback en caso de error.
         try {
-            $stmt->execute([$key, $value]);
-        } catch (\PDOException $e) {
-            // Fallback para SQLite viejo o PDO distinto si no soporta upsert
-            $stmt = $db->prepare("SELECT 1 FROM settings WHERE key = ?");
-            $stmt->execute([$key]);
-            if ($stmt->fetchColumn()) {
-                $db->prepare("UPDATE settings SET value = ?, updated_at = CURRENT_TIMESTAMP WHERE key = ?")->execute([$value, $key]);
-            } else {
-                $db->prepare("INSERT INTO settings (key, value) VALUES (?, ?)")->execute([$key, $value]);
+            if (!Database::isAvailable()) {
+                return false;
             }
+            $db = Database::getInstance()->getConnection();
+            $stmt = $db->prepare("INSERT INTO settings (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = CURRENT_TIMESTAMP");
+            // Nota: ON CONFLICT solo funciona en SQLite desde 3.24.0. Usaremos un fallback en caso de error.
+            try {
+                $stmt->execute([$key, $value]);
+            } catch (\PDOException $e) {
+                // Fallback para SQLite viejo o PDO distinto si no soporta upsert
+                $stmt = $db->prepare("SELECT 1 FROM settings WHERE key = ?");
+                $stmt->execute([$key]);
+                if ($stmt->fetchColumn()) {
+                    $db->prepare("UPDATE settings SET value = ?, updated_at = CURRENT_TIMESTAMP WHERE key = ?")->execute([$value, $key]);
+                } else {
+                    $db->prepare("INSERT INTO settings (key, value) VALUES (?, ?)")->execute([$key, $value]);
+                }
+            }
+            return true;
+        } catch (Throwable $e) {
+            error_log('[Settings::set] ' . $e->getMessage());
+            return false;
         }
     }
 

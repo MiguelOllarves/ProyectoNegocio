@@ -34,8 +34,8 @@ class Database {
             Migration::ensureTablesExist($this->pdo);
 
         } catch (PDOException $e) {
+            $this->pdo = null;
             error_log("Database connection error: " . $e->getMessage());
-            die("Error de conexión a la base de datos. Contacte al administrador.");
         }
     }
 
@@ -47,7 +47,17 @@ class Database {
     }
 
     public function getConnection() {
+        if ($this->pdo === null) {
+            throw new RuntimeException('Database is not available. Check DATABASE_URL and PostgreSQL driver.');
+        }
         return $this->pdo;
+    }
+
+    public static function isAvailable() {
+        if (self::$instance === null) {
+            return false;
+        }
+        return self::$instance->pdo !== null;
     }
 
     // --- Transaction Wrappers ---
