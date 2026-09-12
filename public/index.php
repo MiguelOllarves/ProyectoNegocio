@@ -46,8 +46,8 @@ header('X-Content-Type-Options: nosniff');
 header('X-XSS-Protection: 1; mode=block');
 header('Referrer-Policy: strict-origin-when-cross-origin');
 header('Permissions-Policy: camera=(), microphone=(), geolocation=()');
-// CSP compatible con Alpine.js, HTMX, y FontAwesome CDN
-header("Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://unpkg.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://www.googletagmanager.com; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://fonts.googleapis.com; font-src 'self' https://cdnjs.cloudflare.com https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self' https://www.google-analytics.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self'");
+// CSP compatible con Alpine.js, HTMX, Vercel Live y contenido externo permitido
+header("Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://unpkg.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://www.googletagmanager.com https://vercel.live; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://fonts.googleapis.com https://vercel.live; font-src 'self' https://cdnjs.cloudflare.com https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' data: blob: https:; connect-src 'self' https://www.google-analytics.com https://vercel.live https://*.vercel.app; frame-ancestors 'none'; base-uri 'self'; form-action 'self'");
 if (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') {
     header('Strict-Transport-Security: max-age=31536000; includeSubDomains');
 }
@@ -166,6 +166,36 @@ if (php_sapi_name() === 'cli-server') {
     }
     if (!isset($_GET['url']) && $path !== '/') {
         $_GET['url'] = ltrim($path, '/');
+    }
+}
+
+// Servir activos estáticos antes del enrutamiento de PHP para evitar que Vercel/dev
+// entregue HTML en lugar de CSS/JSON/imagenes cuando la ruta cae en el router principal.
+if (isset($_SERVER['REQUEST_URI'])) {
+    $requestPath = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) ?: '/';
+    if (preg_match('#^/(manifest\.json|sw\.js|offline\.html|css|js|assets|images|icons|uploads|iconos_negocio)(?:/.*)?$#', $requestPath)) {
+        $relativePath = ltrim($requestPath, '/');
+        $localFile = __DIR__ . '/' . $relativePath;
+
+        if (file_exists($localFile) && is_file($localFile)) {
+            $realPublicDir = realpath(__DIR__);
+            $realTarget = realpath($localFile);
+            if ($realPublicDir !== false && $realTarget !== false && strpos($realTarget, $realPublicDir) === 0) {
+                $mimeType = mime_content_type($localFile) ?: 'application/octet-stream';
+                if (preg_match('/\.css$/i', $requestPath)) {
+                    $mimeType = 'text/css; charset=utf-8';
+                } elseif (preg_match('/\.js$/i', $requestPath)) {
+                    $mimeType = 'application/javascript; charset=utf-8';
+                } elseif (preg_match('/\.json$/i', $requestPath)) {
+                    $mimeType = 'application/json; charset=utf-8';
+                }
+
+                header('Content-Type: ' . $mimeType);
+                header('Cache-Control: public, max-age=31536000, immutable');
+                readfile($localFile);
+                exit;
+            }
+        }
     }
 }
 
