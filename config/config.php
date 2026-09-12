@@ -44,11 +44,20 @@ define('DB_DRIVER', 'pgsql');
 
 if ($dbUrl) {
     $dbOpts = parse_url($dbUrl);
-    define('DB_HOST', $dbOpts["host"]);
-    define('DB_PORT', $dbOpts["port"] ?? 5432);
-    define('DB_USER', $dbOpts["user"]);
-    define('DB_PASS', $dbOpts["pass"]);
-    define('DB_NAME', ltrim($dbOpts["path"], '/'));
+    if (is_array($dbOpts) && !empty($dbOpts['host'])) {
+        define('DB_HOST', $dbOpts['host']);
+        define('DB_PORT', $dbOpts['port'] ?? 5432);
+        define('DB_USER', $dbOpts['user'] ?? 'postgres');
+        define('DB_PASS', $dbOpts['pass'] ?? '');
+        define('DB_NAME', ltrim($dbOpts['path'] ?? '/', '/'));
+    } else {
+        // Fallback si DATABASE_URL llegó vacía o mal formateada
+        define('DB_HOST', getenv('DB_HOST') ?: 'localhost');
+        define('DB_PORT', getenv('DB_PORT') ?: 5432);
+        define('DB_USER', getenv('DB_USER') ?: 'postgres');
+        define('DB_PASS', getenv('DB_PASS') ?: '');
+        define('DB_NAME', getenv('DB_NAME') ?: 'tu_inventario');
+    }
 } else {
     // Fallback para desarrollo local - NUNCA hardcodear credenciales reales
     define('DB_HOST', getenv('DB_HOST') ?: 'localhost');
