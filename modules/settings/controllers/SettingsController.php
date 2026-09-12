@@ -156,7 +156,8 @@ class SettingsController extends Controller {
             $stmt->execute([$name, $code, $currency, $igtf]);
             $this->jsonResponse(['success' => true, 'message' => 'Método de pago agregado']);
         } catch (PDOException $e) {
-            $this->jsonResponse(['success' => false, 'message' => 'El código ya existe o error: ' . $e->getMessage()], 500);
+            error_log('[Settings] addPaymentMethod: ' . $e->getMessage());
+            $this->jsonResponse(['success' => false, 'message' => 'El código ya existe o hay un error.'], 500);
         }
     }
 
@@ -251,13 +252,16 @@ class SettingsController extends Controller {
             $this->jsonResponse(['success' => true, 'message' => 'Sistema restablecido a cero exitosamente']);
         } catch (PDOException $e) {
             $db->rollBack();
-            $this->jsonResponse(['success' => false, 'message' => 'Error al restablecer datos: ' . $e->getMessage()], 500);
+            error_log('[Settings] factoryReset: ' . $e->getMessage());
+            $this->jsonResponse(['success' => false, 'message' => 'Error al restablecer datos.'], 500);
         }
     }
 
     public function export_csv() {
         $db = $this->getDb();
-        $stmt = $db->query("SELECT p.sku, p.name, p.barcode, p.stock, p.min_stock, p.price, p.unit_cost, c.name as category, b.name as brand FROM products p LEFT JOIN categories c ON p.category_id = c.id LEFT JOIN brands b ON p.brand_id = b.id ORDER BY p.name ASC");
+        $tenantId = $_SESSION['business_id'] ?? null;
+        $stmt = $db->prepare("SELECT p.sku, p.name, p.barcode, p.stock, p.min_stock, p.price, p.unit_cost, c.name as category, b.name as brand FROM products p LEFT JOIN categories c ON p.category_id = c.id LEFT JOIN brands b ON p.brand_id = b.id WHERE p.tenant_id = ? ORDER BY p.name ASC");
+        $stmt->execute([$tenantId]);
         $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         header('Content-Type: text/csv; charset=utf-8');

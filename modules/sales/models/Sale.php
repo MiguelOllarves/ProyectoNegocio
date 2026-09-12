@@ -59,33 +59,38 @@ class Sale extends Model {
     }
 
     public function voidSale($saleId, $userId) {
+        $tenantId = $_SESSION['business_id'] ?? null;
+        if (!$tenantId) throw new Exception("Sesión inválida.");
+
         $this->db->beginTransaction();
         try {
-            // Check current status
-            $stmt = $this->db->prepare("SELECT status FROM sales WHERE id = ?");
-            $stmt->execute([$saleId]);
+            // Check current status AND validate tenant ownership
+            $stmt = $this->db->prepare("SELECT s.status FROM sales s JOIN users u ON s.user_id = u.id WHERE s.id = ? AND u.business_id = ?");
+            $stmt->execute([$saleId, $tenantId]);
             $status = $stmt->fetchColumn();
             
+            if (!$status) {
+                throw new Exception("Venta no encontrada o no pertenece a este negocio.");
+            }
             if ($status === 'anulada') {
                 throw new Exception("La venta ya ha sido anulada.");
             }
 
-            // Get items to restore stock
+            // Get items to restore stock (with tenant validation on products)
             $stmtItems = $this->db->prepare("SELECT si.product_id, si.quantity, p.is_dish, p.sale_unit_id 
                                              FROM sale_items si 
                                              JOIN products p ON si.product_id = p.id
-                                             WHERE sale_id = ?");
-            $stmtItems->execute([$saleId]);
+                                             WHERE si.sale_id = ? AND p.tenant_id = ?");
+            $stmtItems->execute([$saleId, $tenantId]);
             $items = $stmtItems->fetchAll(PDO::FETCH_ASSOC);
 
             $recipeModel = new Recipe();
-            $stmtRestoreStock = $this->db->prepare("UPDATE products SET stock = stock + ? WHERE id = ?");
+            $stmtRestoreStock = $this->db->prepare("UPDATE products SET stock = stock + ? WHERE id = ? AND tenant_id = ?");
             $stmtKardex = $this->db->prepare("INSERT INTO kardex (product_id, type, quantity, stock_after, reference_type, reference_id, user_id) VALUES (?, 'entrada_anulacion', ?, ?, 'sale_void', ?, ?)");
-            $stmtStockAfter = $this->db->prepare("SELECT stock FROM products WHERE id = ?");
+            $stmtStockAfter = $this->db->prepare("SELECT stock FROM products WHERE id = ? AND tenant_id = ?");
 
             foreach ($items as $item) {
                 if (!empty($item['is_dish'])) {
-                    // Plato: restaurar los ingredientes de su receta
                     $recipeModel->restoreIngredients(
                         $item['product_id'],
                         (float)$item['quantity'],
@@ -96,24 +101,21 @@ class Sale extends Model {
                     continue;
                 }
                 
-                // Restore stock in base units
                 require_once __DIR__ . '/../../../core/UnitConversionService.php';
                 $restoreQty = $item['quantity'];
                 if (!empty($item['sale_unit_id'])) {
                     try {
                         $restoreQty = \UnitConversionService::convertToBase($item['quantity'], $item['sale_unit_id']);
                     } catch (Exception $e) {
-                        $restoreQty = $item['quantity']; // Fallback
+                        $restoreQty = $item['quantity'];
                     }
                 }
 
-                $stmtRestoreStock->execute([$restoreQty, $item['product_id']]);
+                $stmtRestoreStock->execute([$restoreQty, $item['product_id'], $tenantId]);
                 
-                // Get new stock
-                $stmtStockAfter->execute([$item['product_id']]);
+                $stmtStockAfter->execute([$item['product_id'], $tenantId]);
                 $stockAfter = $stmtStockAfter->fetchColumn();
 
-                // Log Kardex
                 $stmtKardex->execute([
                     $item['product_id'],
                     $restoreQty,
@@ -123,7 +125,6 @@ class Sale extends Model {
                 ]);
             }
 
-            // Mark sale as voided
             $stmtVoid = $this->db->prepare("UPDATE sales SET status = 'anulada' WHERE id = ?");
             $stmtVoid->execute([$saleId]);
 
@@ -161,14 +162,15 @@ class Sale extends Model {
             }
 
             $stmtItem = $this->db->prepare("INSERT INTO sale_items (sale_id, product_id, quantity, price_at_sale, cost_at_sale) VALUES (:sid, :pid, :qty, :price, :cost)");
-            $stmtUpdateStock = $this->db->prepare("UPDATE products SET stock = stock - :qty WHERE id = :pid");
+            $stmtUpdateStock = $this->db->prepare("UPDATE products SET stock = stock - :qty WHERE id = :pid AND tenant_id = :tid");
 
             $stmtKardex = $this->db->prepare("INSERT INTO kardex (product_id, type, quantity, stock_after, reference_type, reference_id, user_id) VALUES (:pid, 'salida_venta', :qty, :stock_after, 'sale', :sid, :uid)");
-            $stmtStockAfter = $this->db->prepare("SELECT stock FROM products WHERE id = :pid");
-            $stmtCost = $this->db->prepare("SELECT unit_cost FROM products WHERE id = :pid");
+            $stmtStockAfter = $this->db->prepare("SELECT stock FROM products WHERE id = :pid AND tenant_id = :tid");
+            $stmtCost = $this->db->prepare("SELECT unit_cost FROM products WHERE id = :pid AND tenant_id = :tid");
 
-            $stmtCheckProduct = $this->db->prepare("SELECT stock, allow_fractional_sales, measurement_type, is_dish FROM products WHERE id = :pid");
+            $stmtCheckProduct = $this->db->prepare("SELECT stock, allow_fractional_sales, measurement_type, is_dish FROM products WHERE id = :pid AND tenant_id = :tid");
             $recipeModel = new Recipe();
+            $tenantId = $_SESSION['business_id'] ?? null;
 
             foreach ($items as $item) {
                 // Ensure floating point values for fractional quantities (e.g. 0.250kg)
@@ -178,7 +180,7 @@ class Sale extends Model {
                     throw new Exception("Cantidad de venta inválida ($actualQty).");
                 }
 
-                $stmtCheckProduct->execute(['pid' => $item['id']]);
+                $stmtCheckProduct->execute(['pid' => $item['id'], 'tid' => $tenantId]);
                 $productDb = $stmtCheckProduct->fetch(PDO::FETCH_ASSOC);
                 
                 if (!$productDb) {
@@ -197,23 +199,19 @@ class Sale extends Model {
                 $isDish = !empty($productDb['is_dish']);
 
                 if ($isDish) {
-                    // Plato elaborado: el stock se descuenta de los INGREDIENTES de la receta,
-                    // no del producto final. Validamos disponibilidad de insumos.
                     $recipeModel->checkAvailability($item['id'], $actualQty);
                     $unitCost = $recipeModel->calculateCost($item['id']);
                 } else {
                     $currentStock = $productDb['stock'];
-                    // Compare currentStock (in base units) with qtyInBaseUnits
                     if ($currentStock < $qtyInBaseUnits) {
                         throw new Exception("Stock insuficiente para el producto ID: " . $item['id']);
                     }
 
-                    $stmtCost->execute(['pid' => $item['id']]);
+                    $stmtCost->execute(['pid' => $item['id'], 'tid' => $tenantId]);
                     $unitCost = $stmtCost->fetchColumn();
                     $unitCost = $unitCost ? (float)$unitCost : 0.0;
                 }
 
-                // Guardar el item de venta
                 $stmtItem->execute([
                     'sid' => $saleId,
                     'pid' => $item['id'],
@@ -223,16 +221,15 @@ class Sale extends Model {
                 ]);
 
                 if ($isDish) {
-                    // Descontar ingredientes de la receta (Kardex por insumo)
                     $recipeModel->consumeIngredients($item['id'], $actualQty, 'sale', $saleId, $userId);
                 } else {
-                    // Descontar inventario (en unidades base)
                     $stmtUpdateStock->execute([
                         'qty' => $qtyInBaseUnits,
-                        'pid' => $item['id']
+                        'pid' => $item['id'],
+                        'tid' => $tenantId
                     ]);
 
-                    $stmtStockAfter->execute(['pid' => $item['id']]);
+                    $stmtStockAfter->execute(['pid' => $item['id'], 'tid' => $tenantId]);
                     $stockAfter = $stmtStockAfter->fetchColumn();
 
                     $stmtKardex->execute([

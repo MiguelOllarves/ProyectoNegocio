@@ -184,21 +184,20 @@ class ClientsController extends Controller {
         if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['id'])) {
             try {
                 $db = \Database::getInstance()->getConnection();
+                $tenantId = $_SESSION['business_id'] ?? null;
                 
-                // Buscar si tiene créditos
-                $stmt = $db->prepare("SELECT id FROM credits WHERE client_id = ?");
-                $stmt->execute([$_POST['id']]);
+                // Buscar si tiene créditos (con validación de tenant)
+                $stmt = $db->prepare("SELECT id FROM credits WHERE client_id = ? AND tenant_id = ?");
+                $stmt->execute([$_POST['id'], $tenantId]);
                 $credits = $stmt->fetchAll(\PDO::FETCH_COLUMN);
                 
                 if (!empty($credits)) {
-                    // Borrar pagos asociados a esos créditos
                     $inQuery = implode(',', array_fill(0, count($credits), '?'));
                     $delPayments = $db->prepare("DELETE FROM credit_payments WHERE credit_id IN ($inQuery)");
                     $delPayments->execute($credits);
                     
-                    // Borrar los créditos
-                    $delCredits = $db->prepare("DELETE FROM credits WHERE client_id = ?");
-                    $delCredits->execute([$_POST['id']]);
+                    $delCredits = $db->prepare("DELETE FROM credits WHERE client_id = ? AND tenant_id = ?");
+                    $delCredits->execute([$_POST['id'], $tenantId]);
                 }
 
                 $this->model->delete($_POST['id']);

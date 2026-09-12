@@ -133,7 +133,7 @@ class SalesController extends Controller {
                 }
             } catch (\Throwable $th) {
                 error_log($th->getMessage() . "\n" . $th->getTraceAsString());
-                $this->jsonResponse(['success' => false, 'message' => $th->getMessage(), 'file' => $th->getFile(), 'line' => $th->getLine()], 500);
+                $this->jsonResponse(['success' => false, 'message' => 'Error al procesar la venta.'], 500);
             }
         }
     }

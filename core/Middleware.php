@@ -216,5 +216,28 @@ class Middleware {
         }
         return true;
     }
+
+    /**
+     * Obtiene el tenant_id (business_id) de la sesión actual.
+     */
+    public static function getTenantId() {
+        return $_SESSION['business_id'] ?? null;
+    }
+
+    /**
+     * Valida que haya una sesión de tenant activa. Si no, redirige o retorna error.
+     */
+    public static function requireTenant() {
+        self::requireAuth();
+        if (empty($_SESSION['business_id'])) {
+            if (isset($_SERVER['HTTP_HX_REQUEST'])) {
+                header('HTTP/1.1 403 Forbidden');
+                echo json_encode(['success' => false, 'message' => 'Sesión de negocio no válida.']);
+                exit;
+            }
+            header('Location: ' . BASE_URL . 'dashboard');
+            exit;
+        }
+    }
 }
 

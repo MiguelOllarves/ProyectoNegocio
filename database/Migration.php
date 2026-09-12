@@ -30,6 +30,15 @@ class Migration {
                 }
             } catch (\Exception $e) { }
 
+            // Paso 1.1: Crear tablas de perfiles de negocio
+            self::ensureBusinessTypes($pdo);
+            
+            // Paso 1.2: Crear tablas de opciones de restaurante
+            self::ensureRestaurantOptions($pdo);
+            
+            // Paso 1.3: Crear tablas de pedidos estructurados
+            self::ensureStructuredOrders($pdo);
+            
             // Paso 2: Verificar y agregar columnas faltantes en tablas existentes
             self::ensureColumns($pdo);
             
@@ -94,6 +103,133 @@ class Migration {
         } catch (\Exception $e) {}
         try { $pdo->exec("CREATE INDEX IF NOT EXISTS idx_created_at_sales ON sales(created_at)"); } catch (\Exception $e) {}
         try { $pdo->exec("CREATE INDEX IF NOT EXISTS idx_tenant_id_products ON products(tenant_id)"); } catch (\Exception $e) {}
+    }
+
+    /**
+     * Crea las tablas de perfiles de negocio (business_types, business_type_features).
+     */
+    private static function ensureBusinessTypes(PDO $pdo) {
+        try {
+            $pdo->exec("CREATE TABLE IF NOT EXISTS business_types (
+                id SERIAL PRIMARY KEY,
+                code VARCHAR(50) NOT NULL UNIQUE,
+                label VARCHAR(100) NOT NULL,
+                icon VARCHAR(50) DEFAULT 'fa-store',
+                is_active BOOLEAN DEFAULT TRUE,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )");
+            $pdo->exec("CREATE TABLE IF NOT EXISTS business_type_features (
+                id SERIAL PRIMARY KEY,
+                business_type_id INTEGER NOT NULL REFERENCES business_types(id) ON DELETE CASCADE,
+                feature_key VARCHAR(50) NOT NULL,
+                UNIQUE(business_type_id, feature_key)
+            )");
+            // Insertar perfiles base si la tabla está vacía
+            $count = $pdo->query("SELECT COUNT(*) FROM business_types")->fetchColumn();
+            if ($count == 0) {
+                $profiles = [
+                    ['gastronomia', 'Gastronomía / Restaurante', 'fa-utensils'],
+                    ['ferreteria', 'Ferretería', 'fa-tools'],
+                    ['viveres', 'Víveres / Bodega', 'fa-shopping-basket'],
+                    ['repuestos', 'Repuestos / Automotriz', 'fa-cogs'],
+                    ['tecnologia', 'Tecnología', 'fa-laptop'],
+                    ['vehiculos', 'Vehículos', 'fa-car'],
+                    ['bienes_raices', 'Bienes Raíces', 'fa-building'],
+                    ['general', 'General / Mercadería', 'fa-boxes'],
+                ];
+                $insType = $pdo->prepare("INSERT INTO business_types (code, label, icon) VALUES (?, ?, ?)");
+                $insFeat = $pdo->prepare("INSERT INTO business_type_features (business_type_id, feature_key) VALUES (?, ?)");
+                foreach ($profiles as $p) {
+                    $insType->execute($p);
+                    $btId = $pdo->lastInsertId();
+                    $features = BusinessProfileService::getFeatures($p[0]);
+                    foreach ($features as $f) {
+                        $insFeat->execute([$btId, $f]);
+                    }
+                }
+            }
+        } catch (PDOException $e) {
+            error_log('[Migration] ensureBusinessTypes: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Crea las tablas de opciones de restaurante (option_groups, options).
+     */
+    private static function ensureRestaurantOptions(PDO $pdo) {
+        try {
+            $autoInc = $pdo->getAttribute(PDO::ATTR_DRIVER_NAME) === 'pgsql' ? 'SERIAL PRIMARY KEY' : 'INTEGER PRIMARY KEY AUTOINCREMENT';
+            
+            $pdo->exec("CREATE TABLE IF NOT EXISTS restaurant_option_groups (
+                id {$autoInc},
+                tenant_id INTEGER NOT NULL REFERENCES businesses(id) ON DELETE CASCADE,
+                product_id INTEGER NOT NULL REFERENCES products(id) ON DELETE CASCADE,
+                name VARCHAR(100) NOT NULL,
+                min_selections INTEGER DEFAULT 1,
+                max_selections INTEGER DEFAULT 1,
+                required BOOLEAN DEFAULT TRUE,
+                display_order INTEGER DEFAULT 0,
+                active BOOLEAN DEFAULT TRUE,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )");
+
+            $pdo->exec("CREATE TABLE IF NOT EXISTS restaurant_options (
+                id {$autoInc},
+                tenant_id INTEGER NOT NULL REFERENCES businesses(id) ON DELETE CASCADE,
+                group_id INTEGER NOT NULL REFERENCES restaurant_option_groups(id) ON DELETE CASCADE,
+                product_id INTEGER NOT NULL REFERENCES products(id) ON DELETE CASCADE,
+                price_delta REAL DEFAULT 0,
+                display_order INTEGER DEFAULT 0,
+                active BOOLEAN DEFAULT TRUE,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )");
+
+            try { $pdo->exec("CREATE INDEX IF NOT EXISTS idx_optgrp_tenant ON restaurant_option_groups(tenant_id)"); } catch (\Exception $e) {}
+            try { $pdo->exec("CREATE INDEX IF NOT EXISTS idx_optgrp_product ON restaurant_option_groups(product_id)"); } catch (\Exception $e) {}
+            try { $pdo->exec("CREATE INDEX IF NOT EXISTS idx_opt_group ON restaurant_options(group_id)"); } catch (\Exception $e) {}
+            try { $pdo->exec("CREATE INDEX IF NOT EXISTS idx_opt_tenant ON restaurant_options(tenant_id)"); } catch (\Exception $e) {}
+        } catch (PDOException $e) {
+            error_log('[Migration] ensureRestaurantOptions: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Crea las tablas de pedidos estructurados (store_order_items, store_order_item_options).
+     */
+    private static function ensureStructuredOrders(PDO $pdo) {
+        try {
+            $autoInc = $pdo->getAttribute(PDO::ATTR_DRIVER_NAME) === 'pgsql' ? 'SERIAL PRIMARY KEY' : 'INTEGER PRIMARY KEY AUTOINCREMENT';
+
+            $pdo->exec("CREATE TABLE IF NOT EXISTS store_order_items (
+                id {$autoInc},
+                order_id INTEGER NOT NULL REFERENCES store_orders(id) ON DELETE CASCADE,
+                product_id INTEGER NOT NULL REFERENCES products(id),
+                quantity REAL DEFAULT 1,
+                unit_price REAL DEFAULT 0,
+                total_price REAL DEFAULT 0,
+                product_name_snapshot VARCHAR(255),
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )");
+
+            $pdo->exec("CREATE TABLE IF NOT EXISTS store_order_item_options (
+                id {$autoInc},
+                order_item_id INTEGER NOT NULL REFERENCES store_order_items(id) ON DELETE CASCADE,
+                group_id INTEGER REFERENCES restaurant_option_groups(id),
+                option_product_id INTEGER REFERENCES products(id),
+                group_name_snapshot VARCHAR(100),
+                option_name_snapshot VARCHAR(255),
+                price_delta REAL DEFAULT 0,
+                quantity REAL DEFAULT 1,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )");
+
+            try { $pdo->exec("CREATE INDEX IF NOT EXISTS idx_soi_order ON store_order_items(order_id)"); } catch (\Exception $e) {}
+            try { $pdo->exec("CREATE INDEX IF NOT EXISTS idx_sooi_item ON store_order_item_options(order_item_id)"); } catch (\Exception $e) {}
+        } catch (PDOException $e) {
+            error_log('[Migration] ensureStructuredOrders: ' . $e->getMessage());
+        }
     }
 
     /**

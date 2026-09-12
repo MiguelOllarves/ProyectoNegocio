@@ -69,17 +69,20 @@ class Recipe extends Model {
      * $items = [ ['ingredient_id' => int, 'quantity' => float, 'unit_id' => int|null, 'notes' => string|null], ... ]
      */
     public function saveRecipe($dishId, $items) {
+        $tenantId = $_SESSION['business_id'] ?? null;
+        if (!$tenantId) throw new Exception("Sesión inválida.");
+
         // Validar que el plato exista y pertenezca al tenant actual
-        $stmtCheck = $this->db->prepare("SELECT id FROM products WHERE id = :id AND is_dish = TRUE");
-        $stmtCheck->execute(['id' => $dishId]);
+        $stmtCheck = $this->db->prepare("SELECT id FROM products WHERE id = :id AND is_dish = TRUE AND tenant_id = :tid");
+        $stmtCheck->execute(['id' => $dishId, 'tid' => $tenantId]);
         if (!$stmtCheck->fetch()) {
-            throw new Exception("El plato no existe o no está marcado como plato.");
+            throw new Exception("El plato no existe o no pertenece a este negocio.");
         }
 
         $this->db->beginTransaction();
         try {
-            $stmtDel = $this->db->prepare("DELETE FROM {$this->table} WHERE dish_id = :dish_id");
-            $stmtDel->execute(['dish_id' => $dishId]);
+            $stmtDel = $this->db->prepare("DELETE FROM {$this->table} WHERE dish_id = :dish_id AND tenant_id = :tid");
+            $stmtDel->execute(['dish_id' => $dishId, 'tid' => $tenantId]);
 
             $tenantId = $_SESSION['business_id'] ?? null;
             $stmtIns = $this->db->prepare("INSERT INTO {$this->table} (tenant_id, dish_id, ingredient_id, quantity, unit_id, notes)
@@ -189,37 +192,35 @@ class Recipe extends Model {
      */
     public function consumeIngredients($dishId, $servings, $referenceType, $referenceId, $userId) {
         $items = $this->getForDish($dishId);
+        $tenantId = $_SESSION['business_id'] ?? null;
 
-        $stmtUpdate = $this->db->prepare("UPDATE products SET stock = stock - :qty WHERE id = :pid");
-        $stmtAfter  = $this->db->prepare("SELECT stock FROM products WHERE id = :pid");
+        $stmtUpdate = $this->db->prepare("UPDATE products SET stock = stock - :qty WHERE id = :pid AND tenant_id = :tid");
+        $stmtAfter  = $this->db->prepare("SELECT stock FROM products WHERE id = :pid AND tenant_id = :tid");
 
         foreach ($items as $item) {
             $need = $this->qtyInBaseUnits((float)$item['quantity'] * $servings, $item['unit_id']);
             if ($need <= 0) continue;
 
-            $stmtUpdate->execute(['qty' => $need, 'pid' => $item['ingredient_id']]);
-            $stmtAfter->execute(['pid' => $item['ingredient_id']]);
+            $stmtUpdate->execute(['qty' => $need, 'pid' => $item['ingredient_id'], 'tid' => $tenantId]);
+            $stmtAfter->execute(['pid' => $item['ingredient_id'], 'tid' => $tenantId]);
             $stockAfter = $stmtAfter->fetchColumn();
         }
         return true;
     }
 
-    /**
-     * Restaura los ingredientes al anular una venta de platos.
-     * Debe ejecutarse DENTRO de la transacción de anulación (misma conexión PDO).
-     */
     public function restoreIngredients($dishId, $servings, $referenceType, $referenceId, $userId) {
         $items = $this->getForDish($dishId);
+        $tenantId = $_SESSION['business_id'] ?? null;
 
-        $stmtUpdate = $this->db->prepare("UPDATE products SET stock = stock + :qty WHERE id = :pid");
-        $stmtAfter  = $this->db->prepare("SELECT stock FROM products WHERE id = :pid");
+        $stmtUpdate = $this->db->prepare("UPDATE products SET stock = stock + :qty WHERE id = :pid AND tenant_id = :tid");
+        $stmtAfter  = $this->db->prepare("SELECT stock FROM products WHERE id = :pid AND tenant_id = :tid");
 
         foreach ($items as $item) {
             $restore = $this->qtyInBaseUnits((float)$item['quantity'] * $servings, $item['unit_id']);
             if ($restore <= 0) continue;
 
-            $stmtUpdate->execute(['qty' => $restore, 'pid' => $item['ingredient_id']]);
-            $stmtAfter->execute(['pid' => $item['ingredient_id']]);
+            $stmtUpdate->execute(['qty' => $restore, 'pid' => $item['ingredient_id'], 'tid' => $tenantId]);
+            $stmtAfter->execute(['pid' => $item['ingredient_id'], 'tid' => $tenantId]);
             $stockAfter = $stmtAfter->fetchColumn();
         }
         return true;

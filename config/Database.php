@@ -34,7 +34,8 @@ class Database {
             Migration::ensureTablesExist($this->pdo);
 
         } catch (PDOException $e) {
-            die("Error de conexión a la base de datos (" . DB_DRIVER . "): " . $e->getMessage());
+            error_log("Database connection error: " . $e->getMessage());
+            die("Error de conexión a la base de datos. Contacte al administrador.");
         }
     }
 

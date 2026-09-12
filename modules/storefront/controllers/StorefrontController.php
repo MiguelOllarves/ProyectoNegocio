@@ -289,6 +289,12 @@ class StorefrontController extends Controller {
     public function registerClient() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') return;
         
+        if (!Middleware::checkRateLimit('registerClient', 10, 60)) {
+            echo json_encode(['success' => false, 'message' => 'Demasiadas solicitudes. Intenta más tarde.']);
+            http_response_code(429);
+            return;
+        }
+        
         $data = json_decode(file_get_contents('php://input'), true);
         if (!$data || empty($data['business_id']) || empty($data['document'])) {
             echo json_encode(['success' => false, 'message' => 'Faltan datos obligatorios.']);
@@ -373,7 +379,8 @@ class StorefrontController extends Controller {
             
             echo json_encode(['success' => true]);
         } catch (\Exception $e) {
-            echo json_encode(['success' => false, 'message' => 'Error al guardar en la base de datos: ' . $e->getMessage()]);
+            error_log('[Storefront] registerClient: ' . $e->getMessage());
+            echo json_encode(['success' => false, 'message' => 'Error al guardar los datos.']);
         }
     }
 
@@ -382,6 +389,12 @@ class StorefrontController extends Controller {
      */
     public function checkout() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') return;
+        
+        if (!Middleware::checkRateLimit('checkout', 20, 60)) {
+            echo json_encode(['success' => false, 'message' => 'Demasiadas solicitudes. Intenta más tarde.']);
+            http_response_code(429);
+            return;
+        }
         
         $data = json_decode(file_get_contents('php://input'), true);
         if (!$data || empty($data['business_id']) || empty($data['items'])) {

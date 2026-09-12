@@ -211,7 +211,7 @@ class RestaurantController extends Controller {
 
             $imagePath = null;
             if (!empty($_FILES['image']['name']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
-                $allowedMimeTypes = ['image/jpeg', 'image/png', 'image/webp'];
+                $allowedMimeTypes = ['image/jpeg', 'image/png'];
                 $fileMimeType = mime_content_type($_FILES['image']['tmp_name']);
                 if (in_array($fileMimeType, $allowedMimeTypes) && filesize($_FILES['image']['tmp_name']) <= 3 * 1024 * 1024) {
                     $imagePath = $this->compressImageToBase64($_FILES['image']['tmp_name'], $_FILES['image']['type']);
@@ -305,7 +305,7 @@ class RestaurantController extends Controller {
                 $data['currency'] = $_POST['currency'];
             }
             if (!empty($_FILES['image']['name']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
-                $allowedMimeTypes = ['image/jpeg', 'image/png', 'image/webp'];
+                $allowedMimeTypes = ['image/jpeg', 'image/png'];
                 $fileMimeType = mime_content_type($_FILES['image']['tmp_name']);
                 if (in_array($fileMimeType, $allowedMimeTypes) && filesize($_FILES['image']['tmp_name']) <= 3 * 1024 * 1024) {
                     $data['image'] = $this->compressImageToBase64($_FILES['image']['tmp_name'], $_FILES['image']['type']);

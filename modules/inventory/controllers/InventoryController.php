@@ -105,12 +105,13 @@ class InventoryController extends Controller {
 
     public function image() {
         $id = (int)($_GET['id'] ?? 0);
-        if ($id > 0) {
+        $tenantId = $_SESSION['business_id'] ?? null;
+        if ($id > 0 && $tenantId) {
             require_once __DIR__ . '/../../../config/Database.php';
             require_once __DIR__ . '/../../../core/ImageValidator.php';
             $db = Database::getInstance()->getConnection();
-            $stmt = $db->prepare("SELECT image FROM products WHERE id = ?");
-            $stmt->execute([$id]);
+            $stmt = $db->prepare("SELECT image FROM products WHERE id = ? AND tenant_id = ?");
+            $stmt->execute([$id, $tenantId]);
             $base64 = $stmt->fetchColumn();
             if ($base64 && strpos($base64, 'data:image') === 0) {
                 list($type, $data) = explode(';', $base64);
@@ -182,12 +183,12 @@ class InventoryController extends Controller {
             // Image Upload to Base64 (Vercel Compatibility)
             $imagePath = null;
             if (!empty($_FILES['image']['name']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
-                $allowedMimeTypes = ['image/jpeg', 'image/png', 'image/webp'];
+                $allowedMimeTypes = ['image/jpeg', 'image/png'];
                 $fileMimeType = mime_content_type($_FILES['image']['tmp_name']);
                 
                 if (!in_array($fileMimeType, $allowedMimeTypes)) {
                     if (isset($_SERVER['HTTP_HX_REQUEST'])) {
-                        http_response_code(400); header('X-Toast-Type: error'); header('X-Toast-Message: Tipo de imagen no permitido (solo JPG/PNG/WEBP)'); echo "Tipo de imagen no permitido"; exit;
+                        http_response_code(400); header('X-Toast-Type: error'); header('X-Toast-Message: Tipo de imagen no permitido (solo JPG/PNG)'); echo "Tipo de imagen no permitido"; exit;
                     }
                     exit('Formato no permitido');
                 }
@@ -203,7 +204,6 @@ class InventoryController extends Controller {
                 // Comprimiendo a Base64 para guardarlo directamente en base de datos
                 $imagePath = $this->compressImageToBase64($_FILES['image']['tmp_name'], $_FILES['image']['type']);
                 
-                // Validación extra de seguridad: verificar que la imagen comprimida es real y limpia
                 if ($imagePath) {
                     require_once __DIR__ . '/../../../core/ImageValidator.php';
                     $validation = ImageValidator::validateImage($imagePath, 'product');
@@ -493,12 +493,12 @@ class InventoryController extends Controller {
 
             // Image upload (optional) - Vercel Compatibility Base64
             if (!empty($_FILES['image']['name']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
-                $allowedMimeTypes = ['image/jpeg', 'image/png', 'image/webp'];
+                $allowedMimeTypes = ['image/jpeg', 'image/png'];
                 $fileMimeType = mime_content_type($_FILES['image']['tmp_name']);
                 
                 if (!in_array($fileMimeType, $allowedMimeTypes)) {
                     if (isset($_SERVER['HTTP_HX_REQUEST'])) {
-                        http_response_code(400); header('X-Toast-Type: error'); header('X-Toast-Message: Tipo no permitido'); exit;
+                        http_response_code(400); header('X-Toast-Type: error'); header('X-Toast-Message: Tipo no permitido (solo JPG/PNG)'); exit;
                     }
                     exit('Formato no permitido');
                 }

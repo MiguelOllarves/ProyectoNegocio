@@ -345,11 +345,7 @@
         // Custom PWA Install Prompt
         let deferredPrompt;
         window.addEventListener('beforeinstallprompt', (e) => {
-            // Prevent the mini-infobar from appearing on mobile
-            e.preventDefault();
-            // Stash the event so it can be triggered later.
             deferredPrompt = e;
-            // Update UI notify the user they can install the PWA
             if (!localStorage.getItem('pwa_declined')) {
                 const installBanner = document.getElementById('install-pwa-banner');
                 if (installBanner) {
@@ -504,8 +500,8 @@
         // 3. SESSION IDLE TIMEOUT - Temporizador de Inactividad
         // ============================================================
         var inactivityTimer, warningTimer, countdownInterval;
-        var WARNING_TIME = 270000; // 4:30 minutos
-        var LOGOUT_TIME  = 300000; // 5:00 minutos
+        var WARNING_TIME = 10500000; // 2:55 horas (aviso antes del logout)
+        var LOGOUT_TIME  = 10800000; // 3:00 horas
 
         function showWarningModal() {
             var modal = document.getElementById('session-warning-modal');
@@ -716,29 +712,25 @@
         <nav class="bg-white/95 backdrop-blur-md dark:bg-slate-900/95 border-t sm:border-t-0 sm:border-b border-gray-200 dark:border-gray-800 shrink-0 z-[60] fixed bottom-0 left-0 right-0 sm:relative sm:bottom-auto w-full" style="padding-bottom: max(0.5rem, env(safe-area-inset-bottom, 0px));">
             <div class="flex space-x-1 sm:space-x-2 overflow-x-auto whitespace-nowrap px-4 py-2 sidebar-scroll items-center min-h-[56px]">
                 <?php
+                require_once __DIR__ . '/../core/BusinessProfileService.php';
                 $uri = $_SERVER['REQUEST_URI'] ?? '';
                 $category = $_SESSION['business_category'] ?? 'general';
                 
                 $inventoryLabel = 'Inventario';
-                $inventoryIcon = 'fa-boxes';
+                $inventoryIcon = BusinessProfileService::getIcon($category);
                 $salesLabel = 'Punto de Venta';
                 $salesIcon = 'fa-shopping-cart';
 
-                if ($category === 'bienes_raices') {
+                if ($category === 'gastronomia') {
+                    $inventoryLabel = 'Platos e Insumos';
+                    $salesLabel = 'Caja Registradora';
+                    $salesIcon = 'fa-cash-register';
+                } elseif ($category === 'bienes_raices') {
                     $inventoryLabel = 'Inmuebles';
-                    $inventoryIcon = 'fa-building';
                     $salesLabel = 'Ventas / Contratos';
                     $salesIcon = 'fa-file-signature';
                 } elseif ($category === 'vehiculos') {
                     $inventoryLabel = 'Vehículos';
-                    $inventoryIcon = 'fa-car';
-                } elseif ($category === 'gastronomia') {
-                    $inventoryLabel = 'Platos e Insumos';
-                    $inventoryIcon = 'fa-utensils';
-                    $salesLabel = 'Caja Registradora';
-                    $salesIcon = 'fa-cash-register';
-                } elseif ($category === 'repuestos') {
-                    $inventoryIcon = 'fa-cogs';
                 }
 
                 $userRole = $_SESSION['role'] ?? 'vendedor';
@@ -756,17 +748,26 @@
                         ['dashboard',  'fa-tachometer-alt', 'Panel de Control',  null],
                         ['inventory',  $inventoryIcon,      $inventoryLabel,     'inventory'],
                     ];
-                    // Módulo de Platos para gastronomía y general
-                    if ($category === 'gastronomia' || $category === 'general') {
+                    if (BusinessProfileService::hasFeature($category, 'recipes')) {
                         $menuItems[] = ['restaurant', 'fa-utensils', 'Platos', 'inventory'];
                     }
                     $menuItems = array_merge($menuItems, [
                         ['sales',      $salesIcon,          $salesLabel,         'pos'],
                         ['purchases',  'fa-cart-arrow-down', 'Compras',          'inventory'],
-                        ['suppliers',  'fa-truck',           'Proveedores',      'inventory'],
+                    ]);
+                    if (BusinessProfileService::hasFeature($category, 'suppliers')) {
+                        $menuItems[] = ['suppliers',  'fa-truck',           'Proveedores',      'inventory'];
+                    }
+                    $menuItems = array_merge($menuItems, [
                         ['clients',    'fa-users',           'Clientes',         'clients'],
-                        ['credits',    'fa-hand-holding-usd','Créditos',         'pos'],
-                        ['expenses',   'fa-money-bill-wave', 'Gastos',           'reports'],
+                    ]);
+                    if (BusinessProfileService::hasFeature($category, 'credits')) {
+                        $menuItems[] = ['credits',    'fa-hand-holding-usd','Créditos',         'pos'];
+                    }
+                    if (BusinessProfileService::hasFeature($category, 'expenses')) {
+                        $menuItems[] = ['expenses',   'fa-money-bill-wave', 'Gastos',           'reports'];
+                    }
+                    $menuItems = array_merge($menuItems, [
                         ['cashbox',    'fa-wallet',          'Arqueo de Caja',   'pos'],
                         ['reports',    'fa-chart-line',      'Reportes',         'reports'],
                     ]);

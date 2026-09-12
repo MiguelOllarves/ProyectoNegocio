@@ -200,77 +200,56 @@ class AuthController extends Controller {
     }
     
     private function seedBusinessData($db, $business_id, $category) {
-        $seeds = [
+        require_once __DIR__ . '/../../../core/BusinessProfileService.php';
+        
+        $seedProducts = [
             'gastronomia' => [
-                'categories' => ['Bebidas', 'Entradas', 'Platos Principales', 'Postres'],
-                'products' => [
-                    ['name' => 'Refresco 2L', 'price' => 2.50, 'cat' => 'Bebidas'],
-                    ['name' => 'Hamburguesa Clásica', 'price' => 5.00, 'cat' => 'Platos Principales'],
-                ]
+                ['name' => 'Refresco 2L', 'price' => 2.50, 'cat' => 'Bebidas'],
+                ['name' => 'Hamburguesa Clásica', 'price' => 5.00, 'cat' => 'Platos Principales'],
             ],
             'viveres' => [
-                'categories' => ['Harinas', 'Granos', 'Lácteos', 'Enlatados', 'Aseo Personal'],
-                'products' => [
-                    ['name' => 'Harina PAN', 'price' => 1.20, 'cat' => 'Harinas'],
-                    ['name' => 'Arroz Mary 1Kg', 'price' => 1.30, 'cat' => 'Granos'],
-                ]
+                ['name' => 'Harina PAN', 'price' => 1.20, 'cat' => 'Harinas'],
+                ['name' => 'Arroz Mary 1Kg', 'price' => 1.30, 'cat' => 'Granos'],
             ],
             'repuestos' => [
-                'categories' => ['Frenos', 'Suspensión', 'Motor', 'Eléctricos', 'Lubricantes'],
-                'products' => [
-                    ['name' => 'Pastillas de Freno Universales', 'price' => 15.00, 'cat' => 'Frenos'],
-                    ['name' => 'Aceite Mineral 20W50', 'price' => 8.50, 'cat' => 'Lubricantes'],
-                ]
+                ['name' => 'Pastillas de Freno Universales', 'price' => 15.00, 'cat' => 'Frenos'],
+                ['name' => 'Aceite Mineral 20W50', 'price' => 8.50, 'cat' => 'Lubricantes'],
             ],
             'vehiculos' => [
-                'categories' => ['Motos', 'Carros Usados', 'Accesorios'],
-                'products' => [
-                    ['name' => 'Casco Integral', 'price' => 45.00, 'cat' => 'Accesorios'],
-                ]
+                ['name' => 'Casco Integral', 'price' => 45.00, 'cat' => 'Accesorios'],
             ],
             'bienes_raices' => [
-                'categories' => ['Alquiler', 'Venta', 'Trámites'],
-                'products' => [
-                    ['name' => 'Honorarios Contrato Alquiler', 'price' => 50.00, 'cat' => 'Trámites'],
-                ]
+                ['name' => 'Honorarios Contrato Alquiler', 'price' => 50.00, 'cat' => 'Trámites'],
             ],
             'tecnologia' => [
-                'categories' => ['Smartphones', 'Laptops', 'Accesorios', 'Servicio Técnico'],
-                'products' => [
-                    ['name' => 'Forro Protector Silicone', 'price' => 5.00, 'cat' => 'Accesorios'],
-                    ['name' => 'Cable USB-C de Carga Rápida', 'price' => 8.00, 'cat' => 'Accesorios'],
-                ]
+                ['name' => 'Forro Protector Silicone', 'price' => 5.00, 'cat' => 'Accesorios'],
+                ['name' => 'Cable USB-C de Carga Rápida', 'price' => 8.00, 'cat' => 'Accesorios'],
             ],
             'general' => [
-                'categories' => ['General', 'Servicios'],
-                'products' => [
-                    ['name' => 'Producto Base', 'price' => 10.00, 'cat' => 'General'],
-                ]
-            ]
+                ['name' => 'Producto Base', 'price' => 10.00, 'cat' => 'General'],
+            ],
         ];
 
-        $seed = $seeds[$category] ?? $seeds['general'];
+        $categories = BusinessProfileService::getSeedCategories($category);
+        $products = $seedProducts[$category] ?? $seedProducts['general'];
         $catMap = [];
 
         try {
             $db->beginTransaction();
-            // Insert categories
             $stmtCat = $db->prepare("INSERT INTO categories (tenant_id, name) VALUES (?, ?)");
-            foreach ($seed['categories'] as $catName) {
+            foreach ($categories as $catName) {
                 $stmtCat->execute([$business_id, $catName]);
                 $catMap[$catName] = $db->lastInsertId();
             }
 
-            // Insert default products
             $stmtProd = $db->prepare("INSERT INTO products (tenant_id, category_id, name, price, stock) VALUES (?, ?, ?, ?, ?)");
-            foreach ($seed['products'] as $prod) {
+            foreach ($products as $prod) {
                 $catId = $catMap[$prod['cat']] ?? null;
                 $stmtProd->execute([$business_id, $catId, $prod['name'], $prod['price'], 10]);
             }
             $db->commit();
         } catch (Exception $e) {
             $db->rollBack();
-            // Ignore seeding errors so it doesn't break registration
             error_log("Error in Seeder: " . $e->getMessage());
         }
     }
@@ -307,11 +286,12 @@ class AuthController extends Controller {
                 $stmt->execute(['usr' => $username]);
                 $user = $stmt->fetch();
             } catch (Exception $e) {
+                error_log('[Auth] Login DB error: ' . $e->getMessage());
                 if ($isAjax) {
-                    echo json_encode(['success' => false, 'message' => 'Error interno de BD: ' . $e->getMessage()]);
+                    echo json_encode(['success' => false, 'message' => 'Error interno del sistema.']);
                     exit;
                 } else {
-                    $_SESSION['login_error'] = 'Error interno de BD: ' . $e->getMessage();
+                    $_SESSION['login_error'] = 'Error interno del sistema.';
                     header('Location: ' . BASE_URL . '?login=1');
                     exit;
                 }
@@ -364,6 +344,7 @@ class AuthController extends Controller {
                 $stmtUpdateSession->execute([session_id(), $user['id']]);
 
                 Middleware::resetRateLimit('login');
+                session_regenerate_id(true);
                 $_SESSION['user_id'] = $user['id'];
                 $_SESSION['role'] = $user['role'];
                 $_SESSION['username'] = $user['username'];

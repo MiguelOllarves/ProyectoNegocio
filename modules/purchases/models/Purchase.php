@@ -11,6 +11,7 @@ class Purchase extends Model {
     public function createWithItems($userId, $supplierId, $items, $notes = '') {
         $dbInstance = \Database::getInstance();
         $dbInstance->beginTransaction();
+        $tenantId = $_SESSION['business_id'] ?? null;
 
         try {
             $total = 0;
@@ -18,19 +19,16 @@ class Purchase extends Model {
                 $total += $item['quantity'] * $item['cost'];
             }
 
-            // 1. Crear cabecera de compra
             $this->db->prepare("INSERT INTO purchases (supplier_id, user_id, total, notes) VALUES (?, ?, ?, ?)")
                 ->execute([$supplierId, $userId, $total, $notes]);
             $purchaseId = $this->db->lastInsertId();
 
-            // 2. Insertar ítems + actualizar stock + kardex
             $stmtItem = $this->db->prepare("INSERT INTO purchase_items (purchase_id, product_id, presentation_id, quantity, unit_type, cost_per_unit) VALUES (?, ?, ?, ?, ?, ?)");
-            $stmtStock = $this->db->prepare("UPDATE products SET stock = stock + ?, unit_cost = ?, bulk_cost = ? WHERE id = ?");
-            $stmtStockAfter = $this->db->prepare("SELECT stock FROM products WHERE id = ?");
+            $stmtStock = $this->db->prepare("UPDATE products SET stock = stock + ?, unit_cost = ?, bulk_cost = ? WHERE id = ? AND tenant_id = ?");
+            $stmtStockAfter = $this->db->prepare("SELECT stock FROM products WHERE id = ? AND tenant_id = ?");
             $stmtKardex = $this->db->prepare("INSERT INTO kardex (product_id, type, quantity, stock_after, reference_type, reference_id, note, user_id) VALUES (?, 'entrada_compra', ?, ?, 'purchase', ?, ?, ?)");
             
-            // Legacy / Presentation Fallbacks
-            $stmtProdConf = $this->db->prepare("SELECT purchase_unit_id, content_per_purchase FROM products WHERE id = ?");
+            $stmtProdConf = $this->db->prepare("SELECT purchase_unit_id, content_per_purchase FROM products WHERE id = ? AND tenant_id = ?");
             $stmtPresConf = $this->db->prepare("SELECT unit_id, quantity FROM product_presentations WHERE id = ?");
             
             require_once __DIR__ . '/../../../core/CostCalculationService.php';
@@ -55,8 +53,8 @@ class Purchase extends Model {
                     }
                 }
                 
-                if (!$calcUnitId) { // Fallback to legacy product config
-                    $stmtProdConf->execute([$item['product_id']]);
+                if (!$calcUnitId) {
+                    $stmtProdConf->execute([$item['product_id'], $tenantId]);
                     $prodFall = $stmtProdConf->fetch();
                     $calcUnitId = $prodFall['purchase_unit_id'];
                     $multiplier = (float)$prodFall['content_per_purchase'];
@@ -73,9 +71,9 @@ class Purchase extends Model {
                 $costPerSaleUnit = $realQuantity > 0 ? $totalItemCost / $realQuantity : 0;
 
                 $stmtItem->execute([$purchaseId, $item['product_id'], $presentationId, $item['quantity'], $unitType, $item['cost']]);
-                $stmtStock->execute([$quantityInBaseUnits, $costPerSaleUnit, $item['cost'], $item['product_id']]);
+                $stmtStock->execute([$quantityInBaseUnits, $costPerSaleUnit, $item['cost'], $item['product_id'], $tenantId]);
 
-                $stmtStockAfter->execute([$item['product_id']]);
+                $stmtStockAfter->execute([$item['product_id'], $tenantId]);
                 $stockAfter = $stmtStockAfter->fetchColumn();
 
                 $stmtKardex->execute([
@@ -135,13 +133,14 @@ class Purchase extends Model {
 
         $dbInstance = \Database::getInstance();
         $dbInstance->beginTransaction();
+        $tenantId = $_SESSION['business_id'] ?? null;
 
         try {
-            $stmtStock = $this->db->prepare("UPDATE products SET stock = stock - ? WHERE id = ?");
-            $stmtStockAfter = $this->db->prepare("SELECT stock FROM products WHERE id = ?");
+            $stmtStock = $this->db->prepare("UPDATE products SET stock = stock - ? WHERE id = ? AND tenant_id = ?");
+            $stmtStockAfter = $this->db->prepare("SELECT stock FROM products WHERE id = ? AND tenant_id = ?");
             $stmtKardex = $this->db->prepare("INSERT INTO kardex (product_id, type, quantity, stock_after, reference_type, reference_id, note, user_id) VALUES (?, 'salida_anulacion', ?, ?, 'purchase', ?, ?, ?)");
             
-            $stmtProdConf = $this->db->prepare("SELECT purchase_unit_id, content_per_purchase FROM products WHERE id = ?");
+            $stmtProdConf = $this->db->prepare("SELECT purchase_unit_id, content_per_purchase FROM products WHERE id = ? AND tenant_id = ?");
             $stmtPresConf = $this->db->prepare("SELECT unit_id, quantity FROM product_presentations WHERE id = ?");
             
             require_once __DIR__ . '/../../../core/UnitConversionService.php';
@@ -158,8 +157,8 @@ class Purchase extends Model {
                         $multiplier = (float)$pres['quantity'];
                     }
                 }
-                if (!$calcUnitId) { // Fallback
-                    $stmtProdConf->execute([$item['product_id']]);
+                if (!$calcUnitId) {
+                    $stmtProdConf->execute([$item['product_id'], $tenantId]);
                     $prodFall = $stmtProdConf->fetch();
                     $calcUnitId = $prodFall['purchase_unit_id'];
                     $multiplier = (float)$prodFall['content_per_purchase'];
@@ -170,11 +169,9 @@ class Purchase extends Model {
                 $realQuantity = $item['quantity'] * $multiplier;
                 $quantityInBaseUnits = \UnitConversionService::convertToBase($realQuantity, $calcUnitId);
 
-                // Reverse the stock correctly in base units
-                $stmtStock->execute([$quantityInBaseUnits, $item['product_id']]);
+                $stmtStock->execute([$quantityInBaseUnits, $item['product_id'], $tenantId]);
                 
-                // Get stock after
-                $stmtStockAfter->execute([$item['product_id']]);
+                $stmtStockAfter->execute([$item['product_id'], $tenantId]);
                 $stockAfter = $stmtStockAfter->fetchColumn();
 
                 // Log Kardex
