@@ -227,6 +227,20 @@ class Migration {
 
             try { $pdo->exec("CREATE INDEX IF NOT EXISTS idx_soi_order ON store_order_items(order_id)"); } catch (\Exception $e) {}
             try { $pdo->exec("CREATE INDEX IF NOT EXISTS idx_sooi_item ON store_order_item_options(order_item_id)"); } catch (\Exception $e) {}
+
+            // Tabla para opciones de venta (POS)
+            $pdo->exec("CREATE TABLE IF NOT EXISTS sale_item_options (
+                id {$autoInc},
+                sale_item_id INTEGER NOT NULL REFERENCES sale_items(id) ON DELETE CASCADE,
+                group_id INTEGER REFERENCES restaurant_option_groups(id),
+                option_product_id INTEGER REFERENCES products(id),
+                group_name_snapshot VARCHAR(100),
+                option_name_snapshot VARCHAR(255),
+                price_delta REAL DEFAULT 0,
+                quantity REAL DEFAULT 1,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )");
+            try { $pdo->exec("CREATE INDEX IF NOT EXISTS idx_sio_item ON sale_item_options(sale_item_id)"); } catch (\Exception $e) {}
         } catch (PDOException $e) {
             error_log('[Migration] ensureStructuredOrders: ' . $e->getMessage());
         }

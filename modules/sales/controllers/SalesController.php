@@ -61,11 +61,23 @@ class SalesController extends Controller {
                     $ivaMethod  = Settings::get('iva_method', 'included');
                     $baseTotal = 0;
                     $calculatedIva = 0;
+                    require_once __DIR__ . '/../../../core/ProductConfigurationService.php';
+                    $configService = new ProductConfigurationService();
 
                     foreach ($data['items'] as &$item) {
                         $prod = $this->productModel->find($item['id']);
                         if ($prod) {
-                            $item['price'] = (float)$prod['price']; // Override frontend price!
+                            $item['price'] = (float)$prod['price'];
+                            
+                            // Si tiene opciones de restaurante, calcular precio con opciones desde BD
+                            $options = $item['options'] ?? [];
+                            if (!empty($options)) {
+                                $configPrice = $configService->validateConfiguration($item['id'], $options);
+                                if ($configPrice['valid']) {
+                                    $item['price'] += $configPrice['price_delta'];
+                                }
+                            }
+                            
                             $qty = (float)($item['quantity'] ?? $item['qty'] ?? 1);
                             $lineTotal = $item['price'] * $qty;
                             

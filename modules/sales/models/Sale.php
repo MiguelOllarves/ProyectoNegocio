@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/../../../core/Model.php';
 require_once __DIR__ . '/../../restaurant/models/Recipe.php';
+require_once __DIR__ . '/../../../core/ProductConfigurationService.php';
 
 class Sale extends Model {
     protected $table = 'sales';
@@ -162,6 +163,7 @@ class Sale extends Model {
             }
 
             $stmtItem = $this->db->prepare("INSERT INTO sale_items (sale_id, product_id, quantity, price_at_sale, cost_at_sale) VALUES (:sid, :pid, :qty, :price, :cost)");
+            $stmtItemOption = $this->db->prepare("INSERT INTO sale_item_options (sale_item_id, group_id, option_product_id, group_name_snapshot, option_name_snapshot, price_delta) VALUES (:siid, :gid, :opid, :gn, :on, :pd)");
             $stmtUpdateStock = $this->db->prepare("UPDATE products SET stock = stock - :qty WHERE id = :pid AND tenant_id = :tid");
 
             $stmtKardex = $this->db->prepare("INSERT INTO kardex (product_id, type, quantity, stock_after, reference_type, reference_id, user_id) VALUES (:pid, 'salida_venta', :qty, :stock_after, 'sale', :sid, :uid)");
@@ -219,6 +221,51 @@ class Sale extends Model {
                     'price' => $item['price'],
                     'cost' => $unitCost
                 ]);
+                $saleItemId = $this->db->lastInsertId();
+
+                // Guardar opciones del restaurante si existen
+                $options = $item['options'] ?? [];
+                if (!empty($options)) {
+                    $configService = new ProductConfigurationService();
+                    $itemData = $configService->prepareItemData($item['id'], $actualQty, $options, (float)$item['price']);
+                    foreach ($itemData['options'] as $opt) {
+                        $stmtItemOption->execute([
+                            'siid' => $saleItemId,
+                            'gid' => $opt['group_id'],
+                            'opid' => $opt['option_product_id'],
+                            'gn' => $opt['group_name_snapshot'],
+                            'on' => $opt['option_name_snapshot'],
+                            'pd' => $opt['price_delta']
+                        ]);
+                    }
+                    // Consumir opciones del restaurante como ingrediente adicional
+                    foreach ($options as $opt) {
+                        $optionProductId = $opt['option_id'] ?? 0;
+                        if ($optionProductId > 0) {
+                            $stmtOptProduct = $this->db->prepare("SELECT is_dish FROM products WHERE id = :pid AND tenant_id = :tid");
+                            $stmtOptProduct->execute(['pid' => $optionProductId, 'tid' => $tenantId]);
+                            $optIsDish = $stmtOptProduct->fetchColumn();
+                            if (!empty($optIsDish)) {
+                                $recipeModel->consumeIngredients($optionProductId, $actualQty, 'sale_option', $saleId, $userId);
+                            } else {
+                                $stmtUpdateStock->execute([
+                                    'qty' => $actualQty,
+                                    'pid' => $optionProductId,
+                                    'tid' => $tenantId
+                                ]);
+                                $stmtStockAfter->execute(['pid' => $optionProductId, 'tid' => $tenantId]);
+                                $stockAfter = $stmtStockAfter->fetchColumn();
+                                $stmtKardex->execute([
+                                    'pid' => $optionProductId,
+                                    'qty' => $actualQty,
+                                    'stock_after' => $stockAfter,
+                                    'sid' => $saleId,
+                                    'uid' => $userId
+                                ]);
+                            }
+                        }
+                    }
+                }
 
                 if ($isDish) {
                     $recipeModel->consumeIngredients($item['id'], $actualQty, 'sale', $saleId, $userId);

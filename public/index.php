@@ -346,7 +346,7 @@ $moduleMap = [
 ];
 
 // Ruta especial: /tienda/{slug} → StorefrontController::show($slug)
-if ($module === 'tienda' && !empty($action) && !in_array($action, ['index', 'registerClient', 'checkout'])) {
+if ($module === 'tienda' && !empty($action) && !in_array($action, ['index', 'registerClient', 'checkout', 'availability'])) {
     $id = $action;
     $action = 'show';
 }

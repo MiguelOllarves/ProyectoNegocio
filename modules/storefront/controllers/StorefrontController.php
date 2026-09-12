@@ -453,16 +453,29 @@ class StorefrontController extends Controller {
         $realTotalUsd = 0;
         $finalItems = [];
         require_once __DIR__ . '/../../inventory/models/Product.php';
+        require_once __DIR__ . '/../../../core/ProductConfigurationService.php';
         $productModel = new Product();
+        $configService = new ProductConfigurationService();
         
         foreach ($data['items'] as $item) {
             $prod = $productModel->find($item['id'] ?? 0);
             if ($prod) {
-                // Si el stock está en BD, validar que esté disponible
                 $qty = (float)($item['qty'] ?? 1);
-                $price = (float)$prod['price'];
-                $realTotalUsd += ($price * $qty);
-                $item['price'] = $price; // Override fake frontend prices
+                $options = $item['options'] ?? [];
+                
+                // Si tiene opciones, calcular precio desde BD (backend es la fuente de verdad)
+                if (!empty($options)) {
+                    $configPrice = $configService->validateConfiguration($item['id'], $options);
+                    $price = (float)$prod['price'] + $configPrice['price_delta'];
+                    $realTotalUsd += ($price * $qty);
+                    $item['price'] = $price;
+                    $item['options_valid'] = $configPrice['valid'];
+                } else {
+                    $price = (float)$prod['price'];
+                    $realTotalUsd += ($price * $qty);
+                    $item['price'] = $price;
+                    $item['options_valid'] = true;
+                }
                 $finalItems[] = $item;
             }
         }
@@ -491,6 +504,38 @@ class StorefrontController extends Controller {
         ]);
         
         $orderId = $db->lastInsertId();
+        
+        // Guardar items estructurados en store_order_items
+        $stmtOrderItem = $db->prepare("INSERT INTO store_order_items (order_id, product_id, quantity, unit_price, total_price, product_name_snapshot) VALUES (:oid, :pid, :qty, :up, :tp, :pname)");
+        $stmtOrderItemOption = $db->prepare("INSERT INTO store_order_item_options (order_item_id, group_id, option_product_id, group_name_snapshot, option_name_snapshot, price_delta) VALUES (:oiid, :gid, :opid, :gn, :on, :pd)");
+        
+        foreach ($data['items'] as $item) {
+            $stmtOrderItem->execute([
+                'oid' => $orderId,
+                'pid' => $item['id'],
+                'qty' => $item['qty'] ?? 1,
+                'up' => $item['price'] ?? 0,
+                'tp' => ($item['price'] ?? 0) * ($item['qty'] ?? 1),
+                'pname' => $item['name'] ?? ''
+            ]);
+            $orderItemId = $db->lastInsertId();
+            
+            // Guardar opciones del restaurante si existen
+            $options = $item['options'] ?? [];
+            if (!empty($options)) {
+                $itemData = $configService->prepareItemData($item['id'], $item['qty'] ?? 1, $options, (float)$item['price']);
+                foreach ($itemData['options'] as $opt) {
+                    $stmtOrderItemOption->execute([
+                        'oiid' => $orderItemId,
+                        'gid' => $opt['group_id'],
+                        'opid' => $opt['option_product_id'],
+                        'gn' => $opt['group_name_snapshot'],
+                        'on' => $opt['option_name_snapshot'],
+                        'pd' => $opt['price_delta']
+                    ]);
+                }
+            }
+        }
         
         // Si es a crédito, registramos la deuda automáticamente
         if ($paymentMethod === 'Crédito (Fiado)' && $clientId) {
@@ -589,6 +634,31 @@ class StorefrontController extends Controller {
             'totalPages' => $totalPages,
             'totalRecords' => $totalOrders
         ]);
+    }
+
+    /**
+     * API: Disponibilidad de un plato configurado.
+     * POST { product_id, options: [{ group_id, option_id }] }
+     * Retorna: { available, max_qty, reason }
+     */
+    public function availability() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') return;
+
+        $data = json_decode(file_get_contents('php://input'), true);
+        $productId = $data['product_id'] ?? 0;
+        $options = $data['options'] ?? [];
+
+        if ($productId <= 0) {
+            echo json_encode(['success' => false, 'message' => 'product_id requerido']);
+            return;
+        }
+
+        require_once __DIR__ . '/../../../config/Database.php';
+        require_once __DIR__ . '/../../../core/ProductConfigurationService.php';
+        $configService = new ProductConfigurationService();
+
+        $result = $configService->calculateConfigurationAvailability($productId, $options);
+        echo json_encode(['success' => true, 'data' => $result]);
     }
 
     /**
