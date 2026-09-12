@@ -771,7 +771,7 @@ function productForm() {
 </style>
 
 <!-- SheetJS for Excel/CSV Parsing -->
-<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="<?= BASE_URL ?>js/vendor/xlsx.full.min.js"></script>
 <input type="file" id="bulkUploadInput" class="hidden" accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" onchange="handleBulkImport(event)">
 
 <script>
