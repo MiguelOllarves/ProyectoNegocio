@@ -21,12 +21,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Tu Inventario - Toma el control absoluto de tu negocio</title>
-    <link rel="icon" type="image/png" href="<?= BASE_URL ?>?serve_logo=1">
-    <link rel="manifest" href="<?= BASE_URL ?>manifest.json">
+    <link rel="icon" type="image/png" href="?serve_logo=1">
+    <link rel="manifest" href="/manifest.json">
     
     <!-- CSS (Tailwind nativo) -->
-    <link rel="stylesheet" href="<?= BASE_URL ?>css/tailwind.css?v=<?= CSS_VERSION ?>">
-    <link rel="stylesheet" href="<?= BASE_URL ?>css/fontawesome.min.css">
+    <link rel="stylesheet" href="/css/tailwind.css?v=<?= CSS_VERSION ?>">
+    <link rel="stylesheet" href="/css/fontawesome.min.css">
     <style>
         body { font-family: 'Inter', sans-serif; }
         
@@ -1245,7 +1245,7 @@
         // Registrar Service Worker para PWA
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('<?= BASE_URL ?>sw.js')
+                navigator.serviceWorker.register('/sw.js')
                     .then(registration => {
                         console.log('SW registrado con éxito:', registration.scope);
                     })

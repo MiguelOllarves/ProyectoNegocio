@@ -24,13 +24,13 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Tu Inventario">
-    <link rel="icon" type="image/png" href="<?= BASE_URL ?>?serve_logo=1">
-    <link rel="manifest" href="<?= BASE_URL ?>manifest.json">
-    <link rel="apple-touch-icon" href="<?= BASE_URL ?>icons/icon-512x512.png">
+    <link rel="icon" type="image/png" href="?serve_logo=1">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="apple-touch-icon" href="/icons/icon-512x512.png">
     <title>Tu Inventario</title>
     <meta name="csrf-token" content="<?= $_SESSION['csrf_token'] ?? '' ?>">
-    <link rel="stylesheet" href="<?= BASE_URL ?? "" ?>css/tailwind.css?v=<?= CSS_VERSION ?>">
-    <link rel="stylesheet" href="<?= BASE_URL ?>css/fontawesome.min.css">
+    <link rel="stylesheet" href="/css/tailwind.css?v=<?= CSS_VERSION ?>">
+    <link rel="stylesheet" href="/css/fontawesome.min.css">
     <script defer src="<?= BASE_URL ?>js/vendor/htmx.min.js"></script>
     <script defer src="<?= BASE_URL ?>js/vendor/alpine.min.js"></script>
     <script defer src="<?= BASE_URL ?>js/vendor/JsBarcode.all.min.js"></script>
@@ -243,7 +243,7 @@
         // Register PWA Service Worker
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('<?= BASE_URL ?>sw.js').then(reg => {
+                navigator.serviceWorker.register('/sw.js').then(reg => {
                     reg.update();
                     if ('Notification' in window && Notification.permission === 'granted') {
                         subscribeToPush(true);
