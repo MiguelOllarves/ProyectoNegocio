@@ -16,7 +16,7 @@ database/tu_inventario.db
 .DS_Store
 Thumbs.db
 node_modules/
-vendor/
+/vendor/
 
 # Archivos de desarrollo/debug que NO deben ir a producción
 check_lengths.php
