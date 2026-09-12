@@ -2,7 +2,9 @@
 require_once __DIR__ . '/../config/Database.php';
 
 class Settings {
-    public static function get($key, $default = null) {
+    private static ?float $bcvCache = null;
+
+    public static function get(string $key, mixed $default = null): mixed {
         try {
             if (!Database::isAvailable()) {
                 return $default;
@@ -18,7 +20,7 @@ class Settings {
         }
     }
 
-    public static function set($key, $value) {
+    public static function set(string $key, mixed $value): bool {
         try {
             if (!Database::isAvailable()) {
                 return false;
@@ -51,9 +53,7 @@ class Settings {
      * - Si la API falla, se marca el intento y no se vuelve a intentar por 15 minutos
      *   (evita bloquear cada página con curl lento).
      */
-    private static $bcvCache = null;
-
-    public static function getBcvRate() {
+    public static function getBcvRate(): float {
         if (self::$bcvCache !== null) return self::$bcvCache;
 
         $db = Database::getInstance()->getConnection();
@@ -133,7 +133,7 @@ class Settings {
     /**
      * Curl rápido y no-bloqueante para consultar tasas.
      */
-    private static function fetchUrl($url) {
+    private static function fetchUrl(string $url): bool|string {
         $ch = curl_init();
         curl_setopt_array($ch, [
             CURLOPT_URL            => $url,
