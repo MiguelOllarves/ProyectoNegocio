@@ -6,7 +6,7 @@
     <title>Registro - Tu Inventario</title>
     <link rel="icon" type="image/png" href="<?= BASE_URL ?>?serve_logo=1">
     <link rel="stylesheet" href="<?= BASE_URL ?? "" ?>css/tailwind.css?v=<?= CSS_VERSION ?>">
-    <link rel="stylesheet" href="<?= BASE_URL ?>css/fontawesome.min.css">
+    <link rel="stylesheet" href="/css/fontawesome.min.css">
     <script defer src="<?= BASE_URL ?>js/vendor/alpine.min.js"></script>
     
     <style>
