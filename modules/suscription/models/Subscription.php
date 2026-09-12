@@ -19,7 +19,7 @@ class Subscription extends Model {
      * Verifica si el tenant tiene una suscripción activa para el mes actual.
      * @return array ['active' => bool, 'expires_at' => string|null, 'status' => string]
      */
-    public static function checkStatus($tenantId) {
+    public static function checkStatus(int $tenantId): array {
         $db = Database::getInstance()->getConnection();
         
         // Buscar el último pago aprobado del tenant
@@ -80,7 +80,7 @@ class Subscription extends Model {
      * @param DateTime $date Fecha de referencia (día del pago)
      * @return DateTime Último día del mes a las 23:59:59
      */
-    public static function getMonthEndDate($date) {
+    public static function getMonthEndDate(DateTime $date): DateTime {
         $end = new DateTime($date->format('Y-m-t')); // 't' = último día del mes
         $end->setTime(23, 59, 59);
         return $end;
@@ -94,7 +94,7 @@ class Subscription extends Model {
      * @param string|null $proofBase64 Captura del pago en base64
      * @return array ['success' => bool, 'message' => string]
      */
-    public static function registerPayment($tenantId, $method, $reference, $proofBase64 = null) {
+    public static function registerPayment(int $tenantId, string $method, string $reference, ?string $proofBase64 = null): array {
         $db = Database::getInstance()->getConnection();
         
         // Verificar si ya tiene un pago aprobado para este mes
@@ -205,7 +205,7 @@ class Subscription extends Model {
      * @param int $tenantId
      * @return int Días restantes (0 si expiró)
      */
-    public static function getDaysRemaining($tenantId) {
+    public static function getDaysRemaining(int $tenantId): int {
         $status = self::checkStatus($tenantId);
         if (!$status['active']) return 0;
         
@@ -219,7 +219,7 @@ class Subscription extends Model {
     /**
      * Verifica si el tenant puede hacer pagos (no tiene uno aprobado este mes).
      */
-    public static function canPay($tenantId) {
+    public static function canPay(int $tenantId): bool {
         $db = Database::getInstance()->getConnection();
         
         $now = new DateTime();
