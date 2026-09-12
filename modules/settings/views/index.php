@@ -260,7 +260,7 @@
     <i class="fas fa-check-circle mr-2"></i> <span id="toast-msg">Guardado correctamente</span>
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="<?= BASE_URL ?>js/vendor/qrcode.min.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', () => {
     function showToast(msg) {

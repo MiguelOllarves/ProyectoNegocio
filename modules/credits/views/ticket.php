@@ -23,9 +23,7 @@ $headerSize = $width === '58' ? 'text-[11px]' : 'text-sm';
     <!-- Use Tailwind via CDN for easy styling -->
     <link rel="stylesheet" href="<?= BASE_URL ?? "" ?>css/tailwind.css?v=<?= CSS_VERSION ?>">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400;1,700&display=swap');
-        
-        body { font-family: 'Courier Prime', monospace; background-color: #f3f4f6; }
+        body { font-family: 'Courier New', 'Lucida Console', monospace; background-color: #f3f4f6; }
         @page { margin: 0; }
         
         @media print {

@@ -46,10 +46,21 @@ header('X-Content-Type-Options: nosniff');
 header('X-XSS-Protection: 1; mode=block');
 header('Referrer-Policy: strict-origin-when-cross-origin');
 header('Permissions-Policy: camera=(), microphone=(), geolocation=()');
-// CSP compatible con Alpine.js, HTMX, Vercel Live y contenido externo permitido
-header("Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://unpkg.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://www.googletagmanager.com https://vercel.live; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://fonts.googleapis.com https://vercel.live; font-src 'self' data: https://cdnjs.cloudflare.com https://fonts.gstatic.com https://fonts.googleapis.com; img-src 'self' data: blob: https:; media-src 'self' data: blob: https:; connect-src 'self' https://www.google-analytics.com https://vercel.live https://*.vercel.app https://unpkg.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; frame-src 'self' https://vercel.live; frame-ancestors 'none'; base-uri 'self'; form-action 'self'");
+// CSP autocontenido: sin dependencias CDN ni dominios externos para evitar CORS/408
+header("Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com; style-src 'self' 'unsafe-inline'; font-src 'self' data:; img-src 'self' data: blob: https:; media-src 'self' data: blob: https:; connect-src 'self' https://www.google-analytics.com https://www.googletagmanager.com https://*.vercel.app; frame-src 'self' https://www.googletagmanager.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none';");
 if (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') {
     header('Strict-Transport-Security: max-age=31536000; includeSubDomains');
+}
+
+$appUrl = getenv('APP_URL') ?: getenv('NEXT_PUBLIC_APP_URL') ?: '';
+if (!empty($appUrl)) {
+    $canonicalHost = parse_url($appUrl, PHP_URL_HOST);
+    $currentHost = $_SERVER['HTTP_HOST'] ?? '';
+    if ($canonicalHost && $currentHost && strtolower($currentHost) !== strtolower($canonicalHost)) {
+        $redirectUrl = rtrim($appUrl, '/') . ($_SERVER['REQUEST_URI'] ?? '/');
+        header('Location: ' . $redirectUrl, true, 301);
+        exit;
+    }
 }
 
 // [DEBUG FILE PROTECTION] Bloquear acceso a archivos de debug/test/reset

@@ -7,8 +7,8 @@
     <link rel="icon" type="image/x-icon" href="<?= BASE_URL ?>iconos_negocio/logo1.ico">
     <link rel="stylesheet" href="<?= BASE_URL ?? "" ?>css/tailwind.css?v=<?= CSS_VERSION ?>">
     <link rel="stylesheet" href="<?= BASE_URL ?>css/fontawesome.min.css">
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script defer src="<?= BASE_URL ?>js/vendor/alpine.min.js"></script>
+    <script src="<?= BASE_URL ?>js/vendor/qrcode.min.js"></script>
     <meta name="csrf-token" content="<?= $_SESSION['csrf_token'] ?? '' ?>">
     <script>
         // Global CSRF interceptor for standalone page

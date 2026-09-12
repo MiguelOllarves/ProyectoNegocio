@@ -62,13 +62,28 @@ if ($dbUrl) {
 $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || 
             (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https') ? "https://" : "http://";
 
+$appUrl = getenv('APP_URL') ?: getenv('NEXT_PUBLIC_APP_URL') ?: '';
 $host = isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : 'localhost';
+$host = preg_replace('/^www\./i', '', $host);
+
+if (!empty($appUrl)) {
+    $parsedAppUrl = parse_url($appUrl);
+    if (!empty($parsedAppUrl['host'])) {
+        $host = preg_replace('/^www\./i', '', $parsedAppUrl['host']);
+    }
+}
+
 $scriptName = $_SERVER['SCRIPT_NAME'] ?? '/index.php';
 $baseDir = str_replace('\\', '/', dirname($scriptName));
 if ($baseDir === '/' || $baseDir === '\\' || getenv('VERCEL') == '1') {
     $baseDir = '';
 }
-$base_url = $protocol . $host . $baseDir . '/';
+
+if (!empty($appUrl)) {
+    $base_url = rtrim($appUrl, '/') . '/';
+} else {
+    $base_url = $protocol . $host . $baseDir . '/';
+}
 
 define('BASE_URL', $base_url);
 

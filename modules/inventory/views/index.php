@@ -349,7 +349,7 @@ function productForm() {
 </script>
 
 <!-- Librería para generar Código QR -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="<?= BASE_URL ?>js/vendor/qrcode.min.js"></script>
 
 <!-- QR / Barcode Modal -->
 <div id="qrModal" class="modal-wrapper" style="display: none;" z-index="50">
