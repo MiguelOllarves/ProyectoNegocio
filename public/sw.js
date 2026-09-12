@@ -4,10 +4,15 @@
  *             Network-first para páginas dinámicas (PHP/HTML)
  *             Fallback offline graceful
  */
-const CACHE_NAME = 'tu-inventario-v16';
+const CACHE_NAME = 'tu-inventario-v17';
 const STATIC_ASSETS = [
     '/offline.html',
-    '/icons/icon-512x512.png'
+    '/icons/icon-512x512.png',
+    '/css/tailwind.css',
+    '/css/fontawesome.min.css',
+    '/webfonts/fa-solid-900.woff2',
+    '/webfonts/fa-brands-400.woff2',
+    '/webfonts/fa-regular-400.woff2'
 ];
 
 // No dependemos de dominios externos en producción para evitar CORS y fallos 408.
