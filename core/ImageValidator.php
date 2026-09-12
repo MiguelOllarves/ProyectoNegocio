@@ -201,9 +201,7 @@ class ImageValidator {
             '/<applet/i',
             '/on(load|error|click|mouse)/i',
             // Server-side includes
-            '/<!--\s*#(exec|include|echo|config)/i',
-            // Null bytes (common in exploits)
-            '/\x00/',
+            '/<!--\s*#(exec|include|echo|config)/i'
         ];
 
         foreach ($patterns as $pattern) {
