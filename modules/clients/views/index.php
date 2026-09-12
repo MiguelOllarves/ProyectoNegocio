@@ -1,7 +1,7 @@
 <?php include __DIR__ . '/../../../includes/header.php'; ?>
 
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<link rel="stylesheet" href="<?= BASE_URL ?>js/vendor/leaflet/leaflet.css" />
+<script src="<?= BASE_URL ?>js/vendor/leaflet/leaflet.js"></script>
 
 <div class="page-header" x-data="{ openModal: false, editModal: false, viewModal: false, modeCreateWp: '', showCustomCreateWp: false, modeEditWp: '', showCustomEditWp: false }" @open-view-modal.window="viewModal = true" @open-edit-modal.window="editModal = true" @set-edit-wp.window="modeEditWp = $event.detail; showCustomEditWp = (modeEditWp === 'new'); if(modeEditWp !== 'new') { document.getElementById('edit-workplace-custom').value = ''; }">
     <div class="flex-1">
@@ -543,7 +543,7 @@
 </script>
 
 <!-- SheetJS for Excel/CSV Parsing -->
-<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="<?= BASE_URL ?>js/vendor/xlsx.full.min.js"></script>
 <input type="file" id="bulkUploadInputClients" class="hidden" accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" onchange="handleBulkImportClients(event)">
 
 <script>

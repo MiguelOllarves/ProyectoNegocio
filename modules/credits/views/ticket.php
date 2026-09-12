@@ -1,11 +1,25 @@
 <?php
+$client = $client ?? ['name' => '', 'document' => '', 'id' => null];
+$credit = $credit ?? [
+    'id' => $_GET['id'] ?? null,
+    'tenant_id' => $_SESSION['business_id'] ?? 1,
+    'credit_type' => '',
+    'base_amount' => 0,
+    'total_amount' => 0,
+    'interest_rate' => 0,
+    'down_payment' => 0,
+    'remaining_amount' => 0,
+    'due_date' => null,
+    'notes' => ''
+];
+
 // Fetch business configuration if not fully complete in $business
 require_once __DIR__ . '/../../../config/Database.php';
 $db = Database::getInstance()->getConnection();
 $stmtBiz = $db->prepare("SELECT business_name, (logo_base64 IS NOT NULL AND logo_base64 != '') as has_logo, ticket_header, ticket_footer FROM businesses WHERE id = ?");
-$tenant_id = $_SESSION['business_id'] ?? 1;
+$tenant_id = $_SESSION['business_id'] ?? ($credit['tenant_id'] ?? 1);
 $stmtBiz->execute([$tenant_id]);
-$biz = $stmtBiz->fetch(PDO::FETCH_ASSOC);
+$biz = $stmtBiz->fetch(PDO::FETCH_ASSOC) ?: ['business_name' => 'TU INVENTARIO', 'has_logo' => false, 'ticket_header' => '', 'ticket_footer' => ''];
 
 // Determine width (default 80mm, can be set via GET ?w=58)
 $width = $_GET['w'] ?? '80';
@@ -27,7 +41,7 @@ $headerSize = $width === '58' ? 'text-[11px]' : 'text-sm';
         @page { margin: 0; }
         
         @media print {
-            body { background-color: white; margin: 0; padding: 0; display: block; -webkit-print-color-adjust: exact; }
+            body { background-color: white; margin: 0; padding: 0; display: block; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
             .no-print { display: none !important; }
             .ticket-container {
                 box-shadow: none !important; margin: 0 !important; padding: 0 !important;

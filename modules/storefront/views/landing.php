@@ -1,3 +1,8 @@
+<?php
+$business = $business ?? [];
+$config = $config ?? [];
+$products = $products ?? [];
+?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -47,8 +52,8 @@
     <meta name="twitter:description" content="<?= htmlspecialchars($storeDesc) ?>">
     <meta name="twitter:image" content="<?= htmlspecialchars($storeLogo) ?>">
     <link rel="stylesheet" href="<?= BASE_URL ?? "" ?>css/tailwind.css?v=<?= CSS_VERSION ?>">
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.3/dist/cdn.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script defer src="<?= BASE_URL ?>js/vendor/alpine.min.js"></script>
+    <script src="<?= BASE_URL ?>js/vendor/sweetalert2.all.min.js"></script>
     <link rel="stylesheet" href="<?= BASE_URL ?>css/fontawesome.min.css">
     
     <style>

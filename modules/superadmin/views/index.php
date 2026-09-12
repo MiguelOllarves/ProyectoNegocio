@@ -1,4 +1,8 @@
 <?php include __DIR__ . '/../../../includes/header.php'; ?>
+<?php
+$stats = $stats ?? [];
+$daily_visits = $daily_visits ?? [];
+?>
 
 <div class="mb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
     <div>
@@ -81,7 +85,7 @@ $jsDates = array_map(function($d) { return date('d M', strtotime($d)); }, array_
 $jsSeries = array_values($daily_visits ?? []);
 if(empty($jsDates)) { $jsDates = [date('d M')]; $jsSeries = [0]; }
 ?>
-<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+<script src="<?= BASE_URL ?>js/vendor/apexcharts.min.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     var options = {

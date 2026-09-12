@@ -1,3 +1,8 @@
+<?php
+$qr_url = $qr_url ?? (BASE_URL . 'qrmenu/show/' . ($slug ?? ''));
+$slug = $slug ?? '';
+$code = $code ?? '';
+?>
 <!DOCTYPE html>
 <html lang="es">
 <head>

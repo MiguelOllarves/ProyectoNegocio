@@ -4,7 +4,7 @@ ob_start(); // Buffer all output to prevent stray warnings from corrupting JSON 
 // ==========================================
 // MANEJADOR DE ERRORES VISUALES
 // ==========================================
-function renderVisualError($title, $message, $file = '', $line = '') {
+function renderVisualError(string $title, string $message, string $file = '', int|string $line = '') {
     if (ob_get_level()) ob_clean();
     http_response_code(500);
     error_log("[ERROR] $title: $message in $file:$line");
@@ -261,8 +261,8 @@ if (isset($_SERVER['REQUEST_URI'])) {
 
 // === MANEJADOR DE SESIONES EN BASE DE DATOS PARA VERCEL ===
 class DbSessionHandler implements SessionHandlerInterface {
-    private $db;
-    public function __construct($db) { $this->db = $db; }
+    private PDO $db;
+    public function __construct(PDO $db) { $this->db = $db; }
     public function open(string $path, string $name): bool { return true; }
     public function close(): bool { return true; }
     public function read(string $id): string|false {

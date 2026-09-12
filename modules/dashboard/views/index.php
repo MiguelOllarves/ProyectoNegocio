@@ -1,4 +1,13 @@
 <?php include __DIR__ . '/../../../includes/header.php'; ?>
+<?php
+$trial_ends_at = $trial_ends_at ?? '2099-12-31';
+$today_sales = $today_sales ?? 0;
+$inventory_value = $inventory_value ?? 0;
+$estimated_profit = $estimated_profit ?? 0;
+$low_stock = $low_stock ?? 0;
+$chart_data = $chart_data ?? [];
+$subscription_status = $subscription_status ?? 'active';
+?>
 
 <div class="page-header">
     <div>
@@ -148,7 +157,7 @@ $canViewReports = ($userRole === 'administrador' || $userRole === 'super_admin' 
     </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="<?= BASE_URL ?>js/vendor/chart.umd.min.js"></script>
 <?php else: ?>
 <!-- Vista simplificada para cajeros y vendedores -->
 <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 p-8 text-center mt-6">

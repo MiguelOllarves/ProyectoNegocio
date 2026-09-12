@@ -1,4 +1,6 @@
 <?php
+$sale_id = $sale_id ?? ($_GET['id'] ?? 0);
+
 // Fetch sale from database
 require_once __DIR__ . '/../../../config/Database.php';
 $db = Database::getInstance()->getConnection();
@@ -41,6 +43,7 @@ $titleClass = $width === '58' ? 'text-sm' : 'text-xl';
                 padding: 0; 
                 display: block; 
                 -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
             }
             .no-print { display: none !important; }
             .ticket-container {
