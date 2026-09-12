@@ -31,12 +31,12 @@
     <meta name="csrf-token" content="<?= $_SESSION['csrf_token'] ?? '' ?>">
     <link rel="stylesheet" href="/css/tailwind.css?v=<?= CSS_VERSION ?>">
     <link rel="stylesheet" href="/css/fontawesome.min.css">
-    <script defer src="<?= BASE_URL ?>js/vendor/htmx.min.js"></script>
-    <script defer src="<?= BASE_URL ?>js/vendor/alpine.min.js"></script>
-    <script defer src="<?= BASE_URL ?>js/vendor/JsBarcode.all.min.js"></script>
-    <script defer src="<?= BASE_URL ?>js/vendor/sweetalert2.all.min.js"></script>
-    <script defer src="<?= BASE_URL ?>js/vendor/dexie.js"></script>
-    <script defer src="<?= BASE_URL ?>js/offline-sync.js"></script>
+    <script defer src="/js/vendor/htmx.min.js"></script>
+    <script defer src="/js/vendor/alpine.min.js"></script>
+    <script defer src="/js/vendor/JsBarcode.all.min.js"></script>
+    <script defer src="/js/vendor/sweetalert2.all.min.js"></script>
+    <script defer src="/js/vendor/dexie.js"></script>
+    <script defer src="/js/offline-sync.js"></script>
     <script>
         window.BASE_URL = "<?= BASE_URL ?>";
         if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
@@ -63,7 +63,7 @@
             evt.detail.headers['X-CSRF-Token'] = window.csrfToken;
         });
     </script>
-    <link rel="stylesheet" href="<?= BASE_URL ?>css/fontawesome.min.css">
+    <link rel="stylesheet" href="/css/fontawesome.min.css">
     <style>
         /* Gradient definitions (not expressible in Tailwind config) */
         .sidebar-scroll::-webkit-scrollbar { width: 4px; height: 6px; }
@@ -430,7 +430,7 @@
     <div id="install-pwa-banner" class="hidden fixed top-4 sm:top-auto sm:bottom-4 left-4 right-4 z-[99999] bg-gradient-to-r from-brand-600 to-brand-800 text-white p-4 rounded-2xl shadow-2xl flex-col sm:flex-row items-center justify-between gap-4 border border-brand-500">
         <div class="flex items-center gap-4 w-full sm:w-auto">
             <div class="w-12 h-12 bg-white rounded-xl flex items-center justify-center p-1.5 shrink-0 shadow-sm relative overflow-hidden">
-                <img src="<?= BASE_URL ?>icons/icon-192x192.png" alt="App Icon" class="w-full h-full object-cover">
+                <img src="/icons/icon-192x192.png" alt="App Icon" class="w-full h-full object-cover">
             </div>
             <div class="flex-1">
                 <h4 class="font-bold text-sm leading-tight text-white">Instalar App TuInventario</h4>

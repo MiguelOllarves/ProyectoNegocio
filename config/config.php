@@ -73,7 +73,9 @@ $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ||
 
 $appUrl = getenv('APP_URL') ?: getenv('NEXT_PUBLIC_APP_URL') ?: '';
 $host = isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : 'localhost';
-$host = preg_replace('/^www\./i', '', $host);
+// No quitar el "www." aquí: el dominio real donde vive el sitio es www.tuinventario.app
+// (Vercel redirige tuinventario.app -> www.tuinventario.app). Si BASE_URL apunta a un
+// origen distinto al que el navegador está usando, la CSP bloquea CSS/JS/manifest/SW.
 
 if (!empty($appUrl)) {
     $parsedAppUrl = parse_url($appUrl);
