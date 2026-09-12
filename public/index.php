@@ -47,7 +47,7 @@ header('X-XSS-Protection: 1; mode=block');
 header('Referrer-Policy: strict-origin-when-cross-origin');
 header('Permissions-Policy: camera=(), microphone=(), geolocation=()');
 // CSP autocontenido: sin dependencias CDN ni dominios externos para evitar CORS/408
-header("Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com; style-src 'self' 'unsafe-inline'; font-src 'self' data:; img-src 'self' data: blob: https:; media-src 'self' data: blob: https:; connect-src 'self' https://www.google-analytics.com https://www.googletagmanager.com https://*.vercel.app; frame-src 'self' https://www.googletagmanager.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none';");
+header("Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://vercel.live https://*.vercel.live; style-src 'self' 'unsafe-inline'; font-src 'self' data:; img-src 'self' data: blob: https:; media-src 'self' data: blob: https:; connect-src 'self' https://www.google-analytics.com https://www.googletagmanager.com https://*.vercel.app https://*.vercel.live; frame-src 'self' https://www.googletagmanager.com https://vercel.live; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none';");
 if (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') {
     header('Strict-Transport-Security: max-age=31536000; includeSubDomains');
 }
@@ -184,7 +184,7 @@ if (php_sapi_name() === 'cli-server') {
 // entregue HTML en lugar de CSS/JSON/imagenes cuando la ruta cae en el router principal.
 if (isset($_SERVER['REQUEST_URI'])) {
     $requestPath = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) ?: '/';
-    if (preg_match('#^/(manifest\.json|sw\.js|offline\.html|css|js|assets|images|icons|uploads|iconos_negocio)(?:/.*)?$#', $requestPath)) {
+    if (preg_match('#^/(manifest\.json|sw\.js|offline\.html|css|js|assets|images|icons|uploads|iconos_negocio|webfonts)(?:/.*)?$#', $requestPath)) {
         $relativePath = ltrim($requestPath, '/');
         $localFile = __DIR__ . '/' . $relativePath;
 
@@ -199,6 +199,8 @@ if (isset($_SERVER['REQUEST_URI'])) {
                     $mimeType = 'application/javascript; charset=utf-8';
                 } elseif (preg_match('/\.json$/i', $requestPath)) {
                     $mimeType = 'application/json; charset=utf-8';
+                } elseif (preg_match('/\.(woff2?|ttf|otf|eot|svg)$/i', $requestPath)) {
+                    $mimeType = mime_content_type($localFile) ?: 'font/woff2';
                 }
 
                 header('Content-Type: ' . $mimeType);
