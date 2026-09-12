@@ -2,8 +2,8 @@
 require_once __DIR__ . '/config.php';
 
 class Database {
-    private static $instance = null;
-    private $pdo;
+    private static ?Database $instance = null;
+    private ?PDO $pdo;
 
     private function __construct() {
         try {
@@ -39,21 +39,21 @@ class Database {
         }
     }
 
-    public static function getInstance() {
+    public static function getInstance(): self {
         if (self::$instance === null) {
             self::$instance = new Database();
         }
         return self::$instance;
     }
 
-    public function getConnection() {
+    public function getConnection(): PDO {
         if ($this->pdo === null) {
             throw new RuntimeException('Database is not available. Check DATABASE_URL and PostgreSQL driver.');
         }
         return $this->pdo;
     }
 
-    public static function isAvailable() {
+    public static function isAvailable(): bool {
         if (self::$instance === null) {
             return false;
         }
@@ -61,19 +61,19 @@ class Database {
     }
 
     // --- Transaction Wrappers ---
-    public function beginTransaction() {
+    public function beginTransaction(): bool {
         return $this->pdo->beginTransaction();
     }
 
-    public function commit() {
+    public function commit(): bool {
         return $this->pdo->commit();
     }
 
-    public function rollback() {
+    public function rollback(): bool {
         return $this->pdo->rollBack();
     }
 
-    public function getDriver() {
+    public function getDriver(): string {
         return DB_DRIVER;
     }
 }
