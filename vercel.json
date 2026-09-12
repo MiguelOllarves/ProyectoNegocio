@@ -11,7 +11,7 @@
   },
   "headers": [
     {
-      "source": "/(assets/.*|images/.*|css/.*|js/.*|sw\\.js|manifest\\.json|icons/.*|uploads/.*)",
+      "source": "/(assets/.*|images/.*|css/.*|js/.*|sw\\.js|manifest\\.json|icons/.*|uploads/.*|webfonts/.*)",
       "headers": [
         {
           "key": "Cache-Control",
@@ -37,21 +37,13 @@
       ]
     }
   ],
-  "redirects": [
-    {
-      "source": "/(.*)",
-      "destination": "https://www.tuinventario.app/$1",
-      "permanent": true,
-      "statusCode": 301
-    }
-  ],
   "routes": [
     {
       "src": "/iconos_negocio/(.*)",
       "dest": "/iconos_negocio/$1"
     },
     {
-      "src": "/(assets/.*|images/.*|css/.*|js/.*|sw\\.js|manifest\\.json|icons/.*|uploads/.*)",
+      "src": "/(assets/.*|images/.*|css/.*|js/.*|sw\\.js|manifest\\.json|icons/.*|uploads/.*|webfonts/.*)",
       "dest": "/public/$1"
     },
     {
