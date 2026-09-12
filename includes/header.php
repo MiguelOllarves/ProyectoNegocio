@@ -30,6 +30,7 @@
     <title>Tu Inventario</title>
     <meta name="csrf-token" content="<?= $_SESSION['csrf_token'] ?? '' ?>">
     <link rel="stylesheet" href="<?= BASE_URL ?? "" ?>css/tailwind.css?v=<?= CSS_VERSION ?>">
+    <link rel="stylesheet" href="<?= BASE_URL ?>css/fontawesome.min.css">
     <script defer src="https://unpkg.com/htmx.org@1.9.11"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
@@ -62,8 +63,7 @@
             evt.detail.headers['X-CSRF-Token'] = window.csrfToken;
         });
     </script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" media="print" onload="this.media='all'" crossorigin="anonymous" referrerpolicy="no-referrer">
-    <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"></noscript>
+    <link rel="stylesheet" href="<?= BASE_URL ?>css/fontawesome.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
         /* Gradient definitions (not expressible in Tailwind config) */
