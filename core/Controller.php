@@ -1,7 +1,7 @@
 <?php
 class Controller {
     // Función para renderizar vistas y pasarles datos
-    public function view($view, $data = []) {
+    public function view(string $view, array $data = []): void {
         // Extrae las variables del array asociativo para que usen su clave como nombre
         extract($data);
         
@@ -14,7 +14,7 @@ class Controller {
     }
 
     // Función para respuestas de API (por ejemplo para AJAX fetch calls con JSON)
-    public function jsonResponse($data, $statusCode = 200) {
+    public function jsonResponse(array $data, int $statusCode = 200): void {
         http_response_code($statusCode);
         header('Content-Type: application/json');
         echo json_encode($data);

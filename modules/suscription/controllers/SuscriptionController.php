@@ -3,72 +3,9 @@ require_once __DIR__ . '/../models/Subscription.php';
 
 class SuscriptionController extends Controller {
     public function __construct() {
-        require_once __DIR__ . '/../../../config/Database.php';
-        $db = Database::getInstance()->getConnection();
-        
-        // Auto-migración silenciosa
-        try {
-            $driver = $db->getAttribute(PDO::ATTR_DRIVER_NAME);
-            $autoInc = $driver === 'pgsql' ? 'SERIAL PRIMARY KEY' : 'INTEGER PRIMARY KEY AUTOINCREMENT';
-            
-            // Tabla de planes
-            $db->exec("CREATE TABLE IF NOT EXISTS plans (
-                id INTEGER PRIMARY KEY,
-                name VARCHAR(100),
-                price DECIMAL(10,2),
-                duration_days INTEGER DEFAULT 30,
-                features_json TEXT
-            )");
-            
-            // Tabla de pagos
-            $db->exec("CREATE TABLE IF NOT EXISTS payments (
-                id {$autoInc},
-                tenant_id INTEGER,
-                plan_id INTEGER,
-                amount DECIMAL(10,2),
-                payment_method VARCHAR(50),
-                reference_number VARCHAR(100),
-                proof_image TEXT,
-                status VARCHAR(20) DEFAULT 'pending',
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            )");
-            
-            // Agregar columnas si no existen
-            try { $db->exec("ALTER TABLE businesses ADD COLUMN plan_id INTEGER DEFAULT 1"); } catch (\Exception $e) {}
-            try { $db->exec("ALTER TABLE businesses ADD COLUMN subscription_status VARCHAR(20) DEFAULT 'trial'"); } catch (\Exception $e) {}
-            try { $db->exec("ALTER TABLE businesses ADD COLUMN trial_ends_at TIMESTAMP"); } catch (\Exception $e) {}
-            
-            // Insertar plan mensual $3 si no existe
-            $checkPlans = $db->query("SELECT COUNT(*) FROM plans")->fetchColumn();
-            if ($checkPlans == 0) {
-                $db->exec("INSERT INTO plans (id, name, price, duration_days, features_json) VALUES 
-                    (1, 'Plan Mensual', 3.00, 30, '{\"limit_users\": 999, \"limit_products\": 999999, \"custom_module\": true}')
-                ");
-            } else {
-                // Asegurar que el plan $3 exista
-                $checkPlan = $db->query("SELECT id FROM plans WHERE price = 3.00")->fetch();
-                if (!$checkPlan) {
-                    $db->exec("INSERT INTO plans (id, name, price, duration_days, features_json) VALUES 
-                        (1, 'Plan Mensual', 3.00, 30, '{\"limit_users\": 999, \"limit_products\": 999999, \"custom_module\": true}')
-                    ");
-                }
-                // Eliminar planes antiguos (solo quedamos con el $3)
-                $db->exec("DELETE FROM plans WHERE price != 3.00");
-            }
-            
-            // Asignar fecha de fin de trial por defecto si es null
-            if ($driver === 'pgsql') {
-                $db->exec("UPDATE businesses SET trial_ends_at = CURRENT_TIMESTAMP + INTERVAL '30 days' WHERE trial_ends_at IS NULL");
-            } else {
-                $db->exec("UPDATE businesses SET trial_ends_at = datetime('now', '+30 days') WHERE trial_ends_at = NULL");
-            }
-            
-            // Actualizar suscripciones expiradas periódicamente
-            Subscription::updateExpiredSubscriptions();
-            
-        } catch (\Exception $e) {
-            error_log('[Suscription] init: ' . $e->getMessage());
-        }
+        // No hacer DDL ni migraciones aquí: la BD ya las resuelve al conectar
+        // y el ALTER TABLE/CREATE TABLE en cada request hace la página lenta y
+        // puede romperla con PgBouncer/Supabase (puerto 6543).
     }
 
     /**

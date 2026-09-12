@@ -1,8 +1,16 @@
 <?php 
 include __DIR__ . '/../../../includes/header.php'; 
 $bcv = (float)Settings::get('bcv_rate', 622.21);
-$bsPrice = $price * $bcv;
+$price = $price ?? 3.00;
+$status = $status ?? 'expired';
+$days_remaining = $days_remaining ?? 0;
+$expires_at = $expires_at ?? null;
+$next_payment_date = $next_payment_date ?? date('d/m/Y');
+$can_pay = $can_pay ?? false;
+$bsPrice = ((float)$price) * $bcv;
 ?>
+
+<div x-data="suscriptionPage">
 
 <div class="page-header">
     <div>
@@ -13,7 +21,7 @@ $bsPrice = $price * $bcv;
 
 <!-- ESTADO ACTUAL DE LA SUSCRIPCIÓN -->
 <div class="card p-6 mb-8">
-    <?php if ($status === 'trial'): ?>
+    <?php if (($status ?? 'expired') === 'trial'): ?>
     <div class="flex flex-col sm:flex-row items-center gap-6">
         <div class="w-16 h-16 rounded-full bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 flex items-center justify-center flex-shrink-0 border border-blue-100 dark:border-blue-800/50">
             <i class="fas fa-gift text-2xl"></i>
@@ -23,16 +31,16 @@ $bsPrice = $price * $bcv;
                 <span class="text-blue-600 dark:text-blue-400">Período de Prueba</span>
             </h3>
             <p class="text-gray-500 dark:text-gray-400 text-sm">
-                Disfrutas de acceso total al sistema. <strong class="text-blue-600">Quedan <?= $days_remaining ?> días</strong>.
+                Disfrutas de acceso total al sistema. <strong class="text-blue-600">Quedan <?= (int)($days_remaining ?? 0) ?> días</strong>.
             </p>
-            <p class="text-xs text-gray-400 mt-1">Tu prueba termina el <?= date('d/m/Y', strtotime($expires_at)) ?></p>
+            <p class="text-xs text-gray-400 mt-1">Tu prueba termina el <?= !empty($expires_at) ? date('d/m/Y', strtotime((string)$expires_at)) : 'Sin fecha disponible' ?></p>
         </div>
         <div class="text-right">
             <span class="badge badge-info">PRUEBA</span>
         </div>
     </div>
     
-    <?php elseif ($status === 'active'): ?>
+    <?php elseif (($status ?? 'expired') === 'active'): ?>
     <div class="flex flex-col sm:flex-row items-center gap-6">
         <div class="w-16 h-16 rounded-full bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 flex items-center justify-center flex-shrink-0 border border-emerald-100 dark:border-emerald-800/50">
             <i class="fas fa-check-circle text-2xl"></i>
@@ -42,9 +50,9 @@ $bsPrice = $price * $bcv;
                 <span class="text-emerald-600 dark:text-emerald-400">Suscripción Activa</span>
             </h3>
             <p class="text-gray-500 dark:text-gray-400 text-sm">
-                Tu suscripción está activa. <strong class="text-emerald-600">Quedan <?= $days_remaining ?> días</strong> de acceso.
+                Tu suscripción está activa. <strong class="text-emerald-600">Quedan <?= (int)($days_remaining ?? 0) ?> días</strong> de acceso.
             </p>
-            <p class="text-xs text-gray-400 mt-1">Vence el <?= date('d/m/Y', strtotime($expires_at)) ?> a las 23:59</p>
+            <p class="text-xs text-gray-400 mt-1">Vence el <?= !empty($expires_at) ? date('d/m/Y', strtotime((string)$expires_at)) : 'Sin fecha disponible' ?> a las 23:59</p>
         </div>
         <div class="text-right">
             <span class="badge badge-success">ACTIVO</span>
@@ -100,11 +108,11 @@ $bsPrice = $price * $bcv;
             </div>
             
             <div class="mt-8">
-                <?php if ($can_pay && ($status === 'expired' || $status === 'trial')): ?>
+                <?php if (($can_pay ?? false) && (($status ?? 'expired') === 'expired' || ($status ?? 'expired') === 'trial')): ?>
                 <button @click="openPaymentModal()" class="w-full btn-gradient text-lg py-4">
                     <i class="fas fa-credit-card mr-2"></i> Activar Suscripción - $3 USD
                 </button>
-                <?php elseif (!$can_pay && $status === 'active'): ?>
+                <?php elseif (!($can_pay ?? false) && ($status ?? 'expired') === 'active'): ?>
                 <div class="w-full text-center py-4 bg-emerald-50 dark:bg-emerald-900/20 rounded-xl border border-emerald-200 dark:border-emerald-800">
                     <i class="fas fa-check-circle text-emerald-500 mr-2"></i>
                     <span class="text-emerald-700 dark:text-emerald-300 font-bold">Ya tienes suscripción activa este mes</span>
@@ -339,5 +347,7 @@ document.addEventListener('alpine:init', () => {
     }))
 })
 </script>
+
+</div>
 
 <?php include __DIR__ . '/../../../includes/footer.php'; ?>
