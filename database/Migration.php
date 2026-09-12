@@ -51,6 +51,9 @@ class Migration {
             // Paso 5: Backfill Data
             self::backfillSaaSData($pdo);
             
+            // Paso 5.1: Backfill business_type_id desde category
+            self::backfillBusinessTypeId($pdo);
+            
             // Paso 6: Backfill Data for Presentations Migration
             self::backfillPresentations($pdo);
             
@@ -190,6 +193,8 @@ class Migration {
             try { $pdo->exec("CREATE INDEX IF NOT EXISTS idx_optgrp_product ON restaurant_option_groups(product_id)"); } catch (\Exception $e) {}
             try { $pdo->exec("CREATE INDEX IF NOT EXISTS idx_opt_group ON restaurant_options(group_id)"); } catch (\Exception $e) {}
             try { $pdo->exec("CREATE INDEX IF NOT EXISTS idx_opt_tenant ON restaurant_options(tenant_id)"); } catch (\Exception $e) {}
+            // [DATA INTEGRITY] Unique constraint para evitar opciones duplicadas
+            try { $pdo->exec("CREATE UNIQUE INDEX IF NOT EXISTS idx_opt_group_product ON restaurant_options(group_id, product_id)"); } catch (\Exception $e) {}
         } catch (PDOException $e) {
             error_log('[Migration] ensureRestaurantOptions: ' . $e->getMessage());
         }
@@ -205,6 +210,7 @@ class Migration {
             $pdo->exec("CREATE TABLE IF NOT EXISTS store_order_items (
                 id {$autoInc},
                 order_id INTEGER NOT NULL REFERENCES store_orders(id) ON DELETE CASCADE,
+                tenant_id INTEGER,
                 product_id INTEGER NOT NULL REFERENCES products(id),
                 quantity REAL DEFAULT 1,
                 unit_price REAL DEFAULT 0,
@@ -226,6 +232,7 @@ class Migration {
             )");
 
             try { $pdo->exec("CREATE INDEX IF NOT EXISTS idx_soi_order ON store_order_items(order_id)"); } catch (\Exception $e) {}
+            try { $pdo->exec("CREATE INDEX IF NOT EXISTS idx_soi_tenant ON store_order_items(tenant_id)"); } catch (\Exception $e) {}
             try { $pdo->exec("CREATE INDEX IF NOT EXISTS idx_sooi_item ON store_order_item_options(order_item_id)"); } catch (\Exception $e) {}
 
             // Tabla para opciones de venta (POS)
@@ -242,12 +249,30 @@ class Migration {
             )");
             try { $pdo->exec("CREATE INDEX IF NOT EXISTS idx_sio_item ON sale_item_options(sale_item_id)"); } catch (\Exception $e) {}
 
-            // Índices de rendimiento para restaurant options
-            try { $pdo->exec("CREATE INDEX IF NOT EXISTS idx_rog_dish ON restaurant_option_groups(dish_id)"); } catch (\Exception $e) {}
-            try { $pdo->exec("CREATE INDEX IF NOT EXISTS idx_ro_group ON restaurant_options(group_id)"); } catch (\Exception $e) {}
-            try { $pdo->exec("CREATE INDEX IF NOT EXISTS idx_rod_group ON restaurant_option_dishes(group_id)"); } catch (\Exception $e) {}
+            // [IDEMPOTENCY] Unique constraint para evitar pedidos duplicados
+            try { $pdo->exec("CREATE UNIQUE INDEX IF NOT EXISTS idx_so_idempotency ON store_orders(idempotency_key) WHERE idempotency_key IS NOT NULL"); } catch (\Exception $e) {}
+            
+            // Índices de rendimiento
             try { $pdo->exec("CREATE INDEX IF NOT EXISTS idx_soi_product ON store_order_items(product_id)"); } catch (\Exception $e) {}
             try { $pdo->exec("CREATE INDEX IF NOT EXISTS idx_si_product ON sale_items(product_id)"); } catch (\Exception $e) {}
+            
+            // [SUBSCRIPTION INDICES] Para el sistema de suscripciones
+            try { $pdo->exec("CREATE INDEX IF NOT EXISTS idx_payments_tenant ON payments(tenant_id)"); } catch (\Exception $e) {}
+            try { $pdo->exec("CREATE INDEX IF NOT EXISTS idx_payments_status ON payments(status)"); } catch (\Exception $e) {}
+            try { $pdo->exec("CREATE INDEX IF NOT EXISTS idx_payments_created ON payments(created_at)"); } catch (\Exception $e) {}
+            try { $pdo->exec("CREATE INDEX IF NOT EXISTS idx_payments_tenant_status ON payments(tenant_id, status)"); } catch (\Exception $e) {}
+            try { $pdo->exec("CREATE INDEX IF NOT EXISTS idx_businesses_subscription ON businesses(subscription_status)"); } catch (\Exception $e) {}
+            try { $pdo->exec("CREATE INDEX IF NOT EXISTS idx_businesses_slug ON businesses(slug)"); } catch (\Exception $e) {}
+            
+            // [STOREFRONT INDICES] Para consultas del storefront público
+            try { $pdo->exec("CREATE INDEX IF NOT EXISTS idx_products_tenant_stock ON products(tenant_id, stock)"); } catch (\Exception $e) {}
+            try { $pdo->exec("CREATE INDEX IF NOT EXISTS idx_products_tenant_dish ON products(tenant_id, is_dish)"); } catch (\Exception $e) {}
+            try { $pdo->exec("CREATE INDEX IF NOT EXISTS idx_store_config_business ON store_config(business_id)"); } catch (\Exception $e) {}
+            try { $pdo->exec("CREATE INDEX IF NOT EXISTS idx_clients_tenant ON clients(tenant_id)"); } catch (\Exception $e) {}
+            
+            // [NOTIFICATION INDICES] Para consultas de notificaciones
+            try { $pdo->exec("CREATE INDEX IF NOT EXISTS idx_notifications_tenant ON notifications(tenant_id)"); } catch (\Exception $e) {}
+            try { $pdo->exec("CREATE INDEX IF NOT EXISTS idx_notifications_read ON notifications(is_read)"); } catch (\Exception $e) {}
         } catch (PDOException $e) {
             error_log('[Migration] ensureStructuredOrders: ' . $e->getMessage());
         }
@@ -262,12 +287,13 @@ class Migration {
             'businesses' => [
                 'slug' => "ALTER TABLE businesses ADD COLUMN slug TEXT",
                 'subscription_status' => "ALTER TABLE businesses ADD COLUMN subscription_status TEXT DEFAULT 'trial'",
-                'trial_ends_at' => "ALTER TABLE businesses ADD COLUMN trial_ends_at DATETIME",
+                'trial_ends_at' => "ALTER TABLE businesses ADD COLUMN trial_ends_at TIMESTAMP",
                 'logo_base64' => "ALTER TABLE businesses ADD COLUMN logo_base64 TEXT",
                 'ticket_header' => "ALTER TABLE businesses ADD COLUMN ticket_header TEXT",
                 'ticket_footer' => "ALTER TABLE businesses ADD COLUMN ticket_footer TEXT",
                 'menu_file_base64' => "ALTER TABLE businesses ADD COLUMN menu_file_base64 TEXT",
-                'menu_file_type' => "ALTER TABLE businesses ADD COLUMN menu_file_type TEXT"
+                'menu_file_type' => "ALTER TABLE businesses ADD COLUMN menu_file_type TEXT",
+                'business_type_id' => "ALTER TABLE businesses ADD COLUMN business_type_id INTEGER",
             ],
             'settings' => [
                 'category' => "ALTER TABLE settings ADD COLUMN category TEXT DEFAULT 'general'",
@@ -328,7 +354,8 @@ class Migration {
                 'igtf'      => "ALTER TABLE sales ADD COLUMN igtf REAL DEFAULT 0",
             ],
             'sale_items' => [
-                'cost_at_sale' => "ALTER TABLE sale_items ADD COLUMN cost_at_sale REAL DEFAULT 0",
+                'cost_at_sale' => "ALTER TABLE sale_items ADD COLUMN cost_at_sale NUMERIC(15,2) DEFAULT 0",
+                'tenant_id' => "ALTER TABLE sale_items ADD COLUMN tenant_id INTEGER",
             ],
             'purchase_items' => [
                 'unit_type' => "ALTER TABLE purchase_items ADD COLUMN unit_type TEXT DEFAULT 'unidad'",
@@ -340,6 +367,12 @@ class Migration {
                 'twitter' => "ALTER TABLE store_config ADD COLUMN twitter TEXT",
                 'store_name' => "ALTER TABLE store_config ADD COLUMN store_name TEXT",
                 'background_image' => "ALTER TABLE store_config ADD COLUMN background_image TEXT",
+            ],
+            'store_orders' => [
+                'total_bs' => "ALTER TABLE store_orders ADD COLUMN total_bs NUMERIC(15,2) DEFAULT 0",
+                'payment_method' => "ALTER TABLE store_orders ADD COLUMN payment_method VARCHAR(100)",
+                'idempotency_key' => "ALTER TABLE store_orders ADD COLUMN idempotency_key VARCHAR(255)",
+                'updated_at' => "ALTER TABLE store_orders ADD COLUMN updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP",
             ],
             'credits' => [
                 'tenant_id'        => "ALTER TABLE credits ADD COLUMN tenant_id INTEGER",
@@ -513,6 +546,18 @@ class Migration {
             $pdo->exec("UPDATE businesses SET trial_ends_at = CURRENT_TIMESTAMP + INTERVAL '30 days' WHERE trial_ends_at IS NULL");
         } catch (PDOException $e) {
             error_log('[Migration] Error in backfillData: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Backfill business_type_id desde category para negocios existentes.
+     */
+    private static function backfillBusinessTypeId(PDO $pdo) {
+        try {
+            $pdo->exec("UPDATE businesses SET business_type_id = bt.id FROM business_types bt WHERE businesses.category = bt.code AND businesses.business_type_id IS NULL");
+        } catch (PDOException $e) {
+            // Si la columna business_type_id no existe aún, ignorar
+            error_log('[Migration] backfillBusinessTypeId: ' . $e->getMessage());
         }
     }
 

@@ -251,7 +251,8 @@ class UsersController extends Controller {
                 
             } catch (Exception $e) {
                 $db->rollBack();
-                $_SESSION['profile_error'] = "Error al actualizar el usuario: " . $e->getMessage();
+                error_log('[Users] updateProfile: ' . $e->getMessage());
+                $_SESSION['profile_error'] = "Error al actualizar el usuario. Verifica los datos.";
             }
             
             header('Location: ' . BASE_URL . 'users');

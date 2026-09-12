@@ -7,7 +7,7 @@
                 <img src="<?= BASE_URL ?>?serve_logo=1" alt="Logo" class="w-full h-full object-contain">
             </div>
             <div class="flex flex-col -mt-0.5">
-                <h2 class="text-[17px] font-extrabold tracking-tight leading-none mb-0.5"><span class="text-white">Tu</span> <span class="bg-gradient-to-r from-brand-300 to-brand-500 bg-clip-text text-transparent">Inventario</span></h2>
+                <h2 class="text-[17px] font-extrabold tracking-tight leading-none mb-0.5"><span class="text-white">Tu</span> <span class="bg-gradient-to-r from-brand-300 to-accent-400 bg-clip-text text-transparent">Inventario</span></h2>
                 <span class="text-[9px] font-bold text-white/50 uppercase tracking-[0.2em] leading-none">Control Total</span>
             </div>
         </div>
@@ -23,44 +23,48 @@
         $uri = $_SERVER['REQUEST_URI'] ?? '';
         $category = $_SESSION['business_category'] ?? 'general';
         
+        // Determinar labels e iconos según capabilities del perfil
+        $profile = BusinessProfileService::getProfile($category);
+        $features = $profile['features'] ?? [];
+        
         $inventoryLabel = 'Inventario';
         $inventoryIcon = BusinessProfileService::getIcon($category);
         $salesLabel = 'Punto de Venta';
         $salesIcon = 'fa-shopping-cart';
 
-        if ($category === 'gastronomia') {
+        if (in_array('dishes', $features)) {
             $inventoryLabel = 'Platos e Insumos';
             $salesLabel = 'Caja Registradora';
             $salesIcon = 'fa-cash-register';
-        } elseif ($category === 'bienes_raices') {
-            $inventoryLabel = 'Inmuebles';
-            $salesLabel = 'Ventas / Contratos';
-            $salesIcon = 'fa-file-signature';
-        } elseif ($category === 'vehiculos') {
-            $inventoryLabel = 'Vehículos';
         }
-
+        
+        // Items base siempre visibles
         $menuItems = [
             ['dashboard',  'fa-tachometer-alt', 'Panel de Control',  null],
             ['inventory',  $inventoryIcon,      $inventoryLabel,     'inventory'],
         ];
-        if (BusinessProfileService::hasFeature($category, 'recipes')) {
+        
+        // Restaurant/Platos solo si tiene capability 'recipes'
+        if (in_array('recipes', $features)) {
             $menuItems[] = ['restaurant', 'fa-utensils', 'Platos', 'inventory'];
         }
+        
         $menuItems = array_merge($menuItems, [
             ['sales',      $salesIcon,          $salesLabel,         'pos'],
             ['purchases',  'fa-cart-arrow-down', 'Compras',          'inventory'],
         ]);
-        if (BusinessProfileService::hasFeature($category, 'suppliers')) {
+        
+        // Módulos condicionales según capabilities
+        if (in_array('suppliers', $features)) {
             $menuItems[] = ['suppliers',  'fa-truck',           'Proveedores',      'inventory'];
         }
         $menuItems = array_merge($menuItems, [
             ['clients',    'fa-users',           'Clientes',         'clients'],
         ]);
-        if (BusinessProfileService::hasFeature($category, 'credits')) {
+        if (in_array('credits', $features)) {
             $menuItems[] = ['credits',    'fa-hand-holding-usd','Créditos',         'pos'];
         }
-        if (BusinessProfileService::hasFeature($category, 'expenses')) {
+        if (in_array('expenses', $features)) {
             $menuItems[] = ['expenses',   'fa-money-bill-wave', 'Gastos',           'reports'];
         }
         $menuItems = array_merge($menuItems, [
@@ -129,7 +133,7 @@
         <?php endif; ?>
         <?php if($userRole === 'administrador' || $userRole === 'super_admin'): ?>
         <!-- Suscripción -->
-        <a href="<?= BASE_URL ?>suscription" class="flex items-center px-3 py-2.5 rounded-lg transition-all text-sm font-medium <?= strpos($uri, 'suscription') !== false ? 'bg-white/15 border-l-[3px] border-emerald-300 text-white shadow-sm' : 'border-l-[3px] border-transparent text-white/70 hover:bg-white/10 hover:text-white' ?>">
+        <a href="<?= BASE_URL ?>suscription" class="flex items-center px-3 py-2.5 rounded-lg transition-all text-sm font-medium <?= strpos($uri, 'suscription') !== false ? 'bg-white/15 border-l-[3px] border-brand-300 text-white shadow-sm' : 'border-l-[3px] border-transparent text-white/70 hover:bg-white/10 hover:text-white' ?>">
             <i class="fas fa-gem w-5 text-center mr-3 text-sm"></i>
             <span>Suscripción Paga</span>
         </a>

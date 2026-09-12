@@ -110,8 +110,13 @@ class InventoryConsumptionService {
                 }
             }
 
-            $stmtUpdate = $this->db->prepare("UPDATE products SET stock = stock - ? WHERE id = ? AND tenant_id = ?");
-            $stmtUpdate->execute([$qtyInBase, $productId, $this->tenantId]);
+            // [RACE CONDITION FIX] Actualización condicional - solo descuenta si hay stock suficiente
+            $stmtUpdate = $this->db->prepare("UPDATE products SET stock = stock - :qty WHERE id = :pid AND tenant_id = :tid AND stock >= :qty2");
+            $stmtUpdate->execute(['qty' => $qtyInBase, 'pid' => $productId, 'tid' => $this->tenantId, 'qty2' => $qtyInBase]);
+
+            if ($stmtUpdate->rowCount() === 0) {
+                throw new \Exception("Stock insuficiente para el producto ID: {$productId}. No se pudo completar la operación.");
+            }
 
             $stmtAfter = $this->db->prepare("SELECT stock FROM products WHERE id = ? AND tenant_id = ?");
             $stmtAfter->execute([$productId, $this->tenantId]);

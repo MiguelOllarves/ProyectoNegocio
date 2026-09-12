@@ -110,7 +110,7 @@
             <i class="fas fa-exclamation-triangle text-[8px] mr-1"></i>Atrasados
         </button>
         <button @click="filterStatus = 'pagado'" 
-            :class="filterStatus === 'pagado' ? 'bg-emerald-600 text-white' : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-gray-700'"
+            :class="filterStatus === 'pagado' ? 'bg-brand-600 text-white' : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-gray-700'"
             class="px-3 py-1.5 rounded-lg text-xs font-bold transition-all"
             hx-get="<?= BASE_URL ?>credits/list?status=pagado" hx-target="#credits-tbody" hx-trigger="click">
             <i class="fas fa-check-circle text-[8px] mr-1"></i>Pagados
@@ -165,7 +165,7 @@
                 </div>
                 
                 <div class="modal-body">
-                    <form hx-post="<?= BASE_URL ?>credits/create" hx-swap="none" @htmx:after-request="if($event.target === $el && $event.detail.successful) { openModal = false; $el.reset(); Swal.fire({title: '¡Crédito Creado!', text: 'El registro se ha creado correctamente.', icon: 'success', timer: 2000, showConfirmButton: true, confirmButtonText: 'Continuar', confirmButtonColor: '#10b981', customClass: { popup: 'rounded-2xl' }}).then(() => { htmx.ajax('GET', '<?= BASE_URL ?>credits/list?t=' + new Date().getTime(), {target: '#credits-tbody'}); }); }" class="space-y-4">
+                    <form hx-post="<?= BASE_URL ?>credits/create" hx-swap="none" @htmx:after-request="if($event.target === $el && $event.detail.successful) { openModal = false; $el.reset(); Swal.fire({title: '¡Crédito Creado!', text: 'El registro se ha creado correctamente.', icon: 'success', timer: 2000, showConfirmButton: true, confirmButtonText: 'Continuar', confirmButtonColor: '#2563eb', customClass: { popup: 'rounded-2xl' }}).then(() => { htmx.ajax('GET', '<?= BASE_URL ?>credits/list?t=' + new Date().getTime(), {target: '#credits-tbody'}); }); }" class="space-y-4">
                         <div class="grid grid-cols-2 gap-4">
                             <div>
                                 <label class="form-label">Cliente *</label>

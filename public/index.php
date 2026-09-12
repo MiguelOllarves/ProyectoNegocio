@@ -46,8 +46,21 @@ header('X-Content-Type-Options: nosniff');
 header('X-XSS-Protection: 1; mode=block');
 header('Referrer-Policy: strict-origin-when-cross-origin');
 header('Permissions-Policy: camera=(), microphone=(), geolocation=()');
+// CSP compatible con Alpine.js, HTMX, y FontAwesome CDN
+header("Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://unpkg.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://www.googletagmanager.com; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://fonts.googleapis.com; font-src 'self' https://cdnjs.cloudflare.com https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self' https://www.google-analytics.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self'");
 if (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') {
     header('Strict-Transport-Security: max-age=31536000; includeSubDomains');
+}
+
+// [DEBUG FILE PROTECTION] Bloquear acceso a archivos de debug/test/reset
+$requestUri = $_SERVER['REQUEST_URI'] ?? '';
+$basename = basename(parse_url($requestUri, PHP_URL_PATH));
+$blockedPatterns = ['test_', 'debug', 'reset_database', '.sql', '.log', 'phpinfo'];
+foreach ($blockedPatterns as $pattern) {
+    if (strpos($basename, $pattern) !== false) {
+        http_response_code(403);
+        exit('Acceso denegado.');
+    }
 }
 
 // ==========================================
@@ -243,6 +256,16 @@ try {
 }
 
 if (session_status() === PHP_SESSION_NONE) {
+    // [SESSION SECURITY] Configurar cookies de sesión con seguridad
+    $isSecure = !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off';
+    session_set_cookie_params([
+        'lifetime' => 0, // Session cookie (se cierra al cerrar navegador)
+        'path' => '/',
+        'domain' => '',
+        'secure' => $isSecure,
+        'httponly' => true,
+        'samesite' => 'Lax'
+    ]);
     session_start();
 }
 // Garantizar que la sesión se escriba en la BD antes de que se destruya el objeto PDO
@@ -283,7 +306,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$isExemptFromCsrf) {
         }
         
         $msg = "Tu sesión ha expirado o el token de seguridad es inválido. Por favor recarga la página e intenta de nuevo.";
-        die("<!DOCTYPE html><html><head><meta charset='utf-8'><meta name='viewport' content='width=device-width, initial-scale=1'><title>Error de Seguridad</title><style>body{font-family:system-ui,sans-serif;background-color:#f8fafc;display:flex;align-items:center;justify-content:center;height:100vh;margin:0;} .card{background:#fff;padding:2rem;border-radius:1rem;box-shadow:0 10px 15px -3px rgba(0,0,0,0.1);text-align:center;max-width:400px;} h2{color:#ef4444;margin-top:0;} button{background-color:#10b981;color:#fff;border:none;padding:0.75rem 1.5rem;border-radius:0.5rem;font-weight:bold;cursor:pointer;margin-top:1rem;} button:hover{background-color:#059669;}</style></head><body><div class='card'><h2>⚠️ Error de Seguridad</h2><p>$msg</p><button onclick='window.location.href=\"/\"'>Ir al Inicio</button></div></body></html>");
+        die("<!DOCTYPE html><html><head><meta charset='utf-8'><meta name='viewport' content='width=device-width, initial-scale=1'><title>Error de Seguridad</title><style>body{font-family:system-ui,sans-serif;background-color:#f8fafc;display:flex;align-items:center;justify-content:center;height:100vh;margin:0;} .card{background:#fff;padding:2rem;border-radius:1rem;box-shadow:0 10px 15px -3px rgba(0,0,0,0.1);text-align:center;max-width:400px;} h2{color:#ef4444;margin-top:0;} button{background-color:#2563eb;color:#fff;border:none;padding:0.75rem 1.5rem;border-radius:0.5rem;font-weight:bold;cursor:pointer;margin-top:1rem;} button:hover{background-color:#1d4ed8;}</style></head><body><div class='card'><h2>⚠️ Error de Seguridad</h2><p>$msg</p><button onclick='window.location.href=\"/\"'>Ir al Inicio</button></div></body></html>");
     }
 }
 
@@ -368,16 +391,18 @@ if (array_key_exists($module, $moduleMap)) {
             if ($requiredPermission) {
                 Middleware::requirePermission($requiredPermission);
             }
-            // Feature-based route guard: protect routes by business type
+            // Feature-based route guard: protect routes by business type capabilities
             $featureMap = [
                 'restaurant' => 'recipes',
+                'qrmenu' => 'qr_menu',
             ];
             if (isset($featureMap[$module]) && $_SESSION['role'] !== 'super_admin') {
                 $category = $_SESSION['business_category'] ?? 'general';
                 if (!BusinessProfileService::hasFeature($category, $featureMap[$module])) {
+                    $msg = 'Este módulo no está disponible para tu tipo de negocio.';
                     if (isset($_SERVER['HTTP_HX_REQUEST'])) {
                         header('HTTP/1.1 403 Forbidden');
-                        echo json_encode(['success' => false, 'message' => 'Este módulo no está disponible para tu tipo de negocio.']);
+                        echo json_encode(['success' => false, 'message' => $msg]);
                         exit;
                     }
                     header('Location: ' . BASE_URL . 'dashboard');

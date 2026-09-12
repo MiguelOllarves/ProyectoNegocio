@@ -23,7 +23,7 @@
                     </h3>
                     <button @click="createModal = false" class="modal-close"><i class="fas fa-times"></i></button>
                 </div>
-                <form hx-post="<?= BASE_URL ?>expenses/create" hx-swap="none" @htmx:after-request="if($event.detail.successful) { createModal = false; $el.reset(); Swal.fire({title: '¡Gasto Registrado!', text: 'El gasto ha sido guardado correctamente.', icon: 'success', timer: 2000, showConfirmButton: true, confirmButtonText: 'Continuar', confirmButtonColor: '#10b981', customClass: { popup: 'rounded-2xl' }}).then(() => { htmx.ajax('GET', '<?= BASE_URL ?>expenses/list?t=' + new Date().getTime(), {target: '#expenses-tbody'}); }); }">
+                <form hx-post="<?= BASE_URL ?>expenses/create" hx-swap="none" @htmx:after-request="if($event.detail.successful) { createModal = false; $el.reset(); Swal.fire({title: '¡Gasto Registrado!', text: 'El gasto ha sido guardado correctamente.', icon: 'success', timer: 2000, showConfirmButton: true, confirmButtonText: 'Continuar', confirmButtonColor: '#2563eb', customClass: { popup: 'rounded-2xl' }}).then(() => { htmx.ajax('GET', '<?= BASE_URL ?>expenses/list?t=' + new Date().getTime(), {target: '#expenses-tbody'}); }); }">
                     <div class="modal-body space-y-4">
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div>
@@ -70,7 +70,7 @@
                     </h3>
                     <button @click="editModal = false" class="modal-close"><i class="fas fa-times"></i></button>
                 </div>
-                <form id="edit-expense-form" hx-post="<?= BASE_URL ?>expenses/edit/" hx-swap="none" @htmx:after-request="if($event.detail.successful) { editModal = false; $el.reset(); Swal.fire({title: '¡Actualización Exitosa!', text: 'El gasto ha sido actualizado.', icon: 'success', timer: 2000, showConfirmButton: true, confirmButtonText: 'Continuar', confirmButtonColor: '#10b981', customClass: { popup: 'rounded-2xl' }}).then(() => { htmx.ajax('GET', '<?= BASE_URL ?>expenses/list?t=' + new Date().getTime(), {target: '#expenses-tbody'}); }); }">
+                <form id="edit-expense-form" hx-post="<?= BASE_URL ?>expenses/edit/" hx-swap="none" @htmx:after-request="if($event.detail.successful) { editModal = false; $el.reset(); Swal.fire({title: '¡Actualización Exitosa!', text: 'El gasto ha sido actualizado.', icon: 'success', timer: 2000, showConfirmButton: true, confirmButtonText: 'Continuar', confirmButtonColor: '#2563eb', customClass: { popup: 'rounded-2xl' }}).then(() => { htmx.ajax('GET', '<?= BASE_URL ?>expenses/list?t=' + new Date().getTime(), {target: '#expenses-tbody'}); }); }">
                     <div class="modal-body space-y-4">
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div>
@@ -152,7 +152,7 @@
             text: "¡No podrás revertir esto!",
             icon: 'warning',
             showCancelButton: true,
-            confirmButtonColor: '#10b981',
+            confirmButtonColor: '#2563eb',
             cancelButtonColor: '#ef4444',
             confirmButtonText: '<i class="fas fa-trash mr-1"></i> Sí, eliminar',
             cancelButtonText: 'Cancelar',

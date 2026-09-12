@@ -179,7 +179,7 @@ function editPurchaseForm() {
                         timer: 2000,
                         showConfirmButton: true,
                         confirmButtonText: 'Terminar',
-                        confirmButtonColor: '#10b981',
+                        confirmButtonColor: '#2563eb',
                         customClass: { popup: 'rounded-2xl' }
                     }).then(() => {
                         window.location.href = '<?= BASE_URL ?>purchases';

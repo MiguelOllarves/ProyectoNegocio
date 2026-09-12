@@ -33,7 +33,7 @@
         </div>
         <div class="bg-white dark:bg-slate-800 rounded-2xl p-4 border border-gray-100 dark:border-gray-700 shadow-sm">
             <p class="text-xs font-bold text-gray-400 uppercase">Valor Total</p>
-            <p class="text-2xl font-black text-emerald-600">$<?= number_format(array_sum(array_map(fn($i) => $i['stock'] * $i['cost_per_unit'], $ingredients)), 2) ?></p>
+            <p class="text-2xl font-black text-brand-600">$<?= number_format(array_sum(array_map(fn($i) => $i['stock'] * $i['cost_per_unit'], $ingredients)), 2) ?></p>
         </div>
     </div>
 
@@ -62,7 +62,7 @@
                     <?php else: ?>
                     <?php foreach ($ingredients as $ing): 
                         $stockClass = $ing['stock'] <= 0 ? 'text-red-500 bg-red-50 dark:bg-red-900/20' : 
-                            ($ing['stock'] <= $ing['min_stock'] ? 'text-amber-600 bg-amber-50 dark:bg-amber-900/20' : 'text-emerald-600 bg-emerald-50 dark:bg-emerald-900/20');
+                            ($ing['stock'] <= $ing['min_stock'] ? 'text-amber-600 bg-amber-50 dark:bg-amber-900/20' : 'text-brand-600 bg-brand-50 dark:bg-brand-900/20');
                     ?>
                     <tr class="hover:bg-gray-50 dark:hover:bg-slate-700/50 transition">
                         <td class="p-3 font-bold text-gray-800 dark:text-white"><?= htmlspecialchars($ing['name']) ?></td>
@@ -80,7 +80,7 @@
                         <td class="p-3 text-center text-gray-500 text-xs"><?= htmlspecialchars($ing['supplier_name'] ?? '—') ?></td>
                         <td class="p-3 text-center">
                             <div class="flex items-center justify-center gap-1">
-                                <button onclick="openRestock(<?= $ing['id'] ?>, '<?= htmlspecialchars($ing['name']) ?>')" class="w-8 h-8 rounded-lg bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 hover:bg-emerald-100 transition text-xs" title="Reabastecer">
+                                <button onclick="openRestock(<?= $ing['id'] ?>, '<?= htmlspecialchars($ing['name']) ?>')" class="w-8 h-8 rounded-lg bg-brand-50 dark:bg-brand-900/20 text-brand-600 hover:bg-brand-100 transition text-xs" title="Reabastecer">
                                     <i class="fas fa-plus"></i>
                                 </button>
                                 <button onclick="editInsumo(<?= htmlspecialchars(json_encode($ing)) ?>)" class="w-8 h-8 rounded-lg bg-blue-50 dark:bg-blue-900/20 text-blue-600 hover:bg-blue-100 transition text-xs" title="Editar">
@@ -172,7 +172,7 @@
             </div>
             <div class="flex gap-2">
                 <button onclick="closeRestock()" class="flex-1 py-2.5 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 font-bold rounded-xl">Cancelar</button>
-                <button onclick="submitRestock()" class="flex-1 py-2.5 bg-emerald-600 text-white font-bold rounded-xl hover:bg-emerald-700 transition">Agregar Stock</button>
+                <button onclick="submitRestock()" class="flex-1 py-2.5 bg-brand-600 text-white font-bold rounded-xl hover:bg-brand-700 transition">Agregar Stock</button>
             </div>
         </div>
     </div>

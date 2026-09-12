@@ -338,14 +338,12 @@ class InventoryController extends Controller {
                 error_log("Inventory Create Error: " . $e->getMessage());
                 if (isset($_SERVER['HTTP_HX_REQUEST'])) {
                     http_response_code(400);
-                    // Safe encoding for header
-                    $msg = str_replace(["\r", "\n"], ' ', $e->getMessage());
                     header('X-Toast-Type: error');
-                    header('X-Toast-Message: ' . substr($msg, 0, 200));
-                    echo "Error de Servidor/BD: " . $msg;
+                    header('X-Toast-Message: Error al guardar el producto. Verifica los datos.');
+                    echo "Error al guardar el producto.";
                     exit;
                 }
-                exit('Error Critico: ' . $e->getMessage());
+                exit('Error al guardar el producto.');
             }
         }
     }
@@ -584,10 +582,9 @@ class InventoryController extends Controller {
                 error_log("Inventory Update Error: " . $e->getMessage());
                 if (isset($_SERVER['HTTP_HX_REQUEST'])) {
                     http_response_code(400);
-                    $msg = str_replace(["\r", "\n"], ' ', $e->getMessage());
                     header('X-Toast-Type: error');
-                    header('X-Toast-Message: ' . substr($msg, 0, 200));
-                    echo "Error de BD: " . $msg;
+                    header('X-Toast-Message: Error al actualizar el producto. Verifica los datos.');
+                    echo "Error al actualizar el producto.";
                     exit;
                 }
             }

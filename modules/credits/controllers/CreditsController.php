@@ -660,7 +660,7 @@ class CreditsController extends Controller {
     private function getStatusBadge($status) {
         $badges = [
             'activo'    => "<span class='inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400'><i class='fas fa-circle text-[6px]'></i>Activo</span>",
-            'pagado'    => "<span class='inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400'><i class='fas fa-check-circle text-[10px]'></i>Pagado</span>",
+            'pagado'    => "<span class='inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-brand-100 text-brand-700 dark:bg-brand-900/30 dark:text-brand-400'><i class='fas fa-check-circle text-[10px]'></i>Pagado</span>",
             'atrasado'  => "<span class='inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400 animate-pulse'><i class='fas fa-exclamation-triangle text-[10px]'></i>Atrasado</span>",
             'cancelado' => "<span class='inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-gray-100 text-gray-500 dark:bg-gray-700 dark:text-gray-400'><i class='fas fa-ban text-[10px]'></i>Cancelado</span>",
         ];

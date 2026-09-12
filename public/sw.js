@@ -4,7 +4,7 @@
  *             Network-first para páginas dinámicas (PHP/HTML)
  *             Fallback offline graceful
  */
-const CACHE_NAME = 'tu-inventario-v14';
+const CACHE_NAME = 'tu-inventario-v15';
 const STATIC_ASSETS = [
     '/offline.html',
     '/icons/icon-512x512.png'
@@ -140,7 +140,7 @@ self.addEventListener('fetch', event => {
                         return caches.match('/offline.html').then(offlineCached => {
                             if (offlineCached) return offlineCached;
                             return new Response(
-                                '<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>Sin Conexión</title><style>body{font-family:sans-serif;display:flex;align-items:center;justify-content:center;height:100vh;background:#0f172a;color:white;text-align:center;}h1{color:#10b981;}</style></head><body><div><h1>📦 TuInventario</h1><p>Sin conexión. Verifica tu internet e intenta de nuevo.</p></div></body></html>',
+                                '<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>Sin Conexión</title><style>body{font-family:sans-serif;display:flex;align-items:center;justify-content:center;height:100vh;background:#0f172a;color:white;text-align:center;}h1{color:#3b82f6;}</style></head><body><div><h1>📦 TuInventario</h1><p>Sin conexión. Verifica tu internet e intenta de nuevo.</p></div></body></html>',
                                 { headers: { 'Content-Type': 'text/html; charset=utf-8' } }
                             );
                         });

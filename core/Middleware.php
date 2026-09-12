@@ -40,6 +40,7 @@ class Middleware {
     /**
      * Valida que el tenant tenga una suscripción activa o en periodo de prueba vigente
      * antes de permitirle ejecutar modificaciones en el sistema (POST).
+     * [SUBSCRIPTION FIX] Usa el nuevo modelo Subscription con expiración fin de mes.
      */
     private static function checkSubscriptionWriteAccess() {
         $url = rtrim($_GET['url'] ?? '', '/');
@@ -53,41 +54,25 @@ class Middleware {
             return;
         }
 
-        require_once __DIR__ . '/../config/Database.php';
-        $db = Database::getInstance()->getConnection();
-        
+        require_once __DIR__ . '/../modules/suscription/models/Subscription.php';
         $bizId = $_SESSION['business_id'] ?? null;
         if (!$bizId) return;
 
-        $stmt = $db->prepare("SELECT subscription_status, trial_ends_at FROM businesses WHERE id = ?");
-        $stmt->execute([$bizId]);
-        $biz = $stmt->fetch(PDO::FETCH_ASSOC);
-
-        $isExpired = false;
-        if ($biz['subscription_status'] === 'expired') {
-            $isExpired = true;
-        } else if ($biz['subscription_status'] === 'trial') {
-            if (strtotime($biz['trial_ends_at']) < time()) {
-                $isExpired = true;
-                // Auto-actualizar a expired para evitar cálculos futuros
-                $db->prepare("UPDATE businesses SET subscription_status = 'expired' WHERE id = ?")->execute([$bizId]);
-            }
-        }
-
-        if ($isExpired) {
-            $msg = 'Suscripción o Periodo de Prueba Finalizado (Modo Solo Lectura).';
+        $subStatus = Subscription::checkStatus($bizId);
+        
+        if (!$subStatus['active']) {
+            $msg = 'Suscripción vencida. Para continuar usando el sistema, activa tu suscripción mensual ($3 USD).';
             $isAjax = isset($_SERVER['HTTP_HX_REQUEST']) || (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest');
             
             if ($isAjax) {
                 header('HTTP/1.1 403 Forbidden');
-                // HTMX hook for a sweetalert 
-                header('HX-Trigger: {"showAlert": "'.$msg.'"}');
+                header('HX-Trigger: {"showAlert": "' . $msg . '"}');
                 echo json_encode(['success' => false, 'message' => $msg]);
                 exit;
             }
             
-            FlashMessage::set('error', 'Suscripción o Periodo de Prueba Finalizado (Modo Solo Lectura).');
-            header('Location: ' . BASE_URL . 'dashboard');
+            FlashMessage::set('error', $msg);
+            header('Location: ' . BASE_URL . 'suscription');
             exit;
         }
     }

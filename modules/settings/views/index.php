@@ -162,7 +162,7 @@
         <div class="space-y-3">
             <a href="<?= BASE_URL ?>settings/export_csv" class="w-full flex items-center justify-between bg-gray-50 hover:bg-gray-100 dark:bg-slate-700/50 dark:hover:bg-slate-700 p-3 rounded-xl border border-gray-200 dark:border-gray-700 transition-colors text-sm font-bold text-gray-700 dark:text-gray-200">
                 <span>Exportar Inventario (Excel)</span>
-                <i class="fas fa-file-excel text-emerald-600"></i>
+                <i class="fas fa-file-excel text-brand-600"></i>
             </a>
             <a href="<?= BASE_URL ?>settings/download_template" class="w-full flex items-center justify-between bg-gray-50 hover:bg-gray-100 dark:bg-slate-700/50 dark:hover:bg-slate-700 p-3 rounded-xl border border-gray-200 dark:border-gray-700 transition-colors text-sm font-bold text-gray-700 dark:text-gray-200">
                 <span>Descargar Plantilla CSV</span>

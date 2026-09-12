@@ -9,14 +9,14 @@
 
 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
     <div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-8 text-center">
-        <div class="w-20 h-20 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-500 mx-auto rounded-full flex items-center justify-center text-3xl mb-4">
+        <div class="w-20 h-20 bg-brand-100 dark:bg-brand-900/30 text-brand-500 mx-auto rounded-full flex items-center justify-center text-3xl mb-4">
             <i class="fas fa-cloud-download-alt"></i>
         </div>
         <h3 class="text-lg font-bold text-gray-800 dark:text-white mb-2">Base de Datos Completa</h3>
         <p class="text-gray-500 dark:text-gray-400 text-sm mb-6">Al presionar este botón, el sistema compactará la base de datos completa con todos los inquilinos, pagos e inventarios, y te la enviará como un archivo a tu computadora.</p>
         
         <a href="<?= BASE_URL ?>superadmin/backup_db" class="inline-flex items-center justify-center bg-gray-900 hover:bg-black text-white px-6 py-3 rounded-xl font-bold transition-all shadow-md w-full md:w-auto">
-            <i class="fas fa-download mr-2 text-emerald-400"></i> Descargar Respaldo (SQLite)
+            <i class="fas fa-download mr-2 text-brand-400"></i> Descargar Respaldo (SQLite)
         </a>
     </div>
 

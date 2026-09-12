@@ -22,7 +22,7 @@
                     </h3>
                     <button @click="openModal = false" class="modal-close"><i class="fas fa-times"></i></button>
                 </div>
-                <form hx-post="<?= BASE_URL ?>suppliers/create" hx-swap="none" @htmx:after-request="if($event.detail.successful) { openModal = false; $el.reset(); Swal.fire({title: '¡Registro Exitoso!', text: 'El proveedor ha sido guardado correctamente.', icon: 'success', timer: 2000, showConfirmButton: true, confirmButtonText: 'Continuar', confirmButtonColor: '#10b981', customClass: { popup: 'rounded-2xl' }}).then(() => { htmx.ajax('GET', '<?= BASE_URL ?>suppliers/list?t=' + new Date().getTime(), {target: '#suppliers-tbody'}); }); }">
+                <form hx-post="<?= BASE_URL ?>suppliers/create" hx-swap="none" @htmx:after-request="if($event.detail.successful) { openModal = false; $el.reset(); Swal.fire({title: '¡Registro Exitoso!', text: 'El proveedor ha sido guardado correctamente.', icon: 'success', timer: 2000, showConfirmButton: true, confirmButtonText: 'Continuar', confirmButtonColor: '#2563eb', customClass: { popup: 'rounded-2xl' }}).then(() => { htmx.ajax('GET', '<?= BASE_URL ?>suppliers/list?t=' + new Date().getTime(), {target: '#suppliers-tbody'}); }); }">
                     <div class="modal-body space-y-4">
                         <div>
                             <label class="form-label">Empresa *</label>
@@ -64,7 +64,7 @@
                     </h3>
                     <button @click="editModal = false" class="modal-close"><i class="fas fa-times"></i></button>
                 </div>
-                <form id="edit-supplier-form" hx-post="<?= BASE_URL ?>suppliers/edit/" hx-swap="none" @htmx:after-request="if($event.detail.successful) { editModal = false; $el.reset(); Swal.fire({title: '¡Actualización Exitosa!', text: 'El proveedor ha sido actualizado.', icon: 'success', timer: 2000, showConfirmButton: true, confirmButtonText: 'Continuar', confirmButtonColor: '#10b981', customClass: { popup: 'rounded-2xl' }}).then(() => { htmx.ajax('GET', '<?= BASE_URL ?>suppliers/list?t=' + new Date().getTime(), {target: '#suppliers-tbody'}); }); }">
+                <form id="edit-supplier-form" hx-post="<?= BASE_URL ?>suppliers/edit/" hx-swap="none" @htmx:after-request="if($event.detail.successful) { editModal = false; $el.reset(); Swal.fire({title: '¡Actualización Exitosa!', text: 'El proveedor ha sido actualizado.', icon: 'success', timer: 2000, showConfirmButton: true, confirmButtonText: 'Continuar', confirmButtonColor: '#2563eb', customClass: { popup: 'rounded-2xl' }}).then(() => { htmx.ajax('GET', '<?= BASE_URL ?>suppliers/list?t=' + new Date().getTime(), {target: '#suppliers-tbody'}); }); }">
                     <div class="modal-body space-y-4">
                         <div>
                             <label class="form-label">Empresa *</label>
@@ -159,7 +159,7 @@
             text: "¡No podrás revertir esto!",
             icon: 'warning',
             showCancelButton: true,
-            confirmButtonColor: '#10b981',
+            confirmButtonColor: '#2563eb',
             cancelButtonColor: '#ef4444',
             confirmButtonText: '<i class="fas fa-trash mr-1"></i> Sí, eliminar',
             cancelButtonText: 'Cancelar',

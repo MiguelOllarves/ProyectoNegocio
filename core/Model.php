@@ -18,9 +18,11 @@ class Model {
                 $this->db->exec("SAVEPOINT savepoint_audit");
             }
             $userId = $_SESSION['user_id'] ?? null;
-            $stmt = $this->db->prepare("INSERT INTO audit_logs (user_id, action, target, details) VALUES (?, ?, ?, ?)");
+            $businessId = $_SESSION['business_id'] ?? null;
+            $stmt = $this->db->prepare("INSERT INTO audit_logs (user_id, business_id, action, target, details, ip_address) VALUES (?, ?, ?, ?, ?, ?)");
             $target = $this->table . ':' . $recordId;
-            $stmt->execute([$userId, $action, $target, json_encode($details, JSON_UNESCAPED_UNICODE)]);
+            $ip = $_SERVER['HTTP_CF_CONNECTING_IP'] ?? $_SERVER['HTTP_X_FORWARDED_FOR'] ?? $_SERVER['REMOTE_ADDR'] ?? '';
+            $stmt->execute([$userId, $businessId, $action, $target, json_encode($details, JSON_UNESCAPED_UNICODE), $ip]);
         } catch (\Exception $e) { 
             if (isset($inTransaction) && $inTransaction) {
                 $this->db->exec("ROLLBACK TO SAVEPOINT savepoint_audit");
@@ -58,7 +60,19 @@ class Model {
         $stmtCount->execute($params);
         $total = $stmtCount->fetchColumn();
 
-        $sql = "SELECT * FROM {$this->table} $where ORDER BY $orderBy LIMIT " . (int)$limit . " OFFSET " . (int)$offset;
+        // [SQL INJECTION FIX] Whitelist de columnas permitidas para ORDER BY
+        $allowedColumns = ['id', 'name', 'created_at', 'updated_at', 'price', 'stock', 'total', 'status', 'category', 'amount'];
+        $orderByClean = preg_replace('/[^a-zA-Z0-9_,\s\.]/', '', $orderBy);
+        $orderParts = explode(' ', trim($orderByClean));
+        $column = $orderParts[0];
+        // Permitir prefijo de tabla (ej: s.id, p.name)
+        $columnBase = explode('.', $column);
+        $columnBase = end($columnBase);
+        if (!in_array(strtolower($columnBase), $allowedColumns)) {
+            $orderByClean = 'id DESC';
+        }
+
+        $sql = "SELECT * FROM {$this->table} $where ORDER BY $orderByClean LIMIT " . (int)$limit . " OFFSET " . (int)$offset;
         $stmt = $this->db->prepare($sql);
         $stmt->execute($params);
         $data = $stmt->fetchAll();

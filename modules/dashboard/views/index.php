@@ -181,8 +181,8 @@ $canViewReports = ($userRole === 'administrador' || $userRole === 'super_admin' 
 
     // Gradiente para el área bajo la curva
     let gradient = ctx.createLinearGradient(0, 0, 0, 400);
-    gradient.addColorStop(0, 'rgba(16, 185, 129, 0.5)'); // brand-500
-    gradient.addColorStop(1, 'rgba(16, 185, 129, 0)');
+    gradient.addColorStop(0, 'rgba(37, 99, 235, 0.5)'); // brand-500
+    gradient.addColorStop(1, 'rgba(37, 99, 235, 0)');
 
     const salesChart = new Chart(ctx, {
         type: 'line',
@@ -191,11 +191,11 @@ $canViewReports = ($userRole === 'administrador' || $userRole === 'super_admin' 
             datasets: [{
                 label: 'Ingresos ($)',
                 data: data,
-                borderColor: '#10b981', // brand-500
+                borderColor: '#2563eb', // brand-500
                 backgroundColor: gradient,
                 borderWidth: 3,
                 pointBackgroundColor: '#ffffff',
-                pointBorderColor: '#10b981',
+                pointBorderColor: '#2563eb',
                 pointBorderWidth: 2,
                 pointRadius: 4,
                 pointHoverRadius: 6,

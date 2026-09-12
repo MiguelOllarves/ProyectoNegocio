@@ -61,7 +61,7 @@
                     </td>
                     <td class="py-3 px-6 text-right space-x-2">
                         <?php if($u['role'] !== 'super_admin'): ?>
-                            <button onclick="editUser(<?= htmlspecialchars(json_encode($u)) ?>)" class="text-emerald-500 hover:text-emerald-700 bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-900/30 dark:hover:bg-emerald-800 p-2 rounded-lg transition-colors" title="Editar Usuario y Roles">
+                            <button onclick="editUser(<?= htmlspecialchars(json_encode($u)) ?>)" class="text-brand-500 hover:text-brand-700 bg-brand-50 hover:bg-brand-100 dark:bg-brand-900/30 dark:hover:bg-brand-800 p-2 rounded-lg transition-colors" title="Editar Usuario y Roles">
                                 <i class="fas fa-edit"></i>
                             </button>
                             <button onclick="impersonateUser(<?= $u['id'] ?>, '<?= htmlspecialchars($u['username']) ?>')" class="text-blue-500 hover:text-blue-700 bg-blue-50 hover:bg-blue-100 dark:bg-blue-900/30 dark:hover:bg-blue-800 p-2 rounded-lg transition-colors" title="Iniciar Sesión como este usuario">

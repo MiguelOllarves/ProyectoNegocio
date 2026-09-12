@@ -47,7 +47,7 @@
                     <?php foreach($orders as $o): 
                         $badgeColors = [
                             'pendiente' => 'bg-amber-100 text-amber-700 border-amber-200 dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-800',
-                            'despachado' => 'bg-emerald-100 text-emerald-700 border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-800',
+                            'despachado' => 'bg-brand-100 text-brand-700 border-brand-200 dark:bg-brand-900/30 dark:text-brand-400 dark:border-brand-800',
                             'cancelado' => 'bg-red-100 text-red-700 border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-red-800'
                         ];
                         $badgeColor = $badgeColors[$o['status']] ?? 'bg-gray-100 text-gray-700 border-gray-200';
@@ -95,7 +95,7 @@
                                         <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?? '' ?>">
                                         <input type="hidden" name="order_id" value="<?= $o['id'] ?>">
                                         <input type="hidden" name="status" value="despachado">
-                                        <button type="submit" class="text-emerald-500 hover:text-emerald-600 transition-colors p-2 rounded-lg hover:bg-emerald-50 dark:hover:bg-emerald-900/20" title="Marcar como Despachado">
+                                        <button type="submit" class="text-brand-500 hover:text-brand-600 transition-colors p-2 rounded-lg hover:bg-brand-50 dark:hover:bg-brand-900/20" title="Marcar como Despachado">
                                             <i class="fas fa-check-circle"></i>
                                         </button>
                                     </form>

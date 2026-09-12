@@ -133,7 +133,8 @@ class ClientsController extends Controller {
                     $client = $this->model->find($id);
                     echo json_encode(['client' => $client], JSON_INVALID_UTF8_IGNORE | JSON_UNESCAPED_UNICODE);
                 } catch (\Exception $e) {
-                    echo json_encode(['client' => null, 'error' => $e->getMessage()]);
+                    error_log('[Clients] get: ' . $e->getMessage());
+                    echo json_encode(['client' => null, 'error' => 'Error al obtener el cliente']);
                 }
                 exit;
             }

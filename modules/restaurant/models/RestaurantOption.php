@@ -41,9 +41,22 @@ class RestaurantOption extends Model {
 
     /**
      * Crea un grupo de opciones para un plato.
+     * Valida min/max selections.
      */
-    public function createGroup(int $dishId, string $name, int $minSel, int $maxSel, bool $required, int $order = 0): int {
+    public function createGroup(int $dishId, string $name, int $minSel, int $maxSel, bool $required = true, int $order = 0): int {
+        if ($minSel < 0) throw new \Exception("min_selections no puede ser negativo.");
+        if ($maxSel < 1) throw new \Exception("max_selections debe ser al menos 1.");
+        if ($minSel > $maxSel) throw new \Exception("min_selections no puede ser mayor que max_selections.");
+
         $tenantId = $_SESSION['business_id'] ?? null;
+
+        // Verificar que el plato pertenece al tenant
+        $stmtCheck = $this->db->prepare("SELECT id FROM products WHERE id = ? AND tenant_id = ? AND is_dish = TRUE");
+        $stmtCheck->execute([$dishId, $tenantId]);
+        if (!$stmtCheck->fetch()) {
+            throw new \Exception("El plato no existe o no pertenece a este negocio.");
+        }
+
         $stmt = $this->db->prepare("
             INSERT INTO restaurant_option_groups (tenant_id, product_id, name, min_selections, max_selections, required, display_order)
             VALUES (?, ?, ?, ?, ?, ?, ?)
@@ -54,9 +67,45 @@ class RestaurantOption extends Model {
 
     /**
      * Agrega una opción a un grupo.
+     * Valida que: el grupo pertenece al tenant, el producto existe,
+     * el producto no sea el mismo plato padre, y no haya duplicados.
      */
     public function addOption(int $groupId, int $productId, float $priceDelta = 0, int $order = 0): int {
         $tenantId = $_SESSION['business_id'] ?? null;
+
+        // 1. Verificar que el grupo pertenece al tenant
+        $stmtGroup = $this->db->prepare("SELECT product_id FROM restaurant_option_groups WHERE id = ? AND tenant_id = ?");
+        $stmtGroup->execute([$groupId, $tenantId]);
+        $group = $stmtGroup->fetch(PDO::FETCH_ASSOC);
+        if (!$group) {
+            throw new \Exception("El grupo de opciones no existe o no pertenece a este negocio.");
+        }
+
+        // 2. Verificar que el producto pertenece al tenant
+        $stmtProd = $this->db->prepare("SELECT id, is_dish FROM products WHERE id = ? AND tenant_id = ?");
+        $stmtProd->execute([$productId, $tenantId]);
+        $product = $stmtProd->fetch(PDO::FETCH_ASSOC);
+        if (!$product) {
+            throw new \Exception("El producto seleccionado no existe o no pertenece a este negocio.");
+        }
+
+        // 3. Impedir que el plato padre sea su propia opción
+        if ((int)$group['product_id'] === $productId) {
+            throw new \Exception("Un plato no puede ser opción de sí mismo.");
+        }
+
+        // 4. Impedir duplicados (mismo producto en mismo grupo)
+        $stmtDup = $this->db->prepare("SELECT id FROM restaurant_options WHERE group_id = ? AND product_id = ? AND tenant_id = ?");
+        $stmtDup->execute([$groupId, $productId, $tenantId]);
+        if ($stmtDup->fetch()) {
+            throw new \Exception("Este producto ya es opción en este grupo.");
+        }
+
+        // 5. Validar price_delta (no negativo)
+        if ($priceDelta < 0) {
+            throw new \Exception("El precio adicional no puede ser negativo.");
+        }
+
         $stmt = $this->db->prepare("
             INSERT INTO restaurant_options (tenant_id, group_id, product_id, price_delta, display_order)
             VALUES (?, ?, ?, ?, ?)

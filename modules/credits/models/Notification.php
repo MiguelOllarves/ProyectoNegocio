@@ -170,4 +170,100 @@ class Notification extends Model {
 
         return $inserted;
     }
+
+    /**
+     * Like send() but accepts explicit business_id instead of reading from $_SESSION.
+     * Use this when called from public/storefront context where session may not have business_id.
+     */
+    public static function sendWithContext($type, $title, $message, $targetRole = null, $refType = null, $refId = null, $businessId = null) {
+        $notification = new self();
+        $inserted = $notification->create([
+            'type'           => $type,
+            'title'          => $title,
+            'message'        => $message,
+            'target_role'    => $targetRole,
+            'reference_type' => $refType,
+            'reference_id'   => $refId,
+        ]);
+
+        // Set tenant_id manually if provided
+        if ($businessId && $inserted) {
+            try {
+                $db = Database::getInstance()->getConnection();
+                $stmt = $db->prepare("UPDATE notifications SET tenant_id = :tid WHERE id = :id");
+                $stmt->execute(['tid' => $businessId, 'id' => $inserted]);
+            } catch (\Exception $e) {
+                error_log('[Notification] sendWithContext: ' . $e->getMessage());
+            }
+        }
+
+        // PUSH NOTIFICATION (same logic as send, but with explicit tenant)
+        try {
+            $autoload = __DIR__ . '/../../../vendor/autoload.php';
+            if (file_exists($autoload)) {
+                require_once $autoload;
+                if (class_exists('\Minishlink\WebPush\WebPush')) {
+                    $db = Database::getInstance()->getConnection();
+
+                    if ($businessId) {
+                        $sql = "SELECT ps.* FROM push_subscriptions ps 
+                                LEFT JOIN users u ON ps.user_id = u.id 
+                                WHERE (ps.user_id = ? OR ps.role = ?) 
+                                AND (u.tenant_id = ? OR ps.user_id IS NULL OR u.role = 'super_admin')";
+                        $stmt = $db->prepare($sql);
+                        $stmt->execute([$refId, $targetRole, $businessId]);
+                    } else {
+                        $sql = "SELECT * FROM push_subscriptions WHERE user_id = ? OR role = ?";
+                        $stmt = $db->prepare($sql);
+                        $stmt->execute([$refId, $targetRole]);
+                    }
+
+                    $subs = $stmt->fetchAll();
+
+                    if (count($subs) > 0) {
+                        require_once __DIR__ . '/../../../config/config.php';
+                        $auth = [
+                            'VAPID' => [
+                                'subject' => 'mailto:admin@tuinventario.app',
+                                'publicKey' => VAPID_PUBLIC_KEY,
+                                'privateKey' => VAPID_PRIVATE_KEY
+                            ]
+                        ];
+
+                        $webPush = new \Minishlink\WebPush\WebPush($auth);
+                        $payload = json_encode([
+                            'title' => $title,
+                            'body' => $message,
+                            'icon' => '/icon-192x192.png',
+                            'badge' => '/badge-72x72.png',
+                            'url' => '/'
+                        ]);
+
+                        foreach ($subs as $sub) {
+                            $subscription = \Minishlink\WebPush\Subscription::create([
+                                'endpoint' => $sub['endpoint'],
+                                'publicKey' => $sub['p256dh'],
+                                'authToken' => $sub['auth'],
+                            ]);
+                            $webPush->sendOneNotification($subscription, $payload);
+                        }
+
+                        foreach ($webPush->flush() as $report) {
+                            $endpoint = $report->getRequest()->getUri()->__toString();
+                            if (!$report->isSuccess()) {
+                                if ($report->isSubscriptionExpired()) {
+                                    $stmtDelete = $db->prepare("DELETE FROM push_subscriptions WHERE endpoint = ?");
+                                    $stmtDelete->execute([$endpoint]);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (\Exception $e) {
+            error_log("[WebPush Error] " . $e->getMessage());
+        }
+
+        return $inserted;
+    }
 }

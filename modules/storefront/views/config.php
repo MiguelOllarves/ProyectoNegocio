@@ -50,8 +50,8 @@
             <div>
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Color Principal</label>
                 <div class="flex items-center gap-3">
-                    <input type="color" name="primary_color" value="<?= htmlspecialchars($config['primary_color'] ?? '#10b981') ?>" class="w-12 h-10 rounded cursor-pointer border-0">
-                    <span class="text-xs text-gray-500 dark:text-gray-400"><?= htmlspecialchars($config['primary_color'] ?? '#10b981') ?></span>
+                    <input type="color" name="primary_color" value="<?= htmlspecialchars($config['primary_color'] ?? '#2563eb') ?>" class="w-12 h-10 rounded cursor-pointer border-0">
+                    <span class="text-xs text-gray-500 dark:text-gray-400"><?= htmlspecialchars($config['primary_color'] ?? '#2563eb') ?></span>
                 </div>
             </div>
             <div>
@@ -116,7 +116,7 @@
     <!-- Información de Operación (NUEVO) -->
     <div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 flex flex-col h-full">
         <h3 class="text-lg font-bold text-gray-800 dark:text-white mb-4 border-b border-gray-100 dark:border-gray-700 pb-2">
-            <i class="fas fa-store text-emerald-500 mr-2"></i>Información de Operación
+            <i class="fas fa-store text-brand-500 mr-2"></i>Información de Operación
         </h3>
         <div class="space-y-4 flex-1">
             <div>

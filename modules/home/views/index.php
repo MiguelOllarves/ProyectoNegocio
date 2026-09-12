@@ -41,9 +41,9 @@
     <style>
         body { font-family: 'Inter', sans-serif; }
         
-        /* Fondo degradado suave (Verde pastel #A8DDCF a blanco/cian) */
+        /* Fondo degradado suave (Azul pastel #dbeafe a blanco) */
         .bg-gradient-animated {
-            background: linear-gradient(135deg, #A8DDCF 0%, #e0f2fe 50%, #A8DDCF 100%);
+            background: linear-gradient(135deg, #dbeafe 0%, #eff6ff 50%, #dbeafe 100%);
             background-size: 200% 200%;
             animation: gradientBG 15s ease infinite;
         }
@@ -64,8 +64,8 @@
         .glass-float {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(12px);
-            border: 1px solid rgba(54, 178, 145, 0.1);
-            box-shadow: 0 20px 40px -10px rgba(54, 178, 145, 0.15);
+            border: 1px solid rgba(37, 99, 235, 0.1);
+            box-shadow: 0 20px 40px -10px rgba(37, 99, 235, 0.15);
         }
 
         /* Mockup Teléfono Moderno (CSS Puro) */
@@ -112,8 +112,8 @@
         }
         .animate-water {
             background-image: 
-                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 28'%3E%3Cpath d='M0 15 Q 30 0, 60 15 T 120 15 L 120 28 L 0 28 Z' fill='%2336B291'/%3E%3C/svg%3E"),
-                linear-gradient(to right, #a7f3d0, #10b981);
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 28'%3E%3Cpath d='M0 15 Q 30 0, 60 15 T 120 15 L 120 28 L 0 28 Z' fill='%232563eb'/%3E%3C/svg%3E"),
+                linear-gradient(to right, #a7f3d0, #2563eb);
             background-repeat: repeat-x, no-repeat;
             background-size: 200px 100px, 100% 100%;
             -webkit-background-clip: text;
@@ -335,7 +335,7 @@
         }
     </script>
 </head>
-<body class="bg-[#ebfbf1] text-slate-800 antialiased selection:bg-[#36B291] selection:text-white min-h-screen relative overflow-x-hidden">
+<body class="bg-[#ebfbf1] text-slate-800 antialiased selection:bg-[#2563eb] selection:text-white min-h-screen relative overflow-x-hidden">
     <!-- Google Tag Manager (noscript) -->
     <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-NHRNGKB2"
     height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
@@ -358,30 +358,30 @@
                             <img src="<?= BASE_URL ?>?serve_logo=1" alt="Logo" class="w-6 h-6 object-contain">
                         </div>
                         <span class="text-xl lg:text-2xl font-black text-slate-800 tracking-tight">
-                            Tu<span class="text-[#36B291]">Inventario</span>
+                            Tu<span class="text-[#2563eb]">Inventario</span>
                         </span>
                     </a>
 
                     <!-- Navegación Desktop -->
                     <nav class="hidden lg:flex items-center gap-5 xl:gap-8 text-[15px] font-bold text-slate-700">
-                        <a href="#inicio" class="hover:text-[#36B291] transition-colors whitespace-nowrap">Inicio</a>
-                        <a href="#funcionalidades" class="hover:text-[#36B291] transition-colors whitespace-nowrap">Características</a>
-                        <a href="<?= BASE_URL ?>qrmenu" class="hover:text-[#36B291] transition-colors whitespace-nowrap flex items-center gap-2"><i class="fas fa-qrcode"></i> Menú QR</a>
-                        <a href="#app-descarga" class="hover:text-[#36B291] transition-colors whitespace-nowrap flex items-center gap-2"><i class="fab fa-android"></i> PagaPues</a>
-                        <a href="#contacto" class="hover:text-[#36B291] transition-colors whitespace-nowrap">Contacto</a>
+                        <a href="#inicio" class="hover:text-[#2563eb] transition-colors whitespace-nowrap">Inicio</a>
+                        <a href="#funcionalidades" class="hover:text-[#2563eb] transition-colors whitespace-nowrap">Características</a>
+                        <a href="<?= BASE_URL ?>qrmenu" class="hover:text-[#2563eb] transition-colors whitespace-nowrap flex items-center gap-2"><i class="fas fa-qrcode"></i> Menú QR</a>
+                        <a href="#app-descarga" class="hover:text-[#2563eb] transition-colors whitespace-nowrap flex items-center gap-2"><i class="fab fa-android"></i> PagaPues</a>
+                        <a href="#contacto" class="hover:text-[#2563eb] transition-colors whitespace-nowrap">Contacto</a>
                     </nav>
                 </div>
 
                 <!-- Derecha: Botón de Registro -->
                 <div class="hidden lg:flex items-center gap-6">
-                    <button onclick="document.getElementById('login-modal').classList.remove('hidden'); document.getElementById('login-modal').classList.add('flex')" class="text-[15px] font-bold text-slate-700 hover:text-[#36B291] transition-colors whitespace-nowrap focus:outline-none">Acceder</button>
-                    <a href="<?= BASE_URL ?>auth/register" class="bg-[#36B291] hover:bg-[#2c967a] text-white text-[15px] font-bold py-2.5 px-6 rounded-full transition-all shadow-[0_8px_20px_-6px_rgba(54,178,145,0.5)] transform hover:-translate-y-0.5 flex items-center gap-2 whitespace-nowrap">
+                    <button onclick="document.getElementById('login-modal').classList.remove('hidden'); document.getElementById('login-modal').classList.add('flex')" class="text-[15px] font-bold text-slate-700 hover:text-[#2563eb] transition-colors whitespace-nowrap focus:outline-none">Acceder</button>
+                    <a href="<?= BASE_URL ?>auth/register" class="bg-[#2563eb] hover:bg-[#1d4ed8] text-white text-[15px] font-bold py-2.5 px-6 rounded-full transition-all shadow-[0_8px_20px_-6px_rgba(37,99,235,0.5)] transform hover:-translate-y-0.5 flex items-center gap-2 whitespace-nowrap">
                         Regístrate <i class="fas fa-arrow-right text-[12px] ml-1"></i>
                     </a>
                 </div>
 
                 <!-- Botón Menú Móvil -->
-                <button class="lg:hidden text-slate-700 hover:text-[#36B291] focus:outline-none" id="mobile-menu-btn">
+                <button class="lg:hidden text-slate-700 hover:text-[#2563eb] focus:outline-none" id="mobile-menu-btn">
                     <i class="fas fa-bars text-2xl"></i>
                 </button>
             </div>
@@ -391,10 +391,10 @@
         <div id="mobile-menu" class="hidden lg:hidden flex-col bg-white/95 backdrop-blur-xl absolute top-[70px] left-0 w-full p-6 shadow-2xl border-b border-gray-100 z-50 rounded-b-3xl">
             <a href="#inicio" class="py-3 text-lg font-semibold text-slate-700 border-b border-gray-50">Inicio</a>
             <a href="#funcionalidades" class="py-3 text-lg font-semibold text-slate-700 border-b border-gray-50">Soluciones</a>
-            <a href="#app-descarga" class="py-3 text-lg font-semibold text-slate-700 border-b border-gray-50 flex items-center gap-2"><i class="fab fa-android text-[#36B291]"></i> PagaPues</a>
+            <a href="#app-descarga" class="py-3 text-lg font-semibold text-slate-700 border-b border-gray-50 flex items-center gap-2"><i class="fab fa-android text-[#2563eb]"></i> PagaPues</a>
             <a href="#contacto" class="py-3 text-lg font-semibold text-slate-700 border-b border-gray-50 mb-4">Contacto</a>
-            <button onclick="document.getElementById('login-modal').classList.remove('hidden'); document.getElementById('login-modal').classList.add('flex')" class="w-full text-center py-3 text-lg font-bold text-[#36B291] bg-teal-50 rounded-xl mb-3 focus:outline-none">Inicia Sesión</button>
-            <button onclick="document.getElementById('login-modal').classList.remove('hidden'); document.getElementById('login-modal').classList.add('flex')" class="w-full text-center py-3 text-lg font-bold text-white bg-[#36B291] rounded-xl shadow-lg focus:outline-none">Regístrate</button>
+            <button onclick="document.getElementById('login-modal').classList.remove('hidden'); document.getElementById('login-modal').classList.add('flex')" class="w-full text-center py-3 text-lg font-bold text-[#2563eb] bg-teal-50 rounded-xl mb-3 focus:outline-none">Inicia Sesión</button>
+            <button onclick="document.getElementById('login-modal').classList.remove('hidden'); document.getElementById('login-modal').classList.add('flex')" class="w-full text-center py-3 text-lg font-bold text-white bg-[#2563eb] rounded-xl shadow-lg focus:outline-none">Regístrate</button>
         </div>
 
 
@@ -403,11 +403,11 @@
         <!-- ========================================== -->
         <section id="inicio" class="flex flex-col lg:flex-row items-center w-full px-6 py-12 lg:px-10 lg:py-16 gap-12 lg:gap-8 relative max-w-[1400px] mx-auto min-h-[85vh] pt-[100px] lg:pt-[110px]">
             <!-- Círculo decorativo hero -->
-            <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full border border-[#36B291]/10 border-dashed animate-[spin_40s_linear_infinite] pointer-events-none z-0"></div>
+            <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full border border-[#2563eb]/10 border-dashed animate-[spin_40s_linear_infinite] pointer-events-none z-0"></div>
 
             <!-- Izquierda: Textos -->
             <div class="w-full lg:w-[48%] flex flex-col justify-center text-center lg:text-left z-20 lg:pl-10">
-                <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-50 border border-emerald-100 text-emerald-700 text-xs font-bold mb-6 mx-auto lg:mx-0 w-max">
+                <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-brand-50 border border-brand-100 text-brand-700 text-xs font-bold mb-6 mx-auto lg:mx-0 w-max">
                     <i class="fas fa-bolt text-amber-500"></i> La plataforma que tu negocio necesita
                 </div>
                 <h1 class="hero-title-custom drop-shadow-sm">
@@ -418,16 +418,16 @@
                     Gestiona tu Inventario, Punto de Venta (POS), Facturación, Crédito, Reportes y Tienda Online desde un solo lugar. Diseñado para que domines tus ganancias, gastos, clientes y proveedores sin complicaciones.
                 </p>
                 <div class="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
-                    <button onclick="document.getElementById('login-modal').classList.remove('hidden'); document.getElementById('login-modal').classList.add('flex')" class="w-full sm:w-auto bg-[#36B291] hover:bg-[#2c967a] text-white font-bold py-4 px-10 rounded-full transition-all shadow-[0_10px_30px_-10px_rgba(54,178,145,0.6)] transform hover:-translate-y-1 text-center text-lg focus:outline-none">
+                    <button onclick="document.getElementById('login-modal').classList.remove('hidden'); document.getElementById('login-modal').classList.add('flex')" class="w-full sm:w-auto bg-[#2563eb] hover:bg-[#1d4ed8] text-white font-bold py-4 px-10 rounded-full transition-all shadow-[0_10px_30px_-10px_rgba(37,99,235,0.6)] transform hover:-translate-y-1 text-center text-lg focus:outline-none">
                         Prueba el Sistema
                     </button>
-                    <a href="#funcionalidades" class="w-full sm:w-auto bg-transparent border-2 border-[#36B291] text-[#36B291] hover:bg-teal-50/50 font-bold py-4 px-10 rounded-full transition-all text-center text-lg focus:outline-none">
+                    <a href="#funcionalidades" class="w-full sm:w-auto bg-transparent border-2 border-[#2563eb] text-[#2563eb] hover:bg-teal-50/50 font-bold py-4 px-10 rounded-full transition-all text-center text-lg focus:outline-none">
                         Explorar Módulos
                     </a>
                 </div>
                 <div class="mt-8 flex items-center justify-center lg:justify-start gap-4 text-sm font-bold text-slate-600">
-                    <div><i class="fas fa-check-circle text-[#36B291] mr-1"></i> Fácil de usar</div>
-                    <div><i class="fas fa-check-circle text-[#36B291] mr-1"></i> Soporte 24/7</div>
+                    <div><i class="fas fa-check-circle text-[#2563eb] mr-1"></i> Fácil de usar</div>
+                    <div><i class="fas fa-check-circle text-[#2563eb] mr-1"></i> Soporte 24/7</div>
                 </div>
             </div>
 
@@ -437,7 +437,7 @@
                 <!-- Teléfono 1: Productos (Atrás/Izquierda) -->
                 <div class="phone-left-custom phone-mockup shadow-2xl">
                     <div class="w-full h-full bg-slate-50 pt-9 flex flex-col relative">
-                        <div class="bg-[#36B291] p-4 pb-6 text-white rounded-b-3xl shadow-sm relative z-10">
+                        <div class="bg-[#2563eb] p-4 pb-6 text-white rounded-b-3xl shadow-sm relative z-10">
                             <div class="flex justify-between items-center mb-3">
                                 <i class="fas fa-bars opacity-80"></i>
                                 <span class="text-sm font-bold tracking-wide">Tu Inventario</span>
@@ -452,22 +452,22 @@
                                 <div class="bg-white p-2 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center">
                                     <div class="w-full h-20 bg-cover bg-center rounded-xl mb-2" style="background-image: url('https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=200&fit=crop');"></div>
                                     <span class="text-[10px] font-bold text-slate-800 text-center leading-tight">Burger Clásica</span>
-                                    <span class="text-xs font-black text-[#36B291] mt-1">$12.50</span>
+                                    <span class="text-xs font-black text-[#2563eb] mt-1">$12.50</span>
                                 </div>
                                 <div class="bg-white p-2 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center">
                                     <div class="w-full h-20 bg-cover bg-center rounded-xl mb-2" style="background-image: url('https://images.unsplash.com/photo-1573080496219-bb080dd4f877?w=200&fit=crop');"></div>
                                     <span class="text-[10px] font-bold text-slate-800 text-center leading-tight">Papas Fritas</span>
-                                    <span class="text-xs font-black text-[#36B291] mt-1">$4.00</span>
+                                    <span class="text-xs font-black text-[#2563eb] mt-1">$4.00</span>
                                 </div>
                                 <div class="bg-white p-2 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center">
                                     <div class="w-full h-20 bg-cover bg-center rounded-xl mb-2" style="background-image: url('https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=200&fit=crop');"></div>
                                     <span class="text-[10px] font-bold text-slate-800 text-center leading-tight">Coca Cola</span>
-                                    <span class="text-xs font-black text-[#36B291] mt-1">$2.50</span>
+                                    <span class="text-xs font-black text-[#2563eb] mt-1">$2.50</span>
                                 </div>
                                 <div class="bg-white p-2 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center">
                                     <div class="w-full h-20 bg-cover bg-center rounded-xl mb-2" style="background-image: url('https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=200&fit=crop');"></div>
                                     <span class="text-[10px] font-bold text-slate-800 text-center leading-tight">Burger Doble</span>
-                                    <span class="text-xs font-black text-[#36B291] mt-1">$18.00</span>
+                                    <span class="text-xs font-black text-[#2563eb] mt-1">$18.00</span>
                                 </div>
                             </div>
                         </div>
@@ -480,7 +480,7 @@
                         <div class="bg-slate-900 p-5 text-white flex flex-col items-center justify-center relative">
                             <div class="absolute top-2 right-4 text-[10px] opacity-60"><i class="fas fa-wifi mr-1"></i><i class="fas fa-battery-full"></i></div>
                             <div class="absolute top-4 left-1/2 -translate-x-1/2 bg-white text-slate-800 text-[10px] font-bold px-3 py-1 rounded-full flex items-center gap-1 shadow-md">
-                                <i class="fas fa-check-circle text-[#36B291]"></i> Sincronizado
+                                <i class="fas fa-check-circle text-[#2563eb]"></i> Sincronizado
                             </div>
                             <span class="text-[10px] font-bold text-slate-400 mt-6 uppercase tracking-widest">Total a Cobrar</span>
                             <span class="text-4xl font-black text-white mt-1">$43.58</span>
@@ -488,7 +488,7 @@
                         <div class="flex-1 bg-white p-5 flex flex-col">
                             <div class="flex justify-between items-center text-sm font-bold text-slate-800 border-b border-gray-100 pb-3 mb-3">
                                 <span>Ticket (3 items)</span>
-                                <span class="bg-[#36B291]/10 text-[#36B291] px-2 py-0.5 rounded text-[10px]">Mesa 4</span>
+                                <span class="bg-[#2563eb]/10 text-[#2563eb] px-2 py-0.5 rounded text-[10px]">Mesa 4</span>
                             </div>
                             <div class="space-y-4 flex-1">
                                 <div class="flex justify-between items-center">
@@ -504,7 +504,7 @@
                                     <span class="text-sm font-black text-slate-800">$20.00</span>
                                 </div>
                             </div>
-                            <button class="w-full bg-[#36B291] text-white font-black py-4 rounded-2xl text-lg shadow-[0_8px_20px_-6px_rgba(54,178,145,0.6)]">
+                            <button class="w-full bg-[#2563eb] text-white font-black py-4 rounded-2xl text-lg shadow-[0_8px_20px_-6px_rgba(37,99,235,0.6)]">
                                 PROCESAR PAGO
                             </button>
                         </div>
@@ -513,7 +513,7 @@
 
                 <!-- Burbuja Flotante 1: POS -->
                 <div class="hidden lg:flex glass-float card-pos-custom p-4 sm:p-5 rounded-2xl items-center gap-4 shadow-2xl animate-float-slow">
-                    <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-gradient-to-br from-teal-100 to-emerald-100 flex items-center justify-center text-[#36B291] shadow-inner shrink-0">
+                    <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-gradient-to-br from-brand-100 to-accent-100 flex items-center justify-center text-[#2563eb] shadow-inner shrink-0">
                         <i class="fas fa-cash-register text-2xl"></i>
                     </div>
                     <div class="flex flex-col">
@@ -526,7 +526,7 @@
                 <!-- Burbuja Flotante 2: Inventario -->
                 <div class="hidden lg:flex glass-float card-inventario-custom p-5 rounded-2xl flex-col shadow-2xl animate-float-fast" style="animation-delay: 1.5s;">
                     <div class="flex items-center gap-3 mb-3">
-                        <div class="w-10 h-10 rounded-full bg-[#36B291]/10 flex items-center justify-center text-[#36B291]">
+                        <div class="w-10 h-10 rounded-full bg-[#2563eb]/10 flex items-center justify-center text-[#2563eb]">
                             <i class="fas fa-boxes text-lg"></i>
                         </div>
                         <h4 class="text-sm font-bold text-slate-800 leading-tight">Control de<br>Inventario</h4>
@@ -535,8 +535,8 @@
                         Gestión de stock, multialmacén y alertas automáticas en tiempo real.
                     </p>
                     <div class="mt-3 flex items-center gap-2">
-                        <span class="w-2 h-2 rounded-full bg-[#36B291] animate-pulse"></span>
-                        <span class="text-[10px] font-bold text-[#36B291] uppercase tracking-wider">Stock Óptimo</span>
+                        <span class="w-2 h-2 rounded-full bg-[#2563eb] animate-pulse"></span>
+                        <span class="text-[10px] font-bold text-[#2563eb] uppercase tracking-wider">Stock Óptimo</span>
                     </div>
                 </div>
 
@@ -553,49 +553,49 @@
             
             <div class="flex overflow-x-auto gap-6 pb-6 hide-scrollbar snap-x max-w-[1400px] mx-auto w-full">
                 <!-- Card 1 -->
-                <div class="min-w-[260px] flex-1 bg-white p-5 rounded-3xl shadow-[0_8px_20px_-10px_rgba(0,0,0,0.05)] border border-gray-50 snap-center hover:shadow-[0_20px_30px_-10px_rgba(54,178,145,0.15)] transition-all group">
+                <div class="min-w-[260px] flex-1 bg-white p-5 rounded-3xl shadow-[0_8px_20px_-10px_rgba(0,0,0,0.05)] border border-gray-50 snap-center hover:shadow-[0_20px_30px_-10px_rgba(37,99,235,0.15)] transition-all group">
                     <div class="w-full h-36 bg-slate-50 rounded-2xl mb-4 overflow-hidden flex items-center justify-center p-2">
                         <img src="https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=400&fit=crop" class="w-full h-full object-cover rounded-xl group-hover:scale-105 transition-transform duration-500" alt="iPhone 15">
                     </div>
                     <h3 class="text-[15px] font-bold text-slate-800 leading-tight mb-3">iPhone 15 Pro Max (256GB)</h3>
                     <div class="flex flex-col">
-                        <span class="text-2xl font-black text-[#36B291] leading-none">$1099.00</span>
+                        <span class="text-2xl font-black text-[#2563eb] leading-none">$1099.00</span>
                         <span class="text-[11px] font-bold text-slate-400 mt-1">Bs. <?= number_format(1099.00 * $tasa_bcv, 2, ',', '.') ?></span>
                     </div>
                 </div>
 
                 <!-- Card 2 -->
-                <div class="min-w-[260px] flex-1 bg-white p-5 rounded-3xl shadow-[0_8px_20px_-10px_rgba(0,0,0,0.05)] border border-gray-50 snap-center hover:shadow-[0_20px_30px_-10px_rgba(54,178,145,0.15)] transition-all group">
+                <div class="min-w-[260px] flex-1 bg-white p-5 rounded-3xl shadow-[0_8px_20px_-10px_rgba(0,0,0,0.05)] border border-gray-50 snap-center hover:shadow-[0_20px_30px_-10px_rgba(37,99,235,0.15)] transition-all group">
                     <div class="w-full h-36 bg-slate-50 rounded-2xl mb-4 overflow-hidden flex items-center justify-center p-2">
                         <img src="https://images.unsplash.com/photo-1596755094514-f87e34085b2c?w=400&fit=crop" class="w-full h-full object-cover rounded-xl group-hover:scale-105 transition-transform duration-500" alt="Camisa Casual">
                     </div>
                     <h3 class="text-[15px] font-bold text-slate-800 leading-tight mb-3">Camisa Casual Premium</h3>
                     <div class="flex flex-col">
-                        <span class="text-2xl font-black text-[#36B291] leading-none">$29.99</span>
+                        <span class="text-2xl font-black text-[#2563eb] leading-none">$29.99</span>
                         <span class="text-[11px] font-bold text-slate-400 mt-1">Bs. <?= number_format(29.99 * $tasa_bcv, 2, ',', '.') ?></span>
                     </div>
                 </div>
 
                 <!-- Card 3 -->
-                <div class="min-w-[260px] flex-1 bg-white p-5 rounded-3xl shadow-[0_8px_20px_-10px_rgba(0,0,0,0.05)] border border-gray-50 snap-center hover:shadow-[0_20px_30px_-10px_rgba(54,178,145,0.15)] transition-all group">
+                <div class="min-w-[260px] flex-1 bg-white p-5 rounded-3xl shadow-[0_8px_20px_-10px_rgba(0,0,0,0.05)] border border-gray-50 snap-center hover:shadow-[0_20px_30px_-10px_rgba(37,99,235,0.15)] transition-all group">
                     <div class="w-full h-36 bg-slate-50 rounded-2xl mb-4 overflow-hidden flex items-center justify-center p-2">
                         <img src="https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=400&fit=crop" class="w-full h-full object-cover rounded-xl group-hover:scale-105 transition-transform duration-500" alt="Coca Cola">
                     </div>
                     <h3 class="text-[15px] font-bold text-slate-800 leading-tight mb-3">Refresco Coca-Cola (Lata)</h3>
                     <div class="flex flex-col">
-                        <span class="text-2xl font-black text-[#36B291] leading-none">$1.50</span>
+                        <span class="text-2xl font-black text-[#2563eb] leading-none">$1.50</span>
                         <span class="text-[11px] font-bold text-slate-400 mt-1">Bs. <?= number_format(1.50 * $tasa_bcv, 2, ',', '.') ?></span>
                     </div>
                 </div>
 
                 <!-- Card 4 -->
-                <div class="min-w-[260px] flex-1 bg-white p-5 rounded-3xl shadow-[0_8px_20px_-10px_rgba(0,0,0,0.05)] border border-gray-50 snap-center hover:shadow-[0_20px_30px_-10px_rgba(54,178,145,0.15)] transition-all group hidden md:block">
+                <div class="min-w-[260px] flex-1 bg-white p-5 rounded-3xl shadow-[0_8px_20px_-10px_rgba(0,0,0,0.05)] border border-gray-50 snap-center hover:shadow-[0_20px_30px_-10px_rgba(37,99,235,0.15)] transition-all group hidden md:block">
                     <div class="w-full h-36 bg-slate-50 rounded-2xl mb-4 overflow-hidden flex items-center justify-center p-2">
                         <img src="https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400&fit=crop" class="w-full h-full object-cover rounded-xl group-hover:scale-105 transition-transform duration-500" alt="Hamburguesas">
                     </div>
                     <h3 class="text-[15px] font-bold text-slate-800 leading-tight mb-3">Pack Hamburguesas Gourmet</h3>
                     <div class="flex flex-col">
-                        <span class="text-2xl font-black text-[#36B291] leading-none">$14.90</span>
+                        <span class="text-2xl font-black text-[#2563eb] leading-none">$14.90</span>
                         <span class="text-[11px] font-bold text-slate-400 mt-1">Bs. <?= number_format(14.90 * $tasa_bcv, 2, ',', '.') ?></span>
                     </div>
                 </div>
@@ -616,7 +616,7 @@
                 <!-- Func 1: Inventario -->
                 <div class="glass-float p-6 rounded-[30px] flex flex-col hover:-translate-y-2 transition-transform duration-300">
                     <div class="flex items-center gap-4 mb-4">
-                        <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#A8DDCF] to-[#36B291] flex items-center justify-center shadow-lg shadow-[#36B291]/20 shrink-0">
+                        <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#dbeafe] to-[#2563eb] flex items-center justify-center shadow-lg shadow-[#2563eb]/20 shrink-0">
                             <i class="fas fa-boxes text-white text-xl"></i>
                         </div>
                         <h3 class="text-lg font-bold text-slate-800 leading-tight">Inventario</h3>
@@ -693,7 +693,7 @@
                 <!-- Func 8: Tienda Online -->
                 <div class="glass-float p-6 rounded-[30px] flex flex-col hover:-translate-y-2 transition-transform duration-300">
                     <div class="flex items-center gap-4 mb-4">
-                        <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-emerald-100 to-emerald-400 flex items-center justify-center shadow-lg shadow-emerald-400/20 shrink-0">
+                        <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-brand-100 to-brand-400 flex items-center justify-center shadow-lg shadow-brand-400/20 shrink-0">
                             <i class="fas fa-store text-white text-xl"></i>
                         </div>
                         <h3 class="text-lg font-bold text-slate-800 leading-tight">Tienda Online</h3>
@@ -709,7 +709,7 @@
         <!-- ========================================== -->
         <section class="w-full px-6 py-20 lg:px-16 bg-[#0c1a16] text-white overflow-hidden relative">
             <div class="absolute inset-0 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] mix-blend-overlay"></div>
-            <div class="hidden md:block absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full h-[500px] bg-[#36B291]/30 filter blur-[100px] rounded-full z-0 pointer-events-none"></div>
+            <div class="hidden md:block absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full h-[500px] bg-[#2563eb]/30 filter blur-[100px] rounded-full z-0 pointer-events-none"></div>
 
             <div class="relative z-10 text-center max-w-3xl mx-auto mb-12">
                 <h2 class="text-3xl sm:text-5xl font-black text-white mb-4">Mira Cómo Funciona</h2>
@@ -729,23 +729,23 @@
             <!-- Fondo premium degradado -->
             <div class="absolute inset-0 bg-gradient-to-br from-[#0f172a] via-[#1e293b] to-[#0c4a3e]"></div>
             <!-- Efectos de brillo decorativos -->
-            <div class="absolute top-0 left-1/4 w-[600px] h-[600px] bg-[#36B291]/8 filter blur-[120px] rounded-full pointer-events-none"></div>
-            <div class="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-emerald-400/5 filter blur-[100px] rounded-full pointer-events-none"></div>
+            <div class="absolute top-0 left-1/4 w-[600px] h-[600px] bg-[#2563eb]/8 filter blur-[120px] rounded-full pointer-events-none"></div>
+            <div class="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-brand-400/5 filter blur-[100px] rounded-full pointer-events-none"></div>
             <!-- Patrón sutil -->
-            <div class="absolute inset-0 opacity-[0.03] bg-[url('data:image/svg+xml,%3Csvg width=\"60\" height=\"60\" viewBox=\"0 0 60 60\" xmlns=\"http://www.w3.org/2000/svg\"%3E%3Cg fill=\"none\" fill-rule=\"evenodd\"%3E%3Cg fill=\"%2336B291\" fill-opacity=\"1\"%3E%3Cpath d=\"M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')]"></div>
+            <div class="absolute inset-0 opacity-[0.03] bg-[url('data:image/svg+xml,%3Csvg width=\"60\" height=\"60\" viewBox=\"0 0 60 60\" xmlns=\"http://www.w3.org/2000/svg\"%3E%3Cg fill=\"none\" fill-rule=\"evenodd\"%3E%3Cg fill=\"%232563eb\" fill-opacity=\"1\"%3E%3Cpath d=\"M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')]"></div>
             
             <div class="relative z-10 max-w-[1300px] mx-auto px-5 py-16 lg:py-24 lg:px-16">
                 
                 <!-- Encabezado premium -->
                 <div class="text-center mb-14">
-                    <div class="inline-flex items-center gap-2.5 px-5 py-2 rounded-full bg-[#36B291]/20 border border-[#36B291]/40 text-emerald-300 font-black text-xs uppercase tracking-[0.2em] mb-6 backdrop-blur-sm shadow-[0_0_20px_rgba(54,178,145,0.3)]">
+                    <div class="inline-flex items-center gap-2.5 px-5 py-2 rounded-full bg-[#2563eb]/20 border border-[#2563eb]/40 text-brand-300 font-black text-xs uppercase tracking-[0.2em] mb-6 backdrop-blur-sm shadow-[0_0_20px_rgba(37,99,235,0.3)]">
                         <i class="fab fa-android text-base"></i> App Móvil Exclusiva
                     </div>
                     <h2 class="text-4xl sm:text-5xl lg:text-6xl font-black text-white tracking-tight mb-5 leading-[1.1]">
                         PagaPues
                     </h2>
                     <p class="text-gray-300 text-lg sm:text-xl font-medium max-w-2xl mx-auto leading-relaxed">
-                        La app definitiva para que <span class="text-[#36B291] font-bold">nunca más te deban dinero</span>. Gestiona cobros, ventas y capital desde tu celular.
+                        La app definitiva para que <span class="text-[#2563eb] font-bold">nunca más te deban dinero</span>. Gestiona cobros, ventas y capital desde tu celular.
                     </p>
                 </div>
 
@@ -757,12 +757,12 @@
                             
                             <!-- Badge superior -->
                             <div class="flex items-center gap-3 mb-6">
-                                <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#36B291] to-emerald-600 flex items-center justify-center shadow-lg shadow-[#36B291]/30">
+                                <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#2563eb] to-brand-600 flex items-center justify-center shadow-lg shadow-[#2563eb]/30">
                                     <i class="fab fa-android text-white text-2xl"></i>
                                 </div>
                                 <div>
                                     <h3 class="text-2xl font-black text-white leading-tight">PagaPues</h3>
-                                    <span class="text-[11px] font-bold text-emerald-300 uppercase tracking-wider">v1.0 • APK Libre</span>
+                                    <span class="text-[11px] font-bold text-brand-300 uppercase tracking-wider">v1.0 • APK Libre</span>
                                 </div>
                             </div>
 
@@ -774,22 +774,22 @@
                             <!-- Features grid -->
                             <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
                                 <div class="bg-white/[0.05] rounded-2xl p-4 border border-white/[0.06] hover:bg-white/[0.08] transition-colors group">
-                                    <div class="w-10 h-10 rounded-xl bg-[#36B291]/15 flex items-center justify-center mb-3 group-hover:bg-[#36B291]/25 transition-colors">
-                                        <i class="fas fa-hand-pointer text-[#36B291] text-lg"></i>
+                                    <div class="w-10 h-10 rounded-xl bg-[#2563eb]/15 flex items-center justify-center mb-3 group-hover:bg-[#2563eb]/25 transition-colors">
+                                        <i class="fas fa-hand-pointer text-[#2563eb] text-lg"></i>
                                     </div>
                                     <h4 class="text-white font-bold text-sm mb-1">Cobro en 1 Toque</h4>
                                     <p class="text-gray-300 text-xs font-medium leading-relaxed">Envía recordatorios por WhatsApp automáticamente</p>
                                 </div>
                                 <div class="bg-white/[0.05] rounded-2xl p-4 border border-white/[0.06] hover:bg-white/[0.08] transition-colors group">
-                                    <div class="w-10 h-10 rounded-xl bg-[#36B291]/15 flex items-center justify-center mb-3 group-hover:bg-[#36B291]/25 transition-colors">
-                                        <i class="fas fa-wifi-slash text-[#36B291] text-lg"></i>
+                                    <div class="w-10 h-10 rounded-xl bg-[#2563eb]/15 flex items-center justify-center mb-3 group-hover:bg-[#2563eb]/25 transition-colors">
+                                        <i class="fas fa-wifi-slash text-[#2563eb] text-lg"></i>
                                     </div>
                                     <h4 class="text-white font-bold text-sm mb-1">100% Sin Internet</h4>
                                     <p class="text-gray-300 text-xs font-medium leading-relaxed">Tus datos seguros en tu teléfono, offline</p>
                                 </div>
                                 <div class="bg-white/[0.05] rounded-2xl p-4 border border-white/[0.06] hover:bg-white/[0.08] transition-colors group">
-                                    <div class="w-10 h-10 rounded-xl bg-[#36B291]/15 flex items-center justify-center mb-3 group-hover:bg-[#36B291]/25 transition-colors">
-                                        <i class="fas fa-coins text-[#36B291] text-lg"></i>
+                                    <div class="w-10 h-10 rounded-xl bg-[#2563eb]/15 flex items-center justify-center mb-3 group-hover:bg-[#2563eb]/25 transition-colors">
+                                        <i class="fas fa-coins text-[#2563eb] text-lg"></i>
                                     </div>
                                     <h4 class="text-white font-bold text-sm mb-1">Multimoneda</h4>
                                     <p class="text-gray-300 text-xs font-medium leading-relaxed">Tasa BCV o manual al instante</p>
@@ -798,23 +798,23 @@
 
                             <!-- Botón de descarga premium -->
                             <div class="mt-auto">
-                                <a href="<?= BASE_URL ?>assets/PagaPues.apk" download class="group relative w-full bg-gradient-to-r from-[#36B291] to-emerald-500 hover:from-[#2ea87a] hover:to-emerald-400 text-white font-black py-5 px-8 rounded-2xl transition-all duration-300 transform hover:scale-[1.02] hover:-translate-y-1 shadow-[0_15px_40px_-10px_rgba(54,178,145,0.5)] hover:shadow-[0_25px_50px_-10px_rgba(54,178,145,0.6)] flex items-center justify-center gap-4 text-lg border border-emerald-400/20">
+                                <a href="<?= BASE_URL ?>assets/PagaPues.apk" download class="group relative w-full bg-gradient-to-r from-[#2563eb] to-brand-500 hover:from-[#1d4ed8] hover:to-brand-400 text-white font-black py-5 px-8 rounded-2xl transition-all duration-300 transform hover:scale-[1.02] hover:-translate-y-1 shadow-[0_15px_40px_-10px_rgba(37,99,235,0.5)] hover:shadow-[0_25px_50px_-10px_rgba(37,99,235,0.6)] flex items-center justify-center gap-4 text-lg border border-brand-400/20">
                                     <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center group-hover:bg-white/30 transition-colors backdrop-blur-sm">
                                         <i class="fas fa-download text-2xl"></i>
                                     </div>
                                     <div class="text-left flex flex-col">
-                                        <span class="text-[10px] uppercase tracking-[0.15em] text-emerald-100/80 font-bold">Descarga Gratis</span>
+                                        <span class="text-[10px] uppercase tracking-[0.15em] text-brand-100/80 font-bold">Descarga Gratis</span>
                                         <span class="text-xl leading-none mt-0.5">Instalar PagaPues</span>
                                     </div>
                                     <i class="fas fa-arrow-right text-xl opacity-80 group-hover:translate-x-1 transition-transform"></i>
                                 </a>
                                 <div class="flex items-center justify-center gap-4 mt-4">
                                     <p class="text-xs text-gray-400 font-bold flex items-center gap-1.5">
-                                        <i class="fas fa-shield-alt text-[#36B291]"></i> Libre de virus, verificado y seguro
+                                        <i class="fas fa-shield-alt text-[#2563eb]"></i> Libre de virus, verificado y seguro
                                     </p>
                                     <span class="text-gray-600">•</span>
                                     <p class="text-xs text-gray-400 font-bold flex items-center gap-1.5">
-                                        <i class="fab fa-android text-[#36B291]"></i> Android 5.0+
+                                        <i class="fab fa-android text-[#2563eb]"></i> Android 5.0+
                                     </p>
                                 </div>
                             </div>
@@ -838,7 +838,7 @@
                                 <!-- Paso 1 -->
                                 <div class="flex gap-4 items-start group">
                                     <div class="relative">
-                                        <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-[#36B291] to-emerald-500 text-white font-black flex items-center justify-center shrink-0 text-sm shadow-lg shadow-[#36B291]/20 group-hover:scale-110 transition-transform">1</div>
+                                        <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-[#2563eb] to-brand-500 text-white font-black flex items-center justify-center shrink-0 text-sm shadow-lg shadow-[#2563eb]/20 group-hover:scale-110 transition-transform">1</div>
                                         <div class="absolute top-10 left-1/2 -translate-x-1/2 w-[2px] h-3 bg-white/10"></div>
                                     </div>
                                     <div class="pt-1">
@@ -881,11 +881,11 @@
 
                                 <!-- Paso 4 -->
                                 <div class="flex gap-4 items-start group">
-                                    <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-[#36B291] to-emerald-500 text-white font-black flex items-center justify-center shrink-0 text-sm shadow-lg shadow-[#36B291]/20 group-hover:scale-110 transition-transform">4</div>
+                                    <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-[#2563eb] to-brand-500 text-white font-black flex items-center justify-center shrink-0 text-sm shadow-lg shadow-[#2563eb]/20 group-hover:scale-110 transition-transform">4</div>
                                     <div class="pt-1 flex-1">
                                         <h4 class="text-white font-bold text-base mb-2">Instala de todas formas</h4>
                                         <p class="text-gray-300 text-sm font-medium mb-3">
-                                            Toca <strong class="text-gray-100">"Más detalles"</strong> y luego <strong class="text-[#36B291]">"Instalar de todas formas"</strong>.
+                                            Toca <strong class="text-gray-100">"Más detalles"</strong> y luego <strong class="text-[#2563eb]">"Instalar de todas formas"</strong>.
                                         </p>
                                         
                                         <!-- Mockup visual del diálogo -->
@@ -898,7 +898,7 @@
                                             </div>
                                             <div class="flex justify-between items-center border-t border-white/[0.06] pt-3">
                                                 <span class="text-[12px] font-medium text-gray-300 flex items-center gap-1">Más detalles <i class="fas fa-chevron-down text-[8px]"></i></span>
-                                                <span class="text-[12px] font-bold text-[#36B291] bg-[#36B291]/15 px-3 py-1.5 rounded-lg border border-[#36B291]/20">Instalar de todas formas</span>
+                                                <span class="text-[12px] font-bold text-[#2563eb] bg-[#2563eb]/15 px-3 py-1.5 rounded-lg border border-[#2563eb]/20">Instalar de todas formas</span>
                                             </div>
                                         </div>
                                     </div>
@@ -906,10 +906,10 @@
                             </div>
 
                             <!-- Nota de confianza -->
-                            <div class="mt-6 p-4 bg-[#36B291]/10 rounded-2xl border border-[#36B291]/15">
+                            <div class="mt-6 p-4 bg-[#2563eb]/10 rounded-2xl border border-[#2563eb]/15">
                                 <div class="flex items-start gap-3">
-                                    <div class="w-8 h-8 rounded-lg bg-[#36B291]/20 flex items-center justify-center shrink-0 mt-0.5">
-                                        <i class="fas fa-lock text-[#36B291] text-xs"></i>
+                                    <div class="w-8 h-8 rounded-lg bg-[#2563eb]/20 flex items-center justify-center shrink-0 mt-0.5">
+                                        <i class="fas fa-lock text-[#2563eb] text-xs"></i>
                                     </div>
                                     <div>
                                         <p class="text-white/90 text-sm font-bold mb-0.5">100% Seguro y Privado</p>
@@ -924,19 +924,19 @@
                 <!-- Stats bar inferior -->
                 <div class="mt-12 grid grid-cols-2 sm:grid-cols-4 gap-4">
                     <div class="bg-white/[0.05] backdrop-blur-sm rounded-2xl p-5 border border-white/[0.06] text-center hover:bg-white/[0.08] transition-colors">
-                        <div class="text-2xl font-black text-[#36B291] mb-1">100%</div>
+                        <div class="text-2xl font-black text-[#2563eb] mb-1">100%</div>
                         <div class="text-xs font-bold text-gray-400 uppercase tracking-wider">Offline</div>
                     </div>
                     <div class="bg-white/[0.05] backdrop-blur-sm rounded-2xl p-5 border border-white/[0.06] text-center hover:bg-white/[0.08] transition-colors">
-                        <div class="text-2xl font-black text-[#36B291] mb-1">0 Bs</div>
+                        <div class="text-2xl font-black text-[#2563eb] mb-1">0 Bs</div>
                         <div class="text-xs font-bold text-gray-400 uppercase tracking-wider">Costo de app</div>
                     </div>
                     <div class="bg-white/[0.05] backdrop-blur-sm rounded-2xl p-5 border border-white/[0.06] text-center hover:bg-white/[0.08] transition-colors">
-                        <div class="text-2xl font-black text-[#36B291] mb-1">24/7</div>
+                        <div class="text-2xl font-black text-[#2563eb] mb-1">24/7</div>
                         <div class="text-xs font-bold text-gray-400 uppercase tracking-wider">Disponible</div>
                     </div>
                     <div class="bg-white/[0.05] backdrop-blur-sm rounded-2xl p-5 border border-white/[0.06] text-center hover:bg-white/[0.08] transition-colors">
-                        <div class="text-2xl font-black text-[#36B291] mb-1">BCV</div>
+                        <div class="text-2xl font-black text-[#2563eb] mb-1">BCV</div>
                         <div class="text-xs font-bold text-gray-400 uppercase tracking-wider">Tasa en vivo</div>
                     </div>
                 </div>
@@ -948,11 +948,11 @@
         <!-- ========================================== -->
         <section id="contacto" class="w-full px-6 py-20 lg:px-16 bg-gradient-to-b from-[#0c1a16] to-[#ebfbf1] relative overflow-hidden scroll-mt-20">
             <!-- Glow decorativo -->
-            <div class="hidden md:block absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-[#36B291]/15 filter blur-[120px] rounded-full pointer-events-none z-0"></div>
+            <div class="hidden md:block absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-[#2563eb]/15 filter blur-[120px] rounded-full pointer-events-none z-0"></div>
 
             <div class="max-w-[1000px] mx-auto relative z-10 glass-panel p-8 sm:p-12 md:p-16 rounded-[40px] border border-white/40 shadow-2xl text-center">
                 <!-- Icono decorativo -->
-                <div class="w-16 h-16 bg-[#36B291]/10 text-[#36B291] rounded-3xl flex items-center justify-center mx-auto mb-6 text-2xl shadow-inner animate-float-slow">
+                <div class="w-16 h-16 bg-[#2563eb]/10 text-[#2563eb] rounded-3xl flex items-center justify-center mx-auto mb-6 text-2xl shadow-inner animate-float-slow">
                     <i class="fas fa-paper-plane"></i>
                 </div>
 
@@ -961,7 +961,7 @@
                 </h2>
                 
                 <p class="text-slate-600 text-xl sm:text-2xl font-medium max-w-3xl mx-auto leading-relaxed mb-12">
-                    Deja atrás los procesos manuales, el desorden y las pérdidas. Únete a <span class="text-[#36B291] font-bold">Tu Inventario</span> y dale a tu empresa la tecnología que merece para escalar sin límites.
+                    Deja atrás los procesos manuales, el desorden y las pérdidas. Únete a <span class="text-[#2563eb] font-bold">Tu Inventario</span> y dale a tu empresa la tecnología que merece para escalar sin límites.
                 </p>
 
                 <!-- Canales de contacto directos -->
@@ -983,21 +983,21 @@
         <!-- ========================================== -->
         <!-- SECCIÓN 8: PIE DE PÁGINA (FOOTER) -->
         <!-- ========================================== -->
-        <footer class="w-full px-6 py-12 lg:px-16 bg-[#A8DDCF]/20 border-t border-white/50 mt-auto rounded-b-[40px]">
+        <footer class="w-full px-6 py-12 lg:px-16 bg-[#dbeafe]/20 border-t border-white/50 mt-auto rounded-b-[40px]">
             <div class="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-8">
                 <!-- Logo & Copyright -->
                 <div class="flex flex-col items-center md:items-start">
                     <div class="flex items-center gap-2 mb-2">
                         <img src="<?= BASE_URL ?>?serve_logo=1" alt="Logo" class="w-6 h-6 object-contain grayscale opacity-70">
-                        <span class="text-xl font-black text-slate-800 tracking-tight">Tu<span class="text-[#36B291]">Inventario</span></span>
+                        <span class="text-xl font-black text-slate-800 tracking-tight">Tu<span class="text-[#2563eb]">Inventario</span></span>
                     </div>
                     <p class="text-sm font-medium text-slate-500">© 2026 Tu Inventario. Todos los derechos reservados.</p>
                 </div>
                 
                 <!-- Links Rapidos (Solo Términos y Privacidad) -->
                 <div class="flex gap-6 text-sm font-semibold text-slate-600">
-                    <button onclick="document.getElementById('terms-modal').classList.remove('hidden'); document.getElementById('terms-modal').classList.add('flex')" class="hover:text-[#36B291] transition-colors focus:outline-none cursor-pointer">Términos y Condiciones</button>
-                    <button onclick="document.getElementById('privacy-modal').classList.remove('hidden'); document.getElementById('privacy-modal').classList.add('flex')" class="hover:text-[#36B291] transition-colors focus:outline-none cursor-pointer">Políticas de Privacidad</button>
+                    <button onclick="document.getElementById('terms-modal').classList.remove('hidden'); document.getElementById('terms-modal').classList.add('flex')" class="hover:text-[#2563eb] transition-colors focus:outline-none cursor-pointer">Términos y Condiciones</button>
+                    <button onclick="document.getElementById('privacy-modal').classList.remove('hidden'); document.getElementById('privacy-modal').classList.add('flex')" class="hover:text-[#2563eb] transition-colors focus:outline-none cursor-pointer">Políticas de Privacidad</button>
                 </div>
             </div>
         </footer>
@@ -1020,7 +1020,7 @@
             </button>
             
             <div class="text-center mb-8 mt-2 sm:mt-0">
-                <div class="w-20 h-20 bg-gradient-to-tr from-teal-50 to-teal-100/50 rounded-3xl mx-auto flex items-center justify-center mb-5 shadow-[inset_0_2px_10px_rgba(255,255,255,1),0_5px_15px_-3px_rgba(54,178,145,0.15)] ring-1 ring-teal-900/5">
+                <div class="w-20 h-20 bg-gradient-to-tr from-teal-50 to-teal-100/50 rounded-3xl mx-auto flex items-center justify-center mb-5 shadow-[inset_0_2px_10px_rgba(255,255,255,1),0_5px_15px_-3px_rgba(37,99,235,0.15)] ring-1 ring-teal-900/5">
                     <img src="<?= BASE_URL ?>?serve_logo=1" alt="Logo" class="w-12 h-12 object-contain drop-shadow-sm">
                 </div>
                 <h3 class="text-3xl font-black text-slate-800 tracking-tight">Bienvenido</h3>
@@ -1048,26 +1048,26 @@
                         <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
                             <i class="far fa-id-card text-lg"></i>
                         </div>
-                        <input type="text" name="username" required maxlength="9" inputmode="numeric" pattern="[0-9]*" oninput="this.value = this.value.replace(/[^0-9]/g, ''); if(this.value.length > 9) this.value = this.value.slice(0,9);" class="w-full bg-slate-50/50 border-2 border-slate-100 text-slate-800 rounded-2xl focus:bg-white focus:ring-0 focus:border-[#36B291] block p-3.5 pl-12 outline-none transition-all font-semibold text-lg shadow-sm" placeholder="12345678">
+                        <input type="text" name="username" required maxlength="9" inputmode="numeric" pattern="[0-9]*" oninput="this.value = this.value.replace(/[^0-9]/g, ''); if(this.value.length > 9) this.value = this.value.slice(0,9);" class="w-full bg-slate-50/50 border-2 border-slate-100 text-slate-800 rounded-2xl focus:bg-white focus:ring-0 focus:border-[#2563eb] block p-3.5 pl-12 outline-none transition-all font-semibold text-lg shadow-sm" placeholder="12345678">
                     </div>
                 </div>
                 <div>
                     <div class="flex justify-between items-center mb-1.5 ml-1 mr-1">
                         <label class="block text-sm font-bold text-slate-700">Contraseña</label>
-                        <a href="#" class="text-xs font-bold text-[#36B291] hover:text-teal-700 transition-colors">¿Olvidaste tu contraseña?</a>
+                        <a href="#" class="text-xs font-bold text-[#2563eb] hover:text-teal-700 transition-colors">¿Olvidaste tu contraseña?</a>
                     </div>
                     <div class="relative">
                         <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
                             <i class="fas fa-lock text-lg"></i>
                         </div>
-                        <input type="password" id="login_password" name="password" required class="w-full bg-slate-50/50 border-2 border-slate-100 text-slate-800 rounded-2xl focus:bg-white focus:ring-0 focus:border-[#36B291] block p-3.5 pl-12 pr-12 outline-none transition-all font-bold text-lg shadow-sm tracking-widest placeholder:tracking-normal" placeholder="••••••••">
-                        <button type="button" onclick="const p = document.getElementById('login_password'); const i = this.querySelector('i'); if(p.type === 'password'){ p.type = 'text'; i.classList.remove('fa-eye'); i.classList.add('fa-eye-slash'); p.classList.remove('tracking-widest'); } else { p.type = 'password'; i.classList.remove('fa-eye-slash'); i.classList.add('fa-eye'); p.classList.add('tracking-widest'); }" class="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-400 hover:text-[#36B291] transition-colors focus:outline-none">
+                        <input type="password" id="login_password" name="password" required class="w-full bg-slate-50/50 border-2 border-slate-100 text-slate-800 rounded-2xl focus:bg-white focus:ring-0 focus:border-[#2563eb] block p-3.5 pl-12 pr-12 outline-none transition-all font-bold text-lg shadow-sm tracking-widest placeholder:tracking-normal" placeholder="••••••••">
+                        <button type="button" onclick="const p = document.getElementById('login_password'); const i = this.querySelector('i'); if(p.type === 'password'){ p.type = 'text'; i.classList.remove('fa-eye'); i.classList.add('fa-eye-slash'); p.classList.remove('tracking-widest'); } else { p.type = 'password'; i.classList.remove('fa-eye-slash'); i.classList.add('fa-eye'); p.classList.add('tracking-widest'); }" class="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-400 hover:text-[#2563eb] transition-colors focus:outline-none">
                             <i class="fas fa-eye text-lg"></i>
                         </button>
                     </div>
                 </div>
                 
-                <button type="submit" class="w-full text-white font-bold py-4 rounded-2xl transition-all shadow-[0_8px_25px_-8px_rgba(54,178,145,0.6)] transform hover:-translate-y-1 text-lg flex items-center justify-center gap-2 mt-2" style="background: linear-gradient(to right, #36B291, #2c967a);">
+                <button type="submit" class="w-full text-white font-bold py-4 rounded-2xl transition-all shadow-[0_8px_25px_-8px_rgba(37,99,235,0.6)] transform hover:-translate-y-1 text-lg flex items-center justify-center gap-2 mt-2" style="background: linear-gradient(to right, #2563eb, #0ea5e9);">
                     Ingresar <i class="fas fa-arrow-right text-sm"></i>
                 </button>
             </form>
@@ -1083,7 +1083,7 @@
             </script>
             
             <div class="mt-6 text-center text-sm font-medium text-slate-500">
-                ¿No tienes una cuenta? <a href="<?= BASE_URL ?>auth/register" class="text-[#36B291] font-bold hover:underline">Regístrate gratis</a>
+                ¿No tienes una cuenta? <a href="<?= BASE_URL ?>auth/register" class="text-[#2563eb] font-bold hover:underline">Regístrate gratis</a>
             </div>
         </div>
     </div>
@@ -1100,7 +1100,7 @@
             </button>
             
             <div class="flex items-center gap-3 mb-6">
-                <div class="w-12 h-12 rounded-2xl bg-teal-50 text-[#36B291] flex items-center justify-center text-xl">
+                <div class="w-12 h-12 rounded-2xl bg-teal-50 text-[#2563eb] flex items-center justify-center text-xl">
                     <i class="fas fa-file-contract"></i>
                 </div>
                 <h3 class="text-2xl font-black text-slate-800">Términos y Condiciones</h3>
@@ -1124,7 +1124,7 @@
             </div>
 
             <div class="mt-8 pt-4 border-t border-gray-100 flex justify-end">
-                <button onclick="document.getElementById('terms-modal').classList.add('hidden'); document.getElementById('terms-modal').classList.remove('flex')" class="bg-[#36B291] hover:bg-[#2c967a] text-white font-bold py-2.5 px-6 rounded-full transition-all text-sm focus:outline-none cursor-pointer">
+                <button onclick="document.getElementById('terms-modal').classList.add('hidden'); document.getElementById('terms-modal').classList.remove('flex')" class="bg-[#2563eb] hover:bg-[#1d4ed8] text-white font-bold py-2.5 px-6 rounded-full transition-all text-sm focus:outline-none cursor-pointer">
                     Entendido
                 </button>
             </div>
@@ -1143,7 +1143,7 @@
             </button>
             
             <div class="flex items-center gap-3 mb-6">
-                <div class="w-12 h-12 rounded-2xl bg-teal-50 text-[#36B291] flex items-center justify-center text-xl">
+                <div class="w-12 h-12 rounded-2xl bg-teal-50 text-[#2563eb] flex items-center justify-center text-xl">
                     <i class="fas fa-shield-alt"></i>
                 </div>
                 <h3 class="text-2xl font-black text-slate-800">Políticas de Privacidad</h3>
@@ -1167,7 +1167,7 @@
             </div>
 
             <div class="mt-8 pt-4 border-t border-gray-100 flex justify-end">
-                <button onclick="document.getElementById('privacy-modal').classList.add('hidden'); document.getElementById('privacy-modal').classList.remove('flex')" class="bg-[#36B291] hover:bg-[#2c967a] text-white font-bold py-2.5 px-6 rounded-full transition-all text-sm focus:outline-none cursor-pointer">
+                <button onclick="document.getElementById('privacy-modal').classList.add('hidden'); document.getElementById('privacy-modal').classList.remove('flex')" class="bg-[#2563eb] hover:bg-[#1d4ed8] text-white font-bold py-2.5 px-6 rounded-full transition-all text-sm focus:outline-none cursor-pointer">
                     Entendido
                 </button>
             </div>
