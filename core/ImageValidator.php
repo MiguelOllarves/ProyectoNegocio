@@ -18,9 +18,9 @@ class ImageValidator {
         'image/webp',
     ];
 
-    const MAX_IMAGE_SIZE = 3000000;
-    const MAX_FILE_SIZE = 6000000;
-    const MAX_BASE64_DB_SIZE = 4500000;
+    const MAX_IMAGE_SIZE = 3000000;   // 3 MB raw
+    const MAX_FILE_SIZE  = 6000000;   // 6 MB raw
+    const MAX_BASE64_DB_SIZE = 9000000; // ~6MB raw → ~8MB base64, margen extra
 
     public static function validateImage(string $base64, string $context = 'image'): array {
         if (empty($base64)) {
@@ -84,8 +84,12 @@ class ImageValidator {
         $dataParts = explode(',', $parts[1] ?? '', 2);
         $rawData = base64_decode($dataParts[1] ?? '', true);
 
-        if ($rawData === false || strlen($rawData) > self::MAX_FILE_SIZE) {
-            return ['valid' => false, 'error' => 'Archivo demasiado grande o corrupto.'];
+        // Validate against raw decoded size, not base64 string size
+        if ($rawData === false) {
+            return ['valid' => false, 'error' => 'Archivo corrupto o formato inválido.'];
+        }
+        if (strlen($rawData) > self::MAX_FILE_SIZE) {
+            return ['valid' => false, 'error' => 'El archivo supera el máximo de 6 MB.'];
         }
 
         $finfo = new finfo(FILEINFO_MIME_TYPE);
