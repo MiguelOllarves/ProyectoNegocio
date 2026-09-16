@@ -85,10 +85,17 @@ class QrMenuController extends Controller {
             // Update
             $update = $db->prepare("UPDATE free_qr_menus SET menu_base64 = ?, menu_type = ?, updated_at = NOW() WHERE slug = ?");
             $update->execute([$validation['clean_base64'], $mime, $slug]);
+
+            if ($update->rowCount() === 0) {
+                error_log('[QrMenu] api_update: UPDATE no afectó ninguna fila. slug=' . $slug);
+                $this->jsonResponse(['success' => false, 'message' => 'No se encontró el menú para actualizar.'], 404);
+                return;
+            }
             
             $this->jsonResponse(['success' => true, 'message' => 'Menú actualizado correctamente.']);
         } catch(PDOException $e) {
-            $this->jsonResponse(['success' => false, 'message' => 'Error de servidor.'], 500);
+            error_log('[QrMenu] api_update error: ' . $e->getMessage() . ' | slug=' . $slug);
+            $this->jsonResponse(['success' => false, 'message' => 'Error de servidor: ' . $e->getMessage()], 500);
         }
     }
 
@@ -128,8 +135,15 @@ class QrMenuController extends Controller {
         }
 
         $db = $this->getDb();
-        $stmt = $db->prepare("SELECT menu_base64, menu_type, updated_at FROM free_qr_menus WHERE slug = ?");
-        $stmt->execute([$slug]);
+        // Don't select updated_at in case the column doesn't exist yet in older DBs
+        try {
+            $stmt = $db->prepare("SELECT menu_base64, menu_type, updated_at FROM free_qr_menus WHERE slug = ?");
+            $stmt->execute([$slug]);
+        } catch (\Exception $e) {
+            // Fallback: query without updated_at
+            $stmt = $db->prepare("SELECT menu_base64, menu_type FROM free_qr_menus WHERE slug = ?");
+            $stmt->execute([$slug]);
+        }
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
         if ($row && !empty($row['menu_base64'])) {
@@ -140,16 +154,14 @@ class QrMenuController extends Controller {
             }
             $fileData = base64_decode($base64);
             $mime = $row['menu_type'] ?: 'application/pdf';
-            
-            // Strong cache-busting: never allow stale content
-            $etag = md5($row['updated_at'] ?? $slug);
-            $lastModified = isset($row['updated_at']) ? gmdate('D, d M Y H:i:s \G\M\T', strtotime($row['updated_at'])) : gmdate('D, d M Y H:i:s \G\M\T');
+
+            // Use content hash as ETag — changes automatically when file is updated
+            $etag = '"' . md5($base64) . '"';
 
             header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0, proxy-revalidate');
             header('Pragma: no-cache');
             header('Expires: Thu, 01 Jan 1970 00:00:00 GMT');
-            header('ETag: "' . $etag . '"');
-            header('Last-Modified: ' . $lastModified);
+            header('ETag: ' . $etag);
             header("Content-Type: $mime");
             echo $fileData;
             exit;
