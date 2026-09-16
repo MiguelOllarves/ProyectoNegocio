@@ -94,8 +94,11 @@ class Migration {
             edit_code TEXT,
             menu_base64 TEXT,
             menu_type TEXT,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )");
+        // Add updated_at if column missing on existing databases
+        try { $pdo->exec("ALTER TABLE free_qr_menus ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP"); } catch (\Exception $e) {}
 
         // Ejecutar los índices requeridos que pudiesen haber fallado en el parsing simple
         try { $pdo->exec("CREATE UNIQUE INDEX IF NOT EXISTS idx_cat_tenant_name ON categories(tenant_id, name)"); } catch (\Exception $e) {}

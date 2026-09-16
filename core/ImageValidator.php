@@ -8,10 +8,14 @@ class ImageValidator {
     private static $allowedMimes = [
         'image/jpeg',
         'image/png',
+        'image/webp',
     ];
 
     private static $allowedFileMimes = [
         'application/pdf',
+        'image/jpeg',
+        'image/png',
+        'image/webp',
     ];
 
     const MAX_IMAGE_SIZE = 3000000;
@@ -88,17 +92,18 @@ class ImageValidator {
         $realMime = $finfo->buffer($rawData);
 
         if (!in_array($realMime, self::$allowedFileMimes)) {
-            return ['valid' => false, 'error' => 'Solo se permiten archivos PDF. Detectado: ' . $realMime];
+            return ['valid' => false, 'error' => 'Formato no permitido. Se aceptan PDF, JPG y PNG. Detectado: ' . $realMime];
         }
 
-        if (substr($rawData, 0, 4) !== '%PDF') {
+        // Extra check: PDF magic bytes
+        if ($realMime === 'application/pdf' && substr($rawData, 0, 4) !== '%PDF') {
             return ['valid' => false, 'error' => 'El archivo no es un PDF válido.'];
         }
 
         return [
             'valid' => true,
-            'clean_base64' => 'data:application/pdf;base64,' . base64_encode($rawData),
-            'mime' => 'application/pdf',
+            'clean_base64' => 'data:' . $realMime . ';base64,' . base64_encode($rawData),
+            'mime' => $realMime,
             'size' => strlen($rawData),
         ];
     }

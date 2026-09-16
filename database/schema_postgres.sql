@@ -479,7 +479,8 @@ CREATE TABLE IF NOT EXISTS free_qr_menus (
     edit_code TEXT,
     menu_base64 TEXT,
     menu_type TEXT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- ==========================================
