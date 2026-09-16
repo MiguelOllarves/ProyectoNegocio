@@ -83,7 +83,7 @@ class QrMenuController extends Controller {
             }
 
             // Update
-            $update = $db->prepare("UPDATE free_qr_menus SET menu_base64 = ?, menu_type = ? WHERE slug = ?");
+            $update = $db->prepare("UPDATE free_qr_menus SET menu_base64 = ?, menu_type = ?, updated_at = NOW() WHERE slug = ?");
             $update->execute([$validation['clean_base64'], $mime, $slug]);
             
             $this->jsonResponse(['success' => true, 'message' => 'Menú actualizado correctamente.']);
@@ -128,7 +128,7 @@ class QrMenuController extends Controller {
         }
 
         $db = $this->getDb();
-        $stmt = $db->prepare("SELECT menu_base64, menu_type FROM free_qr_menus WHERE slug = ?");
+        $stmt = $db->prepare("SELECT menu_base64, menu_type, updated_at FROM free_qr_menus WHERE slug = ?");
         $stmt->execute([$slug]);
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -140,9 +140,16 @@ class QrMenuController extends Controller {
             }
             $fileData = base64_decode($base64);
             $mime = $row['menu_type'] ?: 'application/pdf';
+            
+            // Strong cache-busting: never allow stale content
+            $etag = md5($row['updated_at'] ?? $slug);
+            $lastModified = isset($row['updated_at']) ? gmdate('D, d M Y H:i:s \G\M\T', strtotime($row['updated_at'])) : gmdate('D, d M Y H:i:s \G\M\T');
 
-            // Very important: don't cache, we want them to get the newest file when reopening!
-            header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
+            header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0, proxy-revalidate');
+            header('Pragma: no-cache');
+            header('Expires: Thu, 01 Jan 1970 00:00:00 GMT');
+            header('ETag: "' . $etag . '"');
+            header('Last-Modified: ' . $lastModified);
             header("Content-Type: $mime");
             echo $fileData;
             exit;
