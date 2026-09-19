@@ -313,10 +313,62 @@
             padding: 2.5rem !important;
             background-color: #ebfbf1 !important;
         }
+        
         .pwa-standalone-mode #login-modal button.absolute.top-4.right-4 {
             display: none !important;
         }
+
+        /* Animaciones on Scroll */
+        .reveal {
+            opacity: 0;
+            transform: translateY(40px);
+            transition: all 0.8s cubic-bezier(0.5, 0, 0, 1);
+        }
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .delay-100 { transition-delay: 100ms; }
+        .delay-200 { transition-delay: 200ms; }
+        .delay-300 { transition-delay: 300ms; }
+
+        /* 3D Phone Mockup APK */
+        .apk-mockup-wrapper {
+            perspective: 1000px;
+        }
+        .apk-phone-mockup {
+            border: 14px solid #0f172a;
+            border-radius: 40px;
+            box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.6), inset 0 0 0 2px #334155;
+            background-color: #0f172a;
+            position: relative;
+            overflow: hidden;
+            transform: rotateY(-15deg) rotateX(5deg) scale(0.95);
+            transition: transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.6s ease;
+            z-index: 20;
+            width: 100%;
+            height: 100%;
+        }
+        .apk-mockup-wrapper:hover .apk-phone-mockup {
+            transform: rotateY(0deg) rotateX(0deg) scale(1);
+            box-shadow: 0 40px 80px -15px rgba(37,99,235, 0.4), inset 0 0 0 2px #475569;
+        }
+        .apk-phone-mockup::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 130px;
+            height: 30px;
+            background-color: #0f172a;
+            border-bottom-left-radius: 18px;
+            border-bottom-right-radius: 18px;
+            z-index: 10;
+        }
     </style>
+
     <script>
         // Detectar si está instalado y ejecutándose como PWA standalone
         if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true) {
@@ -597,13 +649,13 @@
         <!-- ========================================== -->
         <section id="funcionalidades" class="w-full px-6 py-10 lg:px-16 bg-white/60 backdrop-blur-md">
             <div class="text-center max-w-3xl mx-auto mb-10">
-                <h2 class="text-3xl sm:text-4xl font-black text-slate-800 mt-2 mb-4 uppercase tracking-tight">FUNCIONALIDADES POTENTES</h2>
+                <h2 class="text-3xl sm:text-4xl font-black text-slate-800 mt-2 mb-4 uppercase tracking-tight reveal">FUNCIONALIDADES POTENTES</h2>
                 <p class="text-slate-600 text-lg font-medium">Todo lo que necesitas para operar, vender y crecer tu negocio, diseñado en una interfaz impecable.</p>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 max-w-[1400px] w-full mx-auto">
                 <!-- Func 1: Inventario -->
-                <div class="glass-float p-6 rounded-[30px] flex flex-col hover:-translate-y-2 transition-transform duration-300">
+                <div class="glass-float p-6 reveal rounded-[30px] flex flex-col hover:-translate-y-2 transition-transform duration-300">
                     <div class="flex items-center gap-4 mb-4">
                         <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#dbeafe] to-[#2563eb] flex items-center justify-center shadow-lg shadow-[#2563eb]/20 shrink-0">
                             <i class="fas fa-boxes text-white text-xl"></i>
@@ -614,7 +666,7 @@
                 </div>
                 
                 <!-- Func 2: POS -->
-                <div class="glass-float p-6 rounded-[30px] flex flex-col hover:-translate-y-2 transition-transform duration-300">
+                <div class="glass-float p-6 reveal rounded-[30px] flex flex-col hover:-translate-y-2 transition-transform duration-300">
                     <div class="flex items-center gap-4 mb-4">
                         <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-100 to-blue-400 flex items-center justify-center shadow-lg shadow-blue-400/20 shrink-0">
                             <i class="fas fa-cash-register text-white text-xl"></i>
@@ -625,7 +677,7 @@
                 </div>
 
                 <!-- Func 3: Compras -->
-                <div class="glass-float p-6 rounded-[30px] flex flex-col hover:-translate-y-2 transition-transform duration-300">
+                <div class="glass-float p-6 reveal rounded-[30px] flex flex-col hover:-translate-y-2 transition-transform duration-300">
                     <div class="flex items-center gap-4 mb-4">
                         <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-orange-100 to-orange-400 flex items-center justify-center shadow-lg shadow-orange-400/20 shrink-0">
                             <i class="fas fa-shopping-cart text-white text-xl"></i>
@@ -636,7 +688,7 @@
                 </div>
 
                 <!-- Func 4: Proveedores -->
-                <div class="glass-float p-6 rounded-[30px] flex flex-col hover:-translate-y-2 transition-transform duration-300">
+                <div class="glass-float p-6 reveal rounded-[30px] flex flex-col hover:-translate-y-2 transition-transform duration-300">
                     <div class="flex items-center gap-4 mb-4">
                         <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-purple-100 to-purple-400 flex items-center justify-center shadow-lg shadow-purple-400/20 shrink-0">
                             <i class="fas fa-truck text-white text-xl"></i>
@@ -647,7 +699,7 @@
                 </div>
 
                 <!-- Func 5: Clientes -->
-                <div class="glass-float p-6 rounded-[30px] flex flex-col hover:-translate-y-2 transition-transform duration-300">
+                <div class="glass-float p-6 reveal rounded-[30px] flex flex-col hover:-translate-y-2 transition-transform duration-300">
                     <div class="flex items-center gap-4 mb-4">
                         <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-pink-100 to-pink-400 flex items-center justify-center shadow-lg shadow-pink-400/20 shrink-0">
                             <i class="fas fa-users text-white text-xl"></i>
@@ -658,7 +710,7 @@
                 </div>
 
                 <!-- Func 6: Arqueo de Caja -->
-                <div class="glass-float p-6 rounded-[30px] flex flex-col hover:-translate-y-2 transition-transform duration-300">
+                <div class="glass-float p-6 reveal rounded-[30px] flex flex-col hover:-translate-y-2 transition-transform duration-300">
                     <div class="flex items-center gap-4 mb-4">
                         <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-yellow-100 to-yellow-400 flex items-center justify-center shadow-lg shadow-yellow-400/20 shrink-0">
                             <i class="fas fa-calculator text-white text-xl"></i>
@@ -669,7 +721,7 @@
                 </div>
 
                 <!-- Func 7: Kardex -->
-                <div class="glass-float p-6 rounded-[30px] flex flex-col hover:-translate-y-2 transition-transform duration-300">
+                <div class="glass-float p-6 reveal rounded-[30px] flex flex-col hover:-translate-y-2 transition-transform duration-300">
                     <div class="flex items-center gap-4 mb-4">
                         <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-100 to-indigo-400 flex items-center justify-center shadow-lg shadow-indigo-400/20 shrink-0">
                             <i class="fas fa-clipboard-list text-white text-xl"></i>
@@ -680,7 +732,7 @@
                 </div>
 
                 <!-- Func 8: Tienda Online -->
-                <div class="glass-float p-6 rounded-[30px] flex flex-col hover:-translate-y-2 transition-transform duration-300">
+                <div class="glass-float p-6 reveal rounded-[30px] flex flex-col hover:-translate-y-2 transition-transform duration-300">
                     <div class="flex items-center gap-4 mb-4">
                         <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-brand-100 to-brand-400 flex items-center justify-center shadow-lg shadow-brand-400/20 shrink-0">
                             <i class="fas fa-store text-white text-xl"></i>
@@ -693,240 +745,198 @@
         </section>
 
 
-        <!-- ========================================== -->
-        <!-- SECCIÓN 5: VIDEO DEMO -->
-        <!-- ========================================== -->
-        <section class="w-full px-6 py-20 lg:px-16 bg-[#0c1a16] text-white overflow-hidden relative">
-            <div class="absolute inset-0 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] mix-blend-overlay"></div>
-            <div class="hidden md:block absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full h-[500px] bg-[#2563eb]/30 filter blur-[100px] rounded-full z-0 pointer-events-none"></div>
-
-            <div class="relative z-10 text-center max-w-3xl mx-auto mb-12">
-                <h2 class="text-3xl sm:text-5xl font-black text-white mb-4">Mira Cómo Funciona</h2>
-                <p class="text-gray-300 text-lg font-medium">Descubre la potencia de administrar tu negocio de manera inteligente en menos de 2 minutos.</p>
-            </div>
-
-            <!-- Contenedor del reproductor de video -->
-            <div class="relative max-w-5xl mx-auto rounded-[30px] sm:rounded-[40px] overflow-hidden shadow-2xl border border-white/10 aspect-video bg-gray-900 flex items-center justify-center z-10">
-                <video src="<?= BASE_URL ?>assets/video/Meta.mp4" controls class="absolute inset-0 w-full h-full object-cover"></video>
-            </div>
-        </section>
+        
 
         <!-- ========================================== -->
         <!-- SECCIÓN: DESCARGA APP (APK) - PagaPues -->
         <!-- ========================================== -->
-        <section id="app-descarga" class="w-full relative overflow-hidden scroll-mt-20">
-            <!-- Fondo premium degradado -->
-            <div class="absolute inset-0 bg-gradient-to-br from-[#0f172a] via-[#1e293b] to-[#0c4a3e]"></div>
-            <!-- Efectos de brillo decorativos -->
-            <div class="absolute top-0 left-1/4 w-[600px] h-[600px] bg-[#2563eb]/8 filter blur-[120px] rounded-full pointer-events-none"></div>
-            <div class="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-brand-400/5 filter blur-[100px] rounded-full pointer-events-none"></div>
-            <!-- Patrón sutil -->
-            <div class="absolute inset-0 opacity-[0.03] bg-[url('data:image/svg+xml,%3Csvg width=\"60\" height=\"60\" viewBox=\"0 0 60 60\" xmlns=\"http://www.w3.org/2000/svg\"%3E%3Cg fill=\"none\" fill-rule=\"evenodd\"%3E%3Cg fill=\"%232563eb\" fill-opacity=\"1\"%3E%3Cpath d=\"M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')]"></div>
+        <section id="app-descarga" class="w-full relative overflow-hidden scroll-mt-20 py-24">
+            <!-- Fondo premium oscuro -->
+            <div class="absolute inset-0 bg-[#0f172a]"></div>
             
-            <div class="relative z-10 max-w-[1300px] mx-auto px-5 py-16 lg:py-24 lg:px-16">
+            <!-- Efectos de luz traseros -->
+            <div class="absolute top-0 right-0 w-[600px] h-[600px] bg-[#2563eb]/20 rounded-full filter blur-[120px] pointer-events-none transform translate-x-1/3 -translate-y-1/3"></div>
+            <div class="absolute bottom-0 left-0 w-[500px] h-[500px] bg-teal-500/10 rounded-full filter blur-[100px] pointer-events-none transform -translate-x-1/3 translate-y-1/3"></div>
+
+            <div class="relative z-10 max-w-[1300px] mx-auto px-6 lg:px-16 flex flex-col lg:flex-row items-center gap-16">
                 
-                <!-- Encabezado premium -->
-                <div class="text-center mb-14">
-                    <div class="inline-flex items-center gap-2.5 px-5 py-2 rounded-full bg-[#2563eb]/20 border border-[#2563eb]/40 text-brand-300 font-black text-xs uppercase tracking-[0.2em] mb-6 backdrop-blur-sm shadow-[0_0_20px_rgba(37,99,235,0.3)]">
-                        <i class="fab fa-android text-base"></i> App Móvil Exclusiva
+                <!-- Columna Izquierda: Copy y CTA -->
+                <div class="w-full lg:w-1/2 flex flex-col reveal">
+                    <div class="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-[#2563eb]/10 border border-[#2563eb]/30 text-[#60a5fa] font-bold text-xs uppercase tracking-widest mb-6 w-max">
+                        <i class="fab fa-android text-base"></i> App Exclusiva para Android
                     </div>
-                    <h2 class="text-4xl sm:text-5xl lg:text-6xl font-black text-white tracking-tight mb-5 leading-[1.1]">
-                        PagaPues
-                    </h2>
-                    <p class="text-gray-300 text-lg sm:text-xl font-medium max-w-2xl mx-auto leading-relaxed">
-                        La app definitiva para que <span class="text-[#2563eb] font-bold">nunca más te deban dinero</span>. Gestiona cobros, ventas y capital desde tu celular.
-                    </p>
-                </div>
-
-                <div class="flex flex-col lg:flex-row items-stretch gap-10 lg:gap-14">
                     
-                    <!-- Tarjeta principal: Descarga + Info -->
-                    <div class="w-full lg:w-[55%] flex flex-col">
-                        <div class="bg-white/[0.07] backdrop-blur-xl rounded-[32px] border border-white/10 p-8 sm:p-10 flex flex-col h-full shadow-[0_20px_60px_-15px_rgba(0,0,0,0.5)]">
-                            
-                            <!-- Badge superior -->
-                            <div class="flex items-center gap-3 mb-6">
-                                <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#2563eb] to-brand-600 flex items-center justify-center shadow-lg shadow-[#2563eb]/30">
-                                    <i class="fab fa-android text-white text-2xl"></i>
-                                </div>
-                                <div>
-                                    <h3 class="text-2xl font-black text-white leading-tight">PagaPues</h3>
-                                    <span class="text-[11px] font-bold text-brand-300 uppercase tracking-wider">v1.0 • APK Libre</span>
-                                </div>
-                            </div>
+                    <h2 class="text-4xl sm:text-5xl lg:text-6xl font-black text-white tracking-tight mb-6 leading-[1.1]">
+                        PagaPues:<br>
+                        <span class="text-transparent bg-clip-text bg-gradient-to-r from-[#60a5fa] to-[#34d399]">Nunca más te deban dinero.</span>
+                    </h2>
+                    
+                    <p class="text-slate-300 text-lg sm:text-xl font-medium leading-relaxed mb-10 text-justify">
+                        La herramienta definitiva en Venezuela para controlar cobros, ventas y capital directamente desde la calle. Funciona 100% sin internet, es multimoneda y tus datos están seguros en tu teléfono.
+                    </p>
 
-                            <!-- Descripción -->
-                            <p class="text-gray-300 text-base font-medium leading-relaxed mb-7">
-                                Recupera tu dinero sin estrés. La herramienta definitiva en Venezuela para controlar cobros, ventas y capital en la calle.
-                            </p>
-
-                            <!-- Features grid -->
-                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
-                                <div class="bg-white/[0.05] rounded-2xl p-4 border border-white/[0.06] hover:bg-white/[0.08] transition-colors group">
-                                    <div class="w-10 h-10 rounded-xl bg-[#2563eb]/15 flex items-center justify-center mb-3 group-hover:bg-[#2563eb]/25 transition-colors">
-                                        <i class="fas fa-hand-pointer text-[#2563eb] text-lg"></i>
-                                    </div>
-                                    <h4 class="text-white font-bold text-sm mb-1">Cobro en 1 Toque</h4>
-                                    <p class="text-gray-300 text-xs font-medium leading-relaxed">Envía recordatorios por WhatsApp automáticamente</p>
-                                </div>
-                                <div class="bg-white/[0.05] rounded-2xl p-4 border border-white/[0.06] hover:bg-white/[0.08] transition-colors group">
-                                    <div class="w-10 h-10 rounded-xl bg-[#2563eb]/15 flex items-center justify-center mb-3 group-hover:bg-[#2563eb]/25 transition-colors">
-                                        <i class="fas fa-wifi-slash text-[#2563eb] text-lg"></i>
-                                    </div>
-                                    <h4 class="text-white font-bold text-sm mb-1">100% Sin Internet</h4>
-                                    <p class="text-gray-300 text-xs font-medium leading-relaxed">Tus datos seguros en tu teléfono, offline</p>
-                                </div>
-                                <div class="bg-white/[0.05] rounded-2xl p-4 border border-white/[0.06] hover:bg-white/[0.08] transition-colors group">
-                                    <div class="w-10 h-10 rounded-xl bg-[#2563eb]/15 flex items-center justify-center mb-3 group-hover:bg-[#2563eb]/25 transition-colors">
-                                        <i class="fas fa-coins text-[#2563eb] text-lg"></i>
-                                    </div>
-                                    <h4 class="text-white font-bold text-sm mb-1">Multimoneda</h4>
-                                    <p class="text-gray-300 text-xs font-medium leading-relaxed">Tasa BCV o manual al instante</p>
-                                </div>
+                    <!-- Beneficios Rápidos -->
+                    <div class="grid grid-cols-2 gap-4 mb-10">
+                        <div class="flex items-center gap-3 bg-white/[0.03] p-4 rounded-2xl border border-white/[0.05]">
+                            <div class="w-10 h-10 rounded-xl bg-green-500/20 text-green-400 flex items-center justify-center shrink-0">
+                                <i class="fab fa-whatsapp"></i>
                             </div>
-
-                            <!-- Botón de descarga premium -->
-                            <div class="mt-auto">
-                                <a href="<?= BASE_URL ?>assets/PagaPues.apk" download class="group relative w-full bg-gradient-to-r from-[#2563eb] to-brand-500 hover:from-[#1d4ed8] hover:to-brand-400 text-white font-black py-5 px-8 rounded-2xl transition-all duration-300 transform hover:scale-[1.02] hover:-translate-y-1 shadow-[0_15px_40px_-10px_rgba(37,99,235,0.5)] hover:shadow-[0_25px_50px_-10px_rgba(37,99,235,0.6)] flex items-center justify-center gap-4 text-lg border border-brand-400/20">
-                                    <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center group-hover:bg-white/30 transition-colors backdrop-blur-sm">
-                                        <i class="fas fa-download text-2xl"></i>
-                                    </div>
-                                    <div class="text-left flex flex-col">
-                                        <span class="text-[10px] uppercase tracking-[0.15em] text-brand-100/80 font-bold">Descarga Gratis</span>
-                                        <span class="text-xl leading-none mt-0.5">Instalar PagaPues</span>
-                                    </div>
-                                    <i class="fas fa-arrow-right text-xl opacity-80 group-hover:translate-x-1 transition-transform"></i>
-                                </a>
-                                <div class="flex items-center justify-center gap-4 mt-4">
-                                    <p class="text-xs text-gray-400 font-bold flex items-center gap-1.5">
-                                        <i class="fas fa-shield-alt text-[#2563eb]"></i> Libre de virus, verificado y seguro
-                                    </p>
-                                    <span class="text-gray-600">•</span>
-                                    <p class="text-xs text-gray-400 font-bold flex items-center gap-1.5">
-                                        <i class="fab fa-android text-[#2563eb]"></i> Android 5.0+
-                                    </p>
-                                </div>
+                            <span class="text-white text-sm font-bold">Cobros por WhatsApp</span>
+                        </div>
+                        <div class="flex items-center gap-3 bg-white/[0.03] p-4 rounded-2xl border border-white/[0.05]">
+                            <div class="w-10 h-10 rounded-xl bg-blue-500/20 text-blue-400 flex items-center justify-center shrink-0">
+                                <i class="fas fa-wifi-slash"></i>
                             </div>
+                            <span class="text-white text-sm font-bold">100% Offline</span>
                         </div>
                     </div>
 
-                    <!-- Tarjeta: Guía de instalación -->
-                    <div class="w-full lg:w-[45%] flex flex-col">
-                        <div class="bg-white/[0.07] backdrop-blur-xl rounded-[32px] border border-white/10 p-8 sm:p-10 flex flex-col h-full shadow-[0_20px_60px_-15px_rgba(0,0,0,0.5)]">
-                            
-                            <!-- Encabezado -->
-                            <div class="flex items-center gap-3 mb-6">
-                                <div class="w-10 h-10 rounded-xl bg-amber-400/15 flex items-center justify-center">
-                                    <i class="fas fa-magic text-amber-400 text-lg"></i>
-                                </div>
-                                <h3 class="text-xl font-black text-white">Guía de Instalación</h3>
+                    <!-- Botón de Descarga Principal -->
+                    <div class="flex flex-col sm:flex-row items-center gap-6">
+                        <a href="<?= BASE_URL ?>assets/PagaPues.apk" download class="group relative w-full sm:w-auto bg-[#2563eb] hover:bg-[#1d4ed8] text-white font-black py-4 px-8 rounded-2xl transition-all duration-300 transform hover:-translate-y-1 shadow-[0_10px_30px_-10px_rgba(37,99,235,0.6)] hover:shadow-[0_20px_40px_-10px_rgba(37,99,235,0.7)] flex items-center justify-center gap-4 text-lg">
+                            <i class="fas fa-download text-2xl group-hover:animate-bounce"></i>
+                            <div class="text-left flex flex-col leading-tight">
+                                <span class="text-[10px] uppercase tracking-widest text-blue-200">Descarga Gratuita</span>
+                                <span>Instalar APK (v1.0)</span>
                             </div>
+                        </a>
+                        
+                        <div class="flex items-center gap-4 text-slate-400 text-xs font-bold uppercase tracking-wider">
+                            <div class="flex items-center gap-1.5"><i class="fas fa-shield-alt text-[#34d399]"></i> Seguro</div>
+                            <span>•</span>
+                            <div class="flex items-center gap-1.5"><i class="fab fa-android text-[#34d399]"></i> Android 5+</div>
+                        </div>
+                    </div>
+                </div>
 
-                            <!-- Pasos con diseño premium -->
-                            <div class="space-y-5 flex-1">
-                                <!-- Paso 1 -->
-                                <div class="flex gap-4 items-start group">
-                                    <div class="relative">
-                                        <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-[#2563eb] to-brand-500 text-white font-black flex items-center justify-center shrink-0 text-sm shadow-lg shadow-[#2563eb]/20 group-hover:scale-110 transition-transform">1</div>
-                                        <div class="absolute top-10 left-1/2 -translate-x-1/2 w-[2px] h-3 bg-white/10"></div>
-                                    </div>
-                                    <div class="pt-1">
-                                        <h4 class="text-white font-bold text-base mb-1">Descarga el archivo APK</h4>
-                                        <p class="text-gray-300 text-sm font-medium leading-relaxed">Toca el botón verde y guarda el archivo en tu celular.</p>
-                                    </div>
-                                </div>
+                <!-- Columna Derecha: Mockup 3D App -->
+                <div class="w-full lg:w-1/2 flex justify-center lg:justify-end reveal delay-200 apk-mockup-wrapper relative">
+                    <!-- Código QR flotante para escanear y descargar -->
+                    <div class="absolute -left-6 -top-6 bg-white p-3 rounded-2xl shadow-2xl z-30 transform -rotate-6 animate-float-slow hidden md:block">
+                        <div class="w-24 h-24 bg-gray-100 flex items-center justify-center rounded-xl overflow-hidden relative">
+                            <!-- Nota: Esto debería ser una imagen real de QR generado a futuro, usando un placeholder por ahora -->
+                            <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://tuinventario.com/assets/PagaPues.apk" alt="QR Descarga" class="w-full h-full object-cover opacity-80 mix-blend-multiply">
+                        </div>
+                        <div class="text-[10px] font-black text-slate-800 text-center mt-2 uppercase">Escanear APK</div>
+                    </div>
 
-                                <!-- Paso 2 -->
-                                <div class="flex gap-4 items-start group">
-                                    <div class="relative">
-                                        <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-sky-400 to-blue-500 text-white font-black flex items-center justify-center shrink-0 text-sm shadow-lg shadow-sky-400/20 group-hover:scale-110 transition-transform">2</div>
-                                        <div class="absolute top-10 left-1/2 -translate-x-1/2 w-[2px] h-3 bg-white/10"></div>
+                    <div class="w-[280px] h-[580px] lg:w-[320px] lg:h-[650px]">
+                        <div class="apk-phone-mockup">
+                            <!-- Pantalla de la App (Simulada con CSS/HTML) -->
+                            <div class="w-full h-full bg-[#f8fafc] flex flex-col pt-12 relative overflow-hidden">
+                                <!-- App Header -->
+                                <div class="bg-[#1e293b] text-white px-5 py-6 rounded-b-3xl shadow-sm relative z-10 flex flex-col">
+                                    <div class="flex justify-between items-center mb-4">
+                                        <div>
+                                            <span class="text-xs text-slate-400 font-bold block mb-1">Hola, Vendedor</span>
+                                            <span class="text-xl font-black">PagaPues App</span>
+                                        </div>
+                                        <div class="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center">
+                                            <i class="fas fa-user"></i>
+                                        </div>
                                     </div>
-                                    <div class="pt-1 flex-1">
-                                        <h4 class="text-white font-bold text-base mb-2">Activa "Instalar apps desconocidas"</h4>
-                                        <p class="text-gray-300 text-sm font-medium mb-3">
-                                            Para que el teléfono deje instalar la app, primero debes aprobarlo en los ajustes:
-                                        </p>
-                                        <div class="bg-white/[0.06] rounded-2xl p-4 border border-white/[0.08] backdrop-blur-sm text-gray-300 text-[13px] font-medium leading-relaxed">
-                                            <p class="flex items-center gap-2"><i class="fas fa-cog text-sky-400"></i> <strong class="text-white font-bold">Ajustes</strong> → Seguridad (o Privacidad)</p>
-                                            <p class="flex items-center gap-2 mt-1.5"><i class="fas fa-chevron-right text-sky-400 text-xs"></i> <span><strong class="text-white font-bold">Instalar apps desconocidas</strong></span></p>
-                                            <p class="flex items-center gap-2 mt-1.5"><i class="fas fa-chevron-right text-sky-400 text-xs"></i> <span>Permitir a <strong class="text-white font-bold">Chrome</strong> (o tu navegador)</span></p>
-                                            <p class="flex items-center gap-2 mt-1.5"><i class="fas fa-toggle-on text-sky-400"></i> <span>Activa el interruptor <strong class="text-white font-bold">"Permitir de esta fuente"</strong></span></p>
+                                    
+                                    <!-- Balance Card -->
+                                    <div class="bg-gradient-to-r from-emerald-500 to-teal-400 p-4 rounded-2xl shadow-lg mt-2 relative overflow-hidden">
+                                        <div class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl transform translate-x-1/2 -translate-y-1/2"></div>
+                                        <span class="text-white/80 text-xs font-bold uppercase tracking-wider mb-1 block">Saldo por cobrar</span>
+                                        <div class="flex items-end gap-2">
+                                            <span class="text-3xl font-black">$4,500</span>
+                                            <span class="text-sm font-bold text-white/80 pb-1">.00</span>
                                         </div>
                                     </div>
                                 </div>
-
-                                <!-- Paso 3 -->
-                                <div class="flex gap-4 items-start group">
-                                    <div class="relative">
-                                        <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 text-white font-black flex items-center justify-center shrink-0 text-sm shadow-lg shadow-amber-400/20 group-hover:scale-110 transition-transform">3</div>
-                                        <div class="absolute top-10 left-1/2 -translate-x-1/2 w-[2px] h-3 bg-white/10"></div>
+                                
+                                <!-- App Content -->
+                                <div class="flex-1 p-5 -mt-4 bg-[#f8fafc]">
+                                    <div class="flex justify-between items-center mb-4 pt-4">
+                                        <h3 class="font-bold text-slate-800 text-sm">Cobros Pendientes</h3>
+                                        <span class="text-[#2563eb] text-xs font-bold">Ver todos</span>
                                     </div>
-                                    <div class="pt-1">
-                                        <h4 class="text-white font-bold text-base mb-1">Alerta de seguridad</h4>
-                                        <p class="text-gray-300 text-sm font-medium leading-relaxed">Google puede advertir por ser desarrollador desconocido. <strong class="text-gray-100">Es completamente normal.</strong></p>
-                                    </div>
-                                </div>
-
-                                <!-- Paso 4 -->
-                                <div class="flex gap-4 items-start group">
-                                    <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-[#2563eb] to-brand-500 text-white font-black flex items-center justify-center shrink-0 text-sm shadow-lg shadow-[#2563eb]/20 group-hover:scale-110 transition-transform">4</div>
-                                    <div class="pt-1 flex-1">
-                                        <h4 class="text-white font-bold text-base mb-2">Instala de todas formas</h4>
-                                        <p class="text-gray-300 text-sm font-medium mb-3">
-                                            Toca <strong class="text-gray-100">"Más detalles"</strong> y luego <strong class="text-[#2563eb]">"Instalar de todas formas"</strong>.
-                                        </p>
-                                        
-                                        <!-- Mockup visual del diálogo -->
-                                        <div class="bg-white/[0.06] rounded-2xl p-4 border border-white/[0.08] backdrop-blur-sm">
-                                            <div class="flex items-center gap-2.5 mb-3">
-                                                <div class="w-8 h-8 rounded-lg bg-amber-400/20 flex items-center justify-center">
-                                                    <i class="fas fa-exclamation-triangle text-amber-400 text-xs"></i>
+                                    
+                                    <div class="space-y-3">
+                                        <div class="bg-white p-3.5 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between">
+                                            <div class="flex items-center gap-3">
+                                                <div class="w-10 h-10 bg-rose-100 text-rose-600 rounded-full flex items-center justify-center font-black">
+                                                    CR
                                                 </div>
-                                                <p class="text-[13px] font-bold text-white/90">¿Instalar aplicación desconocida?</p>
+                                                <div class="flex flex-col">
+                                                    <span class="font-bold text-sm text-slate-800">Carlos Romero</span>
+                                                    <span class="text-xs text-slate-400">Hace 2 días</span>
+                                                </div>
                                             </div>
-                                            <div class="flex justify-between items-center border-t border-white/[0.06] pt-3">
-                                                <span class="text-[12px] font-medium text-gray-300 flex items-center gap-1">Más detalles <i class="fas fa-chevron-down text-[8px]"></i></span>
-                                                <span class="text-[12px] font-bold text-[#2563eb] bg-[#2563eb]/15 px-3 py-1.5 rounded-lg border border-[#2563eb]/20">Instalar de todas formas</span>
+                                            <span class="font-black text-rose-500">$120.00</span>
+                                        </div>
+                                        <div class="bg-white p-3.5 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between">
+                                            <div class="flex items-center gap-3">
+                                                <div class="w-10 h-10 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center font-black">
+                                                    MG
+                                                </div>
+                                                <div class="flex flex-col">
+                                                    <span class="font-bold text-sm text-slate-800">María González</span>
+                                                    <span class="text-xs text-slate-400">Hoy, 10:00 AM</span>
+                                                </div>
                                             </div>
+                                            <span class="font-black text-amber-500">$45.50</span>
+                                        </div>
+                                        <div class="bg-white p-3.5 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between opacity-50">
+                                            <div class="flex items-center gap-3">
+                                                <div class="w-10 h-10 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center font-black">
+                                                    JL
+                                                </div>
+                                                <div class="flex flex-col">
+                                                    <span class="font-bold text-sm text-slate-800">José López</span>
+                                                    <span class="text-xs text-slate-400 text-emerald-500"><i class="fas fa-check-circle"></i> Pagado</span>
+                                                </div>
+                                            </div>
+                                            <span class="font-black text-emerald-500">$300.00</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Send WhatsApp button fake -->
+                                    <div class="mt-6">
+                                        <div class="bg-[#25D366] text-white text-center py-3.5 rounded-xl font-bold shadow-md shadow-[#25D366]/30 flex items-center justify-center gap-2">
+                                            <i class="fab fa-whatsapp text-lg"></i> Enviar Recordatorio
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-
-                            <!-- Nota de confianza -->
-                            <div class="mt-6 p-4 bg-[#2563eb]/10 rounded-2xl border border-[#2563eb]/15">
-                                <div class="flex items-start gap-3">
-                                    <div class="w-8 h-8 rounded-lg bg-[#2563eb]/20 flex items-center justify-center shrink-0 mt-0.5">
-                                        <i class="fas fa-lock text-[#2563eb] text-xs"></i>
-                                    </div>
-                                    <div>
-                                        <p class="text-white/90 text-sm font-bold mb-0.5">100% Seguro y Privado</p>
-                                        <p class="text-gray-300 text-xs font-medium leading-relaxed">Tu información nunca sale de tu dispositivo. Sin servidores, sin tracking, sin sorpresas.</p>
-                                    </div>
+                                
+                                <!-- App Bottom Nav -->
+                                <div class="bg-white border-t border-gray-100 py-4 px-6 flex justify-between items-center mt-auto">
+                                    <div class="text-[#2563eb] flex flex-col items-center"><i class="fas fa-home text-xl mb-1"></i><span class="text-[9px] font-bold">Inicio</span></div>
+                                    <div class="text-slate-400 flex flex-col items-center"><i class="fas fa-users text-xl mb-1"></i><span class="text-[9px] font-bold">Clientes</span></div>
+                                    <div class="text-slate-400 flex flex-col items-center"><i class="fas fa-chart-pie text-xl mb-1"></i><span class="text-[9px] font-bold">Reportes</span></div>
+                                    <div class="text-slate-400 flex flex-col items-center"><i class="fas fa-cog text-xl mb-1"></i><span class="text-[9px] font-bold">Ajustes</span></div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-
-                <!-- Stats bar inferior -->
-                <div class="mt-12 grid grid-cols-2 sm:grid-cols-4 gap-4">
-                    <div class="bg-white/[0.05] backdrop-blur-sm rounded-2xl p-5 border border-white/[0.06] text-center hover:bg-white/[0.08] transition-colors">
-                        <div class="text-2xl font-black text-[#2563eb] mb-1">100%</div>
-                        <div class="text-xs font-bold text-gray-400 uppercase tracking-wider">Offline</div>
+            </div>
+            
+            <!-- Franja Instrucciones -->
+            <div class="relative z-10 max-w-[1300px] mx-auto mt-24 px-6 lg:px-16 reveal delay-100">
+                <div class="bg-white/[0.03] backdrop-blur-md border border-white/[0.05] rounded-[30px] p-8 lg:p-10 flex flex-col lg:flex-row items-center gap-8 justify-between">
+                    <div class="flex-1">
+                        <h3 class="text-2xl font-black text-white mb-2">Instalación Fácil (APK)</h3>
+                        <p class="text-slate-400 text-sm">Sigue estos pasos rápidos para tener PagaPues en tu Android.</p>
                     </div>
-                    <div class="bg-white/[0.05] backdrop-blur-sm rounded-2xl p-5 border border-white/[0.06] text-center hover:bg-white/[0.08] transition-colors">
-                        <div class="text-2xl font-black text-[#2563eb] mb-1">0 Bs</div>
-                        <div class="text-xs font-bold text-gray-400 uppercase tracking-wider">Costo de app</div>
-                    </div>
-                    <div class="bg-white/[0.05] backdrop-blur-sm rounded-2xl p-5 border border-white/[0.06] text-center hover:bg-white/[0.08] transition-colors">
-                        <div class="text-2xl font-black text-[#2563eb] mb-1">24/7</div>
-                        <div class="text-xs font-bold text-gray-400 uppercase tracking-wider">Disponible</div>
-                    </div>
-                    <div class="bg-white/[0.05] backdrop-blur-sm rounded-2xl p-5 border border-white/[0.06] text-center hover:bg-white/[0.08] transition-colors">
-                        <div class="text-2xl font-black text-[#2563eb] mb-1">BCV</div>
-                        <div class="text-xs font-bold text-gray-400 uppercase tracking-wider">Tasa en vivo</div>
+                    
+                    <div class="flex flex-wrap items-center justify-center gap-4 lg:gap-8 flex-1 w-full">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-full bg-[#2563eb] text-white flex items-center justify-center font-black text-sm shrink-0">1</div>
+                            <span class="text-slate-300 text-sm font-bold">Descarga el APK</span>
+                        </div>
+                        <i class="fas fa-chevron-right text-slate-600 hidden sm:block"></i>
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-full bg-[#2563eb] text-white flex items-center justify-center font-black text-sm shrink-0">2</div>
+                            <span class="text-slate-300 text-sm font-bold">Acepta la instalación</span>
+                        </div>
+                        <i class="fas fa-chevron-right text-slate-600 hidden sm:block"></i>
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-full bg-[#2563eb] text-white flex items-center justify-center font-black text-sm shrink-0">3</div>
+                            <span class="text-slate-300 text-sm font-bold">Autoriza fuentes</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1259,6 +1269,31 @@
                 // No llamamos preventDefault para dejar que el navegador muestre su prompt nativo en Android/Desktop si lo soporta.
             });
         }
+    </script>
+
+    <!-- Script para animaciones On Scroll -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const reveals = document.querySelectorAll('.reveal');
+            const revealOptions = { 
+                threshold: 0.15,
+                rootMargin: "0px 0px -50px 0px"
+            };
+            
+            const revealOnScroll = new IntersectionObserver(function(entries, observer) {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('active');
+                        // No unobserve si quieres que se anime cada vez, pero suele ser mejor solo una vez
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, revealOptions);
+            
+            reveals.forEach(reveal => {
+                revealOnScroll.observe(reveal);
+            });
+        });
     </script>
 </body>
 </html>
