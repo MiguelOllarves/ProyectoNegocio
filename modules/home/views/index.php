@@ -766,9 +766,9 @@
                         <i class="fab fa-android text-base"></i> App Exclusiva para Android
                     </div>
                     
-                    <h2 class="text-4xl sm:text-5xl lg:text-6xl font-black text-white tracking-tight mb-6 leading-[1.1]">
-                        PagaPues:<br>
-                        <span class="text-transparent bg-clip-text bg-gradient-to-r from-[#60a5fa] to-[#34d399]">Nunca más te deban dinero.</span>
+                    <h2 class="text-5xl sm:text-6xl lg:text-7xl font-black text-white tracking-tight mb-6 leading-[1.05] drop-shadow-xl">
+                        Paga<span class="text-[#3b82f6]">Pues</span><br>
+                        <span class="text-transparent bg-clip-text bg-gradient-to-r from-[#60a5fa] via-[#34d399] to-[#3b82f6] text-4xl sm:text-5xl lg:text-6xl">Nunca más te deban dinero.</span>
                     </h2>
                     
                     <p class="text-slate-300 text-lg sm:text-xl font-medium leading-relaxed mb-10 text-justify">
@@ -793,11 +793,14 @@
 
                     <!-- Botón de Descarga Principal -->
                     <div class="flex flex-col sm:flex-row items-center gap-6">
-                        <a href="<?= BASE_URL ?>assets/PagaPues.apk" download class="group relative w-full sm:w-auto bg-[#2563eb] hover:bg-[#1d4ed8] text-white font-black py-4 px-8 rounded-2xl transition-all duration-300 transform hover:-translate-y-1 shadow-[0_10px_30px_-10px_rgba(37,99,235,0.6)] hover:shadow-[0_20px_40px_-10px_rgba(37,99,235,0.7)] flex items-center justify-center gap-4 text-lg">
+                        <a href="<?= BASE_URL ?>assets/PagaPues.apk" download class="group relative w-full sm:w-auto bg-gradient-to-r from-[#2563eb] to-[#3b82f6] hover:from-[#1d4ed8] hover:to-[#2563eb] text-white font-black py-4 px-10 rounded-2xl transition-all duration-300 transform hover:scale-105 shadow-[0_15px_35px_-5px_rgba(37,99,235,0.6)] flex items-center justify-center gap-4 text-xl border border-white/10 overflow-hidden">
+                            <div class="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-in-out"></div>
+                            <div class="relative z-10 flex items-center justify-center gap-4">
                             <i class="fas fa-download text-2xl group-hover:animate-bounce"></i>
                             <div class="text-left flex flex-col leading-tight">
                                 <span class="text-[10px] uppercase tracking-widest text-blue-200">Descarga Gratuita</span>
                                 <span>Instalar APK (v1.0)</span>
+                            </div>
                             </div>
                         </a>
                         
@@ -811,13 +814,15 @@
 
                 <!-- Columna Derecha: Mockup 3D App -->
                 <div class="w-full lg:w-1/2 flex justify-center lg:justify-end reveal delay-200 apk-mockup-wrapper relative">
-                    <!-- Código QR flotante para escanear y descargar -->
-                    <div class="absolute -left-6 -top-6 bg-white p-3 rounded-2xl shadow-2xl z-30 transform -rotate-6 animate-float-slow hidden md:block">
-                        <div class="w-24 h-24 bg-gray-100 flex items-center justify-center rounded-xl overflow-hidden relative">
-                            <!-- Nota: Esto debería ser una imagen real de QR generado a futuro, usando un placeholder por ahora -->
-                            <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://tuinventario.com/assets/PagaPues.apk" alt="QR Descarga" class="w-full h-full object-cover opacity-80 mix-blend-multiply">
+                    <!-- Badge Premium Flotante -->
+                    <div class="absolute -left-10 top-10 bg-white/10 backdrop-blur-md p-4 rounded-2xl shadow-2xl z-30 transform -rotate-6 animate-float-slow hidden md:flex items-center gap-3 border border-white/20">
+                        <div class="w-12 h-12 bg-emerald-500 rounded-full flex items-center justify-center text-white text-xl shadow-[0_0_15px_rgba(16,185,129,0.5)]">
+                            <i class="fas fa-shield-check"></i>
                         </div>
-                        <div class="text-[10px] font-black text-slate-800 text-center mt-2 uppercase">Escanear APK</div>
+                        <div class="flex flex-col">
+                            <span class="text-white font-black text-sm uppercase tracking-wide">100% Seguro</span>
+                            <span class="text-emerald-400 font-bold text-xs">Libre de Virus</span>
+                        </div>
                     </div>
 
                     <div class="w-[280px] h-[580px] lg:w-[320px] lg:h-[650px]">
@@ -825,7 +830,7 @@
                             <!-- Pantalla de la App (Simulada con CSS/HTML) -->
                             <div class="w-full h-full bg-[#f8fafc] flex flex-col pt-12 relative overflow-hidden">
                                 <!-- App Header -->
-                                <div class="bg-[#1e293b] text-white px-5 py-6 rounded-b-3xl shadow-sm relative z-10 flex flex-col">
+                                <div class="bg-gradient-to-b from-[#0f172a] to-[#1e293b] text-white px-5 py-6 rounded-b-[2rem] shadow-md relative z-10 flex flex-col border-b border-white/5">
                                     <div class="flex justify-between items-center mb-4">
                                         <div>
                                             <span class="text-xs text-slate-400 font-bold block mb-1">Hola, Vendedor</span>
