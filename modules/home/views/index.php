@@ -772,7 +772,7 @@
                     </h2>
                     
                     <p class="text-slate-300 text-lg sm:text-xl font-medium leading-relaxed mb-10 text-justify">
-                        La herramienta definitiva en Venezuela para controlar cobros, ventas y capital directamente desde la calle. Funciona 100% sin internet, es multimoneda y tus datos están seguros en tu teléfono.
+                        La app que tú necesitas para llevar el control total de tu emprendimiento. Funciona 100% sin internet, es multimoneda y tus datos están seguros en tu teléfono.
                     </p>
 
                     <!-- Beneficios Rápidos -->
@@ -792,7 +792,7 @@
                     </div>
 
                     <!-- Botón de Descarga Principal -->
-                    <div class="flex flex-col sm:flex-row items-center gap-6">
+                    <div class="flex flex-col items-center lg:items-start gap-4 w-full">
                         <a href="<?= BASE_URL ?>assets/PagaPues.apk" download class="group relative w-full sm:w-auto bg-gradient-to-r from-[#2563eb] to-[#3b82f6] hover:from-[#1d4ed8] hover:to-[#2563eb] text-white font-black py-4 px-10 rounded-2xl transition-all duration-300 transform hover:scale-105 shadow-[0_15px_35px_-5px_rgba(37,99,235,0.6)] flex items-center justify-center gap-4 text-xl border border-white/10 overflow-hidden">
                             <div class="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-in-out"></div>
                             <div class="relative z-10 flex items-center justify-center gap-4">
@@ -804,7 +804,7 @@
                             </div>
                         </a>
                         
-                        <div class="flex items-center gap-4 text-slate-400 text-xs font-bold uppercase tracking-wider">
+                        <div class="flex items-center justify-center lg:justify-start gap-4 text-slate-400 text-xs font-bold uppercase tracking-wider w-full pl-2">
                             <div class="flex items-center gap-1.5"><i class="fas fa-shield-alt text-[#34d399]"></i> Seguro</div>
                             <span>•</span>
                             <div class="flex items-center gap-1.5"><i class="fab fa-android text-[#34d399]"></i> Android 5+</div>
@@ -845,9 +845,10 @@
                                     <div class="bg-gradient-to-r from-emerald-500 to-teal-400 p-4 rounded-2xl shadow-lg mt-2 relative overflow-hidden">
                                         <div class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl transform translate-x-1/2 -translate-y-1/2"></div>
                                         <span class="text-white/80 text-xs font-bold uppercase tracking-wider mb-1 block">Saldo por cobrar</span>
-                                        <div class="flex items-end gap-2">
+                                        <div class="flex items-end gap-1.5">
                                             <span class="text-3xl font-black">$4,500</span>
                                             <span class="text-sm font-bold text-white/80 pb-1">.00</span>
+                                            <span class="text-[10px] font-bold text-emerald-100 bg-black/20 px-2 py-1 rounded-md mb-1 ml-1 whitespace-nowrap">Bs. <?= number_format(4500 * ($tasa_bcv ?? 36.5), 2, ',', '.') ?></span>
                                         </div>
                                     </div>
                                 </div>
@@ -927,7 +928,7 @@
                         <p class="text-slate-400 text-sm">Sigue estos pasos rápidos para tener PagaPues en tu Android.</p>
                     </div>
                     
-                    <div class="flex flex-wrap items-center justify-center gap-4 lg:gap-8 flex-1 w-full">
+                    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-center gap-5 lg:gap-8 flex-1 w-full">
                         <div class="flex items-center gap-3">
                             <div class="w-8 h-8 rounded-full bg-[#2563eb] text-white flex items-center justify-center font-black text-sm shrink-0">1</div>
                             <span class="text-slate-300 text-sm font-bold">Descarga el APK</span>
