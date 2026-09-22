@@ -791,18 +791,40 @@
                         </div>
                     </div>
 
-                    <!-- Botón de Descarga Principal -->
-                    <div class="flex flex-col items-center lg:items-start gap-4 w-full">
-                        <a href="<?= BASE_URL ?>assets/PagaPues.apk" download class="group relative w-full sm:w-auto bg-gradient-to-r from-[#2563eb] to-[#3b82f6] hover:from-[#1d4ed8] hover:to-[#2563eb] text-white font-black py-4 px-10 rounded-2xl transition-all duration-300 transform hover:scale-105 shadow-[0_15px_35px_-5px_rgba(37,99,235,0.6)] flex items-center justify-center gap-4 text-xl border border-white/10 overflow-hidden">
-                            <div class="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-in-out"></div>
-                            <div class="relative z-10 flex items-center justify-center gap-4">
-                            <i class="fas fa-download text-2xl group-hover:animate-bounce"></i>
-                            <div class="text-left flex flex-col leading-tight">
-                                <span class="text-[10px] uppercase tracking-widest text-blue-200">Descarga Gratuita</span>
-                                <span>Instalar APK (v1.0)</span>
+                    <!-- QR de Descarga -->
+                    <div class="flex flex-col items-center lg:items-start gap-5 w-full">
+                        <div class="relative group">
+                            <!-- Borde degradado animado -->
+                            <div class="absolute -inset-[2px] bg-gradient-to-r from-[#2563eb] via-emerald-400 to-[#2563eb] rounded-[22px] opacity-70" style="background-size: 200% 200%; animation: gradientBG 4s ease infinite;"></div>
+                            
+                            <!-- Card QR -->
+                            <div class="relative bg-white rounded-[20px] p-5 shadow-lg">
+                                <div class="relative">
+                                    <!-- Corner markers -->
+                                    <div class="absolute -top-1 -left-1 w-5 h-5 border-t-[3px] border-l-[3px] border-[#2563eb] rounded-tl-md"></div>
+                                    <div class="absolute -top-1 -right-1 w-5 h-5 border-t-[3px] border-r-[3px] border-[#2563eb] rounded-tr-md"></div>
+                                    <div class="absolute -bottom-1 -left-1 w-5 h-5 border-b-[3px] border-l-[3px] border-emerald-500 rounded-bl-md"></div>
+                                    <div class="absolute -bottom-1 -right-1 w-5 h-5 border-b-[3px] border-r-[3px] border-emerald-500 rounded-br-md"></div>
+                                    
+                                    <!-- QR renderizado -->
+                                    <div id="qr-code-pagapues" class="w-[180px] h-[180px] flex items-center justify-center">
+                                        <div class="animate-pulse"><i class="fas fa-qrcode text-4xl text-slate-200"></i></div>
+                                    </div>
+                                    
+                                    <!-- Logo central -->
+                                    <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-11 h-11 bg-white rounded-lg shadow-md flex items-center justify-center border border-slate-100 z-10">
+                                        <img src="<?= BASE_URL ?>?serve_logo=1" alt="Logo" class="w-7 h-7 object-contain">
+                                    </div>
+                                </div>
+                                
+                                <!-- Texto bajo el QR -->
+                                <div class="text-center mt-3">
+                                    <p class="text-[11px] font-bold text-slate-500 flex items-center justify-center gap-1.5">
+                                        <i class="fas fa-camera text-[#2563eb] text-xs"></i> Escanea con tu cámara
+                                    </p>
+                                </div>
                             </div>
-                            </div>
-                        </a>
+                        </div>
                         
                         <div class="flex items-center justify-center lg:justify-start gap-4 text-slate-500 text-xs font-bold uppercase tracking-wider w-full pl-2">
                             <div class="flex items-center gap-1.5"><i class="fas fa-shield-alt text-emerald-500"></i> Seguro</div>
@@ -952,131 +974,6 @@
                             <div class="w-8 h-8 rounded-full bg-[#2563eb] text-white flex items-center justify-center font-black text-sm shrink-0">3</div>
                             <span class="text-slate-700 text-sm font-bold">Autoriza fuentes</span>
                         </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- ========================================== -->
-        <!-- SECCIÓN: QR CODE DESCARGA PagaPues -->
-        <!-- ========================================== -->
-        <section id="qr-descarga" class="w-full relative overflow-hidden py-20">
-            <!-- Fondo sutil -->
-            <div class="absolute inset-0 bg-gradient-to-b from-white/20 to-[#ebfbf1]/40"></div>
-            
-            <div class="relative z-10 max-w-[900px] mx-auto px-6 lg:px-16 reveal">
-                <!-- Título de la sección -->
-                <div class="text-center mb-12">
-                    <div class="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-[#2563eb]/10 border border-[#2563eb]/30 text-[#2563eb] font-bold text-xs uppercase tracking-widest mb-5 mx-auto">
-                        <i class="fas fa-qrcode text-base"></i> Descarga Instantánea
-                    </div>
-                    <h2 class="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-800 tracking-tight mb-4">
-                        Escanea y <span class="text-[#2563eb]">Descarga</span>
-                    </h2>
-                    <p class="text-slate-600 text-lg font-medium max-w-xl mx-auto">
-                        Apunta la cámara de tu teléfono al código QR para descargar <strong>PagaPues</strong> al instante. Sin tiendas, sin esperas.
-                    </p>
-                </div>
-
-                <!-- Card QR Principal -->
-                <div class="relative max-w-[520px] mx-auto">
-                    <!-- Borde animado decorativo -->
-                    <div class="absolute -inset-[3px] bg-gradient-to-r from-[#2563eb] via-emerald-400 to-[#2563eb] rounded-[34px] opacity-60 blur-sm animate-[spin_8s_linear_infinite]" style="background-size: 200% 200%;"></div>
-                    <div class="absolute -inset-[2px] bg-gradient-to-r from-[#2563eb] via-emerald-400 to-[#2563eb] rounded-[34px] opacity-80" style="background-size: 200% 200%; animation: gradientBG 4s ease infinite;"></div>
-                    
-                    <!-- Card interior -->
-                    <div class="relative bg-white rounded-[32px] p-8 sm:p-10 shadow-2xl">
-                        <!-- Header del card -->
-                        <div class="flex items-center justify-between mb-8">
-                            <div class="flex items-center gap-3">
-                                <div class="w-12 h-12 bg-gradient-to-br from-[#2563eb] to-[#3b82f6] rounded-2xl flex items-center justify-center shadow-lg shadow-[#2563eb]/30">
-                                    <i class="fab fa-android text-white text-xl"></i>
-                                </div>
-                                <div class="flex flex-col">
-                                    <span class="font-black text-slate-800 text-lg leading-tight">PagaPues</span>
-                                    <span class="text-xs font-bold text-slate-400">v1.0 • Android</span>
-                                </div>
-                            </div>
-                            <div class="flex items-center gap-1.5 bg-emerald-50 text-emerald-600 px-3 py-1.5 rounded-full">
-                                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                                <span class="text-xs font-bold">Gratis</span>
-                            </div>
-                        </div>
-
-                        <!-- QR Code Container -->
-                        <div class="flex justify-center mb-8">
-                            <div class="relative group">
-                                <!-- Glow detrás del QR -->
-                                <div class="absolute inset-0 bg-[#2563eb]/10 rounded-3xl blur-xl group-hover:bg-[#2563eb]/20 transition-all duration-500"></div>
-                                
-                                <!-- Marco del QR -->
-                                <div class="relative bg-white border-2 border-slate-100 rounded-3xl p-5 shadow-[0_8px_30px_-10px_rgba(0,0,0,0.08)] group-hover:shadow-[0_15px_40px_-10px_rgba(37,99,235,0.2)] transition-all duration-500 group-hover:border-[#2563eb]/30">
-                                    <!-- Corner decorations -->
-                                    <div class="absolute top-2 left-2 w-6 h-6 border-t-[3px] border-l-[3px] border-[#2563eb] rounded-tl-lg"></div>
-                                    <div class="absolute top-2 right-2 w-6 h-6 border-t-[3px] border-r-[3px] border-[#2563eb] rounded-tr-lg"></div>
-                                    <div class="absolute bottom-2 left-2 w-6 h-6 border-b-[3px] border-l-[3px] border-emerald-500 rounded-bl-lg"></div>
-                                    <div class="absolute bottom-2 right-2 w-6 h-6 border-b-[3px] border-r-[3px] border-emerald-500 rounded-br-lg"></div>
-                                    
-                                    <!-- QR renderizado aquí -->
-                                    <div id="qr-code-pagapues" class="w-[200px] h-[200px] sm:w-[240px] sm:h-[240px] flex items-center justify-center">
-                                        <!-- Placeholder mientras carga -->
-                                        <div class="animate-pulse flex flex-col items-center gap-3">
-                                            <i class="fas fa-qrcode text-5xl text-slate-200"></i>
-                                            <span class="text-xs text-slate-300 font-bold">Generando QR...</span>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Logo central sobre el QR -->
-                                <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-14 h-14 bg-white rounded-xl shadow-lg flex items-center justify-center border-2 border-white z-10">
-                                    <img src="<?= BASE_URL ?>?serve_logo=1" alt="Logo" class="w-9 h-9 object-contain">
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Instrucción de escaneo -->
-                        <div class="text-center mb-6">
-                            <div class="inline-flex items-center gap-2 text-slate-500 text-sm font-bold bg-slate-50 px-5 py-2.5 rounded-full">
-                                <i class="fas fa-camera text-[#2563eb]"></i>
-                                Abre la cámara de tu teléfono y apunta aquí
-                            </div>
-                        </div>
-
-                        <!-- Divider -->
-                        <div class="flex items-center gap-4 mb-6">
-                            <div class="flex-1 h-px bg-slate-100"></div>
-                            <span class="text-xs font-bold text-slate-400 uppercase tracking-widest">o descarga directo</span>
-                            <div class="flex-1 h-px bg-slate-100"></div>
-                        </div>
-
-                        <!-- Botón descarga alternativo -->
-                        <a href="<?= BASE_URL ?>assets/PagaPues.apk" download class="group w-full bg-gradient-to-r from-[#2563eb] to-[#3b82f6] hover:from-[#1d4ed8] hover:to-[#2563eb] text-white font-black py-4 px-8 rounded-2xl transition-all duration-300 transform hover:scale-[1.02] shadow-[0_12px_30px_-8px_rgba(37,99,235,0.5)] flex items-center justify-center gap-3 text-lg">
-                            <i class="fas fa-download group-hover:animate-bounce"></i>
-                            <span>Descargar APK</span>
-                        </a>
-
-                        <!-- Info de seguridad -->
-                        <div class="flex items-center justify-center gap-6 mt-5 text-slate-400 text-xs font-bold uppercase tracking-wider">
-                            <div class="flex items-center gap-1.5"><i class="fas fa-shield-alt text-emerald-500"></i> Seguro</div>
-                            <div class="flex items-center gap-1.5"><i class="fas fa-virus-slash text-emerald-500"></i> Sin virus</div>
-                            <div class="flex items-center gap-1.5"><i class="fab fa-android text-emerald-500"></i> Android 5+</div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Compartir QR -->
-                <div class="text-center mt-10">
-                    <p class="text-slate-500 text-sm font-bold mb-4">Comparte este QR con otros emprendedores</p>
-                    <div class="flex items-center justify-center gap-3">
-                        <a href="https://wa.me/?text=Descarga%20PagaPues%20gratis%20para%20controlar%20tu%20negocio%20%F0%9F%93%B1%20https://www.tuinventario.app/%23qr-descarga" target="_blank" class="w-11 h-11 bg-[#25D366] hover:bg-[#20bd5a] text-white rounded-full flex items-center justify-center shadow-md hover:shadow-lg transition-all hover:scale-110">
-                            <i class="fab fa-whatsapp text-lg"></i>
-                        </a>
-                        <a href="https://t.me/share/url?url=https://www.tuinventario.app/%23qr-descarga&text=Descarga%20PagaPues%20gratis%20para%20controlar%20tu%20negocio%20%F0%9F%93%B1" target="_blank" class="w-11 h-11 bg-[#0088cc] hover:bg-[#0077b3] text-white rounded-full flex items-center justify-center shadow-md hover:shadow-lg transition-all hover:scale-110">
-                            <i class="fab fa-telegram-plane text-lg"></i>
-                        </a>
-                        <button onclick="navigator.clipboard.writeText('https://www.tuinventario.app/#qr-descarga').then(() => { this.innerHTML = '<i class=\'fas fa-check text-lg\'></i>'; this.classList.add('bg-emerald-500'); setTimeout(() => { this.innerHTML = '<i class=\'fas fa-link text-lg\'></i>'; this.classList.remove('bg-emerald-500'); }, 2000); })" class="w-11 h-11 bg-slate-200 hover:bg-slate-300 text-slate-600 rounded-full flex items-center justify-center shadow-md hover:shadow-lg transition-all hover:scale-110">
-                            <i class="fas fa-link text-lg"></i>
-                        </button>
                     </div>
                 </div>
             </div>
