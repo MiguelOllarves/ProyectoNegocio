@@ -43,7 +43,7 @@
         <div class="flex items-center justify-between mb-10">
             <a href="<?= BASE_URL ?>" class="flex items-center gap-2">
                 <img src="<?= BASE_URL ?>iconos_negocio/logo1.png" alt="Logo" class="w-8 h-8 object-contain">
-                <span class="text-xl font-black"><span class="text-slate-900">Tu</span> <span class="text-transparent bg-clip-text bg-gradient-to-r from-brand-500 to-brand-700">Inventario</span></span>
+                <span class="text-xl font-black tracking-tight text-slate-900">TuInventario</span>
             </a>
             <a href="<?= BASE_URL ?>auth/register" class="text-xs font-bold text-brand-600 bg-brand-50 px-4 py-2 rounded-full border border-brand-100 hover:bg-brand-100 transition">Probar el Sistema Completo</a>
         </div>

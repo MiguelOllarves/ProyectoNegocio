@@ -24,10 +24,10 @@
             
             <div class="relative z-10">
                 <div class="flex items-center gap-3 mb-10">
-                    <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center border border-white/30 shadow-lg p-1">
-                        <img src="<?= BASE_URL ?>?serve_logo=1" alt="Logo" class="w-full h-full object-contain drop-shadow-sm">
+                    <div class="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-lg p-1">
+                        <img src="<?= BASE_URL ?>iconos_negocio/logo1.png" alt="Logo" class="w-full h-full object-contain drop-shadow-sm">
                     </div>
-                    <span class="text-2xl font-black tracking-tight">Tu Inventario</span>
+                    <span class="text-2xl font-black tracking-tight text-slate-900 bg-white/90 px-3 py-1 rounded-lg">TuInventario</span>
                 </div>
                 <h2 class="text-3xl font-bold mb-4 leading-tight">Impulsa tu negocio con tecnología</h2>
                 <p class="text-white/80 text-sm leading-relaxed">
