@@ -45,7 +45,7 @@ if (file_exists($cache_file) && (time() - filemtime($cache_file)) < 7200) {
 <!-- Sin user-scalable=no: el usuario puede hacer zoom (accesibilidad) -->
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#0f1f3d">
-<title>TuInventario · Inventario, punto de venta y cobros en dólares y bolívares desde $3 al mes</title>
+<title>TuInventario</title>
 <meta name="description" content="Sistema de inventario, punto de venta, kardex, créditos y arqueo de caja para tu negocio. Precios en dólares y bolívares. Un solo plan: $3 al mes. Incluye la app PagaPues para Android.">
 <meta property="og:title" content="TuInventario · Controla tu negocio en dólares y bolívares">
 <meta property="og:description" content="Inventario, punto de venta, cierre de caja y tienda online en un solo sistema. $3 al mes.">
@@ -383,10 +383,10 @@ p{margin:0}
 <header class="site-header">
   <div class="wrap bar">
     <a class="brand" href="#inicio" aria-label="TuInventario, inicio">
-      <span class="brand-mark" aria-hidden="true">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+      <span class="brand-mark" aria-hidden="true" style="background:transparent; padding:0;">
+        <img src="/iconos_negocio/logo1.png" alt="Logo" style="width:34px; height:34px; object-fit:contain;">
       </span>
-      <span>Tu<b>Inventario</b></span>
+      <span style="color:var(--ink); font-weight:800;">TuInventario</span>
     </a>
     <nav class="nav" id="nav" aria-label="Principal">
       <a href="#modulos">Módulos</a>
@@ -846,6 +846,7 @@ p{margin:0}
         <h3 style="margin-bottom: 8px; font-size: 1.5rem;">Acceder a TuInventario</h3>
         <p style="color: var(--muted); margin-bottom: 24px; font-size: 0.95rem;">Ingresa tus datos para continuar.</p>
         <form action="/auth/login" method="POST" id="loginForm" style="display: flex; flex-direction: column; gap: 16px;" onsubmit="document.getElementById('loginSubmitBtn').classList.add('btn-loading');">
+            <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?? '' ?>">
             <div>
                 <label style="display: block; margin-bottom: 6px; font-size: 0.9rem; font-weight: 600;">Cédula o Correo</label>
                 <input type="text" name="username" placeholder="V-12345678" required style="width: 100%; padding: 12px 16px; border: 1px solid var(--line); border-radius: 12px; background: var(--paper); font-size: 1rem;">
