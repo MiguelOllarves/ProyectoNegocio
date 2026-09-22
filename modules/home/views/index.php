@@ -791,45 +791,40 @@
                         </div>
                     </div>
 
-                    <!-- QR de Descarga -->
-                    <div class="flex flex-col items-center lg:items-start gap-5 w-full">
-                        <div class="relative group">
-                            <!-- Borde degradado animado -->
-                            <div class="absolute -inset-[2px] bg-gradient-to-r from-[#2563eb] via-emerald-400 to-[#2563eb] rounded-[22px] opacity-70" style="background-size: 200% 200%; animation: gradientBG 4s ease infinite;"></div>
-                            
-                            <!-- Card QR -->
-                            <div class="relative bg-white rounded-[20px] p-5 shadow-lg">
-                                <div class="relative">
-                                    <!-- Corner markers -->
-                                    <div class="absolute -top-1 -left-1 w-5 h-5 border-t-[3px] border-l-[3px] border-[#2563eb] rounded-tl-md"></div>
-                                    <div class="absolute -top-1 -right-1 w-5 h-5 border-t-[3px] border-r-[3px] border-[#2563eb] rounded-tr-md"></div>
-                                    <div class="absolute -bottom-1 -left-1 w-5 h-5 border-b-[3px] border-l-[3px] border-emerald-500 rounded-bl-md"></div>
-                                    <div class="absolute -bottom-1 -right-1 w-5 h-5 border-b-[3px] border-r-[3px] border-emerald-500 rounded-br-md"></div>
-                                    
-                                    <!-- QR renderizado -->
-                                    <div id="qr-code-pagapues" class="w-[180px] h-[180px] flex items-center justify-center">
-                                        <div class="animate-pulse"><i class="fas fa-qrcode text-4xl text-slate-200"></i></div>
-                                    </div>
-                                    
-                                    <!-- Logo central -->
-                                    <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-11 h-11 bg-white rounded-lg shadow-md flex items-center justify-center border border-slate-100 z-10">
-                                        <img src="<?= BASE_URL ?>?serve_logo=1" alt="Logo" class="w-7 h-7 object-contain">
-                                    </div>
-                                </div>
-                                
-                                <!-- Texto bajo el QR -->
-                                <div class="text-center mt-3">
-                                    <p class="text-[11px] font-bold text-slate-500 flex items-center justify-center gap-1.5">
-                                        <i class="fas fa-camera text-[#2563eb] text-xs"></i> Escanea con tu cámara
-                                    </p>
-                                </div>
+                    <!-- Botón de Descarga Principal -->
+                    <div class="flex flex-col items-center lg:items-start gap-4 w-full">
+                        <a href="<?= BASE_URL ?>assets/PagaPues.apk" download class="group relative w-full sm:w-auto bg-gradient-to-r from-[#2563eb] to-[#3b82f6] hover:from-[#1d4ed8] hover:to-[#2563eb] text-white font-black py-4 px-10 rounded-2xl transition-all duration-300 transform hover:scale-105 shadow-[0_15px_35px_-5px_rgba(37,99,235,0.6)] flex items-center justify-center gap-4 text-xl border border-white/10 overflow-hidden">
+                            <div class="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-in-out"></div>
+                            <div class="relative z-10 flex items-center justify-center gap-4">
+                            <i class="fas fa-download text-2xl group-hover:animate-bounce"></i>
+                            <div class="text-left flex flex-col leading-tight">
+                                <span class="text-[10px] uppercase tracking-widest text-blue-200">Descarga Gratuita</span>
+                                <span>Instalar APK (v1.0)</span>
                             </div>
-                        </div>
+                            </div>
+                        </a>
                         
                         <div class="flex items-center justify-center lg:justify-start gap-4 text-slate-500 text-xs font-bold uppercase tracking-wider w-full pl-2">
                             <div class="flex items-center gap-1.5"><i class="fas fa-shield-alt text-emerald-500"></i> Seguro</div>
                             <span>•</span>
                             <div class="flex items-center gap-1.5"><i class="fab fa-android text-emerald-500"></i> Android 5+</div>
+                        </div>
+
+                        <!-- QR Code de Descarga -->
+                        <div class="flex items-center gap-4 mt-2 bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
+                            <div class="relative shrink-0">
+                                <div id="qr-code-pagapues" class="w-[120px] h-[120px] flex items-center justify-center">
+                                    <div class="animate-pulse"><i class="fas fa-qrcode text-3xl text-slate-200"></i></div>
+                                </div>
+                                <!-- Logo central pequeño -->
+                                <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-7 h-7 bg-white rounded-md shadow-sm flex items-center justify-center z-10">
+                                    <img src="<?= BASE_URL ?>?serve_logo=1" alt="Logo" class="w-4 h-4 object-contain">
+                                </div>
+                            </div>
+                            <div class="flex flex-col">
+                                <span class="text-sm font-black text-slate-800">Escanea el QR</span>
+                                <span class="text-xs text-slate-500 font-medium">Apunta la cámara de tu teléfono para descargar la app</span>
+                            </div>
                         </div>
                     </div>
                 </div>
