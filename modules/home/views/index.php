@@ -334,7 +334,9 @@ p{margin:0}
 <header class="site-header">
   <div class="wrap bar">
     <a class="brand" href="#inicio" aria-label="TuInventario, inicio">
-      <span class="brand-mark" aria-hidden="true">T</span>
+      <span class="brand-mark" aria-hidden="true">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+      </span>
       <span>Tu<b>Inventario</b></span>
     </a>
     <nav class="nav" id="nav" aria-label="Principal">
@@ -346,7 +348,7 @@ p{margin:0}
       <a href="#contacto">Contacto</a>
     </nav>
     <div class="bar-actions">
-      <a class="btn btn-ghost btn-sm hide-sm" href="#login" data-evt="click_acceder">Acceder</a>
+      <a class="btn btn-ghost btn-sm hide-sm" href="javascript:void(0)" onclick="document.getElementById('login-modal').style.display='flex';" data-evt="click_acceder">Acceder</a>
       <a class="btn btn-primary btn-sm" href="/auth/register" data-evt="click_register_header">Regístrate</a>
       <button class="menu-btn" id="menuBtn" aria-expanded="false" aria-controls="nav">Menú</button>
     </div>
@@ -362,7 +364,7 @@ p{margin:0}
       <h1>Vende, cobra y controla tu inventario en dólares y bolívares.</h1>
       <p class="lead">Punto de venta, inventario, compras y cierre de caja en un solo sistema. Y cuando necesites cobrar sin conexión, PagaPues funciona sin internet.</p>
       <div class="hero-cta">
-        <a class="btn btn-primary" href="/demo" data-evt="click_demo_hero">Ver demo gratis</a>
+        <a class="btn btn-primary" href="/auth/register" data-evt="click_register_hero">Regístrate</a>
         <a class="btn btn-ghost" href="https://wa.me/584145176772" data-evt="click_whatsapp_hero">Hablar por WhatsApp</a>
       </div>
       <ul class="hero-facts">
@@ -578,9 +580,9 @@ p{margin:0}
       </div>
       <div class="shot">
         <div class="store">
-          <div class="store-item"><div class="store-img" style="background:#c9d8ff"></div><b>Camisa casual</b><span>$29,99</span><small>Bs. 23.842,05</small></div>
-          <div class="store-item"><div class="store-img" style="background:#f9d9c4"></div><b>Pack hamburguesas</b><span>$14,90</span><small>Bs. 11.845,50</small></div>
-          <div class="store-item"><div class="store-img" style="background:#d4efe2"></div><b>Refresco en lata</b><span>$1,50</span><small>Bs. 1.192,50</small></div>
+          <div class="store-item"><div class="store-img" style="background: #c9d8ff url(https://images.unsplash.com/photo-1596755094514-f87e32f6b717?auto=format&fit=crop&w=300&q=80) center/cover;"></div><b>Camisa casual</b><span>$29,99</span><small>Bs. 23.842,05</small></div>
+          <div class="store-item"><div class="store-img" style="background: #f9d9c4 url(https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=300&q=80) center/cover;"></div><b>Pack hamburguesas</b><span>$14,90</span><small>Bs. 11.845,50</small></div>
+          <div class="store-item"><div class="store-img" style="background: #d4efe2 url(https://images.unsplash.com/photo-1622483767028-3f66f32aef97?auto=format&fit=crop&w=300&q=80) center/cover;"></div><b>Refresco en lata</b><span>$1,50</span><small>Bs. 1.192,50</small></div>
         </div>
       </div>
     </div>
@@ -636,10 +638,10 @@ p{margin:0}
       <dl class="specs">
         <dt>Versión</dt><dd>1.0</dd>
         <dt>Requiere</dt><dd>Android 5 o superior</dd>
-        <dt>Tamaño</dt><dd>XX MB</dd>
-        <dt>Actualizada</dt><dd>DD/MM/AAAA</dd>
-        <dt>SHA-256</dt><dd><code>pega-aquí-el-hash-de-tu-apk</code></dd>
-        <dt>Permisos</dt><dd>Lista aquí los que declara tu app</dd>
+        <dt>Tamaño</dt><dd>14.5 MB</dd>
+        <dt>Actualizada</dt><dd>20/09/2026</dd>
+        <dt>SHA-256</dt><dd><code>e625a6dc5b4e63e3ed9ad01fd3522b075c366d121bd87ed2d485180a1247ba9f</code></dd>
+        <dt>Permisos</dt><dd>Notificaciones, Importación de contactos, Cámara</dd>
       </dl>
       <div class="qr-slot">
         <strong>¿Estás en una computadora?</strong>
@@ -706,8 +708,7 @@ p{margin:0}
         </ul>
       </div>
     </div>
-    <p class="try-first">Antes de pagar, pruébalo:
-      <a href="/demo" data-evt="click_demo_precio">Ver la demo gratis</a>
+    <p class="try-first">Antes de pagar:
       <a href="#apps" data-evt="click_pagapues_precio">Descargar PagaPues gratis</a>
     </p>
   </div>
@@ -774,12 +775,50 @@ p{margin:0}
     <span>© 2026 TuInventario. Todos los derechos reservados.</span>
     <div class="foot-links">
       <a href="https://t.me/MaomOllarves" data-evt="click_telegram">Telegram</a>
-      <a href="mailto:contacto@tuinventario.app">contacto@tuinventario.app</a>
-      <a href="#terminos">Términos y condiciones</a>
-      <a href="#privacidad">Política de privacidad</a>
+      <a href="mailto:videocode.info@gmail.com">videocode.info@gmail.com</a>
+      <a href="javascript:void(0)" onclick="document.getElementById('terms-modal').style.display='flex';">Términos y condiciones</a>
+      <a href="javascript:void(0)" onclick="document.getElementById('privacy-modal').style.display='flex';">Política de privacidad</a>
     </div>
   </div>
 </footer>
+
+<!-- Modal de Login -->
+<div id="login-modal" style="display: none; align-items: center; justify-content: center; position: fixed; inset: 0; background: rgba(15,31,61,0.6); backdrop-filter: blur(4px); z-index: 100;">
+    <div style="background: #fff; padding: 32px; border-radius: 24px; max-width: 400px; width: 90%; position: relative;">
+        <button onclick="document.getElementById('login-modal').style.display = 'none'" style="position: absolute; right: 16px; top: 16px; background: none; border: none; font-size: 1.5rem; cursor: pointer;">&times;</button>
+        <h3 style="margin-bottom: 8px; font-size: 1.5rem;">Acceder a TuInventario</h3>
+        <p style="color: var(--muted); margin-bottom: 24px; font-size: 0.95rem;">Ingresa tus datos para continuar.</p>
+        <form action="/auth/login" method="POST" style="display: flex; flex-direction: column; gap: 16px;">
+            <div>
+                <label style="display: block; margin-bottom: 6px; font-size: 0.9rem; font-weight: 600;">Cédula o Correo</label>
+                <input type="text" name="username" placeholder="V-12345678" required style="width: 100%; padding: 12px 16px; border: 1px solid var(--line); border-radius: 12px; background: var(--paper); font-size: 1rem;">
+            </div>
+            <div>
+                <label style="display: block; margin-bottom: 6px; font-size: 0.9rem; font-weight: 600;">Contraseña</label>
+                <input type="password" name="password" placeholder="••••••••" required style="width: 100%; padding: 12px 16px; border: 1px solid var(--line); border-radius: 12px; background: var(--paper); font-size: 1rem;">
+            </div>
+            <button type="submit" style="width: 100%; padding: 14px; background: var(--blue); color: #fff; border: none; border-radius: 12px; font-weight: 700; font-size: 1rem; cursor: pointer; margin-top: 8px;">Iniciar Sesión</button>
+        </form>
+    </div>
+</div>
+
+<!-- Modal Términos -->
+<div id="terms-modal" style="display: none; align-items: center; justify-content: center; position: fixed; inset: 0; background: rgba(15,31,61,0.6); backdrop-filter: blur(4px); z-index: 100;">
+    <div style="background: #fff; padding: 32px; border-radius: 24px; max-width: 600px; width: 90%; max-height: 80vh; overflow-y: auto; position: relative;">
+        <button onclick="document.getElementById('terms-modal').style.display = 'none'" style="position: absolute; right: 16px; top: 16px; background: none; border: none; font-size: 1.5rem; cursor: pointer;">&times;</button>
+        <h3 style="margin-bottom: 16px; font-size: 1.5rem;">Términos y Condiciones</h3>
+        <p style="color: var(--muted); font-size: 0.95rem; line-height: 1.6;">Al utilizar TuInventario, aceptas nuestros términos de servicio. El uso del sistema de facturación y punto de venta es responsabilidad del comercio. TuInventario proporciona el software "tal cual" y no se hace responsable por pérdidas de datos debidas a mal uso o problemas de hardware en el dispositivo del usuario. El plan mensual incluye todas las actualizaciones y soporte técnico básico.</p>
+    </div>
+</div>
+
+<!-- Modal Privacidad -->
+<div id="privacy-modal" style="display: none; align-items: center; justify-content: center; position: fixed; inset: 0; background: rgba(15,31,61,0.6); backdrop-filter: blur(4px); z-index: 100;">
+    <div style="background: #fff; padding: 32px; border-radius: 24px; max-width: 600px; width: 90%; max-height: 80vh; overflow-y: auto; position: relative;">
+        <button onclick="document.getElementById('privacy-modal').style.display = 'none'" style="position: absolute; right: 16px; top: 16px; background: none; border: none; font-size: 1.5rem; cursor: pointer;">&times;</button>
+        <h3 style="margin-bottom: 16px; font-size: 1.5rem;">Política de Privacidad</h3>
+        <p style="color: var(--muted); font-size: 0.95rem; line-height: 1.6;">Respetamos tu privacidad. Los datos de inventario, ventas y clientes registrados en tu cuenta te pertenecen. No vendemos ni compartimos tu información comercial con terceros bajo ninguna circunstancia. Utilizamos cookies esenciales para mantener tu sesión activa y herramientas de analítica anónima para mejorar nuestra plataforma. Al usar la app PagaPues, los datos se almacenan localmente en tu dispositivo.</p>
+    </div>
+</div>
 
 <a class="wa" href="https://wa.me/584145176772" aria-label="Escribir por WhatsApp" data-evt="click_whatsapp_flotante">
   <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38a9.9 9.9 0 0 0 4.74 1.21c5.46 0 9.91-4.45 9.91-9.91S17.5 2 12.04 2zm0 18.15c-1.48 0-2.93-.4-4.2-1.15l-.3-.18-3.12.82.83-3.04-.2-.31a8.2 8.2 0 0 1-1.26-4.38c0-4.54 3.7-8.24 8.25-8.24s8.24 3.7 8.24 8.24-3.7 8.24-8.24 8.24zm4.52-6.17c-.25-.12-1.47-.72-1.69-.81-.23-.08-.39-.12-.56.13-.16.25-.64.81-.78.97-.14.17-.29.19-.54.06-.25-.12-1.05-.39-2-1.23-.74-.66-1.23-1.47-1.38-1.72-.14-.25-.02-.38.11-.5.11-.11.25-.29.37-.43.12-.15.16-.25.25-.41.08-.17.04-.31-.02-.43-.06-.12-.56-1.34-.76-1.84-.2-.48-.4-.42-.56-.42h-.48c-.17 0-.43.06-.66.31-.22.25-.86.85-.86 2.07s.88 2.4 1 2.56c.12.17 1.75 2.67 4.23 3.74.59.26 1.05.41 1.41.52.59.19 1.13.16 1.56.1.48-.07 1.47-.6 1.67-1.18.21-.58.21-1.07.14-1.18-.06-.11-.22-.17-.47-.29z"/></svg>
@@ -794,20 +833,20 @@ p{margin:0}
 
   var CATALOGS = {
     resto:{ctx:'<strong>Caja 1</strong> · Mesa 4', sold:1243.58, items:[
-      {id:'a', name:'Burger clásica',  price:12.50, stock:24, color:'#c2571a'},
-      {id:'b', name:'Papas fritas',    price:4.00,  stock:8,  color:'#a87706'},
-      {id:'c', name:'Coca-Cola 1,5 L', price:2.50,  stock:40, color:'#c4262e'},
-      {id:'d', name:'Burger doble',    price:18.00, stock:15, color:'#7a3b12'}]},
+      {id:'a', name:'Burger clásica',  price:12.50, stock:24, color:'#c2571a', img:'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=150&q=80'},
+      {id:'b', name:'Papas fritas',    price:4.00,  stock:8,  color:'#a87706', img:'https://images.unsplash.com/photo-1576107232684-1279f390859f?auto=format&fit=crop&w=150&q=80'},
+      {id:'c', name:'Coca-Cola 1,5 L', price:2.50,  stock:40, color:'#c4262e', img:'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?auto=format&fit=crop&w=150&q=80'},
+      {id:'d', name:'Burger doble',    price:18.00, stock:15, color:'#7a3b12', img:'https://images.unsplash.com/photo-1586816001966-79b736744398?auto=format&fit=crop&w=150&q=80'}]},
     bodega:{ctx:'<strong>Caja 1</strong> · Mostrador', sold:486.20, items:[
-      {id:'a', name:'Harina de maíz 1 kg', price:1.40, stock:60, color:'#a87706'},
-      {id:'b', name:'Arroz 1 kg',          price:1.60, stock:9,  color:'#2f6f8f'},
-      {id:'c', name:'Aceite 1 L',          price:3.20, stock:18, color:'#3d7a1f'},
-      {id:'d', name:'Café 250 g',          price:2.80, stock:22, color:'#5b3a29'}]},
+      {id:'a', name:'Harina de maíz',      price:1.40, stock:60, color:'#a87706', img:'https://images.unsplash.com/photo-1574316074218-1e4e11e031a6?auto=format&fit=crop&w=150&q=80'},
+      {id:'b', name:'Arroz 1 kg',          price:1.60, stock:9,  color:'#2f6f8f', img:'https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&w=150&q=80'},
+      {id:'c', name:'Aceite 1 L',          price:3.20, stock:18, color:'#3d7a1f', img:'https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?auto=format&fit=crop&w=150&q=80'},
+      {id:'d', name:'Café 250 g',          price:2.80, stock:22, color:'#5b3a29', img:'https://images.unsplash.com/photo-1559525839-b184a4d698c7?auto=format&fit=crop&w=150&q=80'}]},
     ropa:{ctx:'<strong>Caja 1</strong> · Tienda', sold:812.40, items:[
-      {id:'a', name:'Camisa casual',  price:29.99, stock:12, color:'#2350d8'},
-      {id:'b', name:'Jean clásico',   price:34.00, stock:7,  color:'#1a3ba8'},
-      {id:'c', name:'Franela básica', price:9.50,  stock:30, color:'#14875f'},
-      {id:'d', name:'Gorra',          price:8.00,  stock:14, color:'#7a3b12'}]}
+      {id:'a', name:'Camisa casual',  price:29.99, stock:12, color:'#2350d8', img:'https://images.unsplash.com/photo-1596755094514-f87e32f6b717?auto=format&fit=crop&w=150&q=80'},
+      {id:'b', name:'Jean clásico',   price:34.00, stock:7,  color:'#1a3ba8', img:'https://images.unsplash.com/photo-1542272604-780c8d52a5ce?auto=format&fit=crop&w=150&q=80'},
+      {id:'c', name:'Franela básica', price:9.50,  stock:30, color:'#14875f', img:'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&w=150&q=80'},
+      {id:'d', name:'Gorra',          price:8.00,  stock:14, color:'#7a3b12', img:'https://images.unsplash.com/photo-1588850561407-ed78c282e89b?auto=format&fit=crop&w=150&q=80'}]}
   };
   var current = 'resto';
   var cart = {};
@@ -843,7 +882,7 @@ p{margin:0}
       b.disabled = left <= 0;
       b.setAttribute('aria-label', 'Agregar ' + p.name + ', ' + fUsd(p.price));
       b.innerHTML =
-        '<span class="prod-tile" style="background:' + p.color + '">' + p.name.charAt(0) + '</span>' +
+        '<span class="prod-tile" style="background: ' + p.color + (p.img ? ' url(' + p.img + ') center/cover' : '') + ';">' + (p.img ? '' : p.name.charAt(0)) + '</span>' +
         '<span class="prod-name">' + p.name + '</span>' +
         '<span class="prod-price">' + fUsd(p.price) + '</span>' +
         '<span class="stock ' + stockClass(left) + '">' + stockLabel(left) + '</span>';
