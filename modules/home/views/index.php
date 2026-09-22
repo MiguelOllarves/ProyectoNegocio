@@ -352,8 +352,7 @@ p{margin:0}
   .nav.open{display:flex}
   .nav a{padding:10px 0;font-size:1.05rem}
   .bar{gap:12px}
-  .bar-actions{margin-left:auto}
-  .bar-actions .hide-sm{display:none}
+  .bar-actions{margin-left:auto; display:flex; gap:6px;}
 }
 @media (max-width:640px){
   .apps-mid,.apps-mid{grid-template-columns:1fr}
@@ -394,10 +393,12 @@ p{margin:0}
       <a href="#preguntas">Preguntas</a>
       <a href="#contacto">Contacto</a>
     </nav>
-    <div class="bar-actions">
-      <a class="btn btn-ghost btn-sm hide-sm" href="javascript:void(0)" onclick="document.getElementById('login-modal').style.display='flex';" data-evt="click_acceder">Acceder</a>
+    <div class="bar-actions" style="display:flex; gap:8px; align-items:center;">
+      <a class="btn btn-ghost btn-sm" href="javascript:void(0)" onclick="document.getElementById('login-modal').style.display='flex';" data-evt="click_acceder">Acceder</a>
       <a class="btn btn-primary btn-sm" href="/auth/register" data-evt="click_register_header">Regístrate</a>
-      <button class="menu-btn" id="menuBtn" aria-expanded="false" aria-controls="nav">Menú</button>
+      <button class="menu-btn" id="menuBtn" aria-expanded="false" aria-controls="nav" aria-label="Abrir menú" style="display:flex; align-items:center; justify-content:center; padding:4px;">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+      </button>
     </div>
   </div>
 </header>
@@ -557,9 +558,9 @@ p{margin:0}
       </div>
       <div class="shot">
         <div class="arqueo">
-          <div class="arqueo-row"><span>Efectivo esperado</span><strong>$320,00</strong></div>
-          <div class="arqueo-row"><span>Efectivo contado</span><strong>$318,50</strong></div>
-          <div class="arqueo-row diff"><span>Diferencia</span><strong>−$1,50</strong></div>
+          <div class="arqueo-row"><span>Efectivo esperado</span><strong style="display:flex; flex-direction:column; align-items:flex-end;">$320,00 <small style="font-weight:normal; font-size:0.75rem; color:var(--muted);">Bs. <?= number_format(320 * $tasa_bcv, 2, ',', '.') ?></small></strong></div>
+          <div class="arqueo-row"><span>Efectivo contado</span><strong style="display:flex; flex-direction:column; align-items:flex-end;">$318,50 <small style="font-weight:normal; font-size:0.75rem; color:var(--muted);">Bs. <?= number_format(318.50 * $tasa_bcv, 2, ',', '.') ?></small></strong></div>
+          <div class="arqueo-row diff"><span>Diferencia</span><strong style="display:flex; flex-direction:column; align-items:flex-end;">−$1,50 <small style="font-weight:normal; font-size:0.75rem; color:var(--muted);">Bs. <?= number_format(-1.50 * $tasa_bcv, 2, ',', '.') ?></small></strong></div>
           <p class="arqueo-note">Cierre de Caja 1 · Turno de la tarde</p>
         </div>
       </div>
@@ -579,9 +580,9 @@ p{margin:0}
         <table>
           <thead><tr><th>Cliente</th><th class="n">Debe</th><th>Desde</th><th></th></tr></thead>
           <tbody>
-            <tr><td>Carlos Romero</td><td class="n">$120,00</td><td>hace 2 días</td><td><span class="mini-btn">Recordar</span></td></tr>
-            <tr><td>María González</td><td class="n">$45,50</td><td>hoy</td><td><span class="mini-btn">Recordar</span></td></tr>
-            <tr><td>Luis Pérez</td><td class="n">$80,00</td><td><span class="stock low">hace 9 días</span></td><td><span class="mini-btn">Recordar</span></td></tr>
+            <tr><td>Carlos Romero</td><td class="n">$120,00 <br><small style="color:var(--muted); font-size:0.75rem; font-weight:normal;">Bs. <?= number_format(120 * $tasa_bcv, 2, ',', '.') ?></small></td><td>hace 2 días</td><td><span class="mini-btn">Recordar</span></td></tr>
+            <tr><td>María González</td><td class="n">$45,50 <br><small style="color:var(--muted); font-size:0.75rem; font-weight:normal;">Bs. <?= number_format(45.50 * $tasa_bcv, 2, ',', '.') ?></small></td><td>hoy</td><td><span class="mini-btn">Recordar</span></td></tr>
+            <tr><td>Luis Pérez</td><td class="n">$80,00 <br><small style="color:var(--muted); font-size:0.75rem; font-weight:normal;">Bs. <?= number_format(80 * $tasa_bcv, 2, ',', '.') ?></small></td><td><span class="stock low">hace 9 días</span></td><td><span class="mini-btn">Recordar</span></td></tr>
           </tbody>
         </table>
       </div>
@@ -599,8 +600,8 @@ p{margin:0}
       </div>
       <div class="shot">
         <div class="kpis">
-          <div class="kpi"><span>Ventas de la semana</span><strong>$2.140,00</strong></div>
-          <div class="kpi"><span>Ganancia estimada</span><strong>$610,00</strong></div>
+          <div class="kpi"><span>Ventas de la semana</span><strong style="display:flex; flex-direction:column;">$2.140,00 <small style="font-weight:normal; font-size:0.8rem; color:var(--muted); margin-top:2px;">Bs. <?= number_format(2140 * $tasa_bcv, 2, ',', '.') ?></small></strong></div>
+          <div class="kpi"><span>Ganancia estimada</span><strong style="display:flex; flex-direction:column;">$610,00 <small style="font-weight:normal; font-size:0.8rem; color:var(--muted); margin-top:2px;">Bs. <?= number_format(610 * $tasa_bcv, 2, ',', '.') ?></small></strong></div>
         </div>
         <div class="bars" role="img" aria-label="Ventas por día de la semana: lunes 220, martes 260, miércoles 240, jueves 310, viernes 420, sábado 480, domingo 210 dólares">
           <div class="bar-col"><i style="height:46%"></i></div>
@@ -627,9 +628,9 @@ p{margin:0}
       </div>
       <div class="shot">
         <div class="store">
-          <div class="store-item"><div class="store-img" style="background: #c9d8ff url(https://images.unsplash.com/photo-1576566588028-4147f3842f27?auto=format&fit=crop&w=300&q=80) center/cover;"></div><b>Camisa casual</b><span>$29,99</span><small>Bs. 23.842,05</small></div>
-          <div class="store-item"><div class="store-img" style="background: #f9d9c4 url(https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=300&q=80) center/cover;"></div><b>Pack hamburguesas</b><span>$14,90</span><small>Bs. 11.845,50</small></div>
-          <div class="store-item"><div class="store-img" style="background: #d4efe2 url(https://images.unsplash.com/photo-1622483767028-3f66f32aef97?auto=format&fit=crop&w=300&q=80) center/cover;"></div><b>Refresco en lata</b><span>$1,50</span><small>Bs. 1.192,50</small></div>
+          <div class="store-item"><div class="store-img" style="background: #c9d8ff url(https://images.unsplash.com/photo-1598033129183-c4f50c736f10?auto=format&fit=crop&w=300&q=80) center/cover;"></div><b>Camisa casual</b><span>$29,99</span><small>Bs. <?= number_format(29.99 * $tasa_bcv, 2, ',', '.') ?></small></div>
+          <div class="store-item"><div class="store-img" style="background: #f9d9c4 url(https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=300&q=80) center/cover;"></div><b>Pack hamburguesas</b><span>$14,90</span><small>Bs. <?= number_format(14.90 * $tasa_bcv, 2, ',', '.') ?></small></div>
+          <div class="store-item"><div class="store-img" style="background: #d4efe2 url(https://images.unsplash.com/photo-1622483767028-3f66f32aef97?auto=format&fit=crop&w=300&q=80) center/cover;"></div><b>Refresco en lata</b><span>$1,50</span><small>Bs. <?= number_format(1.50 * $tasa_bcv, 2, ',', '.') ?></small></div>
         </div>
       </div>
     </div>
@@ -666,11 +667,11 @@ p{margin:0}
         <!-- Vista de ejemplo: sustitúyela por una captura real de la app -->
         <div class="phone" aria-label="Vista de ejemplo de PagaPues">
           <div class="phone-h">PagaPues</div>
-          <div class="phone-saldo"><small>Saldo por cobrar</small><strong>$4.500,00</strong><em>Bs. 3.577.500,00</em></div>
+          <div class="phone-saldo"><small>Saldo por cobrar</small><strong>$4.500,00</strong><em>Bs. <?= number_format(4500 * $tasa_bcv, 2, ',', '.') ?></em></div>
           <ul class="phone-list">
-            <li class="due"><div><b>Carlos R.</b><span>Hace 2 días</span></div><strong>$120,00</strong></li>
-            <li><div><b>María G.</b><span>Hoy, 10:00</span></div><strong>$45,50</strong></li>
-            <li class="paid"><div><b>José L.</b><span>Pagado</span></div><strong>$300,00</strong></li>
+            <li class="due"><div><b>Carlos R.</b><span>Hace 2 días</span></div><strong style="display:flex; flex-direction:column; align-items:flex-end;">$120,00 <small style="font-weight:normal; font-size:0.75rem; color:var(--muted);">Bs. <?= number_format(120 * $tasa_bcv, 2, ',', '.') ?></small></strong></li>
+            <li><div><b>María G.</b><span>Hoy, 10:00</span></div><strong style="display:flex; flex-direction:column; align-items:flex-end;">$45,50 <small style="font-weight:normal; font-size:0.75rem; color:var(--muted);">Bs. <?= number_format(45.50 * $tasa_bcv, 2, ',', '.') ?></small></strong></li>
+            <li class="paid"><div><b>José L.</b><span>Pagado</span></div><strong style="display:flex; flex-direction:column; align-items:flex-end;">$300,00 <small style="font-weight:normal; font-size:0.75rem; color:var(--muted);">Bs. <?= number_format(300 * $tasa_bcv, 2, ',', '.') ?></small></strong></li>
           </ul>
           <span class="phone-wa">Enviar recordatorio</span>
         </div>
