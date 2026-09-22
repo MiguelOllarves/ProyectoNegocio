@@ -1,1589 +1,964 @@
-<?php
-// Configuración Global y Variables de Negocio
-$plan_precio = 3; // Precio mensual en USD
-$tasa_bcv = 36.50; // Tasa de cambio referencial a sustituir por API en el futuro
-$precio_bs = number_format($plan_precio * $tasa_bcv, 2, ',', '.');
-$soporte_horario = "Lunes a Sábado, 8:00 AM - 6:00 PM";
-$pagos_metodos = "[Por definir: Pago Móvil, Transferencia Banesco/Mercantil, Zelle]";
-$app_seguridad = "100% Seguro / Libre de Virus";
-
-// Metadata de la APK PagaPues
-$apk_version = "v1.0.0";
-$apk_size = "75.2 MB";
-$apk_date = "Septiembre 2026";
-$apk_hash = "e625a6dc5b4e63e3ed9ad01fd3522b075c366d121bd87ed2d485180a1247ba9f";
-$apk_permissions = "Cámara, Almacenamiento, Internet";
-?>
 <!DOCTYPE html>
-<html lang="es" class="scroll-smooth">
+<html lang="es">
 <head>
-    <!-- Google Tag Manager -->
-    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-    })(window,document,'script','dataLayer','GTM-NHRNGKB2');</script>
-    <!-- End Google Tag Manager -->
-    
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-1WY5QCJN56"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
+<meta charset="UTF-8">
+<!-- Sin user-scalable=no: el usuario puede hacer zoom (accesibilidad) -->
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0f1f3d">
+<title>TuInventario · Inventario, punto de venta y cobros en dólares y bolívares desde $3 al mes</title>
+<meta name="description" content="Sistema de inventario, punto de venta, kardex, créditos y arqueo de caja para tu negocio. Precios en dólares y bolívares. Un solo plan: $3 al mes. Incluye la app PagaPues para Android.">
+<meta property="og:title" content="TuInventario · Controla tu negocio en dólares y bolívares">
+<meta property="og:description" content="Inventario, punto de venta, cierre de caja y tienda online en un solo sistema. $3 al mes.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://www.tuinventario.app/">
+<!-- Agrega aquí tu og:image (1200x630) para que se vea bien al compartir por WhatsApp -->
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230f1f3d'/%3E%3Ctext x='16' y='23' font-family='Arial' font-weight='800' font-size='20' text-anchor='middle' fill='white'%3ET%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
+<!-- Google Tag Manager: pega aquí tu snippet GTM-NHRNGKB2 (head) -->
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"SoftwareApplication","name":"TuInventario","applicationCategory":"BusinessApplication","operatingSystem":"Web, Android","description":"Sistema de inventario, punto de venta y cobros para negocios.","offers":{"@type":"Offer","price":"3.00","priceCurrency":"USD"}}
+</script>
+<style>
+:root{
+  --ink:#0f1f3d;
+  --blue:#2350d8;
+  --blue-deep:#1a3ba8;
+  --blue-soft:#e6edff;
+  --paper:#f6f9f7;
+  --white:#ffffff;
+  --green:#14875f;
+  --green-soft:#dcf3e9;
+  --amber:#b96f00;
+  --amber-soft:#fdf0d2;
+  --red:#b3261e;
+  --red-soft:#fde3e0;
+  --line:#d6e0da;
+  --muted:#4d5a72;
+  --font-display:"Bricolage Grotesque","Trebuchet MS",system-ui,sans-serif;
+  --font-body:"Figtree",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --wrap:1120px;
+}
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:84px}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--font-body);font-size:1.0625rem;line-height:1.55;-webkit-font-smoothing:antialiased}
+img,svg{max-width:100%;display:block}
+a{color:inherit}
+h1,h2,h3{font-family:var(--font-display);margin:0;letter-spacing:-.02em;line-height:1.08}
+h1{font-size:clamp(2.3rem,5.2vw,3.8rem);font-weight:800}
+h2{font-size:clamp(1.75rem,3.2vw,2.45rem);font-weight:700}
+h3{font-size:1.25rem;font-weight:700;letter-spacing:-.01em}
+p{margin:0}
+.wrap{max-width:var(--wrap);margin:0 auto;padding:0 24px}
+.lead{font-size:1.15rem;color:var(--muted);max-width:56ch}
+:focus-visible{outline:3px solid var(--blue);outline-offset:3px;border-radius:6px}
+.skip{position:absolute;left:-999px;top:8px;background:var(--ink);color:#fff;padding:10px 16px;border-radius:10px;z-index:100;text-decoration:none;font-weight:600}
+.skip:focus{left:8px}
 
-      gtag('config', 'G-1WY5QCJN56');
-    </script>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tu Inventario - Toma el control absoluto de tu negocio</title>
-    <meta name="description" content="Sistema de inventario, punto de venta (POS) y facturación por solo $<?= $plan_precio ?>/mes. Vende, cobra y controla tu inventario en dólares y bolívares. Incluye tienda online y Menú QR.">
-    <link rel="canonical" href="https://www.tuinventario.app/">
-    
-    <!-- Open Graph / SEO -->
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://www.tuinventario.app/">
-    <meta property="og:title" content="Tu Inventario - Vende, cobra y controla en dólares y bolívares">
-    <meta property="og:description" content="El sistema de inventario y punto de venta más completo y económico de Venezuela. Todo incluido por $<?= $plan_precio ?>/mes.">
-    <meta property="og:image" content="https://www.tuinventario.app/assets/og-image.jpg"> <!-- TODO: Subir imagen 1200x630 a public/assets/og-image.jpg -->
-    
-    <!-- JSON-LD Structured Data -->
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "SoftwareApplication",
-      "name": "Tu Inventario",
-      "applicationCategory": "BusinessApplication",
-      "operatingSystem": "Web, Android",
-      "offers": {
-        "@type": "Offer",
-        "price": "<?= $plan_precio ?>.00",
-        "priceCurrency": "USD",
-        "description": "Suscripción mensual con acceso total a todos los módulos."
-      },
-      "description": "Sistema de inventario, punto de venta (POS), compras, proveedores, clientes, facturación, tienda online y Menú QR."
-    }
-    </script>
+/* Botones */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;font:600 1rem/1 var(--font-body);padding:15px 22px;border-radius:12px;border:2px solid transparent;text-decoration:none;cursor:pointer;transition:background .15s,border-color .15s,color .15s}
+.btn-primary{background:var(--blue);color:#fff}
+.btn-primary:hover{background:var(--blue-deep)}
+.btn-ghost{border-color:var(--ink);color:var(--ink);background:transparent}
+.btn-ghost:hover{background:var(--ink);color:#fff}
+.btn-light{background:#fff;color:var(--ink)}
+.btn-light:hover{background:var(--blue-soft)}
+.btn-sm{padding:11px 16px;font-size:.95rem;border-radius:10px}
 
-    <link rel="icon" type="image/png" href="?serve_logo=1">
-    <link rel="manifest" href="/manifest.json">
-    
-    <!-- CSS (Tailwind nativo) -->
-    <link rel="stylesheet" href="/css/tailwind.css?v=<?= CSS_VERSION ?>">
-    <link rel="stylesheet" href="/css/fontawesome.min.css">
-    <style>
-        body { font-family: 'Inter', sans-serif; }
-        
-        /* Fondo degradado suave (Azul pastel #dbeafe a blanco) */
-        .bg-gradient-animated {
-            background: linear-gradient(135deg, #dbeafe 0%, #eff6ff 50%, #dbeafe 100%);
-            background-size: 200% 200%;
-            animation: gradientBG 15s ease infinite;
-        }
-        @keyframes gradientBG {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
+/* Header */
+.site-header{position:sticky;top:0;z-index:30;background:rgba(246,249,247,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.bar{display:flex;align-items:center;gap:28px;height:68px}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none;font:800 1.35rem/1 var(--font-display);letter-spacing:-.02em}
+.brand b{color:var(--blue);font-weight:800}
+.brand-mark{width:34px;height:34px;border-radius:10px;background:var(--ink);color:#fff;display:grid;place-items:center;font-size:1.05rem}
+.nav{display:flex;gap:22px;margin-left:auto;align-items:center}
+.nav a{text-decoration:none;font-weight:600;font-size:.98rem;color:var(--ink);padding:6px 2px}
+.nav a:hover{color:var(--blue)}
+.bar-actions{display:flex;gap:10px;align-items:center}
+.menu-btn{display:none;background:none;border:2px solid var(--ink);border-radius:10px;padding:8px 12px;font:600 .95rem var(--font-body);color:var(--ink);cursor:pointer}
 
-        /* Utilidades para Tarjetas Glassmorphism */
-        .glass-panel {
-            background: rgba(255, 255, 255, 0.85);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 1);
-            box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.08);
-        }
-        .glass-float {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(37, 99, 235, 0.1);
-            box-shadow: 0 20px 40px -10px rgba(37, 99, 235, 0.15);
-        }
+/* Hero */
+.hero{padding:52px 0 64px}
+.hero-grid{display:grid;grid-template-columns:1fr 1.1fr;gap:56px;align-items:center}
+.hero h1{margin-bottom:20px}
+.hero .lead{margin-bottom:30px}
+.hero-cta{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:26px}
+.hero-facts{display:flex;flex-wrap:wrap;gap:8px 22px;color:var(--muted);font-size:.95rem;font-weight:500;padding:0;margin:0;list-style:none}
+.hero-facts li{display:flex;align-items:center;gap:8px}
+.hero-facts li::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--green)}
+.seg{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;align-items:center}
+.seg-label{font-size:.9rem;font-weight:600;color:var(--muted);margin-right:4px}
+.seg button{font:600 .9rem var(--font-body);padding:8px 14px;border-radius:999px;border:1.5px solid var(--line);background:#fff;color:var(--ink);cursor:pointer}
+.seg button:hover{border-color:var(--blue)}
+.seg button[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:#fff}
 
-        /* Mockup Teléfono Moderno (CSS Puro) */
-        .phone-mockup {
-            border: 10px solid #1f2937;
-            border-radius: 44px;
-            overflow: hidden;
-            background-color: white;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.3);
-            position: relative;
-        }
-        .phone-mockup::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 140px;
-            height: 28px;
-            background-color: #1f2937;
-            border-bottom-left-radius: 20px;
-            border-bottom-right-radius: 20px;
-            z-index: 10;
-        }
+/* POS interactivo */
+.pos{background:var(--white);border:1px solid var(--line);border-radius:22px;box-shadow:0 18px 50px -20px rgba(15,31,61,.28);overflow:hidden}
+.pos-top{display:flex;justify-content:space-between;align-items:center;padding:14px 18px;border-bottom:1px solid var(--line);font-size:.9rem;color:var(--muted);font-weight:500}
+.pos-top strong{color:var(--ink);font-weight:700}
+.sync{display:inline-flex;align-items:center;gap:7px;color:var(--green);font-weight:600}
+.sync::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--green)}
+.pos-body{display:grid;grid-template-columns:1.05fr 1fr}
+.pos-products{padding:16px;display:grid;grid-template-columns:1fr 1fr;gap:10px;align-content:start;border-right:1px solid var(--line)}
+.prod{display:flex;flex-direction:column;gap:6px;text-align:left;background:var(--paper);border:1.5px solid transparent;border-radius:14px;padding:12px;cursor:pointer;font-family:var(--font-body);color:var(--ink);transition:border-color .15s,background .15s}
+.prod:hover:not(:disabled){border-color:var(--blue);background:var(--blue-soft)}
+.prod:disabled{opacity:.5;cursor:not-allowed}
+.prod-tile{width:36px;height:36px;border-radius:10px;display:grid;place-items:center;font:800 1rem var(--font-display);color:#fff}
+.prod-name{font-weight:600;font-size:.95rem;line-height:1.2}
+.prod-price{font-weight:700;color:var(--blue)}
+.stock{align-self:flex-start;font-size:.78rem;font-weight:600;padding:2px 8px;border-radius:999px}
+.stock.ok{background:var(--green-soft);color:var(--green)}
+.stock.low{background:var(--amber-soft);color:var(--amber)}
+.stock.out{background:var(--red-soft);color:var(--red)}
+.ticket{padding:16px;display:flex;flex-direction:column;min-height:340px}
+.ticket-title{font-weight:700;font-size:.95rem;margin-bottom:10px}
+.ticket-lines{flex:1;list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}
+.ticket-empty{color:var(--muted);font-size:.93rem;padding:6px 0}
+.line{display:grid;grid-template-columns:1fr auto;gap:2px 8px;font-size:.93rem}
+.line-name{font-weight:600}
+.line-total{font-weight:700;text-align:right}
+.qty{display:flex;align-items:center;gap:8px;color:var(--muted)}
+.qty button{width:26px;height:26px;border-radius:8px;border:1.5px solid var(--line);background:#fff;color:var(--ink);font-weight:700;cursor:pointer;line-height:1}
+.qty button:hover{border-color:var(--blue);color:var(--blue)}
+.totals{border-top:1px dashed var(--line);margin-top:14px;padding-top:14px}
+.total-usd{font:800 2.3rem/1 var(--font-display);letter-spacing:-.02em}
+.total-bs{margin-top:4px;font-weight:700;color:var(--blue);font-size:1.05rem}
+.rate{display:inline-block;margin-top:8px;font-size:.78rem;font-weight:600;background:var(--blue-soft);color:var(--blue-deep);padding:3px 9px;border-radius:999px}
+.pay{margin-top:14px;width:100%}
+.pos-foot{padding:11px 18px;background:var(--paper);border-top:1px solid var(--line);font-size:.88rem;color:var(--muted);display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.pos-foot strong{color:var(--ink)}
+.toast{min-height:1.4em;font-size:.9rem;font-weight:600;color:var(--green);margin-top:10px}
+.demo-hint{margin-top:12px;font-size:.9rem;color:var(--muted);text-align:center}
 
-        /* Scrollbar oculta para secciones horizontales */
-        .hide-scrollbar::-webkit-scrollbar { display: none; }
-        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+/* Secciones */
+.sec{padding:84px 0}
+.sec-head{margin-bottom:40px;max-width:640px}
+.sec-head h2{margin-bottom:12px}
 
-        /* Animaciones */
-        .animate-float-slow { animation: float 6s ease-in-out infinite; }
-        .animate-float-fast { animation: float 4s ease-in-out infinite; }
-        @keyframes float {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-12px); }
-        }
-        @keyframes waterWaveHorizontal {
-            0% { background-position-x: 0, 0; }
-            100% { background-position-x: 200px, 0; }
-        }
-        @keyframes waterWaveVertical {
-            0% { background-position-y: 100px, 0; }
-            100% { background-position-y: 0px, 0; }
-        }
-        .animate-water {
-            background-image: 
-                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 28'%3E%3Cpath d='M0 15 Q 30 0, 60 15 T 120 15 L 120 28 L 0 28 Z' fill='%232563eb'/%3E%3C/svg%3E"),
-                linear-gradient(to right, #a7f3d0, #2563eb);
-            background-repeat: repeat-x, no-repeat;
-            background-size: 200px 100px, 100% 100%;
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            color: transparent;
-            animation: waterWaveHorizontal 3s linear infinite, waterWaveVertical 5s ease-in-out infinite alternate;
-        }
+/* Antes / Después */
+.vs-wrap{border:1px solid var(--line);border-radius:22px;overflow:hidden;background:var(--white)}
+.vs{width:100%;border-collapse:collapse}
+.vs th{text-align:left;font:700 1.05rem var(--font-display);padding:18px 24px;border-bottom:1px solid var(--line);width:50%}
+.vs th:last-child{background:var(--blue);color:#fff;border-bottom-color:var(--blue)}
+.vs th:first-child{color:var(--muted)}
+.vs td{padding:18px 24px;vertical-align:top;border-top:1px solid var(--line)}
+.vs tbody tr:first-child td{border-top:0}
+.vs td:first-child{color:var(--muted)}
+.vs td:last-child{background:var(--blue-soft);font-weight:600}
 
-        /* Custom positioning and rotation for phone mockups to match references perfectly */
-        @keyframes slideUpBottomSheet {
-            from { transform: translateY(100%); }
-            to { transform: translateY(0); }
-        }
-        @keyframes scaleUpModal {
-            from { transform: scale(0.95); opacity: 0; }
-            to { transform: scale(1); opacity: 1; }
-        }
-        
-        .phone-left-custom {
-            position: absolute;
-            top: 6%;
-            left: 2%;
-            width: 240px;
-            height: 500px;
-            transform: rotate(-6deg) scale(0.9);
-            z-index: 10;
-            transition: transform 0.7s ease;
-        }
-        .phone-left-custom:hover {
-            transform: rotate(-2deg) scale(0.95);
-            z-index: 30;
-        }
-        
-        .phone-right-custom {
-            position: absolute;
-            bottom: 4%;
-            right: -2%;
-            width: 250px;
-            height: 520px;
-            transform: rotate(8deg) scale(0.95);
-            z-index: 20;
-            transition: transform 0.7s ease;
-        }
-        .phone-right-custom:hover {
-            transform: rotate(2deg) scale(1.0);
-        }
+/* Módulos con pestañas */
+.tabs{display:flex;gap:6px;border-bottom:1px solid var(--line);margin-bottom:34px;overflow-x:auto;scrollbar-width:thin}
+.tab{background:none;border:0;border-bottom:3px solid transparent;padding:12px 16px;font:600 1rem var(--font-body);color:var(--muted);cursor:pointer;margin-bottom:-1px;white-space:nowrap}
+.tab:hover{color:var(--ink)}
+.tab[aria-selected="true"]{color:var(--blue);border-bottom-color:var(--blue)}
+.panel{display:none;grid-template-columns:1fr 1.15fr;gap:48px;align-items:center}
+.panel.active{display:grid}
+.panel h3{font-size:1.6rem;margin-bottom:12px}
+.panel p{color:var(--muted);margin-bottom:18px}
+.checks{list-style:none;padding:0;margin:0;display:grid;gap:10px}
+.checks li{display:flex;gap:10px;font-weight:500}
+.checks li::before{content:"";flex:none;width:20px;height:20px;margin-top:2px;border-radius:50%;background:var(--green-soft) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M5.5 10.5l3 3 6-6.5' fill='none' stroke='%2314875f' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/contain no-repeat}
+.shot{background:var(--white);border:1px solid var(--line);border-radius:18px;padding:18px;box-shadow:0 14px 40px -22px rgba(15,31,61,.3);overflow-x:auto}
+.shot table{width:100%;border-collapse:collapse;font-size:.93rem;min-width:380px}
+.shot th{text-align:left;font-weight:600;color:var(--muted);font-size:.85rem;padding:8px 10px;border-bottom:1px solid var(--line)}
+.shot td{padding:11px 10px;border-bottom:1px solid var(--paper)}
+.shot td.n,.shot th.n{text-align:right}
+.pos-neg{color:var(--red);font-weight:700}
+.pos-pos{color:var(--green);font-weight:700}
+.mini-btn{font:600 .82rem var(--font-body);padding:6px 11px;border-radius:8px;border:1.5px solid var(--green);color:var(--green);background:#fff;cursor:default}
+.arqueo{display:grid;gap:12px;min-width:320px}
+.arqueo-row{display:flex;justify-content:space-between;align-items:baseline;padding:12px 14px;border-radius:12px;background:var(--paper)}
+.arqueo-row span{color:var(--muted);font-weight:500}
+.arqueo-row strong{font:700 1.3rem var(--font-display)}
+.arqueo-row.diff{background:var(--amber-soft)}
+.arqueo-row.diff strong{color:var(--amber)}
+.arqueo-note{font-size:.9rem;color:var(--muted)}
+.kpis{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:18px;min-width:320px}
+.kpi{background:var(--paper);border-radius:12px;padding:12px 14px}
+.kpi span{display:block;font-size:.85rem;color:var(--muted);font-weight:500}
+.kpi strong{font:700 1.4rem var(--font-display)}
+.bars{display:flex;align-items:flex-end;gap:10px;height:150px;min-width:320px;border-bottom:1px solid var(--line);padding:0 4px}
+.bar-col{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:6px;height:100%}
+.bar-col i{display:block;width:100%;max-width:44px;background:var(--blue);border-radius:8px 8px 0 0}
+.bar-col span{font-size:.75rem;color:var(--muted);font-weight:600}
+.bar-days{display:flex;gap:10px;min-width:320px;padding:6px 4px 0}
+.bar-days span{flex:1;text-align:center;font-size:.8rem;color:var(--muted);font-weight:600}
+.store{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;min-width:340px}
+.store-item{background:var(--paper);border-radius:14px;padding:12px}
+.store-img{height:72px;border-radius:10px;margin-bottom:10px}
+.store-item b{display:block;font-size:.92rem;line-height:1.2}
+.store-item span{display:block;font-weight:700;color:var(--blue);margin-top:4px}
+.store-item small{color:var(--muted);font-size:.8rem}
+.more-mods{margin-top:34px;color:var(--muted);font-size:.98rem}
 
-        .card-pos-custom {
-            position: absolute;
-            top: 20%;
-            left: 22%;
-            width: 260px;
-            z-index: 30;
-        }
-        
-        .card-inventario-custom {
-            position: absolute;
-            bottom: 12%;
-            right: -5%;
-            width: 240px;
-            z-index: 30;
-        }
+/* Cómo empezar (es una secuencia real) */
+.start{list-style:none;counter-reset:st;margin:0;padding:0;display:grid;grid-template-columns:repeat(3,1fr);gap:0;border-top:1px solid var(--line)}
+.start li{counter-increment:st;padding:26px 28px 0 0}
+.start li::before{content:counter(st);display:grid;place-items:center;width:34px;height:34px;border-radius:50%;background:var(--ink);color:#fff;font:700 .95rem var(--font-display);margin-bottom:14px}
+.start b{display:block;font:700 1.2rem var(--font-display);margin-bottom:6px}
+.start span{color:var(--muted)}
 
-        @media (min-width: 640px) {
-            .phone-left-custom {
-                top: 8%;
-                left: 2%;
-                width: 280px;
-                height: 580px;
-                transform: rotate(-6deg) scale(0.95);
-            }
-            .phone-right-custom {
-                bottom: 8%;
-                right: -5%;
-                width: 290px;
-                height: 600px;
-                transform: rotate(8deg);
-            }
-            .card-pos-custom {
-                top: 22%;
-                left: 28%;
-            }
-            .card-inventario-custom {
-                bottom: 18%;
-                right: -2%;
-            }
-        }
+/* Apps */
+.apps{background:var(--ink);color:#fff}
+.apps h2{color:#fff}
+.apps .lead{color:#c3cde2}
+.apps-grid{display:grid;grid-template-columns:1.1fr 1fr;gap:56px;align-items:start}
+.badge-ver{display:inline-block;font-size:.85rem;font-weight:600;background:rgba(255,255,255,.12);padding:4px 11px;border-radius:999px;margin-bottom:16px}
+.apps-mid{display:grid;grid-template-columns:1fr auto;gap:32px;align-items:center;margin-top:30px}
+.steps{list-style:none;counter-reset:s;margin:0;padding:0;display:grid;gap:14px}
+.steps li{counter-increment:s;display:flex;gap:14px;align-items:flex-start;color:#e5ebf7}
+.steps li::before{content:counter(s);flex:none;width:28px;height:28px;border-radius:50%;background:var(--blue);display:grid;place-items:center;font-weight:700;font-size:.9rem}
+.phone{width:224px;border:8px solid #2b3d66;border-radius:32px;background:#fff;color:var(--ink);padding:16px 12px;box-shadow:0 20px 40px -20px rgba(0,0,0,.6)}
+.phone-h{font:700 .95rem var(--font-display);margin-bottom:10px}
+.phone-saldo{background:var(--green);color:#fff;border-radius:14px;padding:12px}
+.phone-saldo small{display:block;font-size:.72rem;font-weight:600;opacity:.9}
+.phone-saldo strong{font:800 1.5rem var(--font-display)}
+.phone-saldo em{display:block;font-style:normal;font-size:.78rem;opacity:.9}
+.phone-list{list-style:none;margin:12px 0;padding:0;display:grid;gap:8px}
+.phone-list li{display:flex;justify-content:space-between;gap:8px;font-size:.78rem;padding:8px 10px;background:var(--paper);border-radius:10px}
+.phone-list b{display:block;font-size:.82rem}
+.phone-list span{color:var(--muted)}
+.phone-list strong{align-self:center}
+.phone-list .paid strong{color:var(--green)}
+.phone-list .due strong{color:var(--red)}
+.phone-wa{display:block;text-align:center;background:#1faa59;color:#fff;font-weight:700;font-size:.85rem;padding:10px;border-radius:10px}
+.dl{background:var(--white);color:var(--ink);border-radius:22px;padding:26px}
+.dl h3{margin-bottom:4px}
+.dl .sub{color:var(--muted);font-size:.95rem;margin-bottom:18px}
+.dl .btn{width:100%;margin-bottom:20px}
+.specs{margin:0;display:grid;grid-template-columns:auto 1fr;gap:10px 18px;font-size:.93rem}
+.specs dt{color:var(--muted);font-weight:500}
+.specs dd{margin:0;font-weight:600;word-break:break-all}
+.specs code{font:500 .82rem ui-monospace,SFMono-Regular,Menlo,monospace;background:var(--paper);padding:2px 6px;border-radius:6px}
+.qr-slot{margin-top:22px;border:2px dashed var(--line);border-radius:14px;padding:18px;text-align:center;color:var(--muted);font-size:.9rem;display:flex;flex-direction:column;align-items:center}
+.qr-slot strong{display:block;color:var(--ink);margin-bottom:8px}
+.more-apps{padding:64px 0 8px}
+.more-apps h3{font-size:1.5rem;margin-bottom:8px}
+.app-rows{margin-top:22px;border-top:1px solid var(--line)}
+.app-row{display:grid;grid-template-columns:auto 1fr auto;gap:18px;align-items:center;padding:18px 4px;border-bottom:1px solid var(--line)}
+.app-ico{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;color:#fff;font:800 1.1rem var(--font-display)}
+.app-row b{display:block;font-size:1.05rem}
+.app-row span{color:var(--muted);font-size:.95rem}
+.pill{font-size:.82rem;font-weight:600;padding:4px 11px;border-radius:999px;background:var(--green-soft);color:var(--green);white-space:nowrap}
+.pill.soon{background:var(--amber-soft);color:var(--amber)}
 
-        @media (min-width: 1024px) {
-            .phone-left-custom {
-                left: 0%;
-                top: 10%;
-            }
-            .phone-right-custom {
-                right: -8%;
-                bottom: 10%;
-            }
-            .card-pos-custom {
-                left: 28%;
-            }
-            .card-inventario-custom {
-                right: -5%;
-            }
-        }
+/* Precio único */
+.price-panel{display:grid;grid-template-columns:.85fr 1.15fr;border:1px solid var(--line);border-radius:24px;overflow:hidden;background:var(--white)}
+.price-main{background:var(--blue-soft);padding:38px 34px;display:flex;flex-direction:column;gap:14px;align-items:flex-start;justify-content:center}
+.plan-tag{font-size:.8rem;font-weight:700;background:var(--blue);color:#fff;padding:4px 11px;border-radius:999px}
+.plan-price{font:800 4.4rem/1 var(--font-display);letter-spacing:-.03em}
+.plan-price small{font:500 1.1rem var(--font-body);color:var(--muted);letter-spacing:0}
+.price-bs{font-weight:700;color:var(--blue-deep)}
+.price-note{font-size:.9rem;color:var(--muted)}
+.price-incl{padding:38px 34px}
+.price-incl h3{margin-bottom:18px}
+.two-col{grid-template-columns:1fr 1fr;gap:12px 24px}
+.try-first{margin-top:18px;display:flex;flex-wrap:wrap;gap:8px 22px;align-items:center;color:var(--muted);font-weight:500}
+.try-first a{font-weight:700;color:var(--blue);text-underline-offset:3px}
 
-        @media (min-width: 1280px) {
-            .phone-left-custom {
-                left: -2%;
-                top: 8%;
-            }
-            .phone-right-custom {
-                right: -10%;
-                bottom: 8%;
-            }
-            .card-pos-custom {
-                left: 30%;
-            }
-            .card-inventario-custom {
-                right: -8%;
-            }
-        }
+/* FAQ */
+.faq{max-width:780px}
+.faq details{border-bottom:1px solid var(--line);padding:4px 0}
+.faq summary{cursor:pointer;list-style:none;font:600 1.12rem var(--font-body);padding:18px 40px 18px 0;position:relative}
+.faq summary::-webkit-details-marker{display:none}
+.faq summary::after{content:"+";position:absolute;right:6px;top:50%;transform:translateY(-50%);font-size:1.5rem;font-weight:500;color:var(--blue);transition:transform .2s}
+.faq details[open] summary::after{transform:translateY(-50%) rotate(45deg)}
+.faq details p{color:var(--muted);padding:0 40px 20px 0;max-width:64ch}
 
-        /* Estilo personalizado para el H1 principal (Hero Title) para garantizar tamaño gigante y llamativo */
-        .hero-title-custom {
-            font-size: 2.8rem;
-            font-weight: 900;
-            line-height: 1.05;
-            letter-spacing: -0.03em;
-            color: #0f172a; /* slate-900 */
-            margin-bottom: 1.5rem;
-        }
-        @media (min-width: 640px) {
-            .hero-title-custom {
-                font-size: 4rem;
-            }
-        }
-        @media (min-width: 1024px) {
-            .hero-title-custom {
-                font-size: 4.2rem;
-            }
-        }
-        @media (min-width: 1280px) {
-            .hero-title-custom {
-                font-size: 5rem;
-            }
-        }
+/* CTA final + footer */
+.final{background:var(--blue);color:#fff;padding:72px 0}
+.final-in{display:flex;justify-content:space-between;align-items:center;gap:32px;flex-wrap:wrap}
+.final h2{color:#fff;max-width:20ch}
+.final p{color:#dbe5ff;margin-top:10px;max-width:46ch}
+.final-actions{display:flex;gap:12px;flex-wrap:wrap}
+.final .btn-ghost{border-color:#fff;color:#fff}
+.final .btn-ghost:hover{background:#fff;color:var(--blue)}
+.foot{padding:36px 0 90px;font-size:.94rem;color:var(--muted)}
+.foot-in{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap}
+.foot-links{display:flex;gap:20px;flex-wrap:wrap}
+.foot a{text-decoration:none}
+.foot a:hover{color:var(--blue);text-decoration:underline}
 
-        /* Premium styles for WhatsApp and Telegram buttons */
-        .btn-whatsapp-premium {
-            background: linear-gradient(135deg, #25D366 0%, #128C7E 100%) !important;
-            box-shadow: 0 12px 30px -10px rgba(37, 211, 102, 0.6) !important;
-            transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1) !important;
-            border: 2px solid rgba(255, 255, 255, 0.2) !important;
-            color: white !important;
-        }
-        .btn-whatsapp-premium:hover {
-            background: linear-gradient(135deg, #2ae771 0%, #159c8d 100%) !important;
-            box-shadow: 0 18px 40px -12px rgba(37, 211, 102, 0.8) !important;
-            transform: translateY(-4px) scale(1.05) !important;
-        }
-        .btn-whatsapp-premium:active {
-            transform: translateY(-2px) scale(1.02) !important;
-        }
+/* WhatsApp flotante */
+.wa{position:fixed;right:18px;bottom:18px;z-index:40;display:flex;align-items:center;gap:10px;background:#1faa59;color:#fff;text-decoration:none;font-weight:700;padding:13px 18px;border-radius:999px;box-shadow:0 10px 26px -8px rgba(15,31,61,.5)}
+.wa:hover{background:#178a47}
+.wa svg{width:22px;height:22px}
 
-        .btn-telegram-premium {
-            background: linear-gradient(135deg, #0088cc 0%, #006699 100%) !important;
-            box-shadow: 0 12px 30px -10px rgba(0, 136, 204, 0.6) !important;
-            transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1) !important;
-            border: 2px solid rgba(255, 255, 255, 0.2) !important;
-            color: white !important;
-        }
-        .btn-telegram-premium:hover {
-            background: linear-gradient(135deg, #0099e6 0%, #0077b3 100%) !important;
-            box-shadow: 0 18px 40px -12px rgba(0, 136, 204, 0.8) !important;
-            transform: translateY(-4px) scale(1.05) !important;
-        }
-        .btn-telegram-premium:active {
-            transform: translateY(-2px) scale(1.02) !important;
-        }
+/* Movimiento: una sola entrada en el hero */
+@media (prefers-reduced-motion:no-preference){
+  .pos{animation:rise .7s ease-out both}
+  @keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
 
-        /* PWA Standalone Mode CSS overrides */
-        .pwa-standalone-mode body > div:first-of-type {
-            display: none !important;
-        }
-        .pwa-standalone-mode #login-modal {
-            display: flex !important;
-            position: fixed !important;
-            inset: 0 !important;
-            background-color: #ebfbf1 !important;
-            z-index: 99999 !important;
-            align-items: center;
-            justify-content: center;
-        }
-        .pwa-standalone-mode #login-modal > div:first-of-type {
-            display: none !important;
-        }
-        .pwa-standalone-mode #login-modal .relative.bg-white {
-            width: 100% !important;
-            max-width: 100% !important;
-            height: 100% !important;
-            max-height: 100% !important;
-            border-radius: 0px !important;
-            box-shadow: none !important;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            padding: 2.5rem !important;
-            background-color: #ebfbf1 !important;
-        }
-        
-        .pwa-standalone-mode #login-modal button.absolute.top-4.right-4 {
-            display: none !important;
-        }
-
-        /* Animaciones on Scroll */
-        .reveal {
-            opacity: 0;
-            transform: translateY(40px);
-            transition: all 0.8s cubic-bezier(0.5, 0, 0, 1);
-        }
-        .reveal.active {
-            opacity: 1;
-            transform: translateY(0);
-        }
-        
-        .delay-100 { transition-delay: 100ms; }
-        .delay-200 { transition-delay: 200ms; }
-        .delay-300 { transition-delay: 300ms; }
-
-        /* 3D Phone Mockup APK */
-        .apk-mockup-wrapper {
-            perspective: 1000px;
-        }
-        .apk-phone-mockup {
-            border: 14px solid #0f172a;
-            border-radius: 40px;
-            box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.6), inset 0 0 0 2px #334155;
-            background-color: #0f172a;
-            position: relative;
-            overflow: hidden;
-            transform: rotateY(-15deg) rotateX(5deg) scale(0.95);
-            transition: transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.6s ease;
-            z-index: 20;
-            width: 100%;
-            height: 100%;
-        }
-        .apk-mockup-wrapper:hover .apk-phone-mockup {
-            transform: rotateY(0deg) rotateX(0deg) scale(1);
-            box-shadow: 0 40px 80px -15px rgba(37,99,235, 0.4), inset 0 0 0 2px #475569;
-        }
-        .apk-phone-mockup::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 130px;
-            height: 30px;
-            background-color: #0f172a;
-            border-bottom-left-radius: 18px;
-            border-bottom-right-radius: 18px;
-            z-index: 10;
-        }
-    </style>
-
-    <script>
-        // Detectar si está instalado y ejecutándose como PWA standalone
-        if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true) {
-            document.documentElement.classList.add('pwa-standalone-mode');
-        }
-    </script>
+/* Responsive */
+@media (max-width:960px){
+  .hero-grid,.apps-grid,.panel.active,.price-panel{grid-template-columns:1fr;gap:36px}
+  .price-panel{gap:0}
+  .start{grid-template-columns:1fr}
+  .start li{padding:22px 0 8px}
+}
+@media (max-width:860px){
+  .menu-btn{display:inline-block}
+  .nav{display:none;position:absolute;left:0;right:0;top:68px;background:var(--paper);border-bottom:1px solid var(--line);flex-direction:column;align-items:flex-start;padding:14px 24px 20px;gap:6px;margin:0}
+  .nav.open{display:flex}
+  .nav a{padding:10px 0;font-size:1.05rem}
+  .bar{gap:12px}
+  .bar-actions{margin-left:auto}
+  .bar-actions .hide-sm{display:none}
+}
+@media (max-width:640px){
+  .apps-mid,.apps-mid{grid-template-columns:1fr}
+  .phone{margin:0 auto}
+  .two-col{grid-template-columns:1fr}
+  .vs th,.vs td{padding:14px 14px;font-size:.95rem}
+}
+@media (max-width:560px){
+  .pos-body{grid-template-columns:1fr}
+  .pos-products{border-right:0;border-bottom:1px solid var(--line)}
+  .sec{padding:64px 0}
+  .app-row{grid-template-columns:auto 1fr}
+  .app-row .pill{grid-column:2;justify-self:start}
+  .wa span{display:none}
+  .wa{padding:14px}
+  .plan-price{font-size:3.6rem}
+  .price-main,.price-incl{padding:28px 22px}
+}
+</style>
 </head>
-<body class="bg-[#ebfbf1] text-slate-800 antialiased selection:bg-[#2563eb] selection:text-white min-h-screen relative overflow-x-hidden">
-    <!-- Google Tag Manager (noscript) -->
-    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-NHRNGKB2"
-    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
-    <!-- End Google Tag Manager (noscript) -->
-
-    <!-- Contenedor Principal -->
-    <div class="relative z-10 w-full flex flex-col">
-        
-        <!-- ========================================== -->
-        <!-- SECCIÓN 1: ENCABEZADO (HEADER) -->
-        <!-- ========================================== -->
-        <header id="main-header" class="fixed top-0 left-0 z-[100] w-full bg-transparent transition-all duration-300">
-            <div class="max-w-[1400px] mx-auto w-full px-6 py-4 lg:px-10 lg:py-5 flex items-center justify-between transition-all duration-300" id="header-container">
-                
-                <!-- Izquierda: Logo + Enlaces -->
-                <div class="flex items-center gap-6 xl:gap-12">
-                    <!-- Logo -->
-                    <a href="#inicio" class="flex items-center gap-2 cursor-pointer group shrink-0">
-                        <div class="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-sm border border-gray-100 group-hover:shadow-md transition-shadow">
-                            <img src="<?= BASE_URL ?>?serve_logo=1" alt="Logo" class="w-6 h-6 object-contain">
-                        </div>
-                        <span class="text-xl lg:text-2xl font-black text-slate-800 tracking-tight">
-                            Tu<span class="text-[#2563eb]">Inventario</span>
-                        </span>
-                    </a>
-
-                    <!-- Navegación Desktop -->
-                    <nav class="hidden lg:flex items-center gap-5 xl:gap-8 text-[15px] font-bold text-slate-700">
-                        <a href="#inicio" class="hover:text-[#2563eb] transition-colors whitespace-nowrap">Inicio</a>
-                        <a href="#funcionalidades" class="hover:text-[#2563eb] transition-colors whitespace-nowrap">Características</a>
-                        <a href="<?= BASE_URL ?>qrmenu" class="hover:text-[#2563eb] transition-colors whitespace-nowrap flex items-center gap-2"><i class="fas fa-qrcode"></i> Menú QR</a>
-                        <a href="#app-descarga" class="hover:text-[#2563eb] transition-colors whitespace-nowrap flex items-center gap-2"><i class="fab fa-android"></i> PagaPues</a>
-                        <a href="#precio" class="hover:text-[#2563eb] transition-colors whitespace-nowrap">Precios</a>
-                        <a href="#faq" class="hover:text-[#2563eb] transition-colors whitespace-nowrap">FAQ</a>
-                        <a href="#contacto" class="hover:text-[#2563eb] transition-colors whitespace-nowrap">Contacto</a>
-                    </nav>
-                </div>
-
-                <!-- Derecha: Botón de Registro -->
-                <div class="hidden lg:flex items-center gap-6">
-                    <button onclick="document.getElementById('login-modal').classList.remove('hidden'); document.getElementById('login-modal').classList.add('flex')" class="text-[15px] font-bold text-slate-700 hover:text-[#2563eb] transition-colors whitespace-nowrap focus:outline-none">Acceder</button>
-                    <a href="<?= BASE_URL ?>auth/register" class="bg-[#2563eb] hover:bg-[#1d4ed8] text-white text-[15px] font-bold py-2.5 px-6 rounded-full transition-all shadow-[0_8px_20px_-6px_rgba(37,99,235,0.5)] transform hover:-translate-y-0.5 flex items-center gap-2 whitespace-nowrap" data-evt="btn_registrate_header">
-                        Regístrate <i class="fas fa-arrow-right text-[12px] ml-1"></i>
-                    </a>
-                </div>
-
-                <!-- Botón Menú Móvil -->
-                <button class="lg:hidden text-slate-700 hover:text-[#2563eb] focus:outline-none" id="mobile-menu-btn">
-                    <i class="fas fa-bars text-2xl"></i>
-                </button>
-            </div>
-        </header>
-
-        <!-- Menú Móvil Desplegable -->
-        <div id="mobile-menu" class="hidden lg:hidden flex-col bg-white/95 backdrop-blur-xl absolute top-[70px] left-0 w-full p-6 shadow-2xl border-b border-gray-100 z-50 rounded-b-3xl">
-            <a href="#inicio" class="py-3 text-lg font-semibold text-slate-700 border-b border-gray-50">Inicio</a>
-            <a href="#funcionalidades" class="py-3 text-lg font-semibold text-slate-700 border-b border-gray-50">Soluciones</a>
-            <a href="#app-descarga" class="py-3 text-lg font-semibold text-slate-700 border-b border-gray-50 flex items-center gap-2"><i class="fab fa-android text-[#2563eb]"></i> PagaPues</a>
-            <a href="#precio" class="py-3 text-lg font-semibold text-slate-700 border-b border-gray-50">Precios</a>
-            <a href="#faq" class="py-3 text-lg font-semibold text-slate-700 border-b border-gray-50">FAQ</a>
-            <a href="#contacto" class="py-3 text-lg font-semibold text-slate-700 border-b border-gray-50 mb-4">Contacto</a>
-            <button onclick="document.getElementById('login-modal').classList.remove('hidden'); document.getElementById('login-modal').classList.add('flex')" class="w-full text-center py-3 text-lg font-bold text-[#2563eb] bg-teal-50 rounded-xl mb-3 focus:outline-none">Inicia Sesión</button>
-            <button onclick="document.getElementById('login-modal').classList.remove('hidden'); document.getElementById('login-modal').classList.add('flex')" class="w-full text-center py-3 text-lg font-bold text-white bg-[#2563eb] rounded-xl shadow-lg focus:outline-none" data-evt="btn_registrate_mobile">Regístrate</button>
-        </div>
-
-
-        <!-- ========================================== -->
-        <!-- SECCIÓN 2: HERO SECTION -->
-        <!-- ========================================== -->
-        <section id="inicio" class="flex flex-col lg:flex-row items-center w-full px-6 py-12 lg:px-10 lg:py-16 gap-12 lg:gap-8 relative max-w-[1400px] mx-auto min-h-[85vh] pt-[100px] lg:pt-[110px]">
-            <!-- Círculo decorativo hero -->
-            <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full border border-[#2563eb]/10 border-dashed animate-[spin_40s_linear_infinite] pointer-events-none z-0"></div>
-
-            <!-- Izquierda: Textos -->
-            <div class="w-full lg:w-[48%] flex flex-col justify-center text-center lg:text-left z-20 lg:pl-10">
-                <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-brand-50 border border-brand-100 text-brand-700 text-xs font-bold mb-6 mx-auto lg:mx-0 w-max">
-                    <i class="fas fa-bolt text-amber-500"></i> La plataforma que tu negocio necesita
-                </div>
-                <h1 class="hero-title-custom drop-shadow-sm">
-                    Vende, cobra y<br>
-                    <span class="animate-water">controla</span> tu inventario<br>en dólares y bolívares.
-                </h1>
-                <p class="text-lg sm:text-xl text-slate-600 mb-10 max-w-xl mx-auto lg:mx-0 leading-relaxed font-medium">
-                    Gestiona tu Inventario, Punto de Venta (POS), Facturación, Crédito, Reportes y Tienda Online desde un solo lugar. Diseñado para que domines tus ganancias, gastos, clientes y proveedores sin complicaciones.
-                </p>
-                <div class="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
-                    <button onclick="document.getElementById('login-modal').classList.remove('hidden'); document.getElementById('login-modal').classList.add('flex')" class="w-full sm:w-auto bg-[#2563eb] hover:bg-[#1d4ed8] text-white font-bold py-4 px-10 rounded-full transition-all shadow-[0_10px_30px_-10px_rgba(37,99,235,0.6)] transform hover:-translate-y-1 text-center text-lg focus:outline-none" data-evt="btn_prueba_sistema_hero">
-                        Prueba el Sistema
-                    </button>
-                    <a href="#funcionalidades" class="w-full sm:w-auto bg-transparent border-2 border-[#2563eb] text-[#2563eb] hover:bg-teal-50/50 font-bold py-4 px-10 rounded-full transition-all text-center text-lg focus:outline-none">
-                        Explorar Módulos
-                    </a>
-                </div>
-                <div class="mt-8 flex items-center justify-center lg:justify-start gap-4 text-sm font-bold text-slate-600">
-                    <div><i class="fas fa-check-circle text-[#2563eb] mr-1"></i> Fácil de usar</div>
-                    <div><i class="fas fa-check-circle text-[#2563eb] mr-1"></i> <?= $soporte_horario ?></div>
-                </div>
-            </div>
-
-            <!-- Derecha: Gráficos (Teléfonos flotantes UI nítida) -->
-            <div class="w-full lg:w-[52%] relative h-[500px] sm:h-[750px] z-10 flex justify-center items-center perspective-1000">
-                
-                <!-- Teléfono 1: Productos (Atrás/Izquierda) -->
-                <div class="phone-left-custom phone-mockup shadow-2xl">
-                    <div class="w-full h-full bg-slate-50 pt-9 flex flex-col relative">
-                        <div class="bg-[#2563eb] p-4 pb-6 text-white rounded-b-3xl shadow-sm relative z-10">
-                            <div class="flex justify-between items-center mb-3">
-                                <i class="fas fa-bars opacity-80"></i>
-                                <span class="text-sm font-bold tracking-wide">Tu Inventario</span>
-                                <div class="w-6 h-6 bg-white/20 rounded-full flex items-center justify-center"><i class="fas fa-user text-xs"></i></div>
-                            </div>
-                            <div class="bg-white/20 rounded-full py-1.5 px-3 flex items-center gap-2 text-xs backdrop-blur-sm">
-                                <i class="fas fa-search"></i> Buscar productos...
-                            </div>
-                        </div>
-                        <div class="p-4 flex-1 -mt-4 relative z-0">
-                            <div class="grid grid-cols-2 gap-3 pt-6">
-                                <div onclick="addDemoItem('Burger Clásica', 12.50)" class="bg-white p-2 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center cursor-pointer hover:bg-blue-50 transition-colors active:scale-95">
-                                    <div class="w-full h-20 bg-cover bg-center rounded-xl mb-2" style="background-image: url('https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=200&fit=crop');"></div>
-                                    <span class="text-[10px] font-bold text-slate-800 text-center leading-tight">Burger Clásica</span>
-                                    <span class="text-xs font-black text-[#2563eb] mt-1">$12.50</span>
-                                </div>
-                                <div onclick="addDemoItem('Papas Fritas', 4.00)" class="bg-white p-2 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center cursor-pointer hover:bg-blue-50 transition-colors active:scale-95">
-                                    <div class="w-full h-20 bg-cover bg-center rounded-xl mb-2" style="background-image: url('https://images.unsplash.com/photo-1573080496219-bb080dd4f877?w=200&fit=crop');"></div>
-                                    <span class="text-[10px] font-bold text-slate-800 text-center leading-tight">Papas Fritas</span>
-                                    <span class="text-xs font-black text-[#2563eb] mt-1">$4.00</span>
-                                </div>
-                                <div onclick="addDemoItem('Coca Cola', 2.50)" class="bg-white p-2 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center cursor-pointer hover:bg-blue-50 transition-colors active:scale-95">
-                                    <div class="w-full h-20 bg-cover bg-center rounded-xl mb-2" style="background-image: url('https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=200&fit=crop');"></div>
-                                    <span class="text-[10px] font-bold text-slate-800 text-center leading-tight">Coca Cola</span>
-                                    <span class="text-xs font-black text-[#2563eb] mt-1">$2.50</span>
-                                </div>
-                                <div onclick="addDemoItem('Burger Doble', 18.00)" class="bg-white p-2 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center cursor-pointer hover:bg-blue-50 transition-colors active:scale-95">
-                                    <div class="w-full h-20 bg-cover bg-center rounded-xl mb-2" style="background-image: url('https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=200&fit=crop');"></div>
-                                    <span class="text-[10px] font-bold text-slate-800 text-center leading-tight">Burger Doble</span>
-                                    <span class="text-xs font-black text-[#2563eb] mt-1">$18.00</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Teléfono 2: Ticket (Frente/Derecha) -->
-                <div class="phone-right-custom phone-mockup shadow-[0_30px_60px_-15px_rgba(0,0,0,0.5)]">
-                    <div class="w-full h-full bg-slate-50 pt-9 flex flex-col">
-                        <div class="bg-slate-900 p-5 text-white flex flex-col items-center justify-center relative transition-colors duration-300" id="demo-total-header">
-                            <div class="absolute top-2 right-4 text-[10px] opacity-60"><i class="fas fa-wifi mr-1"></i><i class="fas fa-battery-full"></i></div>
-                            <div class="absolute top-4 left-1/2 -translate-x-1/2 bg-white text-slate-800 text-[10px] font-bold px-3 py-1 rounded-full flex items-center gap-1 shadow-md">
-                                <i class="fas fa-check-circle text-[#2563eb]"></i> Sincronizado
-                            </div>
-                            <span class="text-[10px] font-bold text-slate-400 mt-6 uppercase tracking-widest">Total a Cobrar</span>
-                            <span class="text-4xl font-black text-white mt-1 transition-all duration-300" id="demo-total-amount">$0.00</span>
-                        </div>
-                        <div class="flex-1 bg-white p-5 flex flex-col">
-                            <div class="flex justify-between items-center text-sm font-bold text-slate-800 border-b border-gray-100 pb-3 mb-3">
-                                <span id="demo-ticket-title">Ticket (0 items)</span>
-                                <span class="bg-[#2563eb]/10 text-[#2563eb] px-2 py-0.5 rounded text-[10px]">Mesa 4</span>
-                            </div>
-                            <div class="space-y-4 flex-1 overflow-hidden" id="demo-ticket-items">
-                                <!-- Elementos dinámicos aquí -->
-                                <div class="flex justify-center items-center h-full text-slate-400 text-xs text-center px-4">
-                                    Toca un producto a la izquierda para agregarlo al ticket.
-                                </div>
-                            </div>
-                            <button onclick="document.getElementById('login-modal').classList.remove('hidden'); document.getElementById('login-modal').classList.add('flex')" class="w-full bg-[#2563eb] hover:bg-[#1d4ed8] transition-colors text-white font-black py-4 rounded-2xl text-lg shadow-[0_8px_20px_-6px_rgba(37,99,235,0.6)]">
-                                PROCESAR PAGO
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <script>
-                    let demoItems = [];
-                    
-                    function addDemoItem(name, price) {
-                        // Buscar si ya existe
-                        const existing = demoItems.find(i => i.name === name);
-                        if (existing) {
-                            existing.qty++;
-                        } else {
-                            demoItems.push({ name, price, qty: 1 });
-                        }
-                        renderDemoTicket();
-                        
-                        // Efecto visual en el header
-                        const header = document.getElementById('demo-total-header');
-                        const amount = document.getElementById('demo-total-amount');
-                        header.classList.add('bg-emerald-600');
-                        amount.classList.add('scale-110', 'text-emerald-300');
-                        setTimeout(() => {
-                            header.classList.remove('bg-emerald-600');
-                            amount.classList.remove('scale-110', 'text-emerald-300');
-                        }, 300);
-                    }
-                    
-                    function renderDemoTicket() {
-                        const itemsContainer = document.getElementById('demo-ticket-items');
-                        const title = document.getElementById('demo-ticket-title');
-                        const amount = document.getElementById('demo-total-amount');
-                        
-                        let html = '';
-                        let total = 0;
-                        let count = 0;
-                        
-                        demoItems.forEach(item => {
-                            const lineTotal = item.price * item.qty;
-                            total += lineTotal;
-                            count += item.qty;
-                            
-                            html += `
-                                <div class="flex justify-between items-center animate-[scaleUpModal_0.2s_ease-out]">
-                                    <div class="flex flex-col">
-                                        <span class="text-xs font-bold text-slate-700">${item.qty}x ${item.name}</span>
-                                    </div>
-                                    <span class="text-sm font-black text-slate-800">$${lineTotal.toFixed(2)}</span>
-                                </div>
-                            `;
-                        });
-                        
-                        if (demoItems.length === 0) {
-                            html = `<div class="flex justify-center items-center h-full text-slate-400 text-xs text-center px-4">Toca un producto a la izquierda para agregarlo al ticket.</div>`;
-                        }
-                        
-                        itemsContainer.innerHTML = html;
-                        title.innerText = `Ticket (${count} item${count!==1?'s':''})`;
-                        amount.innerText = `$${total.toFixed(2)}`;
-                    }
-                </script>
-
-                <!-- Burbuja Flotante 1: POS -->
-                <div class="hidden lg:flex glass-float card-pos-custom p-4 sm:p-5 rounded-2xl items-center gap-4 shadow-2xl animate-float-slow">
-                    <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-gradient-to-br from-brand-100 to-accent-100 flex items-center justify-center text-[#2563eb] shadow-inner shrink-0">
-                        <i class="fas fa-cash-register text-2xl"></i>
-                    </div>
-                    <div class="flex flex-col">
-                        <span class="text-sm font-black text-slate-800">Punto de Venta (POS)</span>
-                        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Venta Hoy</span>
-                        <span class="text-xl font-black text-slate-900 leading-none mt-1">$1,243.58</span>
-                    </div>
-                </div>
-
-                <!-- Burbuja Flotante 2: Inventario -->
-                <div class="hidden lg:flex glass-float card-inventario-custom p-5 rounded-2xl flex-col shadow-2xl animate-float-fast" style="animation-delay: 1.5s;">
-                    <div class="flex items-center gap-3 mb-3">
-                        <div class="w-10 h-10 rounded-full bg-[#2563eb]/10 flex items-center justify-center text-[#2563eb]">
-                            <i class="fas fa-boxes text-lg"></i>
-                        </div>
-                        <h4 class="text-sm font-bold text-slate-800 leading-tight">Control de<br>Inventario</h4>
-                    </div>
-                    <p class="text-[11px] text-slate-500 font-medium leading-relaxed">
-                        Gestión de stock, multialmacén y alertas automáticas en tiempo real.
-                    </p>
-                    <div class="mt-3 flex items-center gap-2">
-                        <span class="w-2 h-2 rounded-full bg-[#2563eb] animate-pulse"></span>
-                        <span class="text-[10px] font-bold text-[#2563eb] uppercase tracking-wider">Stock Óptimo</span>
-                    </div>
-                </div>
-
-            </div>
-        </section>
-
-
-        <!-- ========================================== -->
-        <!-- SECCIÓN 3: PRODUCTOS MÁS VENDIDOS -->
-        <!-- ========================================== -->
-        <?php $tasa_bcv = 794.99; ?>
-        <section id="productos" class="w-full px-6 py-6 lg:px-16 border-t border-gray-100 bg-white/40">
-            <h2 class="text-3xl font-black text-slate-800 mb-8 text-center sm:text-left max-w-[1400px] mx-auto w-full">Publica tus productos</h2>
-            
-            <div class="flex overflow-x-auto gap-6 pb-6 hide-scrollbar snap-x max-w-[1400px] mx-auto w-full">
-                <!-- Card 1 -->
-                <div class="min-w-[260px] flex-1 bg-white p-5 rounded-3xl shadow-[0_8px_20px_-10px_rgba(0,0,0,0.05)] border border-gray-50 snap-center hover:shadow-[0_20px_30px_-10px_rgba(37,99,235,0.15)] transition-all group">
-                    <div class="w-full h-36 bg-slate-50 rounded-2xl mb-4 overflow-hidden flex items-center justify-center p-2">
-                        <img src="https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=400&fit=crop" class="w-full h-full object-cover rounded-xl group-hover:scale-105 transition-transform duration-500" alt="iPhone 15">
-                    </div>
-                    <h3 class="text-[15px] font-bold text-slate-800 leading-tight mb-3">iPhone 15 Pro Max (256GB)</h3>
-                    <div class="flex flex-col">
-                        <span class="text-2xl font-black text-[#2563eb] leading-none">$1099.00</span>
-                        <span class="text-[11px] font-bold text-slate-400 mt-1">Bs. <?= number_format(1099.00 * $tasa_bcv, 2, ',', '.') ?></span>
-                    </div>
-                </div>
-
-                <!-- Card 2 -->
-                <div class="min-w-[260px] flex-1 bg-white p-5 rounded-3xl shadow-[0_8px_20px_-10px_rgba(0,0,0,0.05)] border border-gray-50 snap-center hover:shadow-[0_20px_30px_-10px_rgba(37,99,235,0.15)] transition-all group">
-                    <div class="w-full h-36 bg-slate-50 rounded-2xl mb-4 overflow-hidden flex items-center justify-center p-2">
-                        <img src="https://images.unsplash.com/photo-1596755094514-f87e34085b2c?w=400&fit=crop" class="w-full h-full object-cover rounded-xl group-hover:scale-105 transition-transform duration-500" alt="Camisa Casual">
-                    </div>
-                    <h3 class="text-[15px] font-bold text-slate-800 leading-tight mb-3">Camisa Casual Premium</h3>
-                    <div class="flex flex-col">
-                        <span class="text-2xl font-black text-[#2563eb] leading-none">$29.99</span>
-                        <span class="text-[11px] font-bold text-slate-400 mt-1">Bs. <?= number_format(29.99 * $tasa_bcv, 2, ',', '.') ?></span>
-                    </div>
-                </div>
-
-                <!-- Card 3 -->
-                <div class="min-w-[260px] flex-1 bg-white p-5 rounded-3xl shadow-[0_8px_20px_-10px_rgba(0,0,0,0.05)] border border-gray-50 snap-center hover:shadow-[0_20px_30px_-10px_rgba(37,99,235,0.15)] transition-all group">
-                    <div class="w-full h-36 bg-slate-50 rounded-2xl mb-4 overflow-hidden flex items-center justify-center p-2">
-                        <img src="https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=400&fit=crop" class="w-full h-full object-cover rounded-xl group-hover:scale-105 transition-transform duration-500" alt="Coca Cola">
-                    </div>
-                    <h3 class="text-[15px] font-bold text-slate-800 leading-tight mb-3">Refresco Coca-Cola (Lata)</h3>
-                    <div class="flex flex-col">
-                        <span class="text-2xl font-black text-[#2563eb] leading-none">$1.50</span>
-                        <span class="text-[11px] font-bold text-slate-400 mt-1">Bs. <?= number_format(1.50 * $tasa_bcv, 2, ',', '.') ?></span>
-                    </div>
-                </div>
-
-                <!-- Card 4 -->
-                <div class="min-w-[260px] flex-1 bg-white p-5 rounded-3xl shadow-[0_8px_20px_-10px_rgba(0,0,0,0.05)] border border-gray-50 snap-center hover:shadow-[0_20px_30px_-10px_rgba(37,99,235,0.15)] transition-all group hidden md:block">
-                    <div class="w-full h-36 bg-slate-50 rounded-2xl mb-4 overflow-hidden flex items-center justify-center p-2">
-                        <img src="https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400&fit=crop" class="w-full h-full object-cover rounded-xl group-hover:scale-105 transition-transform duration-500" alt="Hamburguesas">
-                    </div>
-                    <h3 class="text-[15px] font-bold text-slate-800 leading-tight mb-3">Pack Hamburguesas Gourmet</h3>
-                    <div class="flex flex-col">
-                        <span class="text-2xl font-black text-[#2563eb] leading-none">$14.90</span>
-                        <span class="text-[11px] font-bold text-slate-400 mt-1">Bs. <?= number_format(14.90 * $tasa_bcv, 2, ',', '.') ?></span>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-
-        <!-- ========================================== -->
-        <!-- SECCIÓN 4: FUNCIONALIDADES POTENTES -->
-        <!-- ========================================== -->
-        <section id="funcionalidades" class="w-full px-6 py-10 lg:px-16 bg-white/60 backdrop-blur-md">
-            <div class="text-center max-w-3xl mx-auto mb-10">
-                <h2 class="text-3xl sm:text-4xl font-black text-slate-800 mt-2 mb-4 uppercase tracking-tight reveal">FUNCIONALIDADES POTENTES</h2>
-                <p class="text-slate-600 text-lg font-medium">Todo lo que necesitas para operar, vender y crecer tu negocio, diseñado en una interfaz impecable.</p>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 max-w-[1400px] w-full mx-auto">
-                <!-- Func 1: Inventario -->
-                <div class="glass-float p-6 reveal rounded-[30px] flex flex-col hover:-translate-y-2 transition-transform duration-300">
-                    <div class="flex items-center gap-4 mb-4">
-                        <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#dbeafe] to-[#2563eb] flex items-center justify-center shadow-lg shadow-[#2563eb]/20 shrink-0">
-                            <i class="fas fa-boxes text-white text-xl"></i>
-                        </div>
-                        <h3 class="text-lg font-bold text-slate-800 leading-tight">Inventario</h3>
-                    </div>
-                    <p class="text-slate-600 text-sm font-medium leading-relaxed text-justify">Control total en tiempo real. Conoce exactamente qué tienes, qué te falta y qué se vende más. Evita pérdidas, optimiza tu stock de manera inteligente y toma decisiones basadas en datos reales.</p>
-                </div>
-                
-                <!-- Func 2: POS -->
-                <div class="glass-float p-6 reveal rounded-[30px] flex flex-col hover:-translate-y-2 transition-transform duration-300">
-                    <div class="flex items-center gap-4 mb-4">
-                        <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-100 to-blue-400 flex items-center justify-center shadow-lg shadow-blue-400/20 shrink-0">
-                            <i class="fas fa-cash-register text-white text-xl"></i>
-                        </div>
-                        <h3 class="text-lg font-bold text-slate-800 leading-tight">Punto de Venta (POS)</h3>
-                    </div>
-                    <p class="text-slate-600 text-sm font-medium leading-relaxed text-justify">Ventas rápidas, fluidas y sin complicaciones. Una interfaz moderna e intuitiva que agiliza tus cobros, mejora la experiencia de tus clientes y actualiza tu inventario al instante con cada transacción.</p>
-                </div>
-
-                <!-- Func 3: Compras -->
-                <div class="glass-float p-6 reveal rounded-[30px] flex flex-col hover:-translate-y-2 transition-transform duration-300">
-                    <div class="flex items-center gap-4 mb-4">
-                        <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-orange-100 to-orange-400 flex items-center justify-center shadow-lg shadow-orange-400/20 shrink-0">
-                            <i class="fas fa-shopping-cart text-white text-xl"></i>
-                        </div>
-                        <h3 class="text-lg font-bold text-slate-800 leading-tight">Compras</h3>
-                    </div>
-                    <p class="text-slate-600 text-sm font-medium leading-relaxed text-justify">Abastecimiento inteligente. Registra tus adquisiciones fácilmente, controla tus costos operativos y mantén el flujo de tus productos sin interrupciones para que nunca te quedes sin stock.</p>
-                </div>
-
-                <!-- Func 4: Proveedores -->
-                <div class="glass-float p-6 reveal rounded-[30px] flex flex-col hover:-translate-y-2 transition-transform duration-300">
-                    <div class="flex items-center gap-4 mb-4">
-                        <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-purple-100 to-purple-400 flex items-center justify-center shadow-lg shadow-purple-400/20 shrink-0">
-                            <i class="fas fa-truck text-white text-xl"></i>
-                        </div>
-                        <h3 class="text-lg font-bold text-slate-800 leading-tight">Proveedores</h3>
-                    </div>
-                    <p class="text-slate-600 text-sm font-medium leading-relaxed text-justify">Gestión centralizada de tus aliados. Mantén siempre a la mano el historial de compras, datos de contacto y cuentas por pagar. Construye relaciones comerciales sólidas y negocia mejor.</p>
-                </div>
-
-                <!-- Func 5: Clientes -->
-                <div class="glass-float p-6 reveal rounded-[30px] flex flex-col hover:-translate-y-2 transition-transform duration-300">
-                    <div class="flex items-center gap-4 mb-4">
-                        <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-pink-100 to-pink-400 flex items-center justify-center shadow-lg shadow-pink-400/20 shrink-0">
-                            <i class="fas fa-users text-white text-xl"></i>
-                        </div>
-                        <h3 class="text-lg font-bold text-slate-800 leading-tight">Clientes</h3>
-                    </div>
-                    <p class="text-slate-600 text-sm font-medium leading-relaxed text-justify">Conoce a quienes te hacen crecer. Crea perfiles, analiza historiales de compra y fomenta la fidelización ofreciendo un servicio personalizado que los haga volver a tu negocio.</p>
-                </div>
-
-                <!-- Func 6: Arqueo de Caja -->
-                <div class="glass-float p-6 reveal rounded-[30px] flex flex-col hover:-translate-y-2 transition-transform duration-300">
-                    <div class="flex items-center gap-4 mb-4">
-                        <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-yellow-100 to-yellow-400 flex items-center justify-center shadow-lg shadow-yellow-400/20 shrink-0">
-                            <i class="fas fa-calculator text-white text-xl"></i>
-                        </div>
-                        <h3 class="text-lg font-bold text-slate-800 leading-tight">Arqueo de Caja</h3>
-                    </div>
-                    <p class="text-slate-600 text-sm font-medium leading-relaxed text-justify">Cierres de turno transparentes y sin estrés. Cuadra tus ingresos diarios, detecta cualquier discrepancia de efectivo al instante y cierra tu jornada con la tranquilidad de que cada centavo está en su lugar.</p>
-                </div>
-
-                <!-- Func 7: Kardex -->
-                <div class="glass-float p-6 reveal rounded-[30px] flex flex-col hover:-translate-y-2 transition-transform duration-300">
-                    <div class="flex items-center gap-4 mb-4">
-                        <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-100 to-indigo-400 flex items-center justify-center shadow-lg shadow-indigo-400/20 shrink-0">
-                            <i class="fas fa-clipboard-list text-white text-xl"></i>
-                        </div>
-                        <h3 class="text-lg font-bold text-slate-800 leading-tight">Kardex</h3>
-                    </div>
-                    <p class="text-slate-600 text-sm font-medium leading-relaxed text-justify">La trazabilidad absoluta. El "historial médico" de tus productos. Un registro detallado que monitorea cada entrada, salida y movimiento físico de tu mercancía para evitar robos, extravíos o desajustes.</p>
-                </div>
-
-                <!-- Func 8: Tienda Online -->
-                <div class="glass-float p-6 reveal rounded-[30px] flex flex-col hover:-translate-y-2 transition-transform duration-300">
-                    <div class="flex items-center gap-4 mb-4">
-                        <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-brand-100 to-brand-400 flex items-center justify-center shadow-lg shadow-brand-400/20 shrink-0">
-                            <i class="fas fa-store text-white text-xl"></i>
-                        </div>
-                        <h3 class="text-lg font-bold text-slate-800 leading-tight">Tienda Online</h3>
-                    </div>
-                    <p class="text-slate-600 text-sm font-medium leading-relaxed text-justify">Tu negocio abierto 24/7. Lleva tus ventas al mundo digital con una plataforma de e-commerce integrada que se sincroniza automáticamente con tu inventario físico. Vende más allá de las fronteras de tu local.</p>
-                </div>
-            </div>
-        </section>
-
-
-        
-
-        <!-- ========================================== -->
-        <!-- SECCIÓN: DESCARGA APP (APK) - PagaPues -->
-        <!-- ========================================== -->
-        <section id="app-descarga" class="w-full relative overflow-hidden scroll-mt-20 py-24">
-            <!-- Fondo premium claro -->
-            <div class="absolute inset-0 bg-white/40 backdrop-blur-sm"></div>
-            
-            <!-- Efectos de luz traseros -->
-            <div class="absolute top-0 right-0 w-[600px] h-[600px] bg-[#2563eb]/20 rounded-full filter blur-[120px] pointer-events-none transform translate-x-1/3 -translate-y-1/3"></div>
-            <div class="absolute bottom-0 left-0 w-[500px] h-[500px] bg-teal-500/10 rounded-full filter blur-[100px] pointer-events-none transform -translate-x-1/3 translate-y-1/3"></div>
-
-            <div class="relative z-10 max-w-[1300px] mx-auto px-6 lg:px-16 flex flex-col lg:flex-row items-center gap-16">
-                
-                <!-- Columna Izquierda: Copy y CTA -->
-                <div class="w-full lg:w-1/2 flex flex-col reveal">
-                    <div class="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-[#2563eb]/10 border border-[#2563eb]/30 text-[#2563eb] font-bold text-xs uppercase tracking-widest mb-6 w-max">
-                        <i class="fab fa-android text-base"></i> App Exclusiva para Android
-                    </div>
-                    
-                    <h2 class="text-5xl sm:text-6xl lg:text-7xl font-black text-slate-800 tracking-tight mb-6 leading-[1.05] drop-shadow-xl">
-                        Paga<span class="text-[#2563eb]">Pues</span><br>
-                        <span class="text-transparent bg-clip-text bg-gradient-to-r from-[#2563eb] via-[#059669] to-[#2563eb] text-4xl sm:text-5xl lg:text-6xl">Nunca más te deban dinero.</span>
-                    </h2>
-                    
-                    <p class="text-slate-600 text-lg sm:text-xl font-medium leading-relaxed mb-10 text-justify">
-                        La app que tú necesitas para llevar el control total de tu emprendimiento. Funciona 100% sin internet, es multimoneda y tus datos están seguros en tu teléfono.
-                    </p>
-
-                    <!-- Beneficios Rápidos -->
-                    <div class="grid grid-cols-2 gap-4 mb-10">
-                        <div class="flex items-center gap-3 bg-white/60 shadow-sm p-4 rounded-2xl border border-gray-200">
-                            <div class="w-10 h-10 rounded-xl bg-green-500/20 text-green-600 flex items-center justify-center shrink-0">
-                                <i class="fab fa-whatsapp"></i>
-                            </div>
-                            <span class="text-slate-800 text-sm font-bold">Cobros por WhatsApp</span>
-                        </div>
-                        <div class="flex items-center gap-3 bg-white/60 shadow-sm p-4 rounded-2xl border border-gray-200">
-                            <div class="w-10 h-10 rounded-xl bg-blue-500/20 text-blue-600 flex items-center justify-center shrink-0">
-                                <i class="fas fa-wifi-slash"></i>
-                            </div>
-                            <span class="text-slate-800 text-sm font-bold">100% Offline</span>
-                        </div>
-                    </div>
-
-                    <!-- Botón de Descarga Principal -->
-                    <div class="flex flex-col items-center lg:items-start gap-4 w-full">
-                        <a href="<?= BASE_URL ?>assets/PagaPues.apk" download class="group relative w-full sm:w-auto bg-gradient-to-r from-[#2563eb] to-[#3b82f6] hover:from-[#1d4ed8] hover:to-[#2563eb] text-white font-black py-4 px-10 rounded-2xl transition-all duration-300 transform hover:scale-105 shadow-[0_15px_35px_-5px_rgba(37,99,235,0.6)] flex items-center justify-center gap-4 text-xl border border-white/10 overflow-hidden" data-evt="btn_descarga_apk">
-                            <div class="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-in-out"></div>
-                            <div class="relative z-10 flex items-center justify-center gap-4">
-                            <i class="fas fa-download text-2xl group-hover:animate-bounce"></i>
-                            <div class="text-left flex flex-col leading-tight">
-                                <span class="text-[10px] uppercase tracking-widest text-blue-200">Descarga Gratuita</span>
-                                <span>Instalar APK (<?= $apk_version ?>)</span>
-                            </div>
-                            </div>
-                        </a>
-                        
-                        <div class="flex flex-wrap items-center justify-center lg:justify-start gap-3 lg:gap-4 text-slate-500 text-xs font-bold uppercase tracking-wider w-full pl-2">
-                            <div class="flex items-center gap-1.5"><i class="fas fa-shield-alt text-emerald-500"></i> <?= $app_seguridad ?></div>
-                            <span class="hidden sm:inline">•</span>
-                            <div class="flex items-center gap-1.5"><i class="fab fa-android text-emerald-500"></i> Android 5+</div>
-                        </div>
-
-                        <!-- Panel de Ficha Técnica del APK -->
-                        <div class="w-full bg-white/80 backdrop-blur-sm rounded-xl p-4 border border-blue-50 text-xs mt-2 shadow-sm">
-                            <div class="grid grid-cols-2 gap-3 text-slate-600">
-                                <div><span class="font-bold text-slate-400 block mb-1">Versión</span> <span class="font-bold text-slate-800"><?= $apk_version ?></span></div>
-                                <div><span class="font-bold text-slate-400 block mb-1">Tamaño</span> <span class="font-bold text-slate-800"><?= $apk_size ?></span></div>
-                                <div><span class="font-bold text-slate-400 block mb-1">Actualizado</span> <span class="font-bold text-slate-800"><?= $apk_date ?></span></div>
-                                <div><span class="font-bold text-slate-400 block mb-1">Permisos</span> <span class="font-bold text-slate-800"><?= $apk_permissions ?></span></div>
-                            </div>
-                            <div class="mt-3 pt-3 border-t border-slate-100">
-                                <span class="font-bold text-slate-400 block mb-1">SHA-256 (Verificación)</span>
-                                <code class="text-[9px] text-slate-500 break-all font-mono bg-slate-50 p-1.5 rounded block text-center border border-slate-100"><?= $apk_hash ?></code>
-                            </div>
-                        </div>
-
-                        <!-- QR Code de Descarga -->
-                        <div class="flex items-center gap-4 mt-2 bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
-                            <div class="relative shrink-0">
-                                <div class="w-[120px] h-[120px] flex items-center justify-center bg-white rounded-xl overflow-hidden p-1 border border-slate-100">
-                                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=<?= urlencode(BASE_URL . 'assets/PagaPues.apk') ?>" alt="QR Code PagaPues" class="w-full h-full object-contain">
-                                </div>
-                            </div>
-                            <div class="flex flex-col">
-                                <span class="text-sm font-black text-slate-800">Escanea el QR</span>
-                                <span class="text-xs text-slate-500 font-medium">Apunta la cámara de tu teléfono para descargar la app</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Columna Derecha: Mockup 3D App -->
-                <div class="w-full lg:w-1/2 flex justify-center lg:justify-end reveal delay-200 apk-mockup-wrapper relative">
-                    <!-- Badge Premium Flotante -->
-                    <div class="absolute -left-10 top-10 bg-white/90 backdrop-blur-md p-4 rounded-2xl shadow-2xl z-30 transform -rotate-6 animate-float-slow hidden md:flex items-center gap-3 border border-gray-100">
-                        <div class="w-12 h-12 bg-emerald-500 rounded-full flex items-center justify-center text-white text-xl shadow-[0_0_15px_rgba(16,185,129,0.5)]">
-                            <i class="fas fa-shield-check"></i>
-                        </div>
-                        <div class="flex flex-col">
-                            <span class="text-slate-800 font-black text-sm uppercase tracking-wide">100% Seguro</span>
-                            <span class="text-emerald-600 font-bold text-xs">Libre de Virus</span>
-                        </div>
-                    </div>
-
-                    <div class="w-[280px] h-[580px] lg:w-[320px] lg:h-[650px]">
-                        <div class="apk-phone-mockup">
-                            <!-- Pantalla de la App (Simulada con CSS/HTML) -->
-                            <div class="w-full h-full bg-[#f8fafc] flex flex-col pt-12 relative overflow-hidden">
-                                <!-- App Header -->
-                                <div class="bg-gradient-to-b from-[#0f172a] to-[#1e293b] text-white px-5 py-6 rounded-b-[2rem] shadow-md relative z-10 flex flex-col border-b border-white/5">
-                                    <div class="flex justify-between items-center mb-4">
-                                        <div>
-                                            <span class="text-xs text-slate-400 font-bold block mb-1">Hola, Vendedor</span>
-                                            <span class="text-xl font-black">PagaPues App</span>
-                                        </div>
-                                        <div class="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center">
-                                            <i class="fas fa-user"></i>
-                                        </div>
-                                    </div>
-                                    
-                                    <!-- Balance Card -->
-                                    <div class="bg-gradient-to-r from-emerald-500 to-teal-400 p-4 rounded-2xl shadow-lg mt-2 relative overflow-hidden">
-                                        <div class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl transform translate-x-1/2 -translate-y-1/2"></div>
-                                        <span class="text-white/80 text-xs font-bold uppercase tracking-wider mb-1 block">Saldo por cobrar</span>
-                                        <div class="flex items-end gap-1.5">
-                                            <span class="text-3xl font-black">$4,500</span>
-                                            <span class="text-sm font-bold text-white/80 pb-1">.00</span>
-                                            <span class="text-[10px] font-bold text-emerald-100 bg-black/20 px-2 py-1 rounded-md mb-1 ml-1 whitespace-nowrap">Bs. <?= number_format(4500 * ($tasa_bcv ?? 36.5), 2, ',', '.') ?></span>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <!-- App Content -->
-                                <div class="flex-1 p-5 -mt-4 bg-[#f8fafc]">
-                                    <div class="flex justify-between items-center mb-4 pt-4">
-                                        <h3 class="font-bold text-slate-800 text-sm">Cobros Pendientes</h3>
-                                        <span class="text-[#2563eb] text-xs font-bold">Ver todos</span>
-                                    </div>
-                                    
-                                    <div class="space-y-3">
-                                        <div class="bg-white p-3.5 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between">
-                                            <div class="flex items-center gap-3">
-                                                <div class="w-10 h-10 bg-rose-100 text-rose-600 rounded-full flex items-center justify-center font-black">
-                                                    CR
-                                                </div>
-                                                <div class="flex flex-col">
-                                                    <span class="font-bold text-sm text-slate-800">Carlos Romero</span>
-                                                    <span class="text-xs text-slate-400">Hace 2 días</span>
-                                                </div>
-                                            </div>
-                                            <div class="flex flex-col items-end">
-                                                <span class="font-black text-rose-500">$120.00</span>
-                                                <span class="text-[10px] font-bold text-slate-400">Bs. <?= number_format(120.00 * $tasa_bcv, 2, ',', '.') ?></span>
-                                            </div>
-                                        </div>
-                                        <div class="bg-white p-3.5 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between">
-                                            <div class="flex items-center gap-3">
-                                                <div class="w-10 h-10 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center font-black">
-                                                    MG
-                                                </div>
-                                                <div class="flex flex-col">
-                                                    <span class="font-bold text-sm text-slate-800">María González</span>
-                                                    <span class="text-xs text-slate-400">Hoy, 10:00 AM</span>
-                                                </div>
-                                            </div>
-                                            <div class="flex flex-col items-end">
-                                                <span class="font-black text-amber-500">$45.50</span>
-                                                <span class="text-[10px] font-bold text-slate-400">Bs. <?= number_format(45.50 * $tasa_bcv, 2, ',', '.') ?></span>
-                                            </div>
-                                        </div>
-                                        <div class="bg-white p-3.5 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between opacity-50">
-                                            <div class="flex items-center gap-3">
-                                                <div class="w-10 h-10 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center font-black">
-                                                    JL
-                                                </div>
-                                                <div class="flex flex-col">
-                                                    <span class="font-bold text-sm text-slate-800">José López</span>
-                                                    <span class="text-xs text-emerald-500"><i class="fas fa-check-circle"></i> Pagado</span>
-                                                </div>
-                                            </div>
-                                            <div class="flex flex-col items-end">
-                                                <span class="font-black text-emerald-500">$300.00</span>
-                                                <span class="text-[10px] font-bold text-slate-400">Bs. <?= number_format(300.00 * $tasa_bcv, 2, ',', '.') ?></span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    <!-- Send WhatsApp button fake -->
-                                    <div class="mt-6">
-                                        <div class="bg-[#25D366] text-white text-center py-3.5 rounded-xl font-bold shadow-md shadow-[#25D366]/30 flex items-center justify-center gap-2">
-                                            <i class="fab fa-whatsapp text-lg"></i> Enviar Recordatorio
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <!-- App Bottom Nav -->
-                                <div class="bg-white border-t border-gray-100 py-4 px-6 flex justify-between items-center mt-auto">
-                                    <div class="text-[#2563eb] flex flex-col items-center"><i class="fas fa-home text-xl mb-1"></i><span class="text-[9px] font-bold">Inicio</span></div>
-                                    <div class="text-slate-400 flex flex-col items-center"><i class="fas fa-users text-xl mb-1"></i><span class="text-[9px] font-bold">Clientes</span></div>
-                                    <div class="text-slate-400 flex flex-col items-center"><i class="fas fa-chart-pie text-xl mb-1"></i><span class="text-[9px] font-bold">Reportes</span></div>
-                                    <div class="text-slate-400 flex flex-col items-center"><i class="fas fa-cog text-xl mb-1"></i><span class="text-[9px] font-bold">Ajustes</span></div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Franja Instrucciones -->
-            <div class="relative z-10 max-w-[1300px] mx-auto mt-24 px-6 lg:px-16 reveal delay-100">
-                <div class="bg-white/60 shadow-sm border border-gray-200 rounded-[30px] p-8 lg:p-10 flex flex-col lg:flex-row items-center gap-8 justify-between">
-                    <div class="flex-1">
-                        <h3 class="text-2xl font-black text-slate-800 mb-2">Instalación Fácil (APK)</h3>
-                        <p class="text-slate-600 text-sm">Sigue estos pasos rápidos para tener PagaPues en tu Android.</p>
-                    </div>
-                    
-                    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-center gap-5 lg:gap-8 flex-1 w-full">
-                        <div class="flex items-center gap-3">
-                            <div class="w-8 h-8 rounded-full bg-[#2563eb] text-white flex items-center justify-center font-black text-sm shrink-0">1</div>
-                            <span class="text-slate-700 text-sm font-bold">Descarga el APK</span>
-                        </div>
-                        <i class="fas fa-chevron-right text-slate-400 hidden sm:block"></i>
-                        <div class="flex items-center gap-3">
-                            <div class="w-8 h-8 rounded-full bg-[#2563eb] text-white flex items-center justify-center font-black text-sm shrink-0">2</div>
-                            <span class="text-slate-700 text-sm font-bold">Acepta la instalación</span>
-                        </div>
-                        <i class="fas fa-chevron-right text-slate-400 hidden sm:block"></i>
-                        <div class="flex items-center gap-3">
-                            <div class="w-8 h-8 rounded-full bg-[#2563eb] text-white flex items-center justify-center font-black text-sm shrink-0">3</div>
-                            <span class="text-slate-700 text-sm font-bold">Autoriza fuentes</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- ========================================== -->
-        <!-- SECCIÓN DE PRECIOS -->
-        <!-- ========================================== -->
-        <section id="precio" class="w-full px-6 py-20 lg:px-16 bg-white relative scroll-mt-20">
-            <div class="max-w-7xl mx-auto flex flex-col items-center">
-                <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-50 border border-blue-100 text-blue-700 text-xs font-bold mb-6">
-                    <i class="fas fa-tag text-amber-500"></i> Transparente y Accesible
-                </div>
-                <h2 class="text-3xl lg:text-5xl font-black text-slate-800 text-center mb-4 tracking-tight">Un Solo Plan, <span class="text-[#2563eb]">Todo Incluido</span></h2>
-                <p class="text-lg text-slate-600 text-center max-w-2xl mb-12 font-medium">Sin letras pequeñas, sin comisiones ocultas. Todo el poder de TuInventario a un precio que tu negocio sí puede pagar.</p>
-                
-                <div class="w-full max-w-md relative reveal">
-                    <!-- Glow background -->
-                    <div class="absolute -inset-1 bg-gradient-to-r from-[#2563eb] to-teal-400 rounded-3xl blur opacity-30"></div>
-                    
-                    <div class="relative bg-white/80 backdrop-blur-xl border border-gray-100 shadow-2xl rounded-3xl p-8 flex flex-col items-center">
-                        <div class="bg-[#2563eb]/10 text-[#2563eb] px-4 py-1.5 rounded-full text-sm font-bold mb-6">Plan Profesional</div>
-                        <div class="flex items-baseline gap-1 text-slate-800 mb-2">
-                            <span class="text-4xl font-black">$</span>
-                            <span class="text-7xl font-black tracking-tighter"><?= $plan_precio ?></span>
-                            <span class="text-lg font-bold text-slate-500">/mes</span>
-                        </div>
-                        <div class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-8">Facturado Mensualmente</div>
-                        
-                        <div class="w-full flex flex-col gap-4 mb-10">
-                            <div class="flex items-center gap-3"><i class="fas fa-check-circle text-emerald-500 text-lg"></i> <span class="text-slate-700 font-medium">Punto de Venta (POS) ilimitado</span></div>
-                            <div class="flex items-center gap-3"><i class="fas fa-check-circle text-emerald-500 text-lg"></i> <span class="text-slate-700 font-medium">Control de Inventario y Kardex</span></div>
-                            <div class="flex items-center gap-3"><i class="fas fa-check-circle text-emerald-500 text-lg"></i> <span class="text-slate-700 font-medium">Gestión de Clientes y Proveedores</span></div>
-                            <div class="flex items-center gap-3"><i class="fas fa-check-circle text-emerald-500 text-lg"></i> <span class="text-slate-700 font-medium">Facturación y Reportes avanzados</span></div>
-                            <div class="flex items-center gap-3"><i class="fas fa-check-circle text-emerald-500 text-lg"></i> <span class="text-slate-700 font-medium">Catálogo / Menú QR Online</span></div>
-                            <div class="flex items-center gap-3"><i class="fas fa-check-circle text-emerald-500 text-lg"></i> <span class="text-slate-700 font-medium"><?= $soporte_horario ?></span></div>
-                        </div>
-                        
-                        <button onclick="document.getElementById('login-modal').classList.remove('hidden'); document.getElementById('login-modal').classList.add('flex')" class="w-full bg-[#2563eb] hover:bg-[#1d4ed8] text-white font-black py-4 rounded-xl text-lg shadow-lg transform transition-all hover:-translate-y-1" data-evt="btn_precio_registrate">
-                            Comenzar Ahora
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- ========================================== -->
-        <!-- SECCIÓN DE PREGUNTAS FRECUENTES (FAQ) -->
-        <!-- ========================================== -->
-        <section id="faq" class="w-full px-6 py-20 lg:px-16 bg-slate-50 relative scroll-mt-20">
-            <div class="max-w-4xl mx-auto flex flex-col items-center">
-                <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-200 border border-slate-300 text-slate-700 text-xs font-bold mb-6">
-                    <i class="fas fa-question-circle text-[#2563eb]"></i> Dudas Resueltas
-                </div>
-                <h2 class="text-3xl lg:text-4xl font-black text-slate-800 text-center mb-10 tracking-tight">Preguntas <span class="text-[#2563eb]">Frecuentes</span></h2>
-                
-                <div class="w-full space-y-4 reveal">
-                    <!-- FAQ 1 -->
-                    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden transition-all hover:shadow-md">
-                        <button class="faq-btn w-full px-6 py-5 flex items-center justify-between text-left focus:outline-none" onclick="toggleFaq(this)">
-                            <span class="font-bold text-slate-800 text-lg">¿Puedo usar el sistema en mi teléfono?</span>
-                            <i class="fas fa-chevron-down text-[#2563eb] transition-transform duration-300 transform"></i>
-                        </button>
-                        <div class="faq-content hidden px-6 pb-5 text-slate-600 font-medium leading-relaxed border-t border-slate-50 pt-4">
-                            Sí. Puedes usar la versión web responsiva desde cualquier navegador móvil, o instalar nuestra App Nativa (APK) en dispositivos Android para una experiencia más fluida, ideal para vendedores de piso o repartidores.
-                        </div>
-                    </div>
-                    <!-- FAQ 2 -->
-                    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden transition-all hover:shadow-md">
-                        <button class="faq-btn w-full px-6 py-5 flex items-center justify-between text-left focus:outline-none" onclick="toggleFaq(this)">
-                            <span class="font-bold text-slate-800 text-lg">¿Cómo funciona el pago de la suscripción?</span>
-                            <i class="fas fa-chevron-down text-[#2563eb] transition-transform duration-300 transform"></i>
-                        </button>
-                        <div class="faq-content hidden px-6 pb-5 text-slate-600 font-medium leading-relaxed border-t border-slate-50 pt-4">
-                            El costo es de solo <strong>$<?= $plan_precio ?> al mes</strong>. Aceptamos múltiples métodos de pago, incluyendo Pago Móvil, Binance Pay y Zelle. El sistema calcula automáticamente la tasa BCV del día ($<?= $tasa_bcv ?>) si decides pagar en bolívares.
-                        </div>
-                    </div>
-                    <!-- FAQ 3 -->
-                    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden transition-all hover:shadow-md">
-                        <button class="faq-btn w-full px-6 py-5 flex items-center justify-between text-left focus:outline-none" onclick="toggleFaq(this)">
-                            <span class="font-bold text-slate-800 text-lg">¿Hay límite de productos o clientes?</span>
-                            <i class="fas fa-chevron-down text-[#2563eb] transition-transform duration-300 transform"></i>
-                        </button>
-                        <div class="faq-content hidden px-6 pb-5 text-slate-600 font-medium leading-relaxed border-t border-slate-50 pt-4">
-                            No. Nuestro plan de $<?= $plan_precio ?> es verdaderamente ilimitado. Puedes registrar tantos productos, categorías, clientes y ventas como tu negocio necesite sin pagar de más.
-                        </div>
-                    </div>
-                    <!-- FAQ 4 -->
-                    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden transition-all hover:shadow-md">
-                        <button class="faq-btn w-full px-6 py-5 flex items-center justify-between text-left focus:outline-none" onclick="toggleFaq(this)">
-                            <span class="font-bold text-slate-800 text-lg">¿Qué pasa con mis datos si decido cancelar?</span>
-                            <i class="fas fa-chevron-down text-[#2563eb] transition-transform duration-300 transform"></i>
-                        </button>
-                        <div class="faq-content hidden px-6 pb-5 text-slate-600 font-medium leading-relaxed border-t border-slate-50 pt-4">
-                            Tus datos son tuyos. Puedes exportar todo tu inventario, clientes y reportes a Excel en cualquier momento. Si no renuevas tu suscripción, tu cuenta entra en modo "solo lectura" y luego de un periodo de gracia prolongado podría depurarse.
-                        </div>
-                    </div>
-                </div>
-
-                <script>
-                    function toggleFaq(btn) {
-                        const content = btn.nextElementSibling;
-                        const icon = btn.querySelector('i');
-                        
-                        // Cerrar otros
-                        document.querySelectorAll('.faq-content').forEach(c => {
-                            if (c !== content && !c.classList.contains('hidden')) {
-                                c.classList.add('hidden');
-                                c.previousElementSibling.querySelector('i').classList.remove('rotate-180');
-                            }
-                        });
-                        
-                        // Si está oculto, lo mostramos
-                        if (content.classList.contains('hidden')) {
-                            content.classList.remove('hidden');
-                            icon.classList.add('rotate-180');
-                        } else {
-                            content.classList.add('hidden');
-                            icon.classList.remove('rotate-180');
-                        }
-                    }
-                </script>
-            </div>
-        </section>
-
-        <!-- ========================================== -->
-        <!-- SECCIÓN 6: CONTACTO & CTA -->
-        <!-- ========================================== -->
-        <section id="contacto" class="w-full px-6 py-20 lg:px-16 bg-gradient-to-b from-[#0c1a16] to-[#ebfbf1] relative overflow-hidden scroll-mt-20">
-            <!-- Glow decorativo -->
-            <div class="hidden md:block absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-[#2563eb]/15 filter blur-[120px] rounded-full pointer-events-none z-0"></div>
-
-            <div class="max-w-[1000px] mx-auto relative z-10 glass-panel p-8 sm:p-12 md:p-16 rounded-[40px] border border-white/40 shadow-2xl text-center">
-                <!-- Icono decorativo -->
-                <div class="w-16 h-16 bg-[#2563eb]/10 text-[#2563eb] rounded-3xl flex items-center justify-center mx-auto mb-6 text-2xl shadow-inner animate-float-slow">
-                    <i class="fas fa-paper-plane"></i>
-                </div>
-
-                <h2 class="text-4xl sm:text-6xl font-black text-slate-900 tracking-tight mb-6">
-                    Moderniza tu negocio hoy mismo
-                </h2>
-                
-                <p class="text-slate-600 text-xl sm:text-2xl font-medium max-w-3xl mx-auto leading-relaxed mb-12">
-                    Deja atrás los procesos manuales, el desorden y las pérdidas. Únete a <span class="text-[#2563eb] font-bold">Tu Inventario</span> y dale a tu empresa la tecnología que merece para escalar sin límites.
-                </p>
-
-                <!-- Canales de contacto directos -->
-                <div class="flex flex-col sm:flex-row items-center justify-center gap-6 sm:gap-10 max-w-4xl mx-auto">
-                    <!-- WhatsApp Button -->
-                    <a href="https://wa.me/584145176772" target="_blank" class="btn-whatsapp-premium w-full sm:w-[320px] font-black py-5 rounded-full flex items-center justify-center gap-4 text-xl tracking-wide" data-evt="btn_contacto_whatsapp">
-                        <i class="fab fa-whatsapp text-3xl"></i> <span>WhatsApp</span>
-                    </a>
-
-                    <!-- Telegram Button -->
-                    <a href="https://t.me/MaomOllarves" target="_blank" class="btn-telegram-premium w-full sm:w-[320px] font-black py-5 rounded-full flex items-center justify-center gap-4 text-xl tracking-wide" data-evt="btn_contacto_telegram">
-                        <i class="fab fa-telegram-plane text-3xl"></i> <span>Telegram</span>
-                    </a>
-                </div>
-            </div>
-        </section>
-
-
-        <!-- ========================================== -->
-        <!-- SECCIÓN 8: PIE DE PÁGINA (FOOTER) -->
-        <!-- ========================================== -->
-        <footer class="w-full px-6 py-12 lg:px-16 bg-[#dbeafe]/20 border-t border-white/50 mt-auto rounded-b-[40px]">
-            <div class="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-8">
-                <!-- Logo & Copyright -->
-                <div class="flex flex-col items-center md:items-start">
-                    <div class="flex items-center gap-2 mb-2">
-                        <img src="<?= BASE_URL ?>?serve_logo=1" alt="Logo" class="w-6 h-6 object-contain grayscale opacity-70">
-                        <span class="text-xl font-black text-slate-800 tracking-tight">Tu<span class="text-[#2563eb]">Inventario</span></span>
-                    </div>
-                    <p class="text-sm font-medium text-slate-500">© 2026 Tu Inventario. Todos los derechos reservados.</p>
-                </div>
-                
-                <!-- Links Rapidos (Solo Términos y Privacidad) -->
-                <div class="flex gap-6 text-sm font-semibold text-slate-600">
-                    <button onclick="document.getElementById('terms-modal').classList.remove('hidden'); document.getElementById('terms-modal').classList.add('flex')" class="hover:text-[#2563eb] transition-colors focus:outline-none cursor-pointer">Términos y Condiciones</button>
-                    <button onclick="document.getElementById('privacy-modal').classList.remove('hidden'); document.getElementById('privacy-modal').classList.add('flex')" class="hover:text-[#2563eb] transition-colors focus:outline-none cursor-pointer">Políticas de Privacidad</button>
-                </div>
-            </div>
-        </footer>
-
-    </div>
-
-    <!-- Modal Iniciar Sesión (UI) -->
-    <div id="login-modal" class="hidden fixed inset-0 z-[200] items-end sm:items-center justify-center p-0 sm:p-4">
-        <!-- Backdrop -->
-        <div class="absolute inset-0 bg-slate-900/40 backdrop-blur-md transition-opacity" onclick="document.getElementById('login-modal').classList.add('hidden'); document.getElementById('login-modal').classList.remove('flex')"></div>
-        
-        <!-- Modal Content (Bottom Sheet on Mobile, Centered Modal on Desktop) -->
-        <div class="relative bg-white/95 backdrop-blur-2xl w-full sm:w-[90%] max-w-md rounded-t-[2rem] sm:rounded-[2rem] rounded-b-none sm:rounded-b-[2rem] shadow-[0_-10px_40px_rgba(0,0,0,0.1)] sm:shadow-2xl p-6 sm:p-8 pb-10 sm:pb-8 z-10 animate-[slideUpBottomSheet_0.4s_cubic-bezier(0.16,1,0.3,1)] sm:animate-[scaleUpModal_0.3s_cubic-bezier(0.16,1,0.3,1)] border border-white">
-            
-            <!-- Mobile Drag Handle -->
-            <div class="w-12 h-1.5 bg-slate-200 rounded-full mx-auto mb-6 sm:hidden"></div>
-
-            <button onclick="document.getElementById('login-modal').classList.add('hidden'); document.getElementById('login-modal').classList.remove('flex')" class="modal-close absolute top-5 right-5 sm:flex hidden w-8 h-8 items-center justify-center bg-slate-100 hover:bg-slate-200 text-slate-500 rounded-full transition-colors z-10 focus:outline-none">
-                <i class="fas fa-times text-sm"></i>
-            </button>
-            
-            <div class="text-center mb-8 mt-2 sm:mt-0">
-                <div class="w-20 h-20 bg-gradient-to-tr from-teal-50 to-teal-100/50 rounded-3xl mx-auto flex items-center justify-center mb-5 shadow-[inset_0_2px_10px_rgba(255,255,255,1),0_5px_15px_-3px_rgba(37,99,235,0.15)] ring-1 ring-teal-900/5">
-                    <img src="<?= BASE_URL ?>?serve_logo=1" alt="Logo" class="w-12 h-12 object-contain drop-shadow-sm">
-                </div>
-                <h3 class="text-3xl font-black text-slate-800 tracking-tight">Bienvenido</h3>
-                <p class="text-slate-500 font-medium text-base mt-2">Ingresa a tu panel de control</p>
-            </div>
-            
-            <form action="<?= BASE_URL ?>auth/login" method="POST" class="space-y-5" id="loginForm">
-                <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?? '' ?>">
-                <input type="hidden" name="fingerprint" id="fingerprint">
-                <input type="hidden" name="geolocation" id="geolocation">
-                
-                <?php if (!empty($_SESSION['login_error'])): ?>
-                    <div class="bg-red-50 text-red-600 p-3.5 rounded-2xl text-sm font-semibold mb-4 text-center border border-red-100 shadow-sm">
-                        <?= $_SESSION['login_error'] ?>
-                    </div>
-                    <button type="submit" name="force_close" value="1" class="w-full mb-4 bg-amber-50 hover:bg-amber-100 text-amber-600 border border-amber-200 font-bold py-3 rounded-2xl transition-colors text-sm flex items-center justify-center gap-2 cursor-pointer shadow-sm">
-                        <i class="fas fa-power-off"></i> Cerrar sesión remota e iniciar aquí
-                    </button>
-                    <?php unset($_SESSION['login_error']); ?>
-                <?php endif; ?>
-                
-                <div>
-                    <label class="block text-sm font-bold text-slate-700 mb-1.5 ml-1">Cédula de Identidad</label>
-                    <div class="relative">
-                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
-                            <i class="far fa-id-card text-lg"></i>
-                        </div>
-                        <input type="text" name="username" required maxlength="9" inputmode="numeric" pattern="[0-9]*" oninput="this.value = this.value.replace(/[^0-9]/g, ''); if(this.value.length > 9) this.value = this.value.slice(0,9);" class="w-full bg-slate-50/50 border-2 border-slate-100 text-slate-800 rounded-2xl focus:bg-white focus:ring-0 focus:border-[#2563eb] block p-3.5 pl-12 outline-none transition-all font-semibold text-lg shadow-sm" placeholder="12345678">
-                    </div>
-                </div>
-                <div>
-                    <div class="flex justify-between items-center mb-1.5 ml-1 mr-1">
-                        <label class="block text-sm font-bold text-slate-700">Contraseña</label>
-                        <a href="#" class="text-xs font-bold text-[#2563eb] hover:text-teal-700 transition-colors">¿Olvidaste tu contraseña?</a>
-                    </div>
-                    <div class="relative">
-                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
-                            <i class="fas fa-lock text-lg"></i>
-                        </div>
-                        <input type="password" id="login_password" name="password" required class="w-full bg-slate-50/50 border-2 border-slate-100 text-slate-800 rounded-2xl focus:bg-white focus:ring-0 focus:border-[#2563eb] block p-3.5 pl-12 pr-12 outline-none transition-all font-bold text-lg shadow-sm tracking-widest placeholder:tracking-normal" placeholder="••••••••">
-                        <button type="button" onclick="const p = document.getElementById('login_password'); const i = this.querySelector('i'); if(p.type === 'password'){ p.type = 'text'; i.classList.remove('fa-eye'); i.classList.add('fa-eye-slash'); p.classList.remove('tracking-widest'); } else { p.type = 'password'; i.classList.remove('fa-eye-slash'); i.classList.add('fa-eye'); p.classList.add('tracking-widest'); }" class="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-400 hover:text-[#2563eb] transition-colors focus:outline-none">
-                            <i class="fas fa-eye text-lg"></i>
-                        </button>
-                    </div>
-                </div>
-                
-                <button type="submit" class="w-full text-white font-bold py-4 rounded-2xl transition-all shadow-[0_8px_25px_-8px_rgba(37,99,235,0.6)] transform hover:-translate-y-1 text-lg flex items-center justify-center gap-2 mt-2" style="background: linear-gradient(to right, #2563eb, #0ea5e9);">
-                    Ingresar <i class="fas fa-arrow-right text-sm"></i>
-                </button>
-            </form>
-
-            <!-- Fingerprint y Geolocation simplificados para evitar bloqueos y errores 408 -->
-            <script defer>
-                // Generar un ID básico local si se requiere, sin bloqueos externos
-                try {
-                    let fp = localStorage.getItem('local_device_fp');
-                    if(!fp) { fp = Math.random().toString(36).substring(2) + Date.now().toString(36); localStorage.setItem('local_device_fp', fp); }
-                    document.getElementById('fingerprint').value = fp;
-                } catch(e) {}
-            </script>
-            
-            <div class="mt-6 text-center text-sm font-medium text-slate-500">
-                ¿No tienes una cuenta? <a href="<?= BASE_URL ?>auth/register" class="text-[#2563eb] font-bold hover:underline">Regístrate gratis</a>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal Términos y Condiciones -->
-    <div id="terms-modal" class="hidden fixed inset-0 z-[200] items-center justify-center">
-        <!-- Backdrop -->
-        <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onclick="document.getElementById('terms-modal').classList.add('hidden'); document.getElementById('terms-modal').classList.remove('flex')"></div>
-        
-        <!-- Modal Content -->
-        <div class="relative bg-white w-[95%] max-w-2xl max-h-[85vh] rounded-[30px] shadow-2xl p-8 md:p-10 z-10 overflow-y-auto flex flex-col">
-            <button onclick="document.getElementById('terms-modal').classList.add('hidden'); document.getElementById('terms-modal').classList.remove('flex')" class="modal-close absolute top-4 right-4 z-10">
-                <i class="fas fa-times"></i>
-            </button>
-            
-            <div class="flex items-center gap-3 mb-6">
-                <div class="w-12 h-12 rounded-2xl bg-teal-50 text-[#2563eb] flex items-center justify-center text-xl">
-                    <i class="fas fa-file-contract"></i>
-                </div>
-                <h3 class="text-2xl font-black text-slate-800">Términos y Condiciones</h3>
-            </div>
-
-            <div class="text-slate-600 space-y-4 text-sm sm:text-base leading-relaxed pr-2 overflow-y-auto text-justify">
-                <p class="font-bold text-slate-800">1. Aceptación de los Términos</p>
-                <p>Al acceder y utilizar la plataforma <strong>Tu Inventario</strong>, usted acepta y se obliga a cumplir con los presentes Términos y Condiciones de Uso. Si no está de acuerdo con alguna parte, no deberá utilizar nuestros servicios.</p>
-
-                <p class="font-bold text-slate-800">2. Descripción del Servicio</p>
-                <p>Tu Inventario proporciona una plataforma en la nube para la gestión de inventario, punto de venta (POS), facturación, control de créditos, reportes financieros y e-commerce. Nos reservamos el derecho de modificar o discontinuar el servicio en cualquier momento.</p>
-
-                <p class="font-bold text-slate-800">3. Registro de Cuenta y Seguridad</p>
-                <p>Para utilizar las funciones de la plataforma, debe registrarse y mantener una cuenta activa. Usted es responsable de mantener la confidencialidad de su contraseña y de todas las actividades que ocurran bajo su cuenta.</p>
-
-                <p class="font-bold text-slate-800">4. Propiedad Intelectual</p>
-                <p>Todo el contenido de la plataforma, incluyendo software, logos, diseños, textos y gráficos, está protegido por derechos de propiedad intelectual propiedad de Tu Inventario. Queda prohibida su reproducción o distribución sin autorización previa.</p>
-
-                <p class="font-bold text-slate-800">5. Limitación de Responsabilidad</p>
-                <p>Tu Inventario no se hace responsable por pérdidas de datos, lucro cesante o daños indirectos resultantes de fallos técnicos, mal uso de la plataforma por parte del usuario o interrupciones en el servicio de internet.</p>
-            </div>
-
-            <div class="mt-8 pt-4 border-t border-gray-100 flex justify-end">
-                <button onclick="document.getElementById('terms-modal').classList.add('hidden'); document.getElementById('terms-modal').classList.remove('flex')" class="bg-[#2563eb] hover:bg-[#1d4ed8] text-white font-bold py-2.5 px-6 rounded-full transition-all text-sm focus:outline-none cursor-pointer">
-                    Entendido
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal Políticas de Privacidad -->
-    <div id="privacy-modal" class="hidden fixed inset-0 z-[200] items-center justify-center">
-        <!-- Backdrop -->
-        <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onclick="document.getElementById('privacy-modal').classList.add('hidden'); document.getElementById('privacy-modal').classList.remove('flex')"></div>
-        
-        <!-- Modal Content -->
-        <div class="relative bg-white w-[95%] max-w-2xl max-h-[85vh] rounded-[30px] shadow-2xl p-8 md:p-10 z-10 overflow-y-auto flex flex-col">
-            <button onclick="document.getElementById('privacy-modal').classList.add('hidden'); document.getElementById('privacy-modal').classList.remove('flex')" class="modal-close absolute top-4 right-4 z-10">
-                <i class="fas fa-times"></i>
-            </button>
-            
-            <div class="flex items-center gap-3 mb-6">
-                <div class="w-12 h-12 rounded-2xl bg-teal-50 text-[#2563eb] flex items-center justify-center text-xl">
-                    <i class="fas fa-shield-alt"></i>
-                </div>
-                <h3 class="text-2xl font-black text-slate-800">Políticas de Privacidad</h3>
-            </div>
-
-            <div class="text-slate-600 space-y-4 text-sm sm:text-base leading-relaxed pr-2 overflow-y-auto text-justify">
-                <p class="font-bold text-slate-800">1. Información que Recopilamos</p>
-                <p>Recopilamos información personal necesaria para el funcionamiento de su cuenta (nombre, correo electrónico, teléfono) e información comercial relacionada con su negocio (productos, precios, transacciones, clientes) para proveer nuestros servicios de gestión.</p>
-
-                <p class="font-bold text-slate-800">2. Uso de la Información</p>
-                <p>La información recopilada se utiliza exclusivamente para: proveer y mantener la plataforma, personalizar su experiencia, procesar ventas y facturas, generar reportes de rendimiento y enviarle notificaciones críticas de la cuenta.</p>
-
-                <p class="font-bold text-slate-800">3. Protección y Seguridad de Datos</p>
-                <p>Implementamos medidas de seguridad técnicas, administrativas y físicas de primer nivel (incluyendo encriptación SSL y copias de seguridad automáticas) para proteger sus datos contra acceso no autorizado, alteración o pérdida.</p>
-
-                <p class="font-bold text-slate-800">4. Confidencialidad y Compartición de Datos</p>
-                <p>Tu Inventario garantiza que bajo ninguna circunstancia venderá, rentará ni compartirá sus datos comerciales o personales con terceros, excepto bajo requerimiento legal explícito.</p>
-
-                <p class="font-bold text-slate-800">5. Derechos del Usuario</p>
-                <p>Usted conserva todos los derechos sobre sus datos, incluyendo el derecho a exportar toda la información de su negocio (inventario, clientes, ventas) o solicitar la eliminación total de su cuenta y sus registros asociados en cualquier momento.</p>
-            </div>
-
-            <div class="mt-8 pt-4 border-t border-gray-100 flex justify-end">
-                <button onclick="document.getElementById('privacy-modal').classList.add('hidden'); document.getElementById('privacy-modal').classList.remove('flex')" class="bg-[#2563eb] hover:bg-[#1d4ed8] text-white font-bold py-2.5 px-6 rounded-full transition-all text-sm focus:outline-none cursor-pointer">
-                    Entendido
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Script para Menú Móvil -->
-    <script>
-        document.body.addEventListener('submit', function(e) {
-            var form = e.target;
-            if (form.dataset.noLoader) return;
-            
-            var btn = e.submitter || form.querySelector('button[type="submit"]');
-            if (btn) {
-                // Preservar name y value del botón si los tiene, ya que al deshabilitarlo no se enviarán
-                if (btn.name) {
-                    var hidden = document.createElement('input');
-                    hidden.type = 'hidden';
-                    hidden.name = btn.name;
-                    hidden.value = btn.value;
-                    form.appendChild(hidden);
-                }
-                
-                if (btn.dataset.loadingText) {
-                    btn.dataset.originalText = btn.innerHTML;
-                    btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> ' + btn.dataset.loadingText;
-                } else {
-                    btn.dataset.originalText = btn.innerHTML;
-                    btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Procesando...';
-                }
-                
-                // En lugar de usar btn.disabled = true, usamos pointer-events-none 
-                // para no interrumpir el ciclo nativo de envío del formulario en móviles.
-                setTimeout(function() {
-                    btn.classList.add('opacity-75', 'cursor-wait', 'pointer-events-none');
-                }, 10);
-            }
-        });
-
-        document.getElementById('mobile-menu-btn').addEventListener('click', function() {
-            const menu = document.getElementById('mobile-menu');
-            if (menu.classList.contains('hidden')) {
-                menu.classList.remove('hidden');
-                menu.classList.add('flex');
-            } else {
-                menu.classList.add('hidden');
-                menu.classList.remove('flex');
-            }
-        });
-        
-        // Cerrar menú móvil al hacer click en un enlace
-        document.querySelectorAll('#mobile-menu a').forEach(link => {
-            link.addEventListener('click', () => {
-                document.getElementById('mobile-menu').classList.add('hidden');
-                document.getElementById('mobile-menu').classList.remove('flex');
-            });
-        });
-
-        // Efecto Header Flotante al Scrollear
-        window.addEventListener('scroll', () => {
-            const header = document.getElementById('main-header');
-            if (window.scrollY > 50) {
-                header.classList.remove('bg-transparent');
-                header.classList.add('bg-white/70', 'backdrop-blur-md', 'shadow-sm', 'border-b', 'border-white/50');
-            } else {
-                header.classList.add('bg-transparent');
-                header.classList.remove('bg-white/70', 'backdrop-blur-md', 'shadow-sm', 'border-b', 'border-white/50');
-            }
-        });
-
-        // Auto-abrir modal si viene con ?login=1 en la URL o si hay error de credenciales
-        const urlParams = new URLSearchParams(window.location.search);
-        if (urlParams.has('login') || document.querySelector('#loginForm .bg-red-50')) {
-            document.getElementById('login-modal').classList.remove('hidden');
-            document.getElementById('login-modal').classList.add('flex');
-            
-            // Limpiar la URL para evitar que se vuelva a abrir al recargar la página
-            if (urlParams.has('login')) {
-                urlParams.delete('login');
-                const newUrl = window.location.pathname + (urlParams.toString() ? '?' + urlParams.toString() : '') + window.location.hash;
-                window.history.replaceState({}, document.title, newUrl);
-            }
-        }
-    </script>
-    <script>
-        // Registrar Service Worker para PWA
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js')
-                    .then(registration => {
-                        console.log('SW registrado con éxito:', registration.scope);
-                    })
-                    .catch(error => {
-                        console.log('Fallo al registrar el SW:', error);
-                    });
-            });
-            
-            // Manejar la solicitud de instalación PWA
-            window.addEventListener('beforeinstallprompt', (e) => {
-                // No llamamos preventDefault para dejar que el navegador muestre su prompt nativo en Android/Desktop si lo soporta.
-            });
-        }
-    </script>
-
-    <!-- Script para animaciones On Scroll -->
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const reveals = document.querySelectorAll('.reveal');
-            const revealOptions = { 
-                threshold: 0.15,
-                rootMargin: "0px 0px -50px 0px"
-            };
-            
-            const revealOnScroll = new IntersectionObserver(function(entries, observer) {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        entry.target.classList.add('active');
-                        // No unobserve si quieres que se anime cada vez, pero suele ser mejor solo una vez
-                        observer.unobserve(entry.target);
-                    }
-                });
-            }, revealOptions);
-            
-            reveals.forEach(reveal => {
-                revealOnScroll.observe(reveal);
-            });
-        });
-    </script>
-
-
-    </script>
-
-    <!-- Botón Flotante de WhatsApp -->
-    <a href="https://wa.me/58XXXXXXXXXX" target="_blank" rel="noopener noreferrer" class="fixed bottom-6 right-6 z-50 w-16 h-16 rounded-full flex items-center justify-center btn-whatsapp-premium" aria-label="Chat en WhatsApp" data-evt="btn_whatsapp_flotante">
-        <i class="fab fa-whatsapp text-3xl"></i>
+<body>
+<a class="skip" href="#contenido">Saltar al contenido</a>
+<!-- Google Tag Manager (noscript): pega aquí tu snippet GTM-NHRNGKB2 (body) -->
+
+<header class="site-header">
+  <div class="wrap bar">
+    <a class="brand" href="#inicio" aria-label="TuInventario, inicio">
+      <span class="brand-mark" aria-hidden="true">T</span>
+      <span>Tu<b>Inventario</b></span>
     </a>
+    <nav class="nav" id="nav" aria-label="Principal">
+      <a href="#modulos">Módulos</a>
+      <a href="/qrmenu">Menú QR</a>
+      <a href="#apps">Apps</a>
+      <a href="#precio">Precio</a>
+      <a href="#preguntas">Preguntas</a>
+      <a href="#contacto">Contacto</a>
+    </nav>
+    <div class="bar-actions">
+      <a class="btn btn-ghost btn-sm hide-sm" href="#login" data-evt="click_acceder">Acceder</a>
+      <a class="btn btn-primary btn-sm" href="/auth/register" data-evt="click_register_header">Regístrate</a>
+      <button class="menu-btn" id="menuBtn" aria-expanded="false" aria-controls="nav">Menú</button>
+    </div>
+  </div>
+</header>
 
-    <!-- Analítica: Event Delegation para data-evt -->
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            document.body.addEventListener('click', function(e) {
-                // Buscar si el elemento clicado o alguno de sus padres tiene data-evt
-                let target = e.target;
-                while (target && target !== document.body) {
-                    if (target.hasAttribute('data-evt')) {
-                        const eventName = target.getAttribute('data-evt');
-                        if (window.dataLayer) {
-                            window.dataLayer.push({
-                                'event': eventName
-                            });
-                        }
-                        break; // Ya encontramos el atributo, no seguir subiendo
-                    }
-                    target = target.parentElement;
-                }
-            });
-        });
-    </script>
+<main id="contenido">
+
+<!-- HERO -->
+<section class="hero" id="inicio">
+  <div class="wrap hero-grid">
+    <div>
+      <h1>Vende, cobra y controla tu inventario en dólares y bolívares.</h1>
+      <p class="lead">Punto de venta, inventario, compras y cierre de caja en un solo sistema. Y cuando necesites cobrar sin conexión, PagaPues funciona sin internet.</p>
+      <div class="hero-cta">
+        <a class="btn btn-primary" href="/demo" data-evt="click_demo_hero">Ver demo gratis</a>
+        <a class="btn btn-ghost" href="https://wa.me/584145176772" data-evt="click_whatsapp_hero">Hablar por WhatsApp</a>
+      </div>
+      <ul class="hero-facts">
+        <li>Todo el sistema por $3 al mes</li>
+        <li>Precios en $ y en Bs. al instante</li>
+        <li>App Android incluida</li>
+      </ul>
+    </div>
+
+    <!-- Demo interactiva: el visitante prueba una venta y elige su tipo de negocio -->
+    <div>
+      <div class="seg" role="group" aria-label="Elige el tipo de negocio para la demo">
+        <span class="seg-label">Mira cómo se ve en:</span>
+        <button type="button" data-cat="resto" aria-pressed="true">Restaurante</button>
+        <button type="button" data-cat="bodega" aria-pressed="false">Bodega</button>
+        <button type="button" data-cat="ropa" aria-pressed="false">Tienda de ropa</button>
+      </div>
+      <div class="pos" aria-label="Demostración del punto de venta">
+        <div class="pos-top">
+          <span id="posCtx"><strong>Caja 1</strong> · Mesa 4</span>
+          <span class="sync">Sincronizado</span>
+        </div>
+        <div class="pos-body">
+          <div class="pos-products" id="products"></div>
+          <div class="ticket">
+            <div class="ticket-title">Ticket</div>
+            <ul class="ticket-lines" id="lines"></ul>
+            <div class="totals">
+              <div class="total-usd" id="totalUsd">$0,00</div>
+              <div class="total-bs" id="totalBs">Bs. 0,00</div>
+              <span class="rate" id="rateChip"></span>
+            </div>
+            <button class="btn btn-primary pay" id="payBtn" type="button">Procesar pago</button>
+            <div class="toast" id="toast" role="status" aria-live="polite"></div>
+          </div>
+        </div>
+        <div class="pos-foot">
+          <span>Venta de hoy: <strong id="soldToday"></strong></span>
+          <span>Cada venta descuenta el stock</span>
+        </div>
+      </div>
+      <p class="demo-hint">Pruébalo: toca un producto y procesa el pago.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ANTES / DESPUÉS -->
+<section class="sec" style="padding-top:24px" aria-labelledby="vs-t">
+  <div class="wrap">
+    <div class="sec-head">
+      <h2 id="vs-t">Lo que cambia cuando dejas el cuaderno y la calculadora</h2>
+    </div>
+    <div class="vs-wrap">
+      <table class="vs">
+        <thead>
+          <tr><th scope="col">Hoy, con cuaderno y calculadora</th><th scope="col">Con TuInventario</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Calculas a mano cuántos bolívares son cada precio.</td><td>Cada precio y cada total salen en dólares y en bolívares.</td></tr>
+          <tr><td>Te enteras de que algo se acabó cuando el cliente lo pide.</td><td>El sistema te avisa cuando el stock de un producto baja.</td></tr>
+          <tr><td>El cuaderno de fiados se pierde, se moja o no cuadra.</td><td>Cada deuda queda registrada y la recuerdas por WhatsApp.</td></tr>
+          <tr><td>La caja no cuadra y nadie sabe por qué.</td><td>El arqueo muestra la diferencia y el kardex, cada movimiento.</td></tr>
+          <tr><td>Solo vendes mientras el local está abierto.</td><td>Tu catálogo en línea y tu menú QR siguen disponibles.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- MÓDULOS -->
+<section class="sec" id="modulos" style="padding-top:24px">
+  <div class="wrap">
+    <div class="sec-head">
+      <h2>Todo lo que pasa en tu negocio, en un solo lugar</h2>
+      <p class="lead">Elige un módulo para ver cómo funciona.</p>
+      <!-- Sustituye estas vistas de ejemplo por capturas reales de tu sistema -->
+    </div>
+
+    <div class="tabs" role="tablist" aria-label="Módulos del sistema">
+      <button class="tab" role="tab" id="t-inv" aria-selected="true" aria-controls="p-inv">Inventario</button>
+      <button class="tab" role="tab" id="t-kar" aria-selected="false" aria-controls="p-kar" tabindex="-1">Kardex</button>
+      <button class="tab" role="tab" id="t-arq" aria-selected="false" aria-controls="p-arq" tabindex="-1">Arqueo de caja</button>
+      <button class="tab" role="tab" id="t-cre" aria-selected="false" aria-controls="p-cre" tabindex="-1">Créditos</button>
+      <button class="tab" role="tab" id="t-rep" aria-selected="false" aria-controls="p-rep" tabindex="-1">Reportes</button>
+      <button class="tab" role="tab" id="t-tie" aria-selected="false" aria-controls="p-tie" tabindex="-1">Tienda online</button>
+    </div>
+
+    <div class="panel active" role="tabpanel" id="p-inv" aria-labelledby="t-inv">
+      <div>
+        <h3>Sabe qué tienes y qué te falta</h3>
+        <p>Ve tu stock en tiempo real y recibe aviso antes de quedarte sin producto.</p>
+        <ul class="checks">
+          <li>Alertas de stock bajo por producto</li>
+          <li>Varios almacenes en una sola vista</li>
+          <li>Los más vendidos, a la mano</li>
+        </ul>
+      </div>
+      <div class="shot">
+        <table>
+          <thead><tr><th>Producto</th><th class="n">Stock</th><th class="n">Mínimo</th><th>Estado</th></tr></thead>
+          <tbody>
+            <tr><td>Burger clásica</td><td class="n">24</td><td class="n">10</td><td><span class="stock ok">Óptimo</span></td></tr>
+            <tr><td>Papas fritas</td><td class="n">8</td><td class="n">10</td><td><span class="stock low">Stock bajo</span></td></tr>
+            <tr><td>Coca-Cola 1,5 L</td><td class="n">40</td><td class="n">12</td><td><span class="stock ok">Óptimo</span></td></tr>
+            <tr><td>Pan de hamburguesa</td><td class="n">0</td><td class="n">20</td><td><span class="stock out">Agotado</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="panel" role="tabpanel" id="p-kar" aria-labelledby="t-kar" hidden>
+      <div>
+        <h3>Cada entrada y salida, registrada</h3>
+        <p>El historial de cada producto: qué entró, qué salió y quién lo movió. Así detectas faltantes y errores a tiempo.</p>
+        <ul class="checks">
+          <li>Movimiento por producto, con fecha y usuario</li>
+          <li>Saldo después de cada operación</li>
+          <li>Ajustes de inventario con motivo</li>
+        </ul>
+      </div>
+      <div class="shot">
+        <table>
+          <thead><tr><th>Fecha</th><th>Movimiento</th><th class="n">Cant.</th><th class="n">Saldo</th></tr></thead>
+          <tbody>
+            <tr><td>12/09</td><td>Compra a proveedor</td><td class="n pos-pos">+24</td><td class="n">32</td></tr>
+            <tr><td>13/09</td><td>Venta #0412</td><td class="n pos-neg">−3</td><td class="n">29</td></tr>
+            <tr><td>13/09</td><td>Venta #0419</td><td class="n pos-neg">−5</td><td class="n">24</td></tr>
+            <tr><td>14/09</td><td>Ajuste: producto dañado</td><td class="n pos-neg">−1</td><td class="n">23</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="panel" role="tabpanel" id="p-arq" aria-labelledby="t-arq" hidden>
+      <div>
+        <h3>Cierra el turno sin discusiones</h3>
+        <p>Compara lo que el sistema dice que debe haber en caja con lo que realmente contaste.</p>
+        <ul class="checks">
+          <li>Diferencias visibles al instante</li>
+          <li>Cierre por turno y por cajero</li>
+          <li>Efectivo, transferencias y punto de venta por separado</li>
+        </ul>
+      </div>
+      <div class="shot">
+        <div class="arqueo">
+          <div class="arqueo-row"><span>Efectivo esperado</span><strong>$320,00</strong></div>
+          <div class="arqueo-row"><span>Efectivo contado</span><strong>$318,50</strong></div>
+          <div class="arqueo-row diff"><span>Diferencia</span><strong>−$1,50</strong></div>
+          <p class="arqueo-note">Cierre de Caja 1 · Turno de la tarde</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel" role="tabpanel" id="p-cre" aria-labelledby="t-cre" hidden>
+      <div>
+        <h3>Sabe quién te debe y cuánto</h3>
+        <p>Vende a crédito sin perder el rastro. Cada deuda queda ligada al cliente y a la venta que la originó.</p>
+        <ul class="checks">
+          <li>Historial de compras y deudas por cliente</li>
+          <li>Recordatorio de cobro por WhatsApp</li>
+          <li>Cuentas por pagar a tus proveedores</li>
+        </ul>
+      </div>
+      <div class="shot">
+        <table>
+          <thead><tr><th>Cliente</th><th class="n">Debe</th><th>Desde</th><th></th></tr></thead>
+          <tbody>
+            <tr><td>Carlos Romero</td><td class="n">$120,00</td><td>hace 2 días</td><td><span class="mini-btn">Recordar</span></td></tr>
+            <tr><td>María González</td><td class="n">$45,50</td><td>hoy</td><td><span class="mini-btn">Recordar</span></td></tr>
+            <tr><td>Luis Pérez</td><td class="n">$80,00</td><td><span class="stock low">hace 9 días</span></td><td><span class="mini-btn">Recordar</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="panel" role="tabpanel" id="p-rep" aria-labelledby="t-rep" hidden>
+      <div>
+        <h3>Mira cuánto ganas, no solo cuánto vendes</h3>
+        <p>Tus ventas, gastos y ganancias en una vista clara, para decidir qué comprar y qué vender más.</p>
+        <ul class="checks">
+          <li>Ventas por día, semana y mes</li>
+          <li>Productos más y menos vendidos</li>
+          <li>Ganancias y gastos del periodo</li>
+        </ul>
+      </div>
+      <div class="shot">
+        <div class="kpis">
+          <div class="kpi"><span>Ventas de la semana</span><strong>$2.140,00</strong></div>
+          <div class="kpi"><span>Ganancia estimada</span><strong>$610,00</strong></div>
+        </div>
+        <div class="bars" role="img" aria-label="Ventas por día de la semana: lunes 220, martes 260, miércoles 240, jueves 310, viernes 420, sábado 480, domingo 210 dólares">
+          <div class="bar-col"><i style="height:46%"></i></div>
+          <div class="bar-col"><i style="height:54%"></i></div>
+          <div class="bar-col"><i style="height:50%"></i></div>
+          <div class="bar-col"><i style="height:65%"></i></div>
+          <div class="bar-col"><i style="height:88%"></i></div>
+          <div class="bar-col"><i style="height:100%"></i></div>
+          <div class="bar-col"><i style="height:44%"></i></div>
+        </div>
+        <div class="bar-days" aria-hidden="true"><span>L</span><span>M</span><span>M</span><span>J</span><span>V</span><span>S</span><span>D</span></div>
+      </div>
+    </div>
+
+    <div class="panel" role="tabpanel" id="p-tie" aria-labelledby="t-tie" hidden>
+      <div>
+        <h3>Tu tienda abierta las 24 horas</h3>
+        <p>Publica tus productos en línea. El catálogo se actualiza solo con tu inventario, con precios en dólares y bolívares.</p>
+        <ul class="checks">
+          <li>Sin duplicar trabajo: un solo inventario</li>
+          <li>Menú QR para restaurantes y cafés</li>
+          <li>Pedidos por WhatsApp</li>
+        </ul>
+      </div>
+      <div class="shot">
+        <div class="store">
+          <div class="store-item"><div class="store-img" style="background:#c9d8ff"></div><b>Camisa casual</b><span>$29,99</span><small>Bs. 23.842,05</small></div>
+          <div class="store-item"><div class="store-img" style="background:#f9d9c4"></div><b>Pack hamburguesas</b><span>$14,90</span><small>Bs. 11.845,50</small></div>
+          <div class="store-item"><div class="store-img" style="background:#d4efe2"></div><b>Refresco en lata</b><span>$1,50</span><small>Bs. 1.192,50</small></div>
+        </div>
+      </div>
+    </div>
+
+    <p class="more-mods">También incluye compras, proveedores, clientes y facturación.</p>
+  </div>
+</section>
+
+<!-- CÓMO EMPEZAR -->
+<section class="sec" style="padding-top:8px" aria-labelledby="start-t">
+  <div class="wrap">
+    <div class="sec-head"><h2 id="start-t">Empieza en tres pasos</h2></div>
+    <ol class="start">
+      <li><b>Crea tu cuenta</b><span>Solo necesitas tu cédula y una contraseña.</span></li>
+      <li><b>Carga tus productos</b><span>Con su precio en dólares y la cantidad que tienes.</span></li>
+      <li><b>Empieza a vender</b><span>Cada venta descuenta el stock y suma a tu caja.</span></li>
+    </ol>
+  </div>
+</section>
+
+<!-- APPS -->
+<section class="sec apps" id="apps">
+  <div class="wrap apps-grid">
+    <div>
+      <span class="badge-ver">App para Android · v1.0</span>
+      <h2>PagaPues: cobra lo que te deben, aunque no tengas internet</h2>
+      <p class="lead" style="margin-top:14px">Registra ventas y deudas en tu teléfono, trabaja en dólares y bolívares y envía recordatorios de cobro por WhatsApp.</p>
+      <div class="apps-mid">
+        <ol class="steps">
+          <li>Descarga el archivo APK.</li>
+          <li>Ábrelo y acepta la instalación.</li>
+          <li>Si Android te lo pide, autoriza la instalación desde este origen.</li>
+        </ol>
+        <!-- Vista de ejemplo: sustitúyela por una captura real de la app -->
+        <div class="phone" aria-label="Vista de ejemplo de PagaPues">
+          <div class="phone-h">PagaPues</div>
+          <div class="phone-saldo"><small>Saldo por cobrar</small><strong>$4.500,00</strong><em>Bs. 3.577.500,00</em></div>
+          <ul class="phone-list">
+            <li class="due"><div><b>Carlos R.</b><span>Hace 2 días</span></div><strong>$120,00</strong></li>
+            <li><div><b>María G.</b><span>Hoy, 10:00</span></div><strong>$45,50</strong></li>
+            <li class="paid"><div><b>José L.</b><span>Pagado</span></div><strong>$300,00</strong></li>
+          </ul>
+          <span class="phone-wa">Enviar recordatorio</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="dl">
+      <h3>Descargar PagaPues</h3>
+      <p class="sub">Gratis · No necesitas cuenta para instalarla</p>
+      <a class="btn btn-primary" href="/assets/PagaPues.apk" download data-evt="click_apk_pagapues">Descargar APK (v1.0)</a>
+      <!-- Completa estos datos con los reales de tu APK -->
+      <dl class="specs">
+        <dt>Versión</dt><dd>1.0</dd>
+        <dt>Requiere</dt><dd>Android 5 o superior</dd>
+        <dt>Tamaño</dt><dd>XX MB</dd>
+        <dt>Actualizada</dt><dd>DD/MM/AAAA</dd>
+        <dt>SHA-256</dt><dd><code>pega-aquí-el-hash-de-tu-apk</code></dd>
+        <dt>Permisos</dt><dd>Lista aquí los que declara tu app</dd>
+      </dl>
+      <div class="qr-slot">
+        <strong>¿Estás en una computadora?</strong>
+        <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://www.tuinventario.app/assets/PagaPues.apk" alt="QR Code PagaPues" style="margin: 12px auto; width: 140px; height: 140px; border-radius: 12px; display: block;">
+        <span style="font-size: 0.85rem; display: block; margin-top: 8px;">Escanea este código con tu teléfono para descargar PagaPues.</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- MÁS APPS -->
+<section class="wrap more-apps" aria-labelledby="more-apps-t">
+  <h3 id="more-apps-t">Más apps de TuInventario</h3>
+  <p class="lead">Cada app resuelve una tarea de tu negocio y se conecta con el resto.</p>
+  <div class="app-rows">
+    <div class="app-row">
+      <div class="app-ico" style="background:var(--blue)">P</div>
+      <div><b>PagaPues</b><span>Cobros, deudas y recordatorios por WhatsApp</span></div>
+      <span class="pill">Disponible</span>
+    </div>
+    <div class="app-row">
+      <div class="app-ico" style="background:var(--green)">Q</div>
+      <div><b>Menú QR</b><span>Carta digital para tu restaurante o café</span></div>
+      <a class="pill" href="/qrmenu" style="text-decoration:none" data-evt="click_menu_qr">Disponible en la web</a>
+    </div>
+    <div class="app-row">
+      <div class="app-ico" style="background:var(--amber)">+</div>
+      <div><b>Nueva app en camino</b><span>Escribe el nombre y la función de tu próxima app aquí</span></div>
+      <span class="pill soon">Próximamente</span>
+    </div>
+  </div>
+</section>
+
+<!-- PRECIO ÚNICO -->
+<section class="sec" id="precio">
+  <div class="wrap">
+    <div class="sec-head">
+      <h2>Un solo plan, un solo precio</h2>
+      <p class="lead">Todo el sistema por $3 al mes. Sin planes que comparar.</p>
+    </div>
+    <div class="price-panel">
+      <div class="price-main">
+        <span class="plan-tag">Precio de lanzamiento</span>
+        <div class="plan-price">$3 <small>al mes</small></div>
+        <p class="price-bs" id="priceBs"></p>
+        <a class="btn btn-primary" href="/auth/register" data-evt="click_register_precio">Crear mi cuenta</a>
+        <p class="price-note">¿Dudas sobre cómo pagar? Mira las preguntas frecuentes.</p>
+      </div>
+      <div class="price-incl">
+        <h3>Esto va incluido</h3>
+        <ul class="checks two-col">
+          <li>Punto de venta (POS)</li>
+          <li>Inventario y alertas de stock</li>
+          <li>Compras y proveedores</li>
+          <li>Clientes y créditos</li>
+          <li>Kardex</li>
+          <li>Arqueo de caja</li>
+          <li>Reportes y ganancias</li>
+          <li>Facturación</li>
+          <li>Tienda online</li>
+          <li>Menú QR</li>
+          <li>Precios en $ y en Bs.</li>
+          <li>App PagaPues para Android</li>
+        </ul>
+      </div>
+    </div>
+    <p class="try-first">Antes de pagar, pruébalo:
+      <a href="/demo" data-evt="click_demo_precio">Ver la demo gratis</a>
+      <a href="#apps" data-evt="click_pagapues_precio">Descargar PagaPues gratis</a>
+    </p>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="sec" id="preguntas" style="padding-top:8px">
+  <div class="wrap">
+    <div class="sec-head"><h2>Preguntas frecuentes</h2></div>
+    <div class="faq">
+      <details>
+        <summary>¿Cuánto cuesta y qué incluye?</summary>
+        <p>Cuesta $3 al mes y incluye todo el sistema: punto de venta, inventario, compras, proveedores, clientes y créditos, kardex, arqueo de caja, reportes, tienda online y Menú QR. La app PagaPues es gratis.</p>
+      </details>
+      <details>
+        <summary>¿Cómo pago los $3 al mes?</summary>
+        <p>Indica aquí los métodos que aceptas (por ejemplo, pago móvil, transferencia o Zelle) y cómo confirmas el pago para activar la cuenta.</p>
+      </details>
+      <details>
+        <summary>¿Puedo probarlo antes de pagar?</summary>
+        <p>Sí. Puedes ver la demo sin registrarte y descargar PagaPues gratis para probarla en tu teléfono.</p>
+      </details>
+      <details>
+        <summary>¿Funciona sin internet?</summary>
+        <p>La app PagaPues sí: funciona sin conexión y guarda los datos en tu teléfono. El sistema web de inventario y punto de venta necesita conexión a internet.</p>
+      </details>
+      <details>
+        <summary>¿Puedo cobrar en dólares y en bolívares?</summary>
+        <p>Sí. Cada precio y cada total se muestran en las dos monedas, calculados con la tasa que configures.</p>
+      </details>
+      <details>
+        <summary>¿Cómo instalo el APK de PagaPues?</summary>
+        <p>Descarga el archivo desde esta página, ábrelo y acepta la instalación. Si Android te avisa que el origen es desconocido, autoriza la instalación solo para este archivo.</p>
+      </details>
+      <details>
+        <summary>¿Qué pasa con mis datos?</summary>
+        <p>No vendemos ni compartimos tus datos con terceros, salvo requerimiento legal. Puedes exportar tu información o pedir la eliminación de tu cuenta cuando quieras.</p>
+      </details>
+      <details>
+        <summary>¿Cómo pido ayuda si algo falla?</summary>
+        <p>Escríbenos por WhatsApp o Telegram. Indica aquí tu horario real de atención para que el cliente sepa cuándo esperar respuesta.</p>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- CTA FINAL -->
+<section class="final" id="contacto">
+  <div class="wrap final-in">
+    <div>
+      <h2>Deja el cuaderno y ordena tu negocio hoy</h2>
+      <p>Todo el sistema por $3 al mes. Prueba la demo sin registrarte o cuéntanos qué vendes y te ayudamos a empezar.</p>
+    </div>
+    <div class="final-actions">
+      <a class="btn btn-light" href="/auth/register" data-evt="click_register_final">Crear mi cuenta</a>
+      <a class="btn btn-ghost" href="https://wa.me/584145176772" data-evt="click_whatsapp_final">Escribir por WhatsApp</a>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer class="foot">
+  <div class="wrap foot-in">
+    <span>© 2026 TuInventario. Todos los derechos reservados.</span>
+    <div class="foot-links">
+      <a href="https://t.me/MaomOllarves" data-evt="click_telegram">Telegram</a>
+      <a href="mailto:contacto@tuinventario.app">contacto@tuinventario.app</a>
+      <a href="#terminos">Términos y condiciones</a>
+      <a href="#privacidad">Política de privacidad</a>
+    </div>
+  </div>
+</footer>
+
+<a class="wa" href="https://wa.me/584145176772" aria-label="Escribir por WhatsApp" data-evt="click_whatsapp_flotante">
+  <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38a9.9 9.9 0 0 0 4.74 1.21c5.46 0 9.91-4.45 9.91-9.91S17.5 2 12.04 2zm0 18.15c-1.48 0-2.93-.4-4.2-1.15l-.3-.18-3.12.82.83-3.04-.2-.31a8.2 8.2 0 0 1-1.26-4.38c0-4.54 3.7-8.24 8.25-8.24s8.24 3.7 8.24 8.24-3.7 8.24-8.24 8.24zm4.52-6.17c-.25-.12-1.47-.72-1.69-.81-.23-.08-.39-.12-.56.13-.16.25-.64.81-.78.97-.14.17-.29.19-.54.06-.25-.12-1.05-.39-2-1.23-.74-.66-1.23-1.47-1.38-1.72-.14-.25-.02-.38.11-.5.11-.11.25-.29.37-.43.12-.15.16-.25.25-.41.08-.17.04-.31-.02-.43-.06-.12-.56-1.34-.76-1.84-.2-.48-.4-.42-.56-.42h-.48c-.17 0-.43.06-.66.31-.22.25-.86.85-.86 2.07s.88 2.4 1 2.56c.12.17 1.75 2.67 4.23 3.74.59.26 1.05.41 1.41.52.59.19 1.13.16 1.56.1.48-.07 1.47-.6 1.67-1.18.21-.58.21-1.07.14-1.18-.06-.11-.22-.17-.47-.29z"/></svg>
+  <span>WhatsApp</span>
+</a>
+
+<script>
+(function(){
+  /* ---------- Configuración ---------- */
+  var RATE = 795.00;   // Bs. por $ (ejemplo). En tu sistema real, léela de tu API/BD y muestra la fecha.
+  var PLAN_USD = 3;    // Precio mensual único
+
+  var CATALOGS = {
+    resto:{ctx:'<strong>Caja 1</strong> · Mesa 4', sold:1243.58, items:[
+      {id:'a', name:'Burger clásica',  price:12.50, stock:24, color:'#c2571a'},
+      {id:'b', name:'Papas fritas',    price:4.00,  stock:8,  color:'#a87706'},
+      {id:'c', name:'Coca-Cola 1,5 L', price:2.50,  stock:40, color:'#c4262e'},
+      {id:'d', name:'Burger doble',    price:18.00, stock:15, color:'#7a3b12'}]},
+    bodega:{ctx:'<strong>Caja 1</strong> · Mostrador', sold:486.20, items:[
+      {id:'a', name:'Harina de maíz 1 kg', price:1.40, stock:60, color:'#a87706'},
+      {id:'b', name:'Arroz 1 kg',          price:1.60, stock:9,  color:'#2f6f8f'},
+      {id:'c', name:'Aceite 1 L',          price:3.20, stock:18, color:'#3d7a1f'},
+      {id:'d', name:'Café 250 g',          price:2.80, stock:22, color:'#5b3a29'}]},
+    ropa:{ctx:'<strong>Caja 1</strong> · Tienda', sold:812.40, items:[
+      {id:'a', name:'Camisa casual',  price:29.99, stock:12, color:'#2350d8'},
+      {id:'b', name:'Jean clásico',   price:34.00, stock:7,  color:'#1a3ba8'},
+      {id:'c', name:'Franela básica', price:9.50,  stock:30, color:'#14875f'},
+      {id:'d', name:'Gorra',          price:8.00,  stock:14, color:'#7a3b12'}]}
+  };
+  var current = 'resto';
+  var cart = {};
+
+  /* ---------- Utilidades ---------- */
+  var nf = function(n){ return n.toLocaleString('de-DE',{minimumFractionDigits:2,maximumFractionDigits:2}); };
+  var fUsd = function(n){ return '$' + nf(n); };
+  var fBs  = function(n){ return 'Bs. ' + nf(n); };
+  function track(name){ window.dataLayer = window.dataLayer || []; window.dataLayer.push({event:name}); }
+
+  var elProducts = document.getElementById('products');
+  var elLines = document.getElementById('lines');
+  var elUsd = document.getElementById('totalUsd');
+  var elBs = document.getElementById('totalBs');
+  var elToast = document.getElementById('toast');
+  var elSold = document.getElementById('soldToday');
+  var elCtx = document.getElementById('posCtx');
+  document.getElementById('rateChip').textContent = 'Tasa de ejemplo: Bs. ' + nf(RATE) + ' por $';
+  document.getElementById('priceBs').textContent = '≈ ' + fBs(PLAN_USD * RATE) + ' al cambio de ejemplo';
+
+  function cat(){ return CATALOGS[current]; }
+  function byId(id){ return cat().items.filter(function(p){return p.id===id;})[0]; }
+  function stockClass(s){ return s === 0 ? 'out' : (s <= 10 ? 'low' : 'ok'); }
+  function stockLabel(s){ return s === 0 ? 'Agotado' : (s <= 10 ? 'Quedan ' + s : 'Stock: ' + s); }
+
+  function renderProducts(){
+    elProducts.innerHTML = '';
+    cat().items.forEach(function(p){
+      var left = p.stock - (cart[p.id] || 0);
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'prod';
+      b.disabled = left <= 0;
+      b.setAttribute('aria-label', 'Agregar ' + p.name + ', ' + fUsd(p.price));
+      b.innerHTML =
+        '<span class="prod-tile" style="background:' + p.color + '">' + p.name.charAt(0) + '</span>' +
+        '<span class="prod-name">' + p.name + '</span>' +
+        '<span class="prod-price">' + fUsd(p.price) + '</span>' +
+        '<span class="stock ' + stockClass(left) + '">' + stockLabel(left) + '</span>';
+      b.addEventListener('click', function(){ add(p.id); track('demo_add_product'); });
+      elProducts.appendChild(b);
+    });
+  }
+
+  function renderTicket(){
+    elLines.innerHTML = '';
+    elCtx.innerHTML = cat().ctx;
+    elSold.textContent = fUsd(cat().sold);
+    var ids = Object.keys(cart).filter(function(k){return cart[k] > 0;});
+    var total = 0;
+    if(!ids.length){
+      var li = document.createElement('li');
+      li.className = 'ticket-empty';
+      li.textContent = 'Toca un producto para agregarlo al ticket.';
+      elLines.appendChild(li);
+    }
+    ids.forEach(function(id){
+      var p = byId(id), q = cart[id], lt = p.price * q;
+      total += lt;
+      var li = document.createElement('li');
+      li.className = 'line';
+      li.innerHTML =
+        '<span class="line-name">' + p.name + '</span>' +
+        '<span class="line-total">' + fUsd(lt) + '</span>' +
+        '<span class="qty"><button type="button" aria-label="Quitar uno de ' + p.name + '">−</button><span>' + q + '</span><button type="button" aria-label="Agregar uno de ' + p.name + '">+</button></span>';
+      var btns = li.querySelectorAll('button');
+      btns[0].addEventListener('click', function(){ remove(id); });
+      btns[1].addEventListener('click', function(){ add(id); });
+      elLines.appendChild(li);
+    });
+    elUsd.textContent = fUsd(total);
+    elBs.textContent = fBs(total * RATE);
+    renderProducts();
+  }
+
+  function add(id){
+    var p = byId(id);
+    if((cart[id] || 0) < p.stock){ cart[id] = (cart[id] || 0) + 1; elToast.textContent = ''; renderTicket(); }
+  }
+  function remove(id){
+    if(cart[id]){ cart[id] -= 1; if(cart[id] <= 0){ delete cart[id]; } renderTicket(); }
+  }
+
+  document.getElementById('payBtn').addEventListener('click', function(){
+    var ids = Object.keys(cart);
+    if(!ids.length){ elToast.style.color = 'var(--amber)'; elToast.textContent = 'Agrega un producto para poder cobrar.'; return; }
+    var total = 0;
+    ids.forEach(function(id){ var p = byId(id); total += p.price * cart[id]; p.stock -= cart[id]; });
+    cat().sold += total;
+    cart = {};
+    elToast.style.color = 'var(--green)';
+    elToast.textContent = 'Venta registrada. El inventario ya se actualizó.';
+    track('demo_pay');
+    renderTicket();
+  });
+
+  /* Selector de tipo de negocio */
+  var segBtns = Array.prototype.slice.call(document.querySelectorAll('.seg button'));
+  segBtns.forEach(function(b){
+    b.addEventListener('click', function(){
+      current = b.getAttribute('data-cat');
+      cart = {};
+      elToast.textContent = '';
+      segBtns.forEach(function(x){ x.setAttribute('aria-pressed', x === b ? 'true' : 'false'); });
+      track('demo_switch_' + current);
+      renderTicket();
+    });
+  });
+
+  renderTicket();
+
+  /* ---------- Pestañas de módulos ---------- */
+  var tabs = Array.prototype.slice.call(document.querySelectorAll('.tab'));
+  function selectTab(tab){
+    tabs.forEach(function(t){
+      var on = t === tab;
+      t.setAttribute('aria-selected', on ? 'true' : 'false');
+      t.tabIndex = on ? 0 : -1;
+      var panel = document.getElementById(t.getAttribute('aria-controls'));
+      panel.classList.toggle('active', on);
+      panel.hidden = !on;
+    });
+    track('modulo_' + tab.id);
+  }
+  tabs.forEach(function(t, i){
+    t.addEventListener('click', function(){ selectTab(t); });
+    t.addEventListener('keydown', function(e){
+      var n = null;
+      if(e.key === 'ArrowRight'){ n = tabs[(i + 1) % tabs.length]; }
+      if(e.key === 'ArrowLeft'){ n = tabs[(i - 1 + tabs.length) % tabs.length]; }
+      if(n){ e.preventDefault(); selectTab(n); n.focus(); }
+    });
+  });
+
+  /* ---------- Menú móvil ---------- */
+  var menuBtn = document.getElementById('menuBtn');
+  var nav = document.getElementById('nav');
+  menuBtn.addEventListener('click', function(){
+    var open = nav.classList.toggle('open');
+    menuBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+  });
+  nav.addEventListener('click', function(e){
+    if(e.target.tagName === 'A'){ nav.classList.remove('open'); menuBtn.setAttribute('aria-expanded','false'); }
+  });
+
+  /* ---------- Analítica (Google Tag Manager) ---------- */
+  document.addEventListener('click', function(e){
+    var el = e.target.closest ? e.target.closest('[data-evt]') : null;
+    if(el){ track(el.getAttribute('data-evt')); }
+  });
+})();
+</script>
 </body>
 </html>
