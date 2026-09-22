@@ -347,12 +347,15 @@ p{margin:0}
   .start li{padding:22px 0 8px}
 }
 @media (max-width:860px){
-  .menu-btn{display:inline-block}
+  .menu-btn{display:flex; align-items:center; justify-content:center; padding:6px; margin-left:4px;}
+  .btn-txt{display:none;}
+  .btn-ico.hide-lg{display:block !important;}
+  .bar-actions .btn{padding:8px 10px; border-radius:10px; gap:0;}
   .nav{display:none;position:absolute;left:0;right:0;top:68px;background:var(--paper);border-bottom:1px solid var(--line);flex-direction:column;align-items:flex-start;padding:14px 24px 20px;gap:6px;margin:0}
   .nav.open{display:flex}
   .nav a{padding:10px 0;font-size:1.05rem}
   .bar{gap:12px}
-  .bar-actions{margin-left:auto; display:flex; gap:6px;}
+  .bar-actions{margin-left:auto; display:flex; gap:6px; align-items:center;}
 }
 @media (max-width:640px){
   .apps-mid,.apps-mid{grid-template-columns:1fr}
@@ -394,9 +397,15 @@ p{margin:0}
       <a href="#contacto">Contacto</a>
     </nav>
     <div class="bar-actions" style="display:flex; gap:8px; align-items:center;">
-      <a class="btn btn-ghost btn-sm" href="javascript:void(0)" onclick="document.getElementById('login-modal').style.display='flex';" data-evt="click_acceder">Acceder</a>
-      <a class="btn btn-primary btn-sm" href="/auth/register" data-evt="click_register_header">Regístrate</a>
-      <button class="menu-btn" id="menuBtn" aria-expanded="false" aria-controls="nav" aria-label="Abrir menú" style="display:flex; align-items:center; justify-content:center; padding:4px;">
+      <a class="btn btn-ghost btn-sm" href="javascript:void(0)" onclick="document.getElementById('login-modal').style.display='flex';" data-evt="click_acceder">
+        <svg class="btn-ico hide-lg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none;"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path><polyline points="10 17 15 12 10 7"></polyline><line x1="15" y1="12" x2="3" y2="12"></line></svg>
+        <span class="btn-txt">Acceder</span>
+      </a>
+      <a class="btn btn-primary btn-sm" href="/auth/register" data-evt="click_register_header">
+        <svg class="btn-ico hide-lg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none;"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><line x1="20" y1="8" x2="20" y2="14"></line><line x1="23" y1="11" x2="17" y2="11"></line></svg>
+        <span class="btn-txt">Regístrate</span>
+      </a>
+      <button class="menu-btn" id="menuBtn" aria-expanded="false" aria-controls="nav" aria-label="Abrir menú">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
       </button>
     </div>
