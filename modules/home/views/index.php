@@ -1,3 +1,43 @@
+<?php
+// Obtener Tasa BCV automáticamente usando PyDolarVenezuela API con caché (2 horas)
+$cache_file = __DIR__ . '/bcv_rate.json';
+$tasa_bcv = 849.56; // Fallback inicial según lo solicitado
+$last_update = date('d/m/Y');
+
+if (file_exists($cache_file) && (time() - filemtime($cache_file)) < 7200) {
+    $cache = json_decode(file_get_contents($cache_file), true);
+    if ($cache && isset($cache['rate'])) {
+        $tasa_bcv = $cache['rate'];
+        $last_update = $cache['last_update'];
+    }
+} else {
+    // Fetch API
+    $api_url = "https://pydolarvenezuela-api.vercel.app/api/v1/dollar/page?page=bcv";
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $api_url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+    curl_setopt($ch, CURLOPT_TIMEOUT, 3);
+    $response = curl_exec($ch);
+    $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+
+    if ($http_code == 200 && $response) {
+        $data = json_decode($response, true);
+        if (isset($data['monitors']['bcv']['price'])) {
+            $tasa_bcv = (float) $data['monitors']['bcv']['price'];
+            $last_update = date('d/m/Y');
+            file_put_contents($cache_file, json_encode(['rate' => $tasa_bcv, 'last_update' => $last_update]));
+        }
+    } elseif (file_exists($cache_file)) {
+        // Fallback a caché vencido
+        $cache = json_decode(file_get_contents($cache_file), true);
+        if ($cache && isset($cache['rate'])) {
+            $tasa_bcv = $cache['rate'];
+            $last_update = $cache['last_update'];
+        }
+    }
+}
+?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -38,7 +78,7 @@
   --muted:#4d5a72;
   --font-display:"Bricolage Grotesque","Trebuchet MS",system-ui,sans-serif;
   --font-body:"Figtree",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
-  --wrap:1120px;
+  --wrap:1280px;
 }
 *,*::before,*::after{box-sizing:border-box}
 html{scroll-behavior:smooth;scroll-padding-top:84px}
@@ -191,6 +231,13 @@ p{margin:0}
 .store-item span{display:block;font-weight:700;color:var(--blue);margin-top:4px}
 .store-item small{color:var(--muted);font-size:.8rem}
 .more-mods{margin-top:34px;color:var(--muted);font-size:.98rem}
+
+/* Loader CSS */
+.loader { display: none; width: 20px; height: 20px; border: 3px solid rgba(255,255,255,.3); border-radius: 50%; border-top-color: #fff; animation: spin 1s ease-in-out infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.btn-loading { pointer-events: none; opacity: 0.8; }
+.btn-loading .btn-text { display: none; }
+.btn-loading .loader { display: inline-block; }
 
 /* Cómo empezar (es una secuencia real) */
 .start{list-style:none;counter-reset:st;margin:0;padding:0;display:grid;grid-template-columns:repeat(3,1fr);gap:0;border-top:1px solid var(--line)}
@@ -580,7 +627,7 @@ p{margin:0}
       </div>
       <div class="shot">
         <div class="store">
-          <div class="store-item"><div class="store-img" style="background: #c9d8ff url(https://images.unsplash.com/photo-1596755094514-f87e32f6b717?auto=format&fit=crop&w=300&q=80) center/cover;"></div><b>Camisa casual</b><span>$29,99</span><small>Bs. 23.842,05</small></div>
+          <div class="store-item"><div class="store-img" style="background: #c9d8ff url(https://images.unsplash.com/photo-1576566588028-4147f3842f27?auto=format&fit=crop&w=300&q=80) center/cover;"></div><b>Camisa casual</b><span>$29,99</span><small>Bs. 23.842,05</small></div>
           <div class="store-item"><div class="store-img" style="background: #f9d9c4 url(https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=300&q=80) center/cover;"></div><b>Pack hamburguesas</b><span>$14,90</span><small>Bs. 11.845,50</small></div>
           <div class="store-item"><div class="store-img" style="background: #d4efe2 url(https://images.unsplash.com/photo-1622483767028-3f66f32aef97?auto=format&fit=crop&w=300&q=80) center/cover;"></div><b>Refresco en lata</b><span>$1,50</span><small>Bs. 1.192,50</small></div>
         </div>
@@ -638,8 +685,8 @@ p{margin:0}
       <dl class="specs">
         <dt>Versión</dt><dd>1.0</dd>
         <dt>Requiere</dt><dd>Android 5 o superior</dd>
-        <dt>Tamaño</dt><dd>14.5 MB</dd>
-        <dt>Actualizada</dt><dd>20/09/2026</dd>
+        <dt>Tamaño</dt><dd>75 MB</dd>
+        <dt>Actualizada</dt><dd>Ayer</dd>
         <dt>SHA-256</dt><dd><code>e625a6dc5b4e63e3ed9ad01fd3522b075c366d121bd87ed2d485180a1247ba9f</code></dd>
         <dt>Permisos</dt><dd>Notificaciones, Importación de contactos, Cámara</dd>
       </dl>
@@ -788,7 +835,7 @@ p{margin:0}
         <button onclick="document.getElementById('login-modal').style.display = 'none'" style="position: absolute; right: 16px; top: 16px; background: none; border: none; font-size: 1.5rem; cursor: pointer;">&times;</button>
         <h3 style="margin-bottom: 8px; font-size: 1.5rem;">Acceder a TuInventario</h3>
         <p style="color: var(--muted); margin-bottom: 24px; font-size: 0.95rem;">Ingresa tus datos para continuar.</p>
-        <form action="/auth/login" method="POST" style="display: flex; flex-direction: column; gap: 16px;">
+        <form action="/auth/login" method="POST" id="loginForm" style="display: flex; flex-direction: column; gap: 16px;" onsubmit="document.getElementById('loginSubmitBtn').classList.add('btn-loading');">
             <div>
                 <label style="display: block; margin-bottom: 6px; font-size: 0.9rem; font-weight: 600;">Cédula o Correo</label>
                 <input type="text" name="username" placeholder="V-12345678" required style="width: 100%; padding: 12px 16px; border: 1px solid var(--line); border-radius: 12px; background: var(--paper); font-size: 1rem;">
@@ -797,26 +844,43 @@ p{margin:0}
                 <label style="display: block; margin-bottom: 6px; font-size: 0.9rem; font-weight: 600;">Contraseña</label>
                 <input type="password" name="password" placeholder="••••••••" required style="width: 100%; padding: 12px 16px; border: 1px solid var(--line); border-radius: 12px; background: var(--paper); font-size: 1rem;">
             </div>
-            <button type="submit" style="width: 100%; padding: 14px; background: var(--blue); color: #fff; border: none; border-radius: 12px; font-weight: 700; font-size: 1rem; cursor: pointer; margin-top: 8px;">Iniciar Sesión</button>
+            <button type="submit" id="loginSubmitBtn" style="display: flex; align-items: center; justify-content: center; width: 100%; padding: 14px; background: var(--blue); color: #fff; border: none; border-radius: 12px; font-weight: 700; font-size: 1rem; cursor: pointer; margin-top: 8px;">
+                <span class="btn-text">Iniciar Sesión</span>
+                <span class="loader"></span>
+            </button>
         </form>
     </div>
 </div>
 
 <!-- Modal Términos -->
 <div id="terms-modal" style="display: none; align-items: center; justify-content: center; position: fixed; inset: 0; background: rgba(15,31,61,0.6); backdrop-filter: blur(4px); z-index: 100;">
-    <div style="background: #fff; padding: 32px; border-radius: 24px; max-width: 600px; width: 90%; max-height: 80vh; overflow-y: auto; position: relative;">
+    <div style="background: #fff; padding: 32px; border-radius: 24px; max-width: 800px; width: 90%; max-height: 80vh; overflow-y: auto; position: relative;">
         <button onclick="document.getElementById('terms-modal').style.display = 'none'" style="position: absolute; right: 16px; top: 16px; background: none; border: none; font-size: 1.5rem; cursor: pointer;">&times;</button>
-        <h3 style="margin-bottom: 16px; font-size: 1.5rem;">Términos y Condiciones</h3>
-        <p style="color: var(--muted); font-size: 0.95rem; line-height: 1.6;">Al utilizar TuInventario, aceptas nuestros términos de servicio. El uso del sistema de facturación y punto de venta es responsabilidad del comercio. TuInventario proporciona el software "tal cual" y no se hace responsable por pérdidas de datos debidas a mal uso o problemas de hardware en el dispositivo del usuario. El plan mensual incluye todas las actualizaciones y soporte técnico básico.</p>
+        <h3 style="margin-bottom: 16px; font-size: 1.5rem;">Términos y Condiciones de Uso</h3>
+        <div style="color: var(--muted); font-size: 0.95rem; line-height: 1.6; display: flex; flex-direction: column; gap: 12px;">
+            <p><strong>1. Aceptación de los Términos:</strong> Al acceder y utilizar la plataforma y los servicios proporcionados por TuInventario (incluyendo la aplicación web, aplicaciones móviles y cualquier API asociada), usted acepta estar sujeto a estos términos y condiciones. Si no está de acuerdo con alguna parte de estos términos, no debe utilizar nuestros servicios.</p>
+            <p><strong>2. Uso del Servicio:</strong> TuInventario provee herramientas de gestión de inventario, punto de venta y analíticas para comercios. Usted acepta utilizar el servicio única y exclusivamente con fines lícitos y comerciales, garantizando que todos los datos de productos y ventas ingresados cumplen con las normativas fiscales vigentes en su jurisdicción.</p>
+            <p><strong>3. Disponibilidad y Mantenimiento:</strong> Hacemos nuestro mejor esfuerzo para mantener el servicio operativo 24/7. Sin embargo, no garantizamos el acceso ininterrumpido a la plataforma, dado que pueden ocurrir mantenimientos programados o interrupciones por causas de fuerza mayor. El uso de la aplicación offline (PagaPues) mitiga riesgos de conexión, recayendo en el usuario la responsabilidad de sincronización posterior.</p>
+            <p><strong>4. Limitación de Responsabilidad:</strong> TuInventario se proporciona "tal cual". En ningún caso seremos responsables por la pérdida de datos, lucro cesante o daños indirectos derivados del uso de nuestra plataforma. Es responsabilidad del usuario mantener respaldos físicos o fiscales según lo requiera la ley de su país.</p>
+            <p><strong>5. Pagos y Suscripciones:</strong> El uso continuo del sistema requiere el pago oportuno del plan mensual publicado. Nos reservamos el derecho de suspender o cancelar cuentas que mantengan deudas, sin perjuicio de permitir la exportación de sus datos durante un periodo de gracia de 30 días.</p>
+            <p><strong>6. Modificaciones:</strong> Nos reservamos el derecho de modificar estos términos en cualquier momento, lo cual será notificado a través del correo asociado a su cuenta con al menos 15 días de anticipación.</p>
+        </div>
     </div>
 </div>
 
 <!-- Modal Privacidad -->
 <div id="privacy-modal" style="display: none; align-items: center; justify-content: center; position: fixed; inset: 0; background: rgba(15,31,61,0.6); backdrop-filter: blur(4px); z-index: 100;">
-    <div style="background: #fff; padding: 32px; border-radius: 24px; max-width: 600px; width: 90%; max-height: 80vh; overflow-y: auto; position: relative;">
+    <div style="background: #fff; padding: 32px; border-radius: 24px; max-width: 800px; width: 90%; max-height: 80vh; overflow-y: auto; position: relative;">
         <button onclick="document.getElementById('privacy-modal').style.display = 'none'" style="position: absolute; right: 16px; top: 16px; background: none; border: none; font-size: 1.5rem; cursor: pointer;">&times;</button>
-        <h3 style="margin-bottom: 16px; font-size: 1.5rem;">Política de Privacidad</h3>
-        <p style="color: var(--muted); font-size: 0.95rem; line-height: 1.6;">Respetamos tu privacidad. Los datos de inventario, ventas y clientes registrados en tu cuenta te pertenecen. No vendemos ni compartimos tu información comercial con terceros bajo ninguna circunstancia. Utilizamos cookies esenciales para mantener tu sesión activa y herramientas de analítica anónima para mejorar nuestra plataforma. Al usar la app PagaPues, los datos se almacenan localmente en tu dispositivo.</p>
+        <h3 style="margin-bottom: 16px; font-size: 1.5rem;">Política de Privacidad Integral</h3>
+        <div style="color: var(--muted); font-size: 0.95rem; line-height: 1.6; display: flex; flex-direction: column; gap: 12px;">
+            <p><strong>1. Recopilación de la Información:</strong> Recopilamos la información mínima necesaria para el funcionamiento de su cuenta: nombre completo, correo electrónico, datos fiscales de su negocio y credenciales de acceso. La aplicación PagaPues solicitará permisos de almacenamiento para base de datos local y, ocasionalmente, cámara (para escaneo QR) e importación de contactos (para recordatorios de cobro).</p>
+            <p><strong>2. Uso de los Datos:</strong> Sus datos comerciales, incluyendo inventario, precios, facturación y clientes registrados, le pertenecen íntegramente. Estos datos se procesan estrictamente para proveerle el servicio y generar sus propios reportes (kardex y analíticas). <strong>Jamás vendemos, alquilamos ni compartimos su base de datos comercial con terceros.</strong></p>
+            <p><strong>3. Seguridad:</strong> Implementamos medidas de seguridad estándar de la industria (cifrado SSL en tránsito, bases de datos aisladas) para proteger su información contra acceso no autorizado, alteración o destrucción.</p>
+            <p><strong>4. Retención y Eliminación:</strong> Conservamos sus datos mientras su cuenta permanezca activa. Si decide cancelar su suscripción, sus datos serán eliminados permanentemente de nuestros servidores principales tras 60 días, otorgándole tiempo suficiente para su exportación.</p>
+            <p><strong>5. Cookies y Analíticas:</strong> Empleamos cookies técnicas necesarias para mantener su sesión activa de forma segura. Asimismo, empleamos servicios de terceros (como Google Analytics) de manera anonimizada para entender tendencias de uso general y mejorar nuestra plataforma.</p>
+            <p><strong>6. Sus Derechos:</strong> Usted tiene derecho a solicitar acceso, corrección, exportación o eliminación de sus datos en cualquier momento enviando un correo a videocode.info@gmail.com.</p>
+        </div>
     </div>
 </div>
 
@@ -828,7 +892,7 @@ p{margin:0}
 <script>
 (function(){
   /* ---------- Configuración ---------- */
-  var RATE = 795.00;   // Bs. por $ (ejemplo). En tu sistema real, léela de tu API/BD y muestra la fecha.
+  var RATE = <?= json_encode($tasa_bcv) ?>;   // Obtenida dinámicamente vía API PHP
   var PLAN_USD = 3;    // Precio mensual único
 
   var CATALOGS = {
@@ -838,7 +902,7 @@ p{margin:0}
       {id:'c', name:'Coca-Cola 1,5 L', price:2.50,  stock:40, color:'#c4262e', img:'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?auto=format&fit=crop&w=150&q=80'},
       {id:'d', name:'Burger doble',    price:18.00, stock:15, color:'#7a3b12', img:'https://images.unsplash.com/photo-1586816001966-79b736744398?auto=format&fit=crop&w=150&q=80'}]},
     bodega:{ctx:'<strong>Caja 1</strong> · Mostrador', sold:486.20, items:[
-      {id:'a', name:'Harina de maíz',      price:1.40, stock:60, color:'#a87706', img:'https://images.unsplash.com/photo-1574316074218-1e4e11e031a6?auto=format&fit=crop&w=150&q=80'},
+      {id:'a', name:'Harina de maíz',      price:1.40, stock:60, color:'#a87706', img:'https://images.unsplash.com/photo-1605652431613-2beee8f7dc53?auto=format&fit=crop&w=150&q=80'},
       {id:'b', name:'Arroz 1 kg',          price:1.60, stock:9,  color:'#2f6f8f', img:'https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&w=150&q=80'},
       {id:'c', name:'Aceite 1 L',          price:3.20, stock:18, color:'#3d7a1f', img:'https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?auto=format&fit=crop&w=150&q=80'},
       {id:'d', name:'Café 250 g',          price:2.80, stock:22, color:'#5b3a29', img:'https://images.unsplash.com/photo-1559525839-b184a4d698c7?auto=format&fit=crop&w=150&q=80'}]},
@@ -864,8 +928,8 @@ p{margin:0}
   var elToast = document.getElementById('toast');
   var elSold = document.getElementById('soldToday');
   var elCtx = document.getElementById('posCtx');
-  document.getElementById('rateChip').textContent = 'Tasa de ejemplo: Bs. ' + nf(RATE) + ' por $';
-  document.getElementById('priceBs').textContent = '≈ ' + fBs(PLAN_USD * RATE) + ' al cambio de ejemplo';
+  document.getElementById('rateChip').textContent = 'Tasa (BCV ' + <?= json_encode($last_update) ?> + '): Bs. ' + nf(RATE) + ' por $';
+  document.getElementById('priceBs').textContent = '≈ ' + fBs(PLAN_USD * RATE);
 
   function cat(){ return CATALOGS[current]; }
   function byId(id){ return cat().items.filter(function(p){return p.id===id;})[0]; }
