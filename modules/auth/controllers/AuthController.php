@@ -287,7 +287,8 @@ class AuthController extends Controller {
                     exit;
                 } else {
                     $_SESSION['login_error'] = 'Demasiados intentos fallidos. Por favor, espera 15 minutos.';
-                    header('Location: ' . BASE_URL . '?login=1');
+                    $is_pwa = !empty($_POST['is_pwa']);
+                    header('Location: ' . BASE_URL . ($is_pwa ? '?pwa=1' : '?login=1'));
                     exit;
                 }
             }
@@ -316,7 +317,8 @@ class AuthController extends Controller {
                     exit;
                 } else {
                     $_SESSION['login_error'] = 'Error interno del sistema.';
-                    header('Location: ' . BASE_URL . '?login=1');
+                    $is_pwa = !empty($_POST['is_pwa']);
+                    header('Location: ' . BASE_URL . ($is_pwa ? '?pwa=1' : '?login=1'));
                     exit;
                 }
             }
@@ -460,7 +462,8 @@ class AuthController extends Controller {
                     exit;
                 }
                 $_SESSION['login_error'] = 'Credenciales inválidas. Intente de nuevo.';
-                header('Location: ' . BASE_URL . '?login=1');
+                $is_pwa = !empty($_POST['is_pwa']);
+                header('Location: ' . BASE_URL . ($is_pwa ? '?pwa=1' : '?login=1'));
                 exit;
             }
         }
