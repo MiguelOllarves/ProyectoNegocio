@@ -813,8 +813,8 @@
                         <!-- QR Code de Descarga -->
                         <div class="flex items-center gap-4 mt-2 bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
                             <div class="relative shrink-0">
-                                <div id="qr-code-pagapues" class="w-[120px] h-[120px] flex items-center justify-center">
-                                    <div class="animate-pulse"><i class="fas fa-qrcode text-3xl text-slate-200"></i></div>
+                                <div class="w-[120px] h-[120px] flex items-center justify-center bg-white rounded-xl overflow-hidden p-1 border border-slate-100">
+                                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=<?= urlencode(BASE_URL . 'assets/PagaPues.apk') ?>" alt="QR Code PagaPues" class="w-full h-full object-contain">
                                 </div>
                             </div>
                             <div class="flex flex-col">
@@ -1324,52 +1324,6 @@
         });
     </script>
 
-    <!-- QR Code Generator (qrcode-generator CDN) -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            var container = document.getElementById('qr-code-pagapues');
-            if (!container) return;
-            
-            try {
-                // URL del APK de descarga
-                var downloadUrl = '<?= BASE_URL ?>assets/PagaPues.apk';
-                
-                // Generar QR con nivel de corrección M (permite logo central ~15%)
-                var qr = qrcode(0, 'M');
-                qr.addData(downloadUrl);
-                qr.make();
-                
-                // Obtener dimensiones del contenedor
-                var size = container.offsetWidth || 240;
-                var moduleCount = qr.getModuleCount();
-                var cellSize = Math.floor(size / moduleCount);
-                var actualSize = cellSize * moduleCount;
-                
-                // Crear SVG manualmente para mejor calidad
-                var svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + actualSize + ' ' + actualSize + '" width="' + size + '" height="' + size + '" style="display:block;">';
-                svg += '<rect width="' + actualSize + '" height="' + actualSize + '" fill="white"/>';
-                
-                for (var row = 0; row < moduleCount; row++) {
-                    for (var col = 0; col < moduleCount; col++) {
-                        if (qr.isDark(row, col)) {
-                            // Módulos oscuros con bordes redondeados sutiles
-                            var x = col * cellSize;
-                            var y = row * cellSize;
-                            var r = cellSize * 0.15; // Radio de esquina
-                            svg += '<rect x="' + x + '" y="' + y + '" width="' + cellSize + '" height="' + cellSize + '" rx="' + r + '" fill="#0f172a"/>';
-                        }
-                    }
-                }
-                
-                svg += '</svg>';
-                
-                container.innerHTML = svg;
-            } catch(e) {
-                // Fallback: mostrar icono de QR estático
-                container.innerHTML = '<div class="flex flex-col items-center gap-3"><i class="fas fa-qrcode text-6xl text-[#2563eb]"></i><span class="text-xs text-slate-400 font-bold">Visita tuinventario.app</span></div>';
-            }
-        });
-    </script>
+
 </body>
 </html>
