@@ -37,6 +37,79 @@ if (file_exists($cache_file) && (time() - filemtime($cache_file)) < 7200) {
         }
     }
 }
+
+// ============================================================
+// VISTA EXCLUSIVA PARA PWA (SOLO LOGIN)
+// ============================================================
+if (isset($_GET['pwa']) && $_GET['pwa'] == '1') {
+    ?>
+    <!DOCTYPE html>
+    <html lang="es">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
+        <meta name="theme-color" content="#0f1f3d">
+        <title>Acceder - TuInventario</title>
+        <link rel="manifest" href="/manifest.json">
+        <link rel="icon" href="/icons/icon-192x192.png">
+        <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
+        <style>
+            body { margin: 0; background: #0f1f3d; color: #fff; font-family: 'Figtree', system-ui, sans-serif; display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 24px; box-sizing: border-box; }
+            .card { background: #fff; color: #0f1f3d; padding: 32px 24px; border-radius: 24px; width: 100%; max-width: 400px; box-shadow: 0 20px 40px rgba(0,0,0,0.4); text-align: center; }
+            .card img { width: 56px; height: 56px; margin-bottom: 16px; border-radius: 12px; }
+            h1 { margin: 0 0 8px; font-size: 1.5rem; font-weight: 700; letter-spacing: -0.02em; }
+            p { color: #4d5a72; margin: 0 0 24px; font-size: 0.95rem; }
+            .form-group { text-align: left; margin-bottom: 16px; position: relative; }
+            label { display: block; margin-bottom: 6px; font-size: 0.9rem; font-weight: 600; }
+            input { width: 100%; padding: 14px 16px; border: 1.5px solid #d6e0da; border-radius: 12px; background: #f6f9f7; font-size: 1rem; box-sizing: border-box; font-family: inherit; transition: border-color 0.2s; }
+            input:focus { outline: none; border-color: #2350d8; background: #fff; }
+            .btn { width: 100%; padding: 14px; background: #2350d8; color: #fff; border: none; border-radius: 12px; font-weight: 700; font-size: 1rem; cursor: pointer; margin-top: 8px; display: flex; align-items: center; justify-content: center; gap: 8px; transition: background 0.2s; }
+            .btn:hover { background: #1a3ba8; }
+            .toggle-pw { position: absolute; right: 12px; top: 38px; background: none; border: none; cursor: pointer; color: #4d5a72; padding: 4px; }
+            .loader { display: none; width: 20px; height: 20px; border: 3px solid rgba(255,255,255,.3); border-radius: 50%; border-top-color: #fff; animation: spin 1s ease-in-out infinite; }
+            @keyframes spin { to { transform: rotate(360deg); } }
+            .btn-loading { pointer-events: none; opacity: 0.8; }
+            .btn-loading span:not(.loader) { display: none; }
+            .btn-loading .loader { display: inline-block; }
+            .error-box { margin-top: 16px; color: #b3261e; font-size: 0.9rem; font-weight: 600; padding: 12px; background: #fde3e0; border-radius: 12px; text-align: left; }
+        </style>
+    </head>
+    <body>
+        <div class="card">
+            <img src="/iconos_negocio/logo1.png" alt="TuInventario">
+            <h1>TuInventario</h1>
+            <p>Ingresa tus datos para continuar.</p>
+            <form action="/auth/login" method="POST" onsubmit="document.getElementById('pwaSubmitBtn').classList.add('btn-loading');">
+                <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?? '' ?>">
+                <input type="hidden" name="is_pwa" value="1">
+                <div class="form-group">
+                    <label>Cédula o Correo</label>
+                    <input type="text" name="username" placeholder="V-12345678" required autocomplete="username">
+                </div>
+                <div class="form-group">
+                    <label>Contraseña</label>
+                    <input type="password" id="pwaPassword" name="password" placeholder="••••••••" required autocomplete="current-password" style="padding-right: 40px;">
+                    <button type="button" class="toggle-pw" onclick="var el=document.getElementById('pwaPassword'); el.type=el.type==='password'?'text':'password';" aria-label="Mostrar contraseña">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                    </button>
+                </div>
+                <button type="submit" id="pwaSubmitBtn" class="btn">
+                    <span>Iniciar Sesión</span>
+                    <div class="loader"></div>
+                </button>
+            </form>
+            <?php if(!empty($_SESSION['login_error'])): ?>
+                <div class="error-box">
+                    <?= htmlspecialchars($_SESSION['login_error']) ?>
+                </div>
+                <?php unset($_SESSION['login_error']); ?>
+            <?php endif; ?>
+        </div>
+    </body>
+    </html>
+    <?php
+    exit;
+}
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -1075,6 +1148,11 @@ p{margin:0}
     var el = e.target.closest ? e.target.closest('[data-evt]') : null;
     if(el){ track(el.getAttribute('data-evt')); }
   });
+
+  // Auto-abrir modal si viene con ?login=1 o hay error de login
+  if (window.location.search.indexOf('login=1') !== -1 || <?= !empty($_SESSION['login_error']) ? 'true' : 'false' ?>) {
+      document.getElementById('login-modal').style.display = 'flex';
+  }
 })();
 </script>
 </body>

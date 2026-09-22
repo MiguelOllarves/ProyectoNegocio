@@ -2,7 +2,7 @@
   "name": "tu inventario.app",
   "short_name": "tu inventario.app",
   "description": "Controla tu inventario, ventas, créditos y métricas desde cualquier dispositivo. Diseñado para comercios inteligentes.",
-  "start_url": "/",
+  "start_url": "/?pwa=1",
   "scope": "/",
   "id": "/",
   "display": "standalone",
