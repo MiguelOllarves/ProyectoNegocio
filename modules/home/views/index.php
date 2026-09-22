@@ -840,9 +840,12 @@ p{margin:0}
                 <label style="display: block; margin-bottom: 6px; font-size: 0.9rem; font-weight: 600;">Cédula o Correo</label>
                 <input type="text" name="username" placeholder="V-12345678" required style="width: 100%; padding: 12px 16px; border: 1px solid var(--line); border-radius: 12px; background: var(--paper); font-size: 1rem;">
             </div>
-            <div>
+            <div style="position: relative;">
                 <label style="display: block; margin-bottom: 6px; font-size: 0.9rem; font-weight: 600;">Contraseña</label>
-                <input type="password" name="password" placeholder="••••••••" required style="width: 100%; padding: 12px 16px; border: 1px solid var(--line); border-radius: 12px; background: var(--paper); font-size: 1rem;">
+                <input type="password" id="loginPassword" name="password" placeholder="••••••••" required style="width: 100%; padding: 12px 40px 12px 16px; border: 1px solid var(--line); border-radius: 12px; background: var(--paper); font-size: 1rem;">
+                <button type="button" onclick="var el=document.getElementById('loginPassword'); el.type=el.type==='password'?'text':'password';" style="position: absolute; right: 12px; top: 35px; background: none; border: none; cursor: pointer; color: var(--muted); display: flex; align-items: center; justify-content: center; padding: 4px;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                </button>
             </div>
             <button type="submit" id="loginSubmitBtn" style="display: flex; align-items: center; justify-content: center; width: 100%; padding: 14px; background: var(--blue); color: #fff; border: none; border-radius: 12px; font-weight: 700; font-size: 1rem; cursor: pointer; margin-top: 8px;">
                 <span class="btn-text">Iniciar Sesión</span>
@@ -902,13 +905,13 @@ p{margin:0}
       {id:'c', name:'Coca-Cola 1,5 L', price:2.50,  stock:40, color:'#c4262e', img:'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?auto=format&fit=crop&w=150&q=80'},
       {id:'d', name:'Burger doble',    price:18.00, stock:15, color:'#7a3b12', img:'https://images.unsplash.com/photo-1586816001966-79b736744398?auto=format&fit=crop&w=150&q=80'}]},
     bodega:{ctx:'<strong>Caja 1</strong> · Mostrador', sold:486.20, items:[
-      {id:'a', name:'Harina de maíz',      price:1.40, stock:60, color:'#a87706', img:'https://images.unsplash.com/photo-1605652431613-2beee8f7dc53?auto=format&fit=crop&w=150&q=80'},
+      {id:'a', name:'Harina de maíz',      price:1.40, stock:60, color:'#a87706', img:'https://images.unsplash.com/photo-1508344928928-7165b67de128?auto=format&fit=crop&w=150&q=80'},
       {id:'b', name:'Arroz 1 kg',          price:1.60, stock:9,  color:'#2f6f8f', img:'https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&w=150&q=80'},
       {id:'c', name:'Aceite 1 L',          price:3.20, stock:18, color:'#3d7a1f', img:'https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?auto=format&fit=crop&w=150&q=80'},
       {id:'d', name:'Café 250 g',          price:2.80, stock:22, color:'#5b3a29', img:'https://images.unsplash.com/photo-1559525839-b184a4d698c7?auto=format&fit=crop&w=150&q=80'}]},
     ropa:{ctx:'<strong>Caja 1</strong> · Tienda', sold:812.40, items:[
-      {id:'a', name:'Camisa casual',  price:29.99, stock:12, color:'#2350d8', img:'https://images.unsplash.com/photo-1596755094514-f87e32f6b717?auto=format&fit=crop&w=150&q=80'},
-      {id:'b', name:'Jean clásico',   price:34.00, stock:7,  color:'#1a3ba8', img:'https://images.unsplash.com/photo-1542272604-780c8d52a5ce?auto=format&fit=crop&w=150&q=80'},
+      {id:'a', name:'Camisa casual',  price:29.99, stock:12, color:'#2350d8', img:'https://images.unsplash.com/photo-1598033129183-c4f50c736f10?auto=format&fit=crop&w=150&q=80'},
+      {id:'b', name:'Jean clásico',   price:34.00, stock:7,  color:'#1a3ba8', img:'https://images.unsplash.com/photo-1541099649105-f69ad21f3246?auto=format&fit=crop&w=150&q=80'},
       {id:'c', name:'Franela básica', price:9.50,  stock:30, color:'#14875f', img:'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&w=150&q=80'},
       {id:'d', name:'Gorra',          price:8.00,  stock:14, color:'#7a3b12', img:'https://images.unsplash.com/photo-1588850561407-ed78c282e89b?auto=format&fit=crop&w=150&q=80'}]}
   };
@@ -948,7 +951,7 @@ p{margin:0}
       b.innerHTML =
         '<span class="prod-tile" style="background: ' + p.color + (p.img ? ' url(' + p.img + ') center/cover' : '') + ';">' + (p.img ? '' : p.name.charAt(0)) + '</span>' +
         '<span class="prod-name">' + p.name + '</span>' +
-        '<span class="prod-price">' + fUsd(p.price) + '</span>' +
+        '<span class="prod-price" style="display:flex; flex-direction:column;">' + fUsd(p.price) + ' <small style="font-size:0.75rem; color:var(--muted); font-weight:600;">' + fBs(p.price * RATE) + '</small></span>' +
         '<span class="stock ' + stockClass(left) + '">' + stockLabel(left) + '</span>';
       b.addEventListener('click', function(){ add(p.id); track('demo_add_product'); });
       elProducts.appendChild(b);
