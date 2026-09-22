@@ -816,10 +816,6 @@
                                 <div id="qr-code-pagapues" class="w-[120px] h-[120px] flex items-center justify-center">
                                     <div class="animate-pulse"><i class="fas fa-qrcode text-3xl text-slate-200"></i></div>
                                 </div>
-                                <!-- Logo central pequeño -->
-                                <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-7 h-7 bg-white rounded-md shadow-sm flex items-center justify-center z-10">
-                                    <img src="<?= BASE_URL ?>?serve_logo=1" alt="Logo" class="w-4 h-4 object-contain">
-                                </div>
                             </div>
                             <div class="flex flex-col">
                                 <span class="text-sm font-black text-slate-800">Escanea el QR</span>
