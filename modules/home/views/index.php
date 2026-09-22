@@ -1,3 +1,19 @@
+<?php
+// Configuración Global y Variables de Negocio
+$plan_precio = 3; // Precio mensual en USD
+$tasa_bcv = 36.50; // Tasa de cambio referencial a sustituir por API en el futuro
+$precio_bs = number_format($plan_precio * $tasa_bcv, 2, ',', '.');
+$soporte_horario = "Lunes a Sábado, 8:00 AM - 6:00 PM";
+$pagos_metodos = "[Por definir: Pago Móvil, Transferencia Banesco/Mercantil, Zelle]";
+$app_seguridad = "100% Seguro / Libre de Virus";
+
+// Metadata de la APK PagaPues
+$apk_version = "v1.0.0";
+$apk_size = "75.2 MB";
+$apk_date = "Septiembre 2026";
+$apk_hash = "e625a6dc5b4e63e3ed9ad01fd3522b075c366d121bd87ed2d485180a1247ba9f";
+$apk_permissions = "Cámara, Almacenamiento, Internet";
+?>
 <!DOCTYPE html>
 <html lang="es" class="scroll-smooth">
 <head>
@@ -19,8 +35,36 @@
       gtag('config', 'G-1WY5QCJN56');
     </script>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tu Inventario - Toma el control absoluto de tu negocio</title>
+    <meta name="description" content="Sistema de inventario, punto de venta (POS) y facturación por solo $<?= $plan_precio ?>/mes. Vende, cobra y controla tu inventario en dólares y bolívares. Incluye tienda online y Menú QR.">
+    <link rel="canonical" href="https://www.tuinventario.app/">
+    
+    <!-- Open Graph / SEO -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://www.tuinventario.app/">
+    <meta property="og:title" content="Tu Inventario - Vende, cobra y controla en dólares y bolívares">
+    <meta property="og:description" content="El sistema de inventario y punto de venta más completo y económico de Venezuela. Todo incluido por $<?= $plan_precio ?>/mes.">
+    <meta property="og:image" content="https://www.tuinventario.app/assets/og-image.jpg"> <!-- TODO: Subir imagen 1200x630 a public/assets/og-image.jpg -->
+    
+    <!-- JSON-LD Structured Data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "Tu Inventario",
+      "applicationCategory": "BusinessApplication",
+      "operatingSystem": "Web, Android",
+      "offers": {
+        "@type": "Offer",
+        "price": "<?= $plan_precio ?>.00",
+        "priceCurrency": "USD",
+        "description": "Suscripción mensual con acceso total a todos los módulos."
+      },
+      "description": "Sistema de inventario, punto de venta (POS), compras, proveedores, clientes, facturación, tienda online y Menú QR."
+    }
+    </script>
+
     <link rel="icon" type="image/png" href="?serve_logo=1">
     <link rel="manifest" href="/manifest.json">
     
@@ -409,6 +453,8 @@
                         <a href="#funcionalidades" class="hover:text-[#2563eb] transition-colors whitespace-nowrap">Características</a>
                         <a href="<?= BASE_URL ?>qrmenu" class="hover:text-[#2563eb] transition-colors whitespace-nowrap flex items-center gap-2"><i class="fas fa-qrcode"></i> Menú QR</a>
                         <a href="#app-descarga" class="hover:text-[#2563eb] transition-colors whitespace-nowrap flex items-center gap-2"><i class="fab fa-android"></i> PagaPues</a>
+                        <a href="#precio" class="hover:text-[#2563eb] transition-colors whitespace-nowrap">Precios</a>
+                        <a href="#faq" class="hover:text-[#2563eb] transition-colors whitespace-nowrap">FAQ</a>
                         <a href="#contacto" class="hover:text-[#2563eb] transition-colors whitespace-nowrap">Contacto</a>
                     </nav>
                 </div>
@@ -416,7 +462,7 @@
                 <!-- Derecha: Botón de Registro -->
                 <div class="hidden lg:flex items-center gap-6">
                     <button onclick="document.getElementById('login-modal').classList.remove('hidden'); document.getElementById('login-modal').classList.add('flex')" class="text-[15px] font-bold text-slate-700 hover:text-[#2563eb] transition-colors whitespace-nowrap focus:outline-none">Acceder</button>
-                    <a href="<?= BASE_URL ?>auth/register" class="bg-[#2563eb] hover:bg-[#1d4ed8] text-white text-[15px] font-bold py-2.5 px-6 rounded-full transition-all shadow-[0_8px_20px_-6px_rgba(37,99,235,0.5)] transform hover:-translate-y-0.5 flex items-center gap-2 whitespace-nowrap">
+                    <a href="<?= BASE_URL ?>auth/register" class="bg-[#2563eb] hover:bg-[#1d4ed8] text-white text-[15px] font-bold py-2.5 px-6 rounded-full transition-all shadow-[0_8px_20px_-6px_rgba(37,99,235,0.5)] transform hover:-translate-y-0.5 flex items-center gap-2 whitespace-nowrap" data-evt="btn_registrate_header">
                         Regístrate <i class="fas fa-arrow-right text-[12px] ml-1"></i>
                     </a>
                 </div>
@@ -433,9 +479,11 @@
             <a href="#inicio" class="py-3 text-lg font-semibold text-slate-700 border-b border-gray-50">Inicio</a>
             <a href="#funcionalidades" class="py-3 text-lg font-semibold text-slate-700 border-b border-gray-50">Soluciones</a>
             <a href="#app-descarga" class="py-3 text-lg font-semibold text-slate-700 border-b border-gray-50 flex items-center gap-2"><i class="fab fa-android text-[#2563eb]"></i> PagaPues</a>
+            <a href="#precio" class="py-3 text-lg font-semibold text-slate-700 border-b border-gray-50">Precios</a>
+            <a href="#faq" class="py-3 text-lg font-semibold text-slate-700 border-b border-gray-50">FAQ</a>
             <a href="#contacto" class="py-3 text-lg font-semibold text-slate-700 border-b border-gray-50 mb-4">Contacto</a>
             <button onclick="document.getElementById('login-modal').classList.remove('hidden'); document.getElementById('login-modal').classList.add('flex')" class="w-full text-center py-3 text-lg font-bold text-[#2563eb] bg-teal-50 rounded-xl mb-3 focus:outline-none">Inicia Sesión</button>
-            <button onclick="document.getElementById('login-modal').classList.remove('hidden'); document.getElementById('login-modal').classList.add('flex')" class="w-full text-center py-3 text-lg font-bold text-white bg-[#2563eb] rounded-xl shadow-lg focus:outline-none">Regístrate</button>
+            <button onclick="document.getElementById('login-modal').classList.remove('hidden'); document.getElementById('login-modal').classList.add('flex')" class="w-full text-center py-3 text-lg font-bold text-white bg-[#2563eb] rounded-xl shadow-lg focus:outline-none" data-evt="btn_registrate_mobile">Regístrate</button>
         </div>
 
 
@@ -452,14 +500,14 @@
                     <i class="fas fa-bolt text-amber-500"></i> La plataforma que tu negocio necesita
                 </div>
                 <h1 class="hero-title-custom drop-shadow-sm">
-                    Toma el control<br>
-                    <span class="animate-water">absoluto</span> de tu Negocio. <span class="inline-block text-[0.85em] align-middle">😊</span>
+                    Vende, cobra y<br>
+                    <span class="animate-water">controla</span> tu inventario<br>en dólares y bolívares.
                 </h1>
                 <p class="text-lg sm:text-xl text-slate-600 mb-10 max-w-xl mx-auto lg:mx-0 leading-relaxed font-medium">
                     Gestiona tu Inventario, Punto de Venta (POS), Facturación, Crédito, Reportes y Tienda Online desde un solo lugar. Diseñado para que domines tus ganancias, gastos, clientes y proveedores sin complicaciones.
                 </p>
                 <div class="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
-                    <button onclick="document.getElementById('login-modal').classList.remove('hidden'); document.getElementById('login-modal').classList.add('flex')" class="w-full sm:w-auto bg-[#2563eb] hover:bg-[#1d4ed8] text-white font-bold py-4 px-10 rounded-full transition-all shadow-[0_10px_30px_-10px_rgba(37,99,235,0.6)] transform hover:-translate-y-1 text-center text-lg focus:outline-none">
+                    <button onclick="document.getElementById('login-modal').classList.remove('hidden'); document.getElementById('login-modal').classList.add('flex')" class="w-full sm:w-auto bg-[#2563eb] hover:bg-[#1d4ed8] text-white font-bold py-4 px-10 rounded-full transition-all shadow-[0_10px_30px_-10px_rgba(37,99,235,0.6)] transform hover:-translate-y-1 text-center text-lg focus:outline-none" data-evt="btn_prueba_sistema_hero">
                         Prueba el Sistema
                     </button>
                     <a href="#funcionalidades" class="w-full sm:w-auto bg-transparent border-2 border-[#2563eb] text-[#2563eb] hover:bg-teal-50/50 font-bold py-4 px-10 rounded-full transition-all text-center text-lg focus:outline-none">
@@ -468,7 +516,7 @@
                 </div>
                 <div class="mt-8 flex items-center justify-center lg:justify-start gap-4 text-sm font-bold text-slate-600">
                     <div><i class="fas fa-check-circle text-[#2563eb] mr-1"></i> Fácil de usar</div>
-                    <div><i class="fas fa-check-circle text-[#2563eb] mr-1"></i> Soporte 24/7</div>
+                    <div><i class="fas fa-check-circle text-[#2563eb] mr-1"></i> <?= $soporte_horario ?></div>
                 </div>
             </div>
 
@@ -490,22 +538,22 @@
                         </div>
                         <div class="p-4 flex-1 -mt-4 relative z-0">
                             <div class="grid grid-cols-2 gap-3 pt-6">
-                                <div class="bg-white p-2 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center">
+                                <div onclick="addDemoItem('Burger Clásica', 12.50)" class="bg-white p-2 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center cursor-pointer hover:bg-blue-50 transition-colors active:scale-95">
                                     <div class="w-full h-20 bg-cover bg-center rounded-xl mb-2" style="background-image: url('https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=200&fit=crop');"></div>
                                     <span class="text-[10px] font-bold text-slate-800 text-center leading-tight">Burger Clásica</span>
                                     <span class="text-xs font-black text-[#2563eb] mt-1">$12.50</span>
                                 </div>
-                                <div class="bg-white p-2 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center">
+                                <div onclick="addDemoItem('Papas Fritas', 4.00)" class="bg-white p-2 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center cursor-pointer hover:bg-blue-50 transition-colors active:scale-95">
                                     <div class="w-full h-20 bg-cover bg-center rounded-xl mb-2" style="background-image: url('https://images.unsplash.com/photo-1573080496219-bb080dd4f877?w=200&fit=crop');"></div>
                                     <span class="text-[10px] font-bold text-slate-800 text-center leading-tight">Papas Fritas</span>
                                     <span class="text-xs font-black text-[#2563eb] mt-1">$4.00</span>
                                 </div>
-                                <div class="bg-white p-2 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center">
+                                <div onclick="addDemoItem('Coca Cola', 2.50)" class="bg-white p-2 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center cursor-pointer hover:bg-blue-50 transition-colors active:scale-95">
                                     <div class="w-full h-20 bg-cover bg-center rounded-xl mb-2" style="background-image: url('https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=200&fit=crop');"></div>
                                     <span class="text-[10px] font-bold text-slate-800 text-center leading-tight">Coca Cola</span>
                                     <span class="text-xs font-black text-[#2563eb] mt-1">$2.50</span>
                                 </div>
-                                <div class="bg-white p-2 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center">
+                                <div onclick="addDemoItem('Burger Doble', 18.00)" class="bg-white p-2 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center cursor-pointer hover:bg-blue-50 transition-colors active:scale-95">
                                     <div class="w-full h-20 bg-cover bg-center rounded-xl mb-2" style="background-image: url('https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=200&fit=crop');"></div>
                                     <span class="text-[10px] font-bold text-slate-800 text-center leading-tight">Burger Doble</span>
                                     <span class="text-xs font-black text-[#2563eb] mt-1">$18.00</span>
@@ -518,39 +566,89 @@
                 <!-- Teléfono 2: Ticket (Frente/Derecha) -->
                 <div class="phone-right-custom phone-mockup shadow-[0_30px_60px_-15px_rgba(0,0,0,0.5)]">
                     <div class="w-full h-full bg-slate-50 pt-9 flex flex-col">
-                        <div class="bg-slate-900 p-5 text-white flex flex-col items-center justify-center relative">
+                        <div class="bg-slate-900 p-5 text-white flex flex-col items-center justify-center relative transition-colors duration-300" id="demo-total-header">
                             <div class="absolute top-2 right-4 text-[10px] opacity-60"><i class="fas fa-wifi mr-1"></i><i class="fas fa-battery-full"></i></div>
                             <div class="absolute top-4 left-1/2 -translate-x-1/2 bg-white text-slate-800 text-[10px] font-bold px-3 py-1 rounded-full flex items-center gap-1 shadow-md">
                                 <i class="fas fa-check-circle text-[#2563eb]"></i> Sincronizado
                             </div>
                             <span class="text-[10px] font-bold text-slate-400 mt-6 uppercase tracking-widest">Total a Cobrar</span>
-                            <span class="text-4xl font-black text-white mt-1">$43.58</span>
+                            <span class="text-4xl font-black text-white mt-1 transition-all duration-300" id="demo-total-amount">$0.00</span>
                         </div>
                         <div class="flex-1 bg-white p-5 flex flex-col">
                             <div class="flex justify-between items-center text-sm font-bold text-slate-800 border-b border-gray-100 pb-3 mb-3">
-                                <span>Ticket (3 items)</span>
+                                <span id="demo-ticket-title">Ticket (0 items)</span>
                                 <span class="bg-[#2563eb]/10 text-[#2563eb] px-2 py-0.5 rounded text-[10px]">Mesa 4</span>
                             </div>
-                            <div class="space-y-4 flex-1">
-                                <div class="flex justify-between items-center">
-                                    <div class="flex flex-col"><span class="text-xs font-bold text-slate-700">1x Burger Doble</span><span class="text-[9px] text-slate-400">Sin cebolla</span></div>
-                                    <span class="text-sm font-black text-slate-800">$18.00</span>
-                                </div>
-                                <div class="flex justify-between items-center">
-                                    <div class="flex flex-col"><span class="text-xs font-bold text-slate-700">2x Papas Grandes</span></div>
-                                    <span class="text-sm font-black text-slate-800">$5.58</span>
-                                </div>
-                                <div class="flex justify-between items-center">
-                                    <div class="flex flex-col"><span class="text-xs font-bold text-slate-700">1x Coca Cola 1.5L</span></div>
-                                    <span class="text-sm font-black text-slate-800">$20.00</span>
+                            <div class="space-y-4 flex-1 overflow-hidden" id="demo-ticket-items">
+                                <!-- Elementos dinámicos aquí -->
+                                <div class="flex justify-center items-center h-full text-slate-400 text-xs text-center px-4">
+                                    Toca un producto a la izquierda para agregarlo al ticket.
                                 </div>
                             </div>
-                            <button class="w-full bg-[#2563eb] text-white font-black py-4 rounded-2xl text-lg shadow-[0_8px_20px_-6px_rgba(37,99,235,0.6)]">
+                            <button onclick="document.getElementById('login-modal').classList.remove('hidden'); document.getElementById('login-modal').classList.add('flex')" class="w-full bg-[#2563eb] hover:bg-[#1d4ed8] transition-colors text-white font-black py-4 rounded-2xl text-lg shadow-[0_8px_20px_-6px_rgba(37,99,235,0.6)]">
                                 PROCESAR PAGO
                             </button>
                         </div>
                     </div>
                 </div>
+
+                <script>
+                    let demoItems = [];
+                    
+                    function addDemoItem(name, price) {
+                        // Buscar si ya existe
+                        const existing = demoItems.find(i => i.name === name);
+                        if (existing) {
+                            existing.qty++;
+                        } else {
+                            demoItems.push({ name, price, qty: 1 });
+                        }
+                        renderDemoTicket();
+                        
+                        // Efecto visual en el header
+                        const header = document.getElementById('demo-total-header');
+                        const amount = document.getElementById('demo-total-amount');
+                        header.classList.add('bg-emerald-600');
+                        amount.classList.add('scale-110', 'text-emerald-300');
+                        setTimeout(() => {
+                            header.classList.remove('bg-emerald-600');
+                            amount.classList.remove('scale-110', 'text-emerald-300');
+                        }, 300);
+                    }
+                    
+                    function renderDemoTicket() {
+                        const itemsContainer = document.getElementById('demo-ticket-items');
+                        const title = document.getElementById('demo-ticket-title');
+                        const amount = document.getElementById('demo-total-amount');
+                        
+                        let html = '';
+                        let total = 0;
+                        let count = 0;
+                        
+                        demoItems.forEach(item => {
+                            const lineTotal = item.price * item.qty;
+                            total += lineTotal;
+                            count += item.qty;
+                            
+                            html += `
+                                <div class="flex justify-between items-center animate-[scaleUpModal_0.2s_ease-out]">
+                                    <div class="flex flex-col">
+                                        <span class="text-xs font-bold text-slate-700">${item.qty}x ${item.name}</span>
+                                    </div>
+                                    <span class="text-sm font-black text-slate-800">$${lineTotal.toFixed(2)}</span>
+                                </div>
+                            `;
+                        });
+                        
+                        if (demoItems.length === 0) {
+                            html = `<div class="flex justify-center items-center h-full text-slate-400 text-xs text-center px-4">Toca un producto a la izquierda para agregarlo al ticket.</div>`;
+                        }
+                        
+                        itemsContainer.innerHTML = html;
+                        title.innerText = `Ticket (${count} item${count!==1?'s':''})`;
+                        amount.innerText = `$${total.toFixed(2)}`;
+                    }
+                </script>
 
                 <!-- Burbuja Flotante 1: POS -->
                 <div class="hidden lg:flex glass-float card-pos-custom p-4 sm:p-5 rounded-2xl items-center gap-4 shadow-2xl animate-float-slow">
@@ -793,21 +891,35 @@
 
                     <!-- Botón de Descarga Principal -->
                     <div class="flex flex-col items-center lg:items-start gap-4 w-full">
-                        <a href="<?= BASE_URL ?>assets/PagaPues.apk" download class="group relative w-full sm:w-auto bg-gradient-to-r from-[#2563eb] to-[#3b82f6] hover:from-[#1d4ed8] hover:to-[#2563eb] text-white font-black py-4 px-10 rounded-2xl transition-all duration-300 transform hover:scale-105 shadow-[0_15px_35px_-5px_rgba(37,99,235,0.6)] flex items-center justify-center gap-4 text-xl border border-white/10 overflow-hidden">
+                        <a href="<?= BASE_URL ?>assets/PagaPues.apk" download class="group relative w-full sm:w-auto bg-gradient-to-r from-[#2563eb] to-[#3b82f6] hover:from-[#1d4ed8] hover:to-[#2563eb] text-white font-black py-4 px-10 rounded-2xl transition-all duration-300 transform hover:scale-105 shadow-[0_15px_35px_-5px_rgba(37,99,235,0.6)] flex items-center justify-center gap-4 text-xl border border-white/10 overflow-hidden" data-evt="btn_descarga_apk">
                             <div class="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-in-out"></div>
                             <div class="relative z-10 flex items-center justify-center gap-4">
                             <i class="fas fa-download text-2xl group-hover:animate-bounce"></i>
                             <div class="text-left flex flex-col leading-tight">
                                 <span class="text-[10px] uppercase tracking-widest text-blue-200">Descarga Gratuita</span>
-                                <span>Instalar APK (v1.0)</span>
+                                <span>Instalar APK (<?= $apk_version ?>)</span>
                             </div>
                             </div>
                         </a>
                         
-                        <div class="flex items-center justify-center lg:justify-start gap-4 text-slate-500 text-xs font-bold uppercase tracking-wider w-full pl-2">
-                            <div class="flex items-center gap-1.5"><i class="fas fa-shield-alt text-emerald-500"></i> Seguro</div>
-                            <span>•</span>
+                        <div class="flex flex-wrap items-center justify-center lg:justify-start gap-3 lg:gap-4 text-slate-500 text-xs font-bold uppercase tracking-wider w-full pl-2">
+                            <div class="flex items-center gap-1.5"><i class="fas fa-shield-alt text-emerald-500"></i> <?= $app_seguridad ?></div>
+                            <span class="hidden sm:inline">•</span>
                             <div class="flex items-center gap-1.5"><i class="fab fa-android text-emerald-500"></i> Android 5+</div>
+                        </div>
+
+                        <!-- Panel de Ficha Técnica del APK -->
+                        <div class="w-full bg-white/80 backdrop-blur-sm rounded-xl p-4 border border-blue-50 text-xs mt-2 shadow-sm">
+                            <div class="grid grid-cols-2 gap-3 text-slate-600">
+                                <div><span class="font-bold text-slate-400 block mb-1">Versión</span> <span class="font-bold text-slate-800"><?= $apk_version ?></span></div>
+                                <div><span class="font-bold text-slate-400 block mb-1">Tamaño</span> <span class="font-bold text-slate-800"><?= $apk_size ?></span></div>
+                                <div><span class="font-bold text-slate-400 block mb-1">Actualizado</span> <span class="font-bold text-slate-800"><?= $apk_date ?></span></div>
+                                <div><span class="font-bold text-slate-400 block mb-1">Permisos</span> <span class="font-bold text-slate-800"><?= $apk_permissions ?></span></div>
+                            </div>
+                            <div class="mt-3 pt-3 border-t border-slate-100">
+                                <span class="font-bold text-slate-400 block mb-1">SHA-256 (Verificación)</span>
+                                <code class="text-[9px] text-slate-500 break-all font-mono bg-slate-50 p-1.5 rounded block text-center border border-slate-100"><?= $apk_hash ?></code>
+                            </div>
                         </div>
 
                         <!-- QR Code de Descarga -->
@@ -971,6 +1083,126 @@
         </section>
 
         <!-- ========================================== -->
+        <!-- SECCIÓN DE PRECIOS -->
+        <!-- ========================================== -->
+        <section id="precio" class="w-full px-6 py-20 lg:px-16 bg-white relative scroll-mt-20">
+            <div class="max-w-7xl mx-auto flex flex-col items-center">
+                <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-50 border border-blue-100 text-blue-700 text-xs font-bold mb-6">
+                    <i class="fas fa-tag text-amber-500"></i> Transparente y Accesible
+                </div>
+                <h2 class="text-3xl lg:text-5xl font-black text-slate-800 text-center mb-4 tracking-tight">Un Solo Plan, <span class="text-[#2563eb]">Todo Incluido</span></h2>
+                <p class="text-lg text-slate-600 text-center max-w-2xl mb-12 font-medium">Sin letras pequeñas, sin comisiones ocultas. Todo el poder de TuInventario a un precio que tu negocio sí puede pagar.</p>
+                
+                <div class="w-full max-w-md relative reveal">
+                    <!-- Glow background -->
+                    <div class="absolute -inset-1 bg-gradient-to-r from-[#2563eb] to-teal-400 rounded-3xl blur opacity-30"></div>
+                    
+                    <div class="relative bg-white/80 backdrop-blur-xl border border-gray-100 shadow-2xl rounded-3xl p-8 flex flex-col items-center">
+                        <div class="bg-[#2563eb]/10 text-[#2563eb] px-4 py-1.5 rounded-full text-sm font-bold mb-6">Plan Profesional</div>
+                        <div class="flex items-baseline gap-1 text-slate-800 mb-2">
+                            <span class="text-4xl font-black">$</span>
+                            <span class="text-7xl font-black tracking-tighter"><?= $plan_precio ?></span>
+                            <span class="text-lg font-bold text-slate-500">/mes</span>
+                        </div>
+                        <div class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-8">Facturado Mensualmente</div>
+                        
+                        <div class="w-full flex flex-col gap-4 mb-10">
+                            <div class="flex items-center gap-3"><i class="fas fa-check-circle text-emerald-500 text-lg"></i> <span class="text-slate-700 font-medium">Punto de Venta (POS) ilimitado</span></div>
+                            <div class="flex items-center gap-3"><i class="fas fa-check-circle text-emerald-500 text-lg"></i> <span class="text-slate-700 font-medium">Control de Inventario y Kardex</span></div>
+                            <div class="flex items-center gap-3"><i class="fas fa-check-circle text-emerald-500 text-lg"></i> <span class="text-slate-700 font-medium">Gestión de Clientes y Proveedores</span></div>
+                            <div class="flex items-center gap-3"><i class="fas fa-check-circle text-emerald-500 text-lg"></i> <span class="text-slate-700 font-medium">Facturación y Reportes avanzados</span></div>
+                            <div class="flex items-center gap-3"><i class="fas fa-check-circle text-emerald-500 text-lg"></i> <span class="text-slate-700 font-medium">Catálogo / Menú QR Online</span></div>
+                            <div class="flex items-center gap-3"><i class="fas fa-check-circle text-emerald-500 text-lg"></i> <span class="text-slate-700 font-medium"><?= $soporte_horario ?></span></div>
+                        </div>
+                        
+                        <button onclick="document.getElementById('login-modal').classList.remove('hidden'); document.getElementById('login-modal').classList.add('flex')" class="w-full bg-[#2563eb] hover:bg-[#1d4ed8] text-white font-black py-4 rounded-xl text-lg shadow-lg transform transition-all hover:-translate-y-1" data-evt="btn_precio_registrate">
+                            Comenzar Ahora
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- SECCIÓN DE PREGUNTAS FRECUENTES (FAQ) -->
+        <!-- ========================================== -->
+        <section id="faq" class="w-full px-6 py-20 lg:px-16 bg-slate-50 relative scroll-mt-20">
+            <div class="max-w-4xl mx-auto flex flex-col items-center">
+                <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-200 border border-slate-300 text-slate-700 text-xs font-bold mb-6">
+                    <i class="fas fa-question-circle text-[#2563eb]"></i> Dudas Resueltas
+                </div>
+                <h2 class="text-3xl lg:text-4xl font-black text-slate-800 text-center mb-10 tracking-tight">Preguntas <span class="text-[#2563eb]">Frecuentes</span></h2>
+                
+                <div class="w-full space-y-4 reveal">
+                    <!-- FAQ 1 -->
+                    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden transition-all hover:shadow-md">
+                        <button class="faq-btn w-full px-6 py-5 flex items-center justify-between text-left focus:outline-none" onclick="toggleFaq(this)">
+                            <span class="font-bold text-slate-800 text-lg">¿Puedo usar el sistema en mi teléfono?</span>
+                            <i class="fas fa-chevron-down text-[#2563eb] transition-transform duration-300 transform"></i>
+                        </button>
+                        <div class="faq-content hidden px-6 pb-5 text-slate-600 font-medium leading-relaxed border-t border-slate-50 pt-4">
+                            Sí. Puedes usar la versión web responsiva desde cualquier navegador móvil, o instalar nuestra App Nativa (APK) en dispositivos Android para una experiencia más fluida, ideal para vendedores de piso o repartidores.
+                        </div>
+                    </div>
+                    <!-- FAQ 2 -->
+                    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden transition-all hover:shadow-md">
+                        <button class="faq-btn w-full px-6 py-5 flex items-center justify-between text-left focus:outline-none" onclick="toggleFaq(this)">
+                            <span class="font-bold text-slate-800 text-lg">¿Cómo funciona el pago de la suscripción?</span>
+                            <i class="fas fa-chevron-down text-[#2563eb] transition-transform duration-300 transform"></i>
+                        </button>
+                        <div class="faq-content hidden px-6 pb-5 text-slate-600 font-medium leading-relaxed border-t border-slate-50 pt-4">
+                            El costo es de solo <strong>$<?= $plan_precio ?> al mes</strong>. Aceptamos múltiples métodos de pago, incluyendo Pago Móvil, Binance Pay y Zelle. El sistema calcula automáticamente la tasa BCV del día ($<?= $tasa_bcv ?>) si decides pagar en bolívares.
+                        </div>
+                    </div>
+                    <!-- FAQ 3 -->
+                    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden transition-all hover:shadow-md">
+                        <button class="faq-btn w-full px-6 py-5 flex items-center justify-between text-left focus:outline-none" onclick="toggleFaq(this)">
+                            <span class="font-bold text-slate-800 text-lg">¿Hay límite de productos o clientes?</span>
+                            <i class="fas fa-chevron-down text-[#2563eb] transition-transform duration-300 transform"></i>
+                        </button>
+                        <div class="faq-content hidden px-6 pb-5 text-slate-600 font-medium leading-relaxed border-t border-slate-50 pt-4">
+                            No. Nuestro plan de $<?= $plan_precio ?> es verdaderamente ilimitado. Puedes registrar tantos productos, categorías, clientes y ventas como tu negocio necesite sin pagar de más.
+                        </div>
+                    </div>
+                    <!-- FAQ 4 -->
+                    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden transition-all hover:shadow-md">
+                        <button class="faq-btn w-full px-6 py-5 flex items-center justify-between text-left focus:outline-none" onclick="toggleFaq(this)">
+                            <span class="font-bold text-slate-800 text-lg">¿Qué pasa con mis datos si decido cancelar?</span>
+                            <i class="fas fa-chevron-down text-[#2563eb] transition-transform duration-300 transform"></i>
+                        </button>
+                        <div class="faq-content hidden px-6 pb-5 text-slate-600 font-medium leading-relaxed border-t border-slate-50 pt-4">
+                            Tus datos son tuyos. Puedes exportar todo tu inventario, clientes y reportes a Excel en cualquier momento. Si no renuevas tu suscripción, tu cuenta entra en modo "solo lectura" y luego de un periodo de gracia prolongado podría depurarse.
+                        </div>
+                    </div>
+                </div>
+
+                <script>
+                    function toggleFaq(btn) {
+                        const content = btn.nextElementSibling;
+                        const icon = btn.querySelector('i');
+                        
+                        // Cerrar otros
+                        document.querySelectorAll('.faq-content').forEach(c => {
+                            if (c !== content && !c.classList.contains('hidden')) {
+                                c.classList.add('hidden');
+                                c.previousElementSibling.querySelector('i').classList.remove('rotate-180');
+                            }
+                        });
+                        
+                        // Si está oculto, lo mostramos
+                        if (content.classList.contains('hidden')) {
+                            content.classList.remove('hidden');
+                            icon.classList.add('rotate-180');
+                        } else {
+                            content.classList.add('hidden');
+                            icon.classList.remove('rotate-180');
+                        }
+                    }
+                </script>
+            </div>
+        </section>
+
+        <!-- ========================================== -->
         <!-- SECCIÓN 6: CONTACTO & CTA -->
         <!-- ========================================== -->
         <section id="contacto" class="w-full px-6 py-20 lg:px-16 bg-gradient-to-b from-[#0c1a16] to-[#ebfbf1] relative overflow-hidden scroll-mt-20">
@@ -994,12 +1226,12 @@
                 <!-- Canales de contacto directos -->
                 <div class="flex flex-col sm:flex-row items-center justify-center gap-6 sm:gap-10 max-w-4xl mx-auto">
                     <!-- WhatsApp Button -->
-                    <a href="https://wa.me/584145176772" target="_blank" class="btn-whatsapp-premium w-full sm:w-[320px] font-black py-5 rounded-full flex items-center justify-center gap-4 text-xl tracking-wide">
+                    <a href="https://wa.me/584145176772" target="_blank" class="btn-whatsapp-premium w-full sm:w-[320px] font-black py-5 rounded-full flex items-center justify-center gap-4 text-xl tracking-wide" data-evt="btn_contacto_whatsapp">
                         <i class="fab fa-whatsapp text-3xl"></i> <span>WhatsApp</span>
                     </a>
 
                     <!-- Telegram Button -->
-                    <a href="https://t.me/MaomOllarves" target="_blank" class="btn-telegram-premium w-full sm:w-[320px] font-black py-5 rounded-full flex items-center justify-center gap-4 text-xl tracking-wide">
+                    <a href="https://t.me/MaomOllarves" target="_blank" class="btn-telegram-premium w-full sm:w-[320px] font-black py-5 rounded-full flex items-center justify-center gap-4 text-xl tracking-wide" data-evt="btn_contacto_telegram">
                         <i class="fab fa-telegram-plane text-3xl"></i> <span>Telegram</span>
                     </a>
                 </div>
@@ -1325,5 +1557,33 @@
     </script>
 
 
+    </script>
+
+    <!-- Botón Flotante de WhatsApp -->
+    <a href="https://wa.me/58XXXXXXXXXX" target="_blank" rel="noopener noreferrer" class="fixed bottom-6 right-6 z-50 w-16 h-16 rounded-full flex items-center justify-center btn-whatsapp-premium" aria-label="Chat en WhatsApp" data-evt="btn_whatsapp_flotante">
+        <i class="fab fa-whatsapp text-3xl"></i>
+    </a>
+
+    <!-- Analítica: Event Delegation para data-evt -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            document.body.addEventListener('click', function(e) {
+                // Buscar si el elemento clicado o alguno de sus padres tiene data-evt
+                let target = e.target;
+                while (target && target !== document.body) {
+                    if (target.hasAttribute('data-evt')) {
+                        const eventName = target.getAttribute('data-evt');
+                        if (window.dataLayer) {
+                            window.dataLayer.push({
+                                'event': eventName
+                            });
+                        }
+                        break; // Ya encontramos el atributo, no seguir subiendo
+                    }
+                    target = target.parentElement;
+                }
+            });
+        });
+    </script>
 </body>
 </html>
