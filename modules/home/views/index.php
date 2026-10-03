@@ -50,9 +50,9 @@ if (isset($_GET['pwa']) && $_GET['pwa'] == '1') {
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
         <meta name="theme-color" content="#0f1f3d">
         <title>Acceder - TuInventario</title>
-        <link rel="manifest" href="/manifest.json">
-        <link rel="icon" type="image/x-icon" href="/favicon.ico">
-        <link rel="icon" href="/icons/icon-192x192.png">
+        <link rel="manifest" href="<?= BASE_URL ?>manifest.json">
+        <link rel="icon" type="image/x-icon" href="<?= BASE_URL ?>favicon.ico">
+        <link rel="icon" href="<?= BASE_URL ?>icons/icon-192x192.png">
         <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
         <style>
             body { margin: 0; background: #0f1f3d; color: #fff; font-family: 'Figtree', system-ui, sans-serif; display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 24px; box-sizing: border-box; }
@@ -126,8 +126,8 @@ if (isset($_GET['pwa']) && $_GET['pwa'] == '1') {
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://www.tuinventario.app/">
 <!-- Agrega aquí tu og:image (1200x630) para que se vea bien al compartir por WhatsApp -->
-<link rel="icon" type="image/x-icon" href="/favicon.ico">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230f1f3d'/%3E%3Ctext x='16' y='23' font-family='Arial' font-weight='800' font-size='20' text-anchor='middle' fill='white'%3ET%3C/text%3E%3C/svg%3E">
+<link rel="icon" type="image/x-icon" href="<?= BASE_URL ?>favicon.ico">
+<!-- <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230f1f3d'/%3E%3Ctext x='16' y='23' font-family='Arial' font-weight='800' font-size='20' text-anchor='middle' fill='white'%3ET%3C/text%3E%3C/svg%3E"> -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
