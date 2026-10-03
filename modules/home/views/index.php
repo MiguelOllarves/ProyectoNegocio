@@ -765,13 +765,13 @@ p{margin:0}
     <div class="dl">
       <h3>Descargar PagaPues</h3>
       <p class="sub">Gratis · No necesitas cuenta para instalarla</p>
-      <a class="btn btn-primary" href="/assets/PagaPues.apk" download data-evt="click_apk_pagapues">Descargar APK (v1.0)</a>
+      <a class="btn btn-primary" href="/assets/PagaPues.apk" download data-evt="click_apk_pagapues">Descargar APK (v1.0.5)</a>
       <!-- Completa estos datos con los reales de tu APK -->
       <dl class="specs">
-        <dt>Versión</dt><dd>1.0</dd>
+        <dt>Versión</dt><dd>1.0.5</dd>
         <dt>Requiere</dt><dd>Android 5 o superior</dd>
-        <dt>Tamaño</dt><dd>75 MB</dd>
-        <dt>Actualizada</dt><dd>Ayer</dd>
+        <dt>Tamaño</dt><dd>86 MB</dd>
+        <dt>Actualizada</dt><dd>Hoy</dd>
         <dt>SHA-256</dt><dd><code>e625a6dc5b4e63e3ed9ad01fd3522b075c366d121bd87ed2d485180a1247ba9f</code></dd>
         <dt>Permisos</dt><dd>Notificaciones, Importación de contactos, Cámara</dd>
       </dl>
