@@ -24,10 +24,10 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Tu Inventario">
-    <link rel="icon" type="image/x-icon" href="/favicon.ico">
-    <link rel="icon" type="image/png" href="/?serve_logo=1">
-    <link rel="manifest" href="/manifest.json">
-    <link rel="apple-touch-icon" href="/icons/icon-512x512.png">
+    <link rel="icon" type="image/x-icon" href="<?= BASE_URL ?>favicon.ico">
+    <link rel="icon" type="image/png" href="<?= BASE_URL ?>?serve_logo=1">
+    <link rel="manifest" href="<?= BASE_URL ?>manifest.json">
+    <link rel="apple-touch-icon" href="<?= BASE_URL ?>icons/icon-512x512.png">
     <title>Tu Inventario</title>
     <meta name="csrf-token" content="<?= $_SESSION['csrf_token'] ?? '' ?>">
     <link rel="stylesheet" href="/css/tailwind.css?v=<?= CSS_VERSION ?>">
