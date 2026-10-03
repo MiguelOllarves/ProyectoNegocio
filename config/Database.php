@@ -8,6 +8,9 @@ class Database {
     private function __construct() {
         try {
             $dsn = "pgsql:host=" . DB_HOST . ";port=" . DB_PORT . ";dbname=" . DB_NAME;
+            if (strpos(DB_HOST, 'supabase.co') !== false || strpos(DB_HOST, 'supabase.com') !== false || IS_VERCEL) {
+                $dsn .= ";sslmode=require";
+            }
             $this->pdo = new PDO($dsn, DB_USER, DB_PASS);
 
             // PDO attributes
@@ -30,8 +33,11 @@ class Database {
             }
 
             // Auto-migración: garantizar que todas las tablas existan
-            require_once __DIR__ . '/../database/Migration.php';
-            Migration::ensureTablesExist($this->pdo);
+            // Deshabilitado por defecto en Vercel porque excede los 10s de timeout y crashea la app (Error 500)
+            if (!IS_VERCEL || getenv('RUN_MIGRATIONS') === '1') {
+                require_once __DIR__ . '/../database/Migration.php';
+                Migration::ensureTablesExist($this->pdo);
+            }
 
         } catch (PDOException $e) {
             $this->pdo = null;
