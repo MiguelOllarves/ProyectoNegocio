@@ -325,7 +325,12 @@ p{margin:0}
 .apps{background:var(--ink);color:#fff}
 .apps h2{color:#fff}
 .apps .lead{color:#c3cde2}
-.apps-grid{display:grid;grid-template-columns:1.1fr 1fr;gap:56px;align-items:start}
+.apps .tabs { border-bottom-color: rgba(255,255,255,0.2); margin-bottom: 40px; }
+.apps .app-tab { background:none;border:0;border-bottom:3px solid transparent;padding:12px 16px;font:600 1rem var(--font-body);color:#c3cde2;cursor:pointer;margin-bottom:-1px;white-space:nowrap; transition: color 0.2s, border-color 0.2s; }
+.apps .app-tab:hover { color:#fff; }
+.apps .app-tab[aria-selected="true"] { color:#fff; border-bottom-color:var(--blue); }
+.apps-grid.panel{display:none;grid-template-columns:1.1fr 1fr;gap:56px;align-items:start}
+.apps-grid.panel.active{display:grid}
 .badge-ver{display:inline-block;font-size:.85rem;font-weight:600;background:rgba(255,255,255,.12);padding:4px 11px;border-radius:999px;margin-bottom:16px}
 .apps-mid{display:grid;grid-template-columns:1fr auto;gap:32px;align-items:center;margin-top:30px}
 .steps{list-style:none;counter-reset:s;margin:0;padding:0;display:grid;gap:14px}
@@ -737,72 +742,177 @@ p{margin:0}
 
 <!-- APPS -->
 <section class="sec apps" id="apps">
-  <div class="wrap apps-grid">
-    <div>
-      <span class="badge-ver">App para Android · v1.0</span>
-      <h2>PagaPues: cobra lo que te deben, aunque no tengas internet</h2>
-      <p class="lead" style="margin-top:14px">Registra ventas y deudas en tu teléfono, trabaja en dólares y bolívares y envía recordatorios de cobro por WhatsApp.</p>
-      <div class="apps-mid">
-        <ol class="steps">
-          <li>Descarga el archivo APK.</li>
-          <li>Ábrelo y acepta la instalación.</li>
-          <li>Si Android te lo pide, autoriza la instalación desde este origen.</li>
-        </ol>
-        <!-- Vista de ejemplo: sustitúyela por una captura real de la app -->
-        <div class="phone" aria-label="Vista de ejemplo de PagaPues">
-          <div class="phone-h">PagaPues</div>
-          <div class="phone-saldo"><small>Saldo por cobrar</small><strong>$4.500,00</strong><em>Bs. <?= number_format(4500 * $tasa_bcv, 2, ',', '.') ?></em></div>
-          <ul class="phone-list">
-            <li class="due"><div><b>Carlos R.</b><span>Hace 2 días</span></div><strong style="display:flex; flex-direction:column; align-items:flex-end;">$120,00 <small style="font-weight:normal; font-size:0.75rem; color:var(--muted);">Bs. <?= number_format(120 * $tasa_bcv, 2, ',', '.') ?></small></strong></li>
-            <li><div><b>María G.</b><span>Hoy, 10:00</span></div><strong style="display:flex; flex-direction:column; align-items:flex-end;">$45,50 <small style="font-weight:normal; font-size:0.75rem; color:var(--muted);">Bs. <?= number_format(45.50 * $tasa_bcv, 2, ',', '.') ?></small></strong></li>
-            <li class="paid"><div><b>José L.</b><span>Pagado</span></div><strong style="display:flex; flex-direction:column; align-items:flex-end;">$300,00 <small style="font-weight:normal; font-size:0.75rem; color:var(--muted);">Bs. <?= number_format(300 * $tasa_bcv, 2, ',', '.') ?></small></strong></li>
-          </ul>
-          <span class="phone-wa">Enviar recordatorio</span>
+  <div class="wrap">
+    <div class="sec-head">
+      <h2>Nuestra Galería de Apps</h2>
+      <p class="lead">Explora la variedad de aplicaciones construidas a medida que se conectan con tu negocio y te facilitan la vida.</p>
+    </div>
+
+    <div class="tabs" role="tablist" aria-label="Aplicaciones">
+      <button class="app-tab" role="tab" id="ta-pagapues" aria-selected="true" aria-controls="pa-pagapues">1. PagaPues</button>
+      <button class="app-tab" role="tab" id="ta-metoca" aria-selected="false" aria-controls="pa-metoca" tabindex="-1">2. MeToca</button>
+      <button class="app-tab" role="tab" id="ta-tumorada" aria-selected="false" aria-controls="pa-tumorada" tabindex="-1">3. TuMorada</button>
+      <button class="app-tab" role="tab" id="ta-genialrifas" aria-selected="false" aria-controls="pa-genialrifas" tabindex="-1">4. GenialRifas</button>
+    </div>
+
+    <!-- 1. PagaPues -->
+    <div class="apps-grid panel active" role="tabpanel" id="pa-pagapues" aria-labelledby="ta-pagapues">
+      <div>
+        <span class="badge-ver">App para Android · v1.0.5</span>
+        <h3>PagaPues: cobra lo que te deben, aunque no tengas internet</h3>
+        <p class="lead" style="margin-top:14px">Registra ventas y deudas en tu teléfono, trabaja en dólares y bolívares y envía recordatorios de cobro por WhatsApp.</p>
+        <div class="apps-mid">
+          <ol class="steps">
+            <li>Descarga el archivo APK.</li>
+            <li>Ábrelo y acepta la instalación.</li>
+            <li>Autoriza la instalación desde este origen.</li>
+          </ol>
+          <div class="phone" aria-label="Vista de ejemplo de PagaPues">
+            <div class="phone-h">PagaPues</div>
+            <div class="phone-saldo"><small>Saldo por cobrar</small><strong>$4.500,00</strong><em>Bs. <?= number_format(4500 * $tasa_bcv, 2, ',', '.') ?></em></div>
+            <ul class="phone-list">
+              <li class="due"><div><b>Carlos R.</b><span>Hace 2 días</span></div><strong style="display:flex; flex-direction:column; align-items:flex-end;">$120,00 <small style="font-weight:normal; font-size:0.75rem; color:var(--muted);">Bs. <?= number_format(120 * $tasa_bcv, 2, ',', '.') ?></small></strong></li>
+              <li><div><b>María G.</b><span>Hoy, 10:00</span></div><strong style="display:flex; flex-direction:column; align-items:flex-end;">$45,50 <small style="font-weight:normal; font-size:0.75rem; color:var(--muted);">Bs. <?= number_format(45.50 * $tasa_bcv, 2, ',', '.') ?></small></strong></li>
+              <li class="paid"><div><b>José L.</b><span>Pagado</span></div><strong style="display:flex; flex-direction:column; align-items:flex-end;">$300,00 <small style="font-weight:normal; font-size:0.75rem; color:var(--muted);">Bs. <?= number_format(300 * $tasa_bcv, 2, ',', '.') ?></small></strong></li>
+            </ul>
+            <span class="phone-wa">Enviar recordatorio</span>
+          </div>
+        </div>
+      </div>
+      <div class="dl">
+        <h3 style="color:var(--ink)">Descargar PagaPues</h3>
+        <p class="sub">Gratis · No necesitas cuenta para instalarla</p>
+        <a class="btn btn-primary" href="/assets/PagaPues.apk" download data-evt="click_apk_pagapues">Descargar APK (v1.0.5)</a>
+        <dl class="specs">
+          <dt>Versión</dt><dd>1.0.5</dd>
+          <dt>Requiere</dt><dd>Android 5 o superior</dd>
+          <dt>Tamaño</dt><dd>86 MB</dd>
+        </dl>
+        <div class="qr-slot">
+          <strong>¿Estás en una computadora?</strong>
+          <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://www.tuinventario.app/assets/PagaPues.apk" alt="QR Code PagaPues" style="margin: 12px auto; width: 140px; height: 140px; border-radius: 12px; display: block;">
+          <span style="font-size: 0.85rem; display: block; margin-top: 8px;">Escanea este código con tu teléfono para descargar PagaPues.</span>
         </div>
       </div>
     </div>
 
-    <div class="dl">
-      <h3>Descargar PagaPues</h3>
-      <p class="sub">Gratis · No necesitas cuenta para instalarla</p>
-      <a class="btn btn-primary" href="/assets/PagaPues.apk" download data-evt="click_apk_pagapues">Descargar APK (v1.0.5)</a>
-      <!-- Completa estos datos con los reales de tu APK -->
-      <dl class="specs">
-        <dt>Versión</dt><dd>1.0.5</dd>
-        <dt>Requiere</dt><dd>Android 5 o superior</dd>
-        <dt>Tamaño</dt><dd>86 MB</dd>
-        <dt>Actualizada</dt><dd>Hoy</dd>
-        <dt>SHA-256</dt><dd><code>e625a6dc5b4e63e3ed9ad01fd3522b075c366d121bd87ed2d485180a1247ba9f</code></dd>
-        <dt>Permisos</dt><dd>Notificaciones, Importación de contactos, Cámara</dd>
-      </dl>
-      <div class="qr-slot">
-        <strong>¿Estás en una computadora?</strong>
-        <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://www.tuinventario.app/assets/PagaPues.apk" alt="QR Code PagaPues" style="margin: 12px auto; width: 140px; height: 140px; border-radius: 12px; display: block;">
-        <span style="font-size: 0.85rem; display: block; margin-top: 8px;">Escanea este código con tu teléfono para descargar PagaPues.</span>
+    <!-- 2. MeToca -->
+    <div class="apps-grid panel" role="tabpanel" id="pa-metoca" aria-labelledby="ta-metoca" hidden>
+      <div>
+        <span class="badge-ver">App para Android · v1.0.0</span>
+        <h3>MeToca: organiza turnos y filas fácilmente</h3>
+        <p class="lead" style="margin-top:14px">Evita el desorden en tu local. Asigna turnos, notifica a tus clientes y mejora la experiencia de espera de manera digital.</p>
+        <div class="apps-mid">
+          <ol class="steps">
+            <li>Descarga el archivo APK de MeToca.</li>
+            <li>Configura las filas de tu negocio.</li>
+            <li>Empieza a gestionar los turnos al instante.</li>
+          </ol>
+          <div class="phone" aria-label="Vista de ejemplo de MeToca">
+            <div class="phone-h">MeToca</div>
+            <div class="phone-saldo" style="background:#2350d8;"><small>Turno Actual</small><strong>A-14</strong><em>Mesa lista en breve</em></div>
+            <ul class="phone-list">
+              <li class="due"><div><b>Turno A-15</b><span>En espera</span></div><strong style="color:var(--muted)">5 min</strong></li>
+              <li><div><b>Turno B-02</b><span>En espera</span></div><strong style="color:var(--muted)">12 min</strong></li>
+              <li class="paid"><div><b>Turno A-13</b><span>Atendido</span></div><strong style="color:var(--green)">✓</strong></li>
+            </ul>
+            <span class="phone-wa" style="background:#2350d8;">Llamar siguiente</span>
+          </div>
+        </div>
+      </div>
+      <div class="dl">
+        <h3 style="color:var(--ink)">Descargar MeToca</h3>
+        <p class="sub">Organiza la espera de tus clientes</p>
+        <a class="btn btn-primary" href="/assets/MeToca.apk" download data-evt="click_apk_metoca">Descargar APK</a>
+        <dl class="specs">
+          <dt>Versión</dt><dd>1.0.0</dd>
+          <dt>Requiere</dt><dd>Android 5 o superior</dd>
+        </dl>
+        <div class="qr-slot">
+          <strong>Escanea para descargar</strong>
+          <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://www.tuinventario.app/assets/MeToca.apk" alt="QR Code MeToca" style="margin: 12px auto; width: 140px; height: 140px; border-radius: 12px; display: block;">
+        </div>
       </div>
     </div>
-  </div>
-</section>
 
-<!-- MÁS APPS -->
-<section class="wrap more-apps" aria-labelledby="more-apps-t">
-  <h3 id="more-apps-t">Más apps de TuInventario</h3>
-  <p class="lead">Cada app resuelve una tarea de tu negocio y se conecta con el resto.</p>
-  <div class="app-rows">
-    <div class="app-row">
-      <div class="app-ico" style="background:var(--blue)">P</div>
-      <div><b>PagaPues</b><span>Cobros, deudas y recordatorios por WhatsApp</span></div>
-      <span class="pill">Disponible</span>
+    <!-- 3. TuMorada -->
+    <div class="apps-grid panel" role="tabpanel" id="pa-tumorada" aria-labelledby="ta-tumorada" hidden>
+      <div>
+        <span class="badge-ver">Plataforma Web · Online</span>
+        <h3>TuMorada: gestiona propiedades y alquileres</h3>
+        <p class="lead" style="margin-top:14px">Lleva el control de tus inquilinos, fechas de pago, contratos y propiedades disponibles desde un solo lugar.</p>
+        <div class="apps-mid">
+          <ol class="steps">
+            <li>Ingresa a la plataforma desde cualquier navegador.</li>
+            <li>Registra tus inmuebles y tarifas.</li>
+            <li>Administra los cobros de tus alquileres fácilmente.</li>
+          </ol>
+          <div class="phone" aria-label="Vista de ejemplo de TuMorada">
+            <div class="phone-h">TuMorada</div>
+            <div class="phone-saldo" style="background:#b96f00;"><small>Ingresos del mes</small><strong>$1.200,00</strong><em>3 propiedades alquiladas</em></div>
+            <ul class="phone-list">
+              <li class="due"><div><b>Apto 4B</b><span>Vence hoy</span></div><strong style="color:var(--red)">Pendiente</strong></li>
+              <li class="paid"><div><b>Local 1</b><span>Pagado</span></div><strong style="color:var(--green)">Al día</strong></li>
+              <li><div><b>Casa Este</b><span>Disponible</span></div><strong style="color:var(--blue)">En oferta</strong></li>
+            </ul>
+            <span class="phone-wa" style="background:#b96f00;">Ver propiedades</span>
+          </div>
+        </div>
+      </div>
+      <div class="dl">
+        <h3 style="color:var(--ink)">Visitar TuMorada</h3>
+        <p class="sub">El control de tus propiedades en la nube</p>
+        <a class="btn btn-primary" href="https://condominio-ruby.vercel.app" target="_blank" rel="noopener noreferrer" data-evt="click_web_tumorada">Visitar Plataforma</a>
+        <dl class="specs">
+          <dt>Acceso</dt><dd>100% Online</dd>
+          <dt>Requiere</dt><dd>Navegador Web</dd>
+        </dl>
+        <div class="qr-slot">
+          <strong>Escanea para visitar</strong>
+          <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://condominio-ruby.vercel.app" alt="QR Code TuMorada" style="margin: 12px auto; width: 140px; height: 140px; border-radius: 12px; display: block;">
+        </div>
+      </div>
     </div>
-    <div class="app-row">
-      <div class="app-ico" style="background:var(--green)">Q</div>
-      <div><b>Menú QR</b><span>Carta digital para tu restaurante o café</span></div>
-      <a class="pill" href="/qrmenu" style="text-decoration:none" data-evt="click_menu_qr">Disponible en la web</a>
-    </div>
-    <div class="app-row">
-      <div class="app-ico" style="background:var(--amber)">+</div>
-      <div><b>Nueva app en camino</b><span>Escribe el nombre y la función de tu próxima app aquí</span></div>
-      <span class="pill soon">Próximamente</span>
+
+    <!-- 4. GenialRifas -->
+    <div class="apps-grid panel" role="tabpanel" id="pa-genialrifas" aria-labelledby="ta-genialrifas" hidden>
+      <div>
+        <span class="badge-ver">Plataforma Web · Próximamente</span>
+        <h3>GenialRifas: crea y administra sorteos y rifas</h3>
+        <p class="lead" style="margin-top:14px">Controla los números vendidos, registra los pagos de los participantes y realiza el sorteo de forma transparente y rápida.</p>
+        <div class="apps-mid">
+          <ol class="steps">
+            <li>Ingresa a la página de GenialRifas.</li>
+            <li>Configura tu nueva rifa y los premios.</li>
+            <li>Vende boletos y registra a los ganadores en línea.</li>
+          </ol>
+          <div class="phone" aria-label="Vista de ejemplo de GenialRifas">
+            <div class="phone-h">GenialRifas</div>
+            <div class="phone-saldo" style="background:#14875f;"><small>Rifa: Moto 0KM</small><strong>145 / 500</strong><em>Boletos vendidos</em></div>
+            <ul class="phone-list">
+              <li class="paid"><div><b>Boleto #045</b><span>Ana P.</span></div><strong style="color:var(--green)">Pagado</strong></li>
+              <li class="due"><div><b>Boleto #112</b><span>Luis M.</span></div><strong style="color:var(--amber)">Reservado</strong></li>
+              <li><div><b>Boleto #007</b><span>Disponible</span></div><strong style="color:var(--muted)">Libre</strong></li>
+            </ul>
+            <span class="phone-wa" style="background:#14875f;">Compartir Rifa</span>
+          </div>
+        </div>
+      </div>
+      <div class="dl">
+        <h3 style="color:var(--ink)">Visitar GenialRifas</h3>
+        <p class="sub">Tus sorteos organizados en la web</p>
+        <!-- Reemplaza el href "#" con tu URL real cuando la subas -->
+        <a class="btn btn-primary" href="#" target="_blank" rel="noopener noreferrer" data-evt="click_web_genialrifas">Visitar Plataforma</a>
+        <dl class="specs">
+          <dt>Acceso</dt><dd>100% Online</dd>
+          <dt>Requiere</dt><dd>Navegador Web</dd>
+        </dl>
+        <div class="qr-slot">
+          <strong>Escanea para visitar</strong>
+          <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://www.tuinventario.app" alt="QR Code GenialRifas" style="margin: 12px auto; width: 140px; height: 140px; border-radius: 12px; display: block;">
+          <span style="font-size: 0.85rem; display: block; margin-top: 8px;">(Pronto disponible)</span>
+        </div>
+      </div>
     </div>
   </div>
 </section>
@@ -1112,15 +1222,17 @@ p{margin:0}
   renderTicket();
 
   /* ---------- Pestañas de módulos ---------- */
-  var tabs = Array.prototype.slice.call(document.querySelectorAll('.tab'));
+  var tabs = Array.prototype.slice.call(document.querySelectorAll('.tab:not(.app-tab)'));
   function selectTab(tab){
     tabs.forEach(function(t){
       var on = t === tab;
       t.setAttribute('aria-selected', on ? 'true' : 'false');
       t.tabIndex = on ? 0 : -1;
       var panel = document.getElementById(t.getAttribute('aria-controls'));
-      panel.classList.toggle('active', on);
-      panel.hidden = !on;
+      if(panel){
+        panel.classList.toggle('active', on);
+        panel.hidden = !on;
+      }
     });
     track('modulo_' + tab.id);
   }
@@ -1131,6 +1243,31 @@ p{margin:0}
       if(e.key === 'ArrowRight'){ n = tabs[(i + 1) % tabs.length]; }
       if(e.key === 'ArrowLeft'){ n = tabs[(i - 1 + tabs.length) % tabs.length]; }
       if(n){ e.preventDefault(); selectTab(n); n.focus(); }
+    });
+  });
+
+  /* ---------- Pestañas de Apps ---------- */
+  var appTabs = Array.prototype.slice.call(document.querySelectorAll('.app-tab'));
+  function selectAppTab(tab){
+    appTabs.forEach(function(t){
+      var on = t === tab;
+      t.setAttribute('aria-selected', on ? 'true' : 'false');
+      t.tabIndex = on ? 0 : -1;
+      var panel = document.getElementById(t.getAttribute('aria-controls'));
+      if(panel){
+        panel.classList.toggle('active', on);
+        panel.hidden = !on;
+      }
+    });
+    track('app_' + tab.id);
+  }
+  appTabs.forEach(function(t, i){
+    t.addEventListener('click', function(){ selectAppTab(t); });
+    t.addEventListener('keydown', function(e){
+      var n = null;
+      if(e.key === 'ArrowRight'){ n = appTabs[(i + 1) % appTabs.length]; }
+      if(e.key === 'ArrowLeft'){ n = appTabs[(i - 1 + appTabs.length) % appTabs.length]; }
+      if(n){ e.preventDefault(); selectAppTab(n); n.focus(); }
     });
   });
 
