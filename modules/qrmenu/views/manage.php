@@ -9,7 +9,7 @@ $code = $code ?? '';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Actualizar Menú QR - Tu Inventario</title>
-    <link rel="icon" type="image/x-icon" href="<?= BASE_URL ?>iconos_negocio/logo1.ico">
+    <link rel="icon" type="image/x-icon" href="<?= BASE_URL ?>favicon.ico">
     <link rel="stylesheet" href="<?= BASE_URL ?? "" ?>css/tailwind.css?v=<?= CSS_VERSION ?>">
     <link rel="stylesheet" href="<?= BASE_URL ?>css/fontawesome.min.css">
     <script defer src="<?= BASE_URL ?>js/vendor/alpine.min.js"></script>

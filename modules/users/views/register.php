@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Registro - Tu Inventario</title>
+    <link rel="icon" type="image/x-icon" href="<?= BASE_URL ?>favicon.ico">
     <link rel="icon" type="image/png" href="<?= BASE_URL ?>?serve_logo=1">
     <link rel="stylesheet" href="<?= BASE_URL ?? "" ?>css/tailwind.css?v=<?= CSS_VERSION ?>">
     <link rel="stylesheet" href="/css/fontawesome.min.css">
