@@ -878,7 +878,7 @@ p{margin:0}
     <!-- 4. GenialRifas -->
     <div class="apps-grid panel" role="tabpanel" id="pa-genialrifas" aria-labelledby="ta-genialrifas" hidden>
       <div>
-        <span class="badge-ver">Plataforma Web · Próximamente</span>
+        <span class="badge-ver">Plataforma Web · Disponible</span>
         <h3>GenialRifas: crea y administra sorteos y rifas</h3>
         <p class="lead" style="margin-top:14px">Controla los números vendidos, registra los pagos de los participantes y realiza el sorteo de forma transparente y rápida.</p>
         <div class="apps-mid">
@@ -902,16 +902,15 @@ p{margin:0}
       <div class="dl">
         <h3 style="color:var(--ink)">Visitar GenialRifas</h3>
         <p class="sub">Tus sorteos organizados en la web</p>
-        <!-- Reemplaza el href "#" con tu URL real cuando la subas -->
-        <a class="btn btn-primary" href="#" target="_blank" rel="noopener noreferrer" data-evt="click_web_genialrifas">Visitar Plataforma</a>
+        <a class="btn btn-primary" href="https://genialrifas.vercel.app" target="_blank" rel="noopener noreferrer" data-evt="click_web_genialrifas">Visitar Plataforma</a>
         <dl class="specs">
           <dt>Acceso</dt><dd>100% Online</dd>
           <dt>Requiere</dt><dd>Navegador Web</dd>
         </dl>
         <div class="qr-slot">
           <strong>Escanea para visitar</strong>
-          <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://www.tuinventario.app" alt="QR Code GenialRifas" style="margin: 12px auto; width: 140px; height: 140px; border-radius: 12px; display: block;">
-          <span style="font-size: 0.85rem; display: block; margin-top: 8px;">(Pronto disponible)</span>
+          <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://genialrifas.vercel.app" alt="QR Code GenialRifas" style="margin: 12px auto; width: 140px; height: 140px; border-radius: 12px; display: block;">
+          <span style="font-size: 0.85rem; display: block; margin-top: 8px;">(Ya disponible)</span>
         </div>
       </div>
     </div>
