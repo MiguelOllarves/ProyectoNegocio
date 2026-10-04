@@ -507,7 +507,7 @@ p{margin:0}
       <ul class="hero-facts">
         <li>Todo el sistema por $3 al mes</li>
         <li>Precios en $ y en Bs. al instante</li>
-        <li>App Android incluida</li>
+        <li>Apps Android incluidas</li>
       </ul>
     </div>
 
@@ -827,6 +827,7 @@ p{margin:0}
         <dl class="specs">
           <dt>Versión</dt><dd>1.0.0</dd>
           <dt>Requiere</dt><dd>Android 5 o superior</dd>
+          <dt>Tamaño</dt><dd>55 MB</dd>
         </dl>
         <div class="qr-slot">
           <strong>Escanea para descargar</strong>
@@ -951,7 +952,8 @@ p{margin:0}
       </div>
     </div>
     <p class="try-first">Antes de pagar:
-      <a href="#apps" data-evt="click_pagapues_precio">Descargar PagaPues gratis</a>
+      <a href="#apps" data-evt="click_pagapues_precio" onclick="document.getElementById('ta-pagapues').click();">Descargar PagaPues gratis</a>
+      <a href="#apps" data-evt="click_metoca_precio" onclick="document.getElementById('ta-metoca').click();">Descargar MeToca gratis</a>
     </p>
   </div>
 </section>
