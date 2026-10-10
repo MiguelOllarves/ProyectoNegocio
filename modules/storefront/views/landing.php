@@ -23,6 +23,12 @@ $products = $products ?? [];
 
       gtag('config', 'G-1WY5QCJN56');
     </script>
+
+    <!-- Google AdSense -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5614127120187853"
+     crossorigin="anonymous"></script>
+    <meta name="google-adsense-account" content="ca-pub-5614127120187853">
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="<?= htmlspecialchars($config['primary_color'] ?? '#C41E3A') ?>">

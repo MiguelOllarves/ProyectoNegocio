@@ -115,6 +115,11 @@ if (isset($_GET['pwa']) && $_GET['pwa'] == '1') {
 <!DOCTYPE html>
 <html lang="es">
 <head>
+<!-- Google AdSense -->
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5614127120187853"
+     crossorigin="anonymous"></script>
+<meta name="google-adsense-account" content="ca-pub-5614127120187853">
+
 <meta charset="UTF-8">
 <!-- Sin user-scalable=no: el usuario puede hacer zoom (accesibilidad) -->
 <meta name="viewport" content="width=device-width, initial-scale=1">
