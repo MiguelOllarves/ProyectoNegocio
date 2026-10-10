@@ -11,7 +11,7 @@
   },
   "headers": [
     {
-      "source": "/(favicon\\.ico|assets/.*|images/.*|css/.*|js/.*|sw\\.js|manifest\\.json|icons/.*|uploads/.*|webfonts/.*)",
+      "source": "/(favicon\\.ico|ads\\.txt|assets/.*|images/.*|css/.*|js/.*|sw\\.js|manifest\\.json|icons/.*|uploads/.*|webfonts/.*)",
       "headers": [
         {
           "key": "Cache-Control",
@@ -43,7 +43,7 @@
       "dest": "/iconos_negocio/$1"
     },
     {
-      "src": "/(favicon\\.ico|assets/.*|images/.*|css/.*|js/.*|sw\\.js|manifest\\.json|icons/.*|uploads/.*|webfonts/.*)",
+      "src": "/(favicon\\.ico|ads\\.txt|assets/.*|images/.*|css/.*|js/.*|sw\\.js|manifest\\.json|icons/.*|uploads/.*|webfonts/.*)",
       "dest": "/public/$1"
     },
     {
