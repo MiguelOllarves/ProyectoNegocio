@@ -22,7 +22,9 @@ class QrMenuController extends Controller {
 
         $db = $this->getDb();
 
-        $base64 = $_POST['menu_file_base64'] ?? '';
+        $rawInput = file_get_contents('php://input');
+        $jsonData = json_decode($rawInput, true) ?? [];
+        $base64 = $_POST['menu_file_base64'] ?? $jsonData['menu_file_base64'] ?? '';
         if (empty($base64)) {
             $this->jsonResponse(['success' => false, 'message' => 'Ningún archivo subido.'], 400);
             return;
@@ -70,9 +72,11 @@ class QrMenuController extends Controller {
 
         $db = $this->getDb();
 
-        $slug = $_POST['slug'] ?? '';
-        $code = $_POST['code'] ?? '';
-        $base64 = $_POST['menu_file_base64'] ?? '';
+        $rawInput = file_get_contents('php://input');
+        $jsonData = json_decode($rawInput, true) ?? [];
+        $slug = $_POST['slug'] ?? $jsonData['slug'] ?? '';
+        $code = $_POST['code'] ?? $jsonData['code'] ?? '';
+        $base64 = $_POST['menu_file_base64'] ?? $jsonData['menu_file_base64'] ?? '';
 
         if (empty($slug) || empty($code) || empty($base64)) {
             $this->jsonResponse(['success' => false, 'message' => 'Datos incompletos.'], 400);
