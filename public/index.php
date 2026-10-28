@@ -327,6 +327,8 @@ $csrfExemptRoutes = [
     'tienda/registerClient',
     'tienda/checkout',
     'auth/check_unique',
+    'qrmenu/api_create',
+    'qrmenu/api_update',
 ];
 $isExemptFromCsrf = false;
 foreach ($csrfExemptRoutes as $route) {
