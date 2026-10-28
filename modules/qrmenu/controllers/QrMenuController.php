@@ -12,6 +12,14 @@ class QrMenuController extends Controller {
 
     public function api_create() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') return;
+
+        // Rate limiting: máximo 10 creaciones por IP cada 15 minutos
+        require_once __DIR__ . '/../../../core/Middleware.php';
+        if (!Middleware::checkRateLimit('qrmenu_create', 10, 15)) {
+            $this->jsonResponse(['success' => false, 'message' => 'Demasiados intentos. Intenta en unos minutos.'], 429);
+            return;
+        }
+
         $db = $this->getDb();
 
         $base64 = $_POST['menu_file_base64'] ?? '';
@@ -52,6 +60,14 @@ class QrMenuController extends Controller {
 
     public function api_update() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') return;
+
+        // Rate limiting: máximo 15 actualizaciones por IP cada 15 minutos
+        require_once __DIR__ . '/../../../core/Middleware.php';
+        if (!Middleware::checkRateLimit('qrmenu_update', 15, 15)) {
+            $this->jsonResponse(['success' => false, 'message' => 'Demasiados intentos. Intenta en unos minutos.'], 429);
+            return;
+        }
+
         $db = $this->getDb();
 
         $slug = $_POST['slug'] ?? '';
