@@ -130,13 +130,28 @@ $code = $code ?? '';
                     if (!this.base64Data) return;
                     this.loading = true; this.error = ''; this.successMsg = '';
                     
-                    const fd = new FormData();
-                    fd.append('menu_file_base64', this.base64Data);
-                    fd.append('slug', this.slug);
-                    fd.append('code', this.code);
-                    
                     try {
-                        const res = await fetch('<?= BASE_URL ?>qrmenu/api_update', { method: 'POST', body: fd });
+                        const res = await fetch('<?= BASE_URL ?>qrmenu/api_update', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                menu_file_base64: this.base64Data,
+                                slug: this.slug,
+                                code: this.code
+                            })
+                        });
+                        if (!res.ok) {
+                            let errMsg = 'Error en el servidor (' + res.status + ')';
+                            try {
+                                const errJson = await res.json();
+                                errMsg = errJson.message || errMsg;
+                            } catch (_) {
+                                const text = await res.text();
+                                if (text) errMsg = text.substring(0, 120);
+                            }
+                            this.error = errMsg;
+                            return;
+                        }
                         const json = await res.json();
                         if (json.success) {
                             this.successMsg = json.message;

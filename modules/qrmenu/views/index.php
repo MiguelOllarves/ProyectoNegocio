@@ -175,11 +175,24 @@
                     this.loading = true;
                     this.error = '';
                     
-                    const formData = new FormData();
-                    formData.append('menu_file_base64', this.base64Data);
-                    
                     try {
-                        const res = await fetch('<?= BASE_URL ?>qrmenu/api_create', { method: 'POST', body: formData });
+                        const res = await fetch('<?= BASE_URL ?>qrmenu/api_create', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ menu_file_base64: this.base64Data })
+                        });
+                        if (!res.ok) {
+                            let errMsg = 'Error en el servidor (' + res.status + ')';
+                            try {
+                                const errJson = await res.json();
+                                errMsg = errJson.message || errMsg;
+                            } catch (_) {
+                                const text = await res.text();
+                                if (text) errMsg = text.substring(0, 120);
+                            }
+                            this.error = errMsg;
+                            return;
+                        }
                         const json = await res.json();
                         if (json.success) {
                             this.data = json;
