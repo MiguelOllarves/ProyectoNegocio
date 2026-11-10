@@ -19,7 +19,7 @@ if (file_exists($cache_file) && (time() - filemtime($cache_file)) < 7200) {
     curl_setopt($ch, CURLOPT_TIMEOUT, 3);
     $response = curl_exec($ch);
     $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-    curl_close($ch);
+    @curl_close($ch);
 
     if ($http_code == 200 && $response) {
         $data = json_decode($response, true);

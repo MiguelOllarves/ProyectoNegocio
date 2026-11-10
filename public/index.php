@@ -1,5 +1,7 @@
 <?php
 ob_start(); // Buffer all output to prevent stray warnings from corrupting JSON responses
+error_reporting(E_ALL & ~E_DEPRECATED & ~E_USER_DEPRECATED);
+ini_set('display_errors', '0');
 
 // ==========================================
 // MANEJADOR DE ERRORES VISUALES
