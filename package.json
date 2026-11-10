@@ -1,4 +1,7 @@
 {
+  "engines": {
+    "node": "22.x"
+  },
   "scripts": {
     "build:css": "tailwindcss -i public/css/input.css -o public/css/tailwind.css --minify",
     "watch:css": "tailwindcss -i public/css/input.css -o public/css/tailwind.css --watch"
@@ -16,5 +19,8 @@
     "sweetalert2": "^11.26.25",
     "tailwindcss": "^3.4.19",
     "xlsx": "^0.18.5"
+  },
+  "devDependencies": {
+    "vercel-php-bridge": "^1.0.4"
   }
 }
