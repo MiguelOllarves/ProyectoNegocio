@@ -35,3 +35,5 @@ tests/
 
 # Archivos de reset/debug (protegidos en index.php)
 database/reset_database.sql
+# Vercel build output
+.vercel/

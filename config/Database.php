@@ -24,9 +24,12 @@ class Database {
             $this->pdo->setAttribute(PDO::ATTR_EMULATE_PREPARES, true);
 
             // PgBouncer necesita desactivar prepared statements persistentes a nivel driver
-            if (defined('PDO::PGSQL_ATTR_DISABLE_PREPARES')) {
+            $disablePreparesAttr = defined('Pdo\\Pgsql::ATTR_DISABLE_PREPARES')
+                ? constant('Pdo\\Pgsql::ATTR_DISABLE_PREPARES')
+                : (defined('PDO::PGSQL_ATTR_DISABLE_PREPARES') ? @constant('PDO::PGSQL_ATTR_DISABLE_PREPARES') : null);
+            if ($disablePreparesAttr !== null) {
                 try {
-                    $this->pdo->setAttribute(\PDO::PGSQL_ATTR_DISABLE_PREPARES, true);
+                    $this->pdo->setAttribute($disablePreparesAttr, true);
                 } catch (\PDOException $e) {
                     // Opcional: no rompe la conexión si el driver no lo soporta
                 }
