@@ -1,16 +1,31 @@
 <?php
 $sale_id = $sale_id ?? ($_GET['id'] ?? 0);
 
-// Fetch sale from database
+// Fetch the sale only if it belongs to the current tenant.
 require_once __DIR__ . '/../../../config/Database.php';
 $db = Database::getInstance()->getConnection();
-$stmt = $db->prepare("SELECT si.quantity, si.price_at_sale, p.name FROM sale_items si JOIN products p ON si.product_id = p.id WHERE si.sale_id = ?");
-$stmt->execute([$sale_id]);
-$items = $stmt->fetchAll(PDO::FETCH_ASSOC);
+$businessId = (int)($_SESSION['business_id'] ?? 0);
+if ($businessId <= 0) {
+    http_response_code(404);
+    exit;
+}
 
-$stmtSale = $db->prepare("SELECT s.*, u.business_id, u.username FROM sales s JOIN users u ON s.user_id = u.id WHERE s.id = ?");
-$stmtSale->execute([$sale_id]);
+$stmtSale = $db->prepare("SELECT s.*, u.business_id, u.username FROM sales s JOIN users u ON s.user_id = u.id WHERE s.id = ? AND u.business_id = ?");
+$stmtSale->execute([$sale_id, $businessId]);
 $sale = $stmtSale->fetch(PDO::FETCH_ASSOC);
+if (!$sale) {
+    http_response_code(404);
+    exit;
+}
+
+$stmt = $db->prepare("
+    SELECT si.quantity, si.price_at_sale, p.name
+    FROM sale_items si
+    JOIN products p ON p.id = si.product_id
+    WHERE si.sale_id = ? AND p.tenant_id = ?
+");
+$stmt->execute([$sale_id, $businessId]);
+$items = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 // Fetch business configuration
 $stmtBiz = $db->prepare("SELECT business_name, ticket_header, ticket_footer, (logo_base64 IS NOT NULL AND logo_base64 != '') as has_logo FROM businesses WHERE id = ?");
@@ -18,7 +33,7 @@ $stmtBiz->execute([$sale['business_id']]);
 $biz = $stmtBiz->fetch(PDO::FETCH_ASSOC);
 
 // Determine width (default 80mm, can be set via GET ?w=58)
-$width = $_GET['w'] ?? '80';
+$width = ($_GET['w'] ?? '') === '58' ? '58' : '80';
 $widthClass = $width === '58' ? 'max-w-[58mm]' : 'max-w-[80mm]';
 $fontSizeClass = $width === '58' ? 'text-[10px]' : 'text-xs';
 $titleClass = $width === '58' ? 'text-sm' : 'text-xl';

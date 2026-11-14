@@ -1,7 +1,10 @@
 # Variables de entorno (NUNCA subir a repositorios)
 .env
-.env.local
-.env.production
+.env.*
+!.env.example
+
+# Notas locales de trabajo que pueden contener credenciales
+sesionNuevax.md
 
 # Base de datos local
 database/tu_inventario.db

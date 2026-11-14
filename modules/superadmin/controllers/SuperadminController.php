@@ -50,6 +50,7 @@ class SuperadminController extends Controller {
             'active_trials' => $db->query("SELECT COUNT(*) FROM businesses WHERE subscription_status = 'trial'")->fetchColumn(),
             'expired_accounts' => $db->query("SELECT COUNT(*) FROM businesses WHERE subscription_status = 'expired'")->fetchColumn(),
             'total_income' => $db->query("SELECT SUM(amount) FROM payments WHERE status = 'approved'")->fetchColumn() ?: 0,
+            'pending_payments' => $db->query("SELECT COUNT(*) FROM payments WHERE status = 'pending'")->fetchColumn(),
             'total_users' => $db->query("SELECT COUNT(*) FROM users")->fetchColumn(),
             'total_visits' => $db->query("SELECT COUNT(*) FROM site_visits")->fetchColumn(),
             'banned_ips' => $db->query("SELECT COUNT(*) FROM banned_ips")->fetchColumn(),
@@ -80,6 +81,75 @@ class SuperadminController extends Controller {
             'daily_visits' => $daily_visits,
             'country_visits' => $country_visits
         ]);
+    }
+
+    public function payments() {
+        $this->requireSuperAdmin();
+        require_once __DIR__ . '/../../../config/Database.php';
+        $db = Database::getInstance()->getConnection();
+        $payments = $db->query("
+            SELECT p.id, p.tenant_id, p.amount, p.payment_method, p.reference_number,
+                   p.proof_image, p.created_at, b.business_name
+            FROM payments p
+            JOIN businesses b ON b.id = p.tenant_id
+            WHERE p.status = 'pending'
+            ORDER BY p.created_at ASC
+        ")->fetchAll(PDO::FETCH_ASSOC);
+        $this->view('modules/superadmin/views/payments', ['payments' => $payments]);
+    }
+
+    public function review_payment() {
+        $this->requireSuperAdmin();
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            http_response_code(405);
+            return;
+        }
+
+        $token = $_POST['csrf_token'] ?? '';
+        if (empty($_SESSION['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $token)) {
+            http_response_code(403);
+            return;
+        }
+
+        $paymentId = filter_var($_POST['id'] ?? null, FILTER_VALIDATE_INT);
+        $action = $_POST['action'] ?? '';
+        if (!$paymentId || !in_array($action, ['approve', 'reject'], true)) {
+            http_response_code(400);
+            return;
+        }
+
+        require_once __DIR__ . '/../../../config/Database.php';
+        $db = Database::getInstance()->getConnection();
+        $db->beginTransaction();
+        try {
+            $stmt = $db->prepare("SELECT tenant_id, plan_id FROM payments WHERE id = ? AND status = 'pending' FOR UPDATE");
+            $stmt->execute([$paymentId]);
+            $payment = $stmt->fetch(PDO::FETCH_ASSOC);
+            if (!$payment) {
+                $db->rollBack();
+                http_response_code(409);
+                return;
+            }
+
+            $newStatus = $action === 'approve' ? 'approved' : 'rejected';
+            $db->prepare('UPDATE payments SET status = ? WHERE id = ?')->execute([$newStatus, $paymentId]);
+            if ($action === 'approve') {
+                $db->prepare("
+                    UPDATE businesses
+                    SET subscription_status = 'active', plan_id = ?, trial_ends_at = NULL
+                    WHERE id = ?
+                ")->execute([$payment['plan_id'], $payment['tenant_id']]);
+            }
+            $db->commit();
+        } catch (\Throwable $e) {
+            if ($db->inTransaction()) $db->rollBack();
+            error_log('[Superadmin] review_payment: ' . $e->getMessage());
+            http_response_code(500);
+            return;
+        }
+
+        header('Location: ' . BASE_URL . 'superadmin/payments');
+        exit;
     }
 
 

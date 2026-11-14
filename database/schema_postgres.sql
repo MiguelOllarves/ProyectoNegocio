@@ -495,12 +495,7 @@ CREATE INDEX IF NOT EXISTS idx_recipe_dish ON recipe_items(dish_id);
 -- DATOS POR DEFECTO
 -- ==========================================
 
--- A) Super Admin Global
-INSERT INTO users (business_id, username, full_name, password, role, status)
-VALUES (NULL, '182247576', 'Super Administrador', '$2y$10$FdMFxslXhRhiK2iZ2qb64e3o7kiK1dfJOEOkp6RI2z2z3fqN8woP6', 'super_admin', 1)
-ON CONFLICT DO NOTHING;
-
--- B) Métodos de Pago Base
+-- A) Métodos de Pago Base
 INSERT INTO payment_methods (name, code, currency, applies_igtf, is_active) VALUES
 ('USD Efectivo', 'usd_cash', 'USD', TRUE, TRUE),
 ('BS Efectivo', 'bs_cash', 'VES', FALSE, TRUE),
@@ -510,7 +505,7 @@ INSERT INTO payment_methods (name, code, currency, applies_igtf, is_active) VALU
 ('Zelle', 'zelle', 'USD', TRUE, TRUE)
 ON CONFLICT DO NOTHING;
 
--- C) Configuraciones Base (BCV actualizado a 791.32)
+-- B) Configuraciones Base (BCV actualizado a 791.32)
 INSERT INTO settings (key, value, category) VALUES
 ('bcv_rate', '791.32', 'rates'),
 ('parallel_rate', '0', 'rates'),

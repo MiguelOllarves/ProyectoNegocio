@@ -25,6 +25,9 @@ class SuscriptionController extends Controller {
         $stmtPayments = $db->prepare("SELECT p.*, pl.name as plan_name FROM payments p LEFT JOIN plans pl ON p.plan_id = pl.id WHERE p.tenant_id = ? ORDER BY p.created_at DESC LIMIT 10");
         $stmtPayments->execute([$bizId]);
         $payments = $stmtPayments->fetchAll(PDO::FETCH_ASSOC);
+        $hasPendingPayment = count(array_filter($payments, function ($payment) {
+            return ($payment['status'] ?? '') === 'pending';
+        })) > 0;
         
         // Verificar si puede pagar este mes
         $canPay = Subscription::canPay($bizId);
@@ -37,6 +40,7 @@ class SuscriptionController extends Controller {
             'expires_at' => $subStatus['expires_at'],
             'days_remaining' => Subscription::getDaysRemaining($bizId),
             'can_pay' => $canPay,
+            'has_pending_payment' => $hasPendingPayment,
             'next_payment_date' => $nextPaymentDate->format('d/m/Y'),
             'payments' => $payments,
             'price' => 3.00
@@ -54,7 +58,11 @@ class SuscriptionController extends Controller {
             exit;
         }
         
-        Middleware::checkRateLimit('subscription_pay', 3, 60); // 3 intentos por hora
+        if (!Middleware::checkRateLimit('subscription_pay', 3, 60)) {
+            http_response_code(429);
+            echo json_encode(['success' => false, 'message' => 'Demasiados intentos. Intenta más tarde.']);
+            exit;
+        }
         
         require_once __DIR__ . '/../../../config/Database.php';
         $db = Database::getInstance()->getConnection();
@@ -63,7 +71,7 @@ class SuscriptionController extends Controller {
         $method = $_POST['payment_method'] ?? '';
         $reference = trim($_POST['reference_number'] ?? '');
         
-        if (empty($method) || empty($reference)) {
+        if (!in_array($method, ['binance', 'bdv'], true) || empty($reference)) {
             echo json_encode(['success' => false, 'message' => 'Faltan datos obligatorios del pago']);
             exit;
         }
@@ -76,6 +84,10 @@ class SuscriptionController extends Controller {
         
         // Procesar imagen de prueba
         $proofBase64 = null;
+        if (!isset($_FILES['proof_image']) || $_FILES['proof_image']['error'] !== UPLOAD_ERR_OK) {
+            echo json_encode(['success' => false, 'message' => 'Debes adjuntar el comprobante de pago.']);
+            exit;
+        }
         if (isset($_FILES['proof_image']) && $_FILES['proof_image']['error'] === UPLOAD_ERR_OK) {
             $tmpName = $_FILES['proof_image']['tmp_name'];
             $fileSize = $_FILES['proof_image']['size'];
@@ -88,9 +100,11 @@ class SuscriptionController extends Controller {
             
             $fileContent = file_get_contents($tmpName);
             $mimeType = mime_content_type($tmpName);
-            if (strpos($mimeType, 'image/') === 0) {
-                $proofBase64 = 'data:' . $mimeType . ';base64,' . base64_encode($fileContent);
+            if (!in_array($mimeType, ['image/jpeg', 'image/png', 'image/webp'], true)) {
+                echo json_encode(['success' => false, 'message' => 'El comprobante debe ser JPG, PNG o WEBP.']);
+                exit;
             }
+            $proofBase64 = 'data:' . $mimeType . ';base64,' . base64_encode($fileContent);
         }
         
         // Registrar pago
@@ -114,8 +128,6 @@ class SuscriptionController extends Controller {
                 error_log('[Suscription] notification: ' . $e->getMessage());
             }
         }
-        
-        Middleware::resetRateLimit('subscription_pay');
         
         echo json_encode($result);
         exit;

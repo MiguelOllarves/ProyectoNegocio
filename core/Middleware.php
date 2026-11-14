@@ -9,6 +9,7 @@ require_once __DIR__ . '/FlashMessage.php';
  *   Middleware::requireRole('admin');    // Requiere rol específico
  */
 class Middleware {
+    private static $validatedActiveUserId = null;
 
     /**
      * Valida que el usuario tenga una sesión activa.
@@ -24,7 +25,21 @@ class Middleware {
             exit;
         }
 
-
+        $userId = (int)$_SESSION['user_id'];
+        if (self::$validatedActiveUserId !== $userId) {
+            require_once __DIR__ . '/../config/Database.php';
+            $stmt = Database::getInstance()->getConnection()->prepare('SELECT status FROM users WHERE id = ?');
+            $stmt->execute([$userId]);
+            if ((int)$stmt->fetchColumn() !== 1) {
+                $_SESSION = [];
+                if (session_status() === PHP_SESSION_ACTIVE) {
+                    session_destroy();
+                }
+                header('Location: ' . BASE_URL . 'auth');
+                exit;
+            }
+            self::$validatedActiveUserId = $userId;
+        }
 
         // Anti-Caché estricto para evitar retroceso (Back Button)
         header('Cache-Control: no-cache, no-store, must-revalidate');
@@ -145,8 +160,9 @@ class Middleware {
      */
     public static function checkRateLimit(string $action, int $maxAttempts = 5, int $lockoutMinutes = 15) {
         require_once __DIR__ . '/../config/Database.php';
+        require_once __DIR__ . '/ClientIp.php';
         $db = Database::getInstance()->getConnection();
-        $ip = $_SERVER['HTTP_CF_CONNECTING_IP'] ?? $_SERVER['HTTP_X_FORWARDED_FOR'] ?? $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1';
+        $ip = ClientIp::get();
 
         try {
             $stmt = $db->prepare("SELECT attempts, last_attempt FROM rate_limits WHERE ip_address = ? AND action = ?");
@@ -194,8 +210,9 @@ class Middleware {
      */
     public static function resetRateLimit(string $action) {
         require_once __DIR__ . '/../config/Database.php';
+        require_once __DIR__ . '/ClientIp.php';
         $db = Database::getInstance()->getConnection();
-        $ip = $_SERVER['HTTP_CF_CONNECTING_IP'] ?? $_SERVER['HTTP_X_FORWARDED_FOR'] ?? $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1';
+        $ip = ClientIp::get();
         $db->prepare("DELETE FROM rate_limits WHERE ip_address = ? AND action = ?")->execute([$ip, $action]);
     }
 

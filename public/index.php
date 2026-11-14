@@ -217,6 +217,7 @@ if (isset($_SERVER['REQUEST_URI'])) {
 // Cargar configuración y core
 require_once __DIR__ . '/../config/config.php';
 require_once __DIR__ . '/../config/Database.php';
+require_once __DIR__ . '/../core/ClientIp.php';
 
 // ==========================================
 // MODO DIOS: MIDDLEWARE DE SEGURIDAD GLOBAL
@@ -228,12 +229,7 @@ try {
     $db->exec("CREATE TABLE IF NOT EXISTS rate_limits (id SERIAL PRIMARY KEY, ip_address VARCHAR(45), action VARCHAR(50), attempts INTEGER DEFAULT 0, last_attempt TIMESTAMP DEFAULT CURRENT_TIMESTAMP, UNIQUE(ip_address, action))");
     
     // 2. Verificar IP actual
-    $clientIp = $_SERVER['HTTP_CF_CONNECTING_IP'] ?? $_SERVER['HTTP_X_FORWARDED_FOR'] ?? $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1';
-    
-    // Extraer la primera IP si hay múltiples (casos de proxies encadenados)
-    if (strpos($clientIp, ',') !== false) {
-        $clientIp = trim(explode(',', $clientIp)[0]);
-    }
+    $clientIp = ClientIp::get();
 
     $stmtBan = $db->prepare("SELECT reason FROM banned_ips WHERE ip_address = ?");
     $stmtBan->execute([$clientIp]);
@@ -244,7 +240,7 @@ try {
         echo "<body><div class='card'>";
         echo "<svg fill='none' stroke='currentColor' viewBox='0 0 24 24'><path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z'></path></svg>";
         echo "<h1>ACCESO BLOQUEADO</h1>";
-        echo "<p>Tu dirección IP (<strong>{$clientIp}</strong>) ha sido restringida permanentemente por motivos de seguridad.</p>";
+        echo "<p>Tu dirección IP (<strong>" . htmlspecialchars($clientIp, ENT_QUOTES, 'UTF-8') . "</strong>) ha sido restringida permanentemente por motivos de seguridad.</p>";
         if(!empty($banned['reason'])) {
             echo "<p style='margin-top:1.5rem;font-size:0.9rem;padding:1rem;background:#000;border-radius:0.5rem;'>Motivo: " . htmlspecialchars($banned['reason']) . "</p>";
         }

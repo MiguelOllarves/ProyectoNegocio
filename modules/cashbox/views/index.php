@@ -72,8 +72,6 @@
                     <div class="modal-body space-y-4">
                         <p class="text-sm text-gray-500 dark:text-gray-400">Declara lo que cuentas físicamente. El sistema evaluará la diferencia.</p>
                         <input type="hidden" name="session_id" value="<?= $openSession['id'] ?>">
-                        <input type="hidden" name="ventas_usd" value="<?= $ventasUsd ?>">
-                        <input type="hidden" name="ventas_bs" value="<?= $ventasBs ?>">
 
                         <!-- Resumen del Sistema -->
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">

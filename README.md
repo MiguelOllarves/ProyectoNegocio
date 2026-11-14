@@ -1,106 +1,99 @@
-<div align="center">
-  <img src="https://img.icons8.com/color/120/000000/box.png" alt="Logo">
-  <h1>Tu Inventario</h1>
-  <p><b>Sistema Integral de Ventas, Inventario, Gestión Fiscal y Producción (Restaurante)</b></p>
-</div>
+# Tu Inventario
 
----
+Aplicacion web PHP para administrar operaciones de comercios y restaurantes. Incluye ventas, inventario, compras, caja, clientes, proveedores, gastos, creditos, reportes, recetas, menu QR y tienda publica.
 
-## 🚀 Descripción del Proyecto
+## Funcionalidades
 
-**TuInventario** es un sistema minimalista, extremadamente rápido y autogestionable, diseñado específicamente para controlar inventarios, puntos de venta (POS), métricas contables y elaboración de recetas/platos. Cuenta con un fuerte enfoque práctico para comercios y establecimientos gastronómicos, soportando un entorno de **múltiples divisas (USD, VES, EUR, COP)**, adaptabilidad fiscal (Cálculos de IVA e IGTF automatizados), y lectura de tasas en tiempo real. 
+- Punto de venta y registro de ventas, pagos, impuestos y anulaciones.
+- Inventario por negocio, presentaciones, conversion de unidades, costo de productos y Kardex.
+- Compras, proveedores, clientes, cuentas por cobrar, caja y gastos.
+- Recetas y productos preparados; el consumo de recetas descuenta ingredientes del inventario.
+- Dashboard, reportes, configuracion por tipo de negocio, menu QR y storefront publica.
+- Interfaz web con PHP, JavaScript, Tailwind CSS y soporte PWA/offline.
 
-Todo el sistema está construido bajo una potente identidad visual empleando paradigmas *Glassmorphism* (Diseño de cristal) e integrando **Dark/Light Mode** nativo.
+## Arquitectura
 
-## 🎯 Objetivos del Sistema
-* ✅ Proveer una plataforma con **Cero Fricción de inicio** para pequeños y medianos comercios.
-* ✅ Centralizar la contabilidad operativa: Cálculo de Inversión y **Ganancia Operativa Neta** en cada producto.
-* ✅ Lograr la mayor agilidad en Punto de Venta integrando **HTMX y Alpine.js** sin tener que adoptar la complejidad que requieren React/Vue.js.
-* ✅ Mantener trazabilidad de inventario detallada utilizando **Módulo de Kardex** en vivo.
-* ✅ Controlar mermas y producción elaborada a través del Módulo de Platos (Recetas).
+- `public/index.php` es el punto de entrada, aplica encabezados de seguridad y enruta las solicitudes a los controladores de `modules/`.
+- `modules/` contiene controladores, modelos y vistas agrupados por funcionalidad.
+- `core/` contiene servicios compartidos, incluyendo conversion de unidades, calculo de costos, consumo de inventario y logica fiscal.
+- `config/Database.php` conecta mediante PDO a PostgreSQL. `database/schema_postgres.sql` define el esquema; las migraciones pueden completar tablas y columnas.
+- `api/index.php` adapta el punto de entrada para funciones PHP de Vercel. `scripts/build-vercel.js` prepara el paquete de despliegue.
+- `public/` contiene los recursos del sitio y la PWA.
 
----
+El esquema y la configuracion actuales usan PostgreSQL. `database/schema.sql` no es el esquema recomendado para desplegar esta version.
 
-## ⚙️ Arquitectura Avanzada y Algoritmos Matemáticos
+## Requisitos
 
-Una de las características más fuertes del sistema es su capacidad de desacoplar los costos macroeconómicos de la creación de recetas a través de sus componentes de cálculo `CostCalculationService` y `UnitConversionService`.
+- PHP 8.0 o posterior con `pdo_pgsql` habilitado. `fileinfo` tambien es necesario para validar imagenes.
+- PostgreSQL 12 o posterior, o un servicio compatible como Supabase.
+- Composer 2.
+- Node.js 22.x y npm para compilar CSS y preparar el despliegue de Vercel.
 
-### 1. El Paradigma de Unidades Base (El Motor del Inventario)
-El sistema no guarda existencias o precios en la forma en que los humanos interactuamos tradicionalmente (ej. "2 Bultos"). El código implementa un estándar de **"Almacenamiento por Unidad Base"**.
+## Desarrollo local
 
-Todas las medidas pertenecen a grandes familias (Peso, Volumen, Unidad) y convergen a su equivalente mínimo indivisible:
-- **Peso:** `Gramo (g)`
-- **Volumen:** `Mililitro (ml)`
-- **Unidad (Indivisibles):** `Unidad (und)`
+1. Instala las dependencias:
 
-**¿Cómo funciona paso a paso?**
-Si compras al proveedor **1 Bulto de Harina de 24 Kg** por **$30**:
-1. **Deducción de Precio:** El algoritmo desglosa los 24 Kg a 24.000 gramos. Luego divide $30 / 24,000 obteniendo un costo guardado en base de datos de **$0,00125 / gramo** (`unit_cost`).
-2. **Deducción de Existencias:** Guarda internamente 24.000 gramos en el campo `stock`.
-3. **Memoria de Envase:** Almacena que el historial de compra fue "Bulto" (`unit_of_measure = Bulto`) y su capacidad interna fue 24 Kg (`conversion_factor`).
+   ```sh
+   composer install
+   npm install
+   npm run build:css
+   ```
 
-### 2. Producción y Armado de Platos (Módulo Restaurante)
-Este módulo se beneficia directamente de las reducciones a *"Unidad Base"*, fungiendo como un **Consumidor Virtual** del almacén principal. El módulo en sí mismo inyecta las pesadas matrices de datos en los navegadores (vía la pseudo API JSON inyectada por Javascript en `window.ingredientsData`), garantizando cero latencia (cero esperas en recargas) a la hora de hacer cálculos con ingredientes.
+2. Crea una base de datos PostgreSQL. Configura la variable `DATABASE_URL` en el entorno del proceso o en un archivo `.env` local, ignorado por Git:
 
-**Traducción, Predicción y Armado (Paso a Paso):**
-- Si el cocinero dice que una Hamburguesa gasta **300 gramos** de harina.
-- El sistema invoca al `UnitConversionService` para verificar la "compatibilidad de familias". Evalúa si "gramos" y el envase original del producto comparten la misma rama biológica (ambos miden peso). Si hay error (intentar mezclar bultos indivisibles con litros líquidos), el sistema intercepta el choque, forzando una matemática de $0.00 como seguro anti-quiebras y forzando revisión humana de los datos.
-- Tras la validación afirmativa, el `CostCalculationService` multiplica la dosis pequeña requerida (`300`) directamente contra el microscópico costo base que extrajimos inicialmente (`0,00125$`). La operación asesta exactamente un golpe de  `0.375$` consumidos del inventario.
-- La plataforma itera y suma en **tiempo real** los céntimos de cada agregado (Tomate, Carne, Papa) logrando un costo industrial ultra-preciso por platillo. Finalmente amplifica ese presupuesto de fabricación total usando el algoritmo del "Margen Bruto" asignado por el usuario, estableciendo un PVP (Precio Venta al Público) imbatible. Todo ocurre visualmente en milisegundos.
+   ```dotenv
+   DATABASE_URL=<URI_POSTGRESQL_PRIVADA>
+   APP_URL=http://127.0.0.1:8000
+   ```
 
----
+   Usa valores propios; no copies credenciales reales a este README, al codigo ni a archivos versionados. Si la contrasena contiene caracteres reservados de URL, codificalos.
 
-## ✨ Características Principales (Features Generales)
+3. Las migraciones se ejecutan al conectar en entornos que no sean Vercel. Tambien puedes inicializar el esquema PostgreSQL desde `database/schema_postgres.sql`. El archivo `database/RESET_COMPLETO.sql` es destructivo: no lo ejecutes sobre una base de datos con datos que debas conservar.
 
-* 💳 **Punto de Venta Híbrido:** Gestión rápida con múltiples métodos de pago integrados dinámicamente y cálculo automático de impuestos.
-* 📦 **Calculadora de Costos & Configuración:** Productos soportes para Venta por Bulto, Costo Unitario, márgenes de ganancia precalculables (Fórmula Inversa de Margen) y atributos personalizables al vuelo.
-* 🍳 **Gestor de Platos & Recetas:** Creación inteligente de platillos que consumen stock base basándose en sus conversiones métricas algorítmicas, uniendo inventario y cocina en tiempo real.
-* 🤖 **Kardex y Log de Auditoría:** Historial estricto de entradas, reajustes y salidas del inventario, atada a logs del sistema para rastreo de actividad de un usuario.
-* 📊 **Dashboard & Reportes:** Métricas al instante. Conoce cuánto cuesta (inversión) tu almacén actual vs cuánto ganarás al venderlo.
-* ☁️ **Auto-Migración Segura:** Estructuras SQL robustas. Si agregas columnas, el sistema reacciona dinámicamente al iniciarse creando los recursos sin crashear.
+4. Inicia el servidor de desarrollo:
 
-## 🛠️ Stack Tecnológico
+   ```sh
+   php -S 127.0.0.1:8000 -t public public/index.php
+   ```
 
-![PHP](https://img.shields.io/badge/PHP_8.1+-777BB4?style=for-the-badge&logo=php&logoColor=white) 
-![TailwindCSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)
-![Alpine.js](https://img.shields.io/badge/Alpine.js-8BC0D0?style=for-the-badge&logo=alpine.js&logoColor=white)
-![PostgreSQL](https://img.shields.io/badge/PostgreSQL_/_SQLite-316192?style=for-the-badge&logo=postgresql&logoColor=white)
+   Abre `http://127.0.0.1:8000`.
 
----
+## Despliegue en Vercel
 
-## ☁️ Guía de Despliegue (Supabase + Vercel)
+1. Crea una base PostgreSQL y aplica `database/schema_postgres.sql` desde el mecanismo administrativo del proveedor antes de desplegar. En Vercel las migraciones estan desactivadas por defecto para evitar operaciones largas durante una solicitud serverless.
+2. Importa el repositorio en Vercel. `vercel.json` ejecuta `node scripts/build-vercel.js` y genera la funcion PHP y los recursos estaticos.
+3. En **Project Settings > Environment Variables**, configura `DATABASE_URL` con la cadena de conexion PostgreSQL y `APP_URL` con la URL canonica HTTPS de la aplicacion. No guardes estas variables en Git.
+4. Despliega, registra el primer negocio y comprueba el inicio de sesion, la conexion con la base y los recursos estaticos. El nombre de usuario inicial del administrador es el documento de identidad usado durante el registro.
 
-El proyecto soporta de forma nativa Base de Datos en **SQLite** localmente. Sin embargo, para despliegues Serverless o la nube (como Vercel, el que resetea los archivos dinámicos locales), la conexión ideal a usar será **Supabase (PostgreSQL)**.
+Variables opcionales:
 
-### Paso 1: Configurar la Base de Datos con Supabase
-1. Ingresa a [Supabase](https://supabase.com) y crea tu proyecto. 
-2. Una vez creado, busca tu identificador de Base de Datos (en *Settings > Database > Connection String*), te entregará un formato como `postgresql://postgres:password_tuya@db.aws...`
-3. Ve a la consola **SQL Editor** dentro de Supabase.
-4. Abre e importa todo el contenido del archivo `database/schema.sql` que provee este repositorio. 
-*(Nota Técnica: Asegurate de cambiar en el script la palabra `AUTOINCREMENT` propia de SQLite por la palabra `SERIAL` que es el equivalente nativo en Postgres).*
+| Variable | Uso |
+| --- | --- |
+| `APP_URL` | URL canonica de la aplicacion; `NEXT_PUBLIC_APP_URL` se usa como alternativa. |
+| `DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASS`, `DB_NAME` | Alternativa a `DATABASE_URL`, principalmente para desarrollo. |
+| `SMTP_HOST`, `SMTP_USER`, `SMTP_PASS`, `SMTP_PORT`, `SMTP_SECURE`, `SMTP_FROM_EMAIL`, `SMTP_FROM_NAME` | Envio de correo. |
+| `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY` | Notificaciones Web Push. La clave privada es secreta; la publica puede compartirse con el cliente. |
+| `SUBSCRIPTION_PRICE_USD` | Precio configurado para suscripciones. |
+| `GTM_ID` | Identificador publico de Google Tag Manager. |
+| `TRUSTED_PROXY_IPS` | Direcciones IP exactas de proxies inversos autorizados, separadas por comas. Solo se aceptan cabeceras de IP reenviadas cuando la solicitud llega desde una de estas direcciones. |
+| `RUN_MIGRATIONS=1` | Habilita migraciones en Vercel; usalo solo si aceptas el tiempo y los cambios de esquema que implique. |
 
-### Paso 2: Despliegue en Vercel
-Para tu facilidad, con un solo clic Vercel clonará el repositorio y levantará la plataforma utilizando una instancia PHP de comunidad (Vercel-PHP). Solo necesitas darle el string de base de datos que te dio Supabase.
+No uses prefijos publicos como `NEXT_PUBLIC_` para contrasenas, claves privadas o cadenas de conexion.
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FMiguelOllarves%2FProyectoNegocio&env=DATABASE_URL)
+## Cuentas y seguridad
 
-> **Proceso Manual:** Si lo prefieres, solo vincula este Github dentro del panel de Vercel y añade la variable de entorno **`DATABASE_URL`** indicando tu cadena de conexión URI. El archivo `vercel.json` ya se encarga automáticamente de levantar el webserver PHP por ti.
+- El esquema ya no crea cuentas de demostracion ni usuarios privilegiados con contrasenas/hash predefinidos.
+- El registro de la aplicacion crea un administrador asociado al negocio registrado. Las cuentas `super_admin` deben provisionarse de forma controlada por el operador, con una contrasena unica y un hash generado con `password_hash`; no habilites una cuenta predeterminada en produccion.
+- Mantén `.env` y cualquier archivo de credenciales fuera de Git. Si una credencial se subio alguna vez, eliminar el archivo de la rama actual no basta: rota la credencial y limpia el historial afectado antes de publicar nuevos cambios.
+- Configura `TRUSTED_PROXY_IPS` solo con las IP exactas de proxies que controles; sin esta lista se ignoran `X-Forwarded-For` y `CF-Connecting-IP` para rate limits y bloqueos.
+- No subas copias de sesiones, volcados de base de datos, claves privadas ni respaldos que contengan datos personales o credenciales.
 
-### Paso 3: Ajuste de Conexión PHP (En Código)
-Si tu `DATABASE_URL` no la lee automáticamente el sistema, asegúrate de actualizar tu documento de persistencia en 📁 `config/Database.php` y utilizar el formato de Postgres (Driver PDO "pgsql").
-```php
-$dsn = "pgsql:host=TU_HOST;port=5432;dbname=postgres";
-$this->conn = new PDO($dsn, "postgres", "TU_CONTRASEÑA");
+## Pruebas
+
+Las pruebas existentes son scripts PHP, no una suite automatizada integrada. Por ejemplo:
+
+```sh
+php tests/test_product_configuration.php
 ```
 
----
-
-## 👨‍💻 Acerca del Autor y Soporte (Feedback)
-El sistema ha sido estructurado para ser auto-desplegado. El login provee un usuario de demostración default:  
-**Usuario:** `admin` | **Contraseña:** `admin123` *(O lo que hayas guardado como Seed)*.
-
-> Requieres adaptaciones específicas, tienes una lluvia de requerimientos para llevar el sistema más lejos ("más fino"), o buscas un mantenimiento a la medida:
-
-📩 **WhatsApp de Contacto Directo:** [0414-5176772](https://wa.me/584145176772)
-
-<p align="center">Hecho para el Comercio Moderno 💚💙</p>
+Algunas pruebas requieren una base PostgreSQL local configurada mediante `DATABASE_URL`.

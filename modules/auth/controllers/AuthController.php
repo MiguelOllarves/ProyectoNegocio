@@ -305,7 +305,7 @@ class AuthController extends Controller {
                 $stmt = $db->prepare("SELECT u.*, b.category as business_category, b.slug as business_slug 
                                       FROM users u 
                                       LEFT JOIN businesses b ON u.business_id = b.id 
-                                      WHERE u.username = :usr 
+                                      WHERE u.username = :usr AND u.status = 1
                                       ORDER BY u.id ASC
                                       LIMIT 1");
                 $stmt->execute(['usr' => $username]);
@@ -365,12 +365,10 @@ class AuthController extends Controller {
                     $stmtKill->execute([$user['active_session_id']]);
                 }
 
-                // --- UPDATE NEW SESSION ID IN USERS ---
-                $stmtUpdateSession = $db->prepare("UPDATE users SET active_session_id = ? WHERE id = ?");
-                $stmtUpdateSession->execute([session_id(), $user['id']]);
-
                 Middleware::resetRateLimit('login');
                 session_regenerate_id(true);
+                $stmtUpdateSession = $db->prepare("UPDATE users SET active_session_id = ? WHERE id = ?");
+                $stmtUpdateSession->execute([session_id(), $user['id']]);
                 $_SESSION['user_id'] = $user['id'];
                 $_SESSION['role'] = $user['role'];
                 $_SESSION['username'] = $user['username'];

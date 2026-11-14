@@ -2046,7 +2046,7 @@ No dejar credenciales de producción.
 El README actual contiene credenciales/demo mencionadas como:
 
 ``` text
-admin / admin123
+No se deben documentar credenciales de demostracion.
 ```
 
 No usar credenciales débiles en producción.

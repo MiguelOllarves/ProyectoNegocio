@@ -122,7 +122,7 @@
                 <div x-data="{ show: false }">
                     <label class="block text-xs font-bold text-gray-700 dark:text-gray-400 mb-1.5">Nueva Contraseña *</label>
                     <div class="relative">
-                        <input x-bind:type="show ? 'text' : 'password'" name="new_password" required minlength="4" class="w-full bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-gray-700 rounded-lg pl-3 pr-10 py-2.5 text-sm text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-brand-500 transition-all">
+                        <input x-bind:type="show ? 'text' : 'password'" name="new_password" required minlength="8" class="w-full bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-gray-700 rounded-lg pl-3 pr-10 py-2.5 text-sm text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-brand-500 transition-all">
                         <button type="button" @click="show = !show" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none">
                             <i class="fas" :class="show ? 'fa-eye-slash' : 'fa-eye'"></i>
                         </button>
@@ -360,7 +360,7 @@
     <div class="p-5 flex justify-between items-center border-b border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-slate-800/50 rounded-t-2xl">
         <div>
             <h3 class="text-sm font-bold text-gray-800 dark:text-white flex items-center"><i class="fas fa-users-cog mr-2 text-brand-500"></i>Gestión de Personal</h3>
-            <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Cajeros, Empleados y Vendedores de tu negocio</p>
+            <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Empleados y Vendedores de tu negocio</p>
         </div>
         <button @click="openNew()" class="bg-brand-600 hover:bg-brand-700 text-white text-xs font-bold px-4 py-2 rounded-lg transition-colors flex items-center shadow-sm">
             <i class="fas fa-plus"></i>
@@ -418,8 +418,6 @@
                             <select x-model="form.role" class="w-full bg-white dark:bg-slate-800 border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-brand-500">
                                 <option value="vendedor">Vendedor</option>
                                 <option value="empleado">Empleado</option>
-                                <option value="cajero">Cajero</option>
-                                <option value="administrador">Administrador Pleno</option>
                             </select>
                         </div>
                         <div class="md:col-span-1" x-data="{ show: false }">

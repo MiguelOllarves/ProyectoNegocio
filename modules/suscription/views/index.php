@@ -108,7 +108,12 @@ $bsPrice = ((float)$price) * $bcv;
             </div>
             
             <div class="mt-8">
-                <?php if (($can_pay ?? false) && (($status ?? 'expired') === 'expired' || ($status ?? 'expired') === 'trial')): ?>
+                <?php if (!empty($has_pending_payment)): ?>
+                <div class="w-full text-center py-4 bg-amber-50 dark:bg-amber-900/20 rounded-xl border border-amber-200 dark:border-amber-800">
+                    <i class="fas fa-hourglass-half text-amber-500 mr-2"></i>
+                    <span class="text-amber-700 dark:text-amber-300 font-bold">Tu pago está pendiente de revisión</span>
+                </div>
+                <?php elseif (($can_pay ?? false) && (($status ?? 'expired') === 'expired' || ($status ?? 'expired') === 'trial')): ?>
                 <button @click="openPaymentModal()" class="w-full btn-gradient text-lg py-4">
                     <i class="fas fa-credit-card mr-2"></i> Activar Suscripción - $3 USD
                 </button>
@@ -135,7 +140,7 @@ $bsPrice = ((float)$price) * $bcv;
             <div class="text-sm font-medium text-gray-600 dark:text-gray-300 leading-relaxed space-y-3">
                 <p>📅 <strong>Pago mensual:</strong> Solo $3 USD por mes, sin compromisos anuales.</p>
                 <p>🔄 <strong>Renovación automática:</strong> Tu suscripción vence el último día de cada mes.</p>
-                <p>⚡ <strong>Activación inmediata:</strong> Al confirmar tu pago, tu acceso se activa al instante.</p>
+                <p>⚡ <strong>Activación segura:</strong> El acceso se activa cuando el comprobante es revisado y aprobado.</p>
                 <p>🔒 <strong>Modo seguro:</strong> Si vences, puedes seguir viendo tus datos en modo lectura.</p>
             </div>
             <p class="text-sm font-bold text-brand-700 dark:text-brand-300 mt-6">

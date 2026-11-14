@@ -497,25 +497,10 @@ INSERT INTO plans (name, price, duration_days, features_json) VALUES
 ('Plan Anual', 199.00, 365, '{"limit_users": 4, "limit_products": 200, "custom_module": true}')
 ON CONFLICT DO NOTHING;
 
--- B) Negocios 
--- Como es un factory reset absoluto, el negocio de demo debe ser el ID 1 o al menos estar aislado
-INSERT INTO businesses (id, owner_name, business_name, document_id, email, category, slug, subscription_status)
-VALUES (1, 'Usuario Demo', 'Negocio Demo', '00000000', 'demo@sistema.local', 'general', 'demo', 'active')
-ON CONFLICT DO NOTHING;
+-- B) Reiniciar la secuencia de negocios sin crear cuentas de demostración
 SELECT setval('businesses_id_seq', (SELECT COALESCE(MAX(id), 1) FROM businesses));
 
--- C) Usuarios 
--- 1. Super Admin Global
-INSERT INTO users (business_id, username, full_name, password, role, status)
-VALUES (NULL, '182247576', 'Super Administrador', '$2y$10$FdMFxslXhRhiK2iZ2qb64e3o7kiK1dfJOEOkp6RI2z2z3fqN8woP6', 'super_admin', 1)
-ON CONFLICT DO NOTHING;
-
--- 2. Administrador Demo
-INSERT INTO users (business_id, username, full_name, password, role, status)
-VALUES (1, '00000000', 'Administrador Demo', '$2y$10$SaSgH8hC.HnRdqMiiejSjuU4PD3NdwI2WZhKDkEJ7Yg/pigOpX7kG', 'administrador', 1)
-ON CONFLICT DO NOTHING;
-
--- D) Métodos de Pago Base
+-- C) Métodos de Pago Base
 INSERT INTO payment_methods (name, code, currency, applies_igtf, is_active) VALUES
 ('USD Efectivo', 'usd_cash', 'USD', TRUE, TRUE),
 ('BS Efectivo', 'bs_cash', 'VES', FALSE, TRUE),

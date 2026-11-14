@@ -27,6 +27,12 @@ $daily_visits = $daily_visits ?? [];
     <a href="<?= BASE_URL ?>superadmin/users" class="px-6 py-3 border-b-2 border-transparent font-bold text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 hover:border-gray-300 transition-all whitespace-nowrap">
         <i class="fas fa-users-cog mr-2"></i> Usuarios (Gran Hermano)
     </a>
+    <a href="<?= BASE_URL ?>superadmin/payments" class="px-6 py-3 border-b-2 border-transparent font-bold text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 hover:border-gray-300 transition-all whitespace-nowrap">
+        <i class="fas fa-receipt mr-2"></i> Pagos pendientes
+        <?php if (!empty($stats['pending_payments'])): ?>
+            <span class="ml-2 bg-amber-500 text-white text-[10px] px-2 py-0.5 rounded-full"><?= (int)$stats['pending_payments'] ?></span>
+        <?php endif; ?>
+    </a>
     <a href="<?= BASE_URL ?>superadmin/security" class="px-6 py-3 border-b-2 border-transparent font-bold text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 hover:border-gray-300 transition-all whitespace-nowrap flex items-center">
         <i class="fas fa-shield-alt mr-2"></i> Centro de Seguridad
         <?php if(isset($stats['banned_ips']) && $stats['banned_ips'] > 0): ?>

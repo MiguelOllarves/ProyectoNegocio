@@ -409,14 +409,13 @@ class StorefrontController extends Controller {
         }
         
         $data = json_decode(file_get_contents('php://input'), true);
-        if (!$data || empty($data['business_id']) || empty($data['items'])) {
+        if (!$data || empty($data['business_id']) || empty($data['items']) || !is_array($data['items']) || count($data['items']) > 100) {
             echo json_encode(['success' => false, 'message' => 'Datos inválidos']);
             return;
         }
 
         require_once __DIR__ . '/../../../config/Database.php';
         require_once __DIR__ . '/../../credits/models/Notification.php';
-        require_once __DIR__ . '/../../credits/models/Credit.php';
         
         $db = Database::getInstance()->getConnection();
         
@@ -430,53 +429,46 @@ class StorefrontController extends Controller {
         }
         
         $paymentMethod = $data['payment_method'] ?? '';
-        $clientId = null;
-        
-        // Validación Especial para "Crédito (Fiado)"
+        if (!is_string($paymentMethod)) {
+            http_response_code(422);
+            echo json_encode(['success' => false, 'message' => 'Método de pago no válido.']);
+            return;
+        }
         if ($paymentMethod === 'Crédito (Fiado)') {
-            $customerPhone = $data['customer_phone'] ?? '';
-            $customerDocument = $data['customer_document'] ?? '';
-            
-            if (empty($customerDocument)) {
-                echo json_encode(['success' => false, 'message' => 'Para comprar a crédito es obligatorio ingresar tu Cédula de Identidad en los datos de entrega.']);
-                return;
-            }
+            http_response_code(422);
+            echo json_encode(['success' => false, 'message' => 'Las compras a crédito en línea no están disponibles.']);
+            return;
+        }
 
-            // Buscar cliente por cédula y teléfono
-            $cleanPhone = trim($customerPhone);
-            $cleanDoc = trim($customerDocument);
-            
-            $stmtClient = $db->prepare("SELECT id FROM clients WHERE tenant_id = :tid AND document = :doc AND (phone = :phone OR phone LIKE :phone_like OR extra_phones LIKE :phone_like)");
-            $stmtClient->execute([
-                'tid' => $resolvedTenantId,
-                'doc' => $cleanDoc,
-                'phone' => $cleanPhone,
-                'phone_like' => '%' . $cleanPhone . '%'
-            ]);
-            $client = $stmtClient->fetch(PDO::FETCH_ASSOC);
-            
-            if (!$client) {
-                echo json_encode(['success' => false, 'message' => 'Para comprar a crédito, debes estar registrado como cliente de confianza con esa Cédula y Número de Teléfono exactos. Si no estás registrado, solicita el crédito en el botón superior.']);
-                return;
-            }
-            
-            $clientId = $client['id'];
+        $isActiveTrue = $db->getAttribute(PDO::ATTR_DRIVER_NAME) === 'pgsql' ? 'TRUE' : '1';
+        try {
+            $stmtPaymentMethod = $db->prepare("SELECT 1 FROM payment_methods WHERE name = ? AND is_active = $isActiveTrue AND (tenant_id = ? OR tenant_id IS NULL) LIMIT 1");
+            $stmtPaymentMethod->execute([$paymentMethod, $resolvedTenantId]);
+        } catch (PDOException $e) {
+            $stmtPaymentMethod = $db->prepare("SELECT 1 FROM payment_methods WHERE name = ? AND is_active = $isActiveTrue LIMIT 1");
+            $stmtPaymentMethod->execute([$paymentMethod]);
+        }
+        if (empty($paymentMethod) || !$stmtPaymentMethod->fetchColumn()) {
+            http_response_code(422);
+            echo json_encode(['success' => false, 'message' => 'Método de pago no válido.']);
+            return;
         }
         
         // [SECURITY FIX] Recalcular total real desde la fuente de verdad en BD
         $realTotalUsd = 0;
         $finalItems = [];
         $hasInvalidConfig = false;
-        require_once __DIR__ . '/../../inventory/models/Product.php';
-        require_once __DIR__ . '/../../../core/ProductConfigurationService.php';
-        $productModel = new Product();
-        $configService = new ProductConfigurationService();
-        
-        // Temporarily set tenant context for ProductConfigurationService (sin contaminar sesión)
-        $_SESSION['business_id'] = $resolvedTenantId;
-        
         // [IDEMPOTENCY] Verificar si ya existe un pedido con esta key
         $idempotencyKey = $data['idempotency_key'] ?? null;
+        if ($idempotencyKey !== null
+            && (!is_string($idempotencyKey)
+                || strlen($idempotencyKey) < 8
+                || strlen($idempotencyKey) > 255
+                || !preg_match('/^[A-Za-z0-9._:-]+$/', $idempotencyKey))) {
+            http_response_code(422);
+            echo json_encode(['success' => false, 'message' => 'Clave de pedido no válida.']);
+            return;
+        }
         if ($idempotencyKey) {
             $stmtIdem = $db->prepare("SELECT id FROM store_orders WHERE idempotency_key = ? AND tenant_id = ?");
             $stmtIdem->execute([$idempotencyKey, $resolvedTenantId]);
@@ -486,17 +478,52 @@ class StorefrontController extends Controller {
                 return;
             }
         }
+
+        $hadBusinessId = array_key_exists('business_id', $_SESSION);
+        $originalBusinessId = $_SESSION['business_id'] ?? null;
+        $_SESSION['business_id'] = $resolvedTenantId;
         
+        try {
+        require_once __DIR__ . '/../../inventory/models/Product.php';
+        require_once __DIR__ . '/../../../core/ProductConfigurationService.php';
+        $productModel = new Product();
+        $configService = new ProductConfigurationService();
+
         foreach ($data['items'] as $item) {
-            $prod = $productModel->find($item['id'] ?? 0);
+            if (!is_array($item)) {
+                $hasInvalidConfig = true;
+                break;
+            }
+            $productId = filter_var($item['id'] ?? null, FILTER_VALIDATE_INT);
+            $qtyInput = $item['qty'] ?? 1;
+            if (!$productId || !is_numeric($qtyInput) || !is_finite((float)$qtyInput) || (float)$qtyInput <= 0 || (float)$qtyInput > 10000) {
+                $hasInvalidConfig = true;
+                break;
+            }
+            $qty = (float)$qtyInput;
+            $prod = $productModel->find($productId);
+            if (!$prod || (empty($prod['is_dish']) && isset($prod['stock']) && $qty > (float)$prod['stock'])) {
+                $hasInvalidConfig = true;
+                break;
+            }
             if ($prod) {
-                $qty = (float)($item['qty'] ?? 1);
+                $item['name'] = $prod['name'];
+                $item['qty'] = $qty;
                 $options = $item['options'] ?? [];
+                if (!is_array($options)) {
+                    $hasInvalidConfig = true;
+                    break;
+                }
                 
-                // Si tiene opciones, calcular precio desde BD (backend es la fuente de verdad)
-                if (!empty($options)) {
+                $isDish = !empty($prod['is_dish']);
+                if ($isDish) {
                     $configPrice = $configService->validateConfiguration($item['id'], $options);
                     if (!$configPrice['valid']) {
+                        $hasInvalidConfig = true;
+                        break;
+                    }
+                    $availability = $configService->calculateConfigurationAvailability($productId, $options);
+                    if (!$availability['available'] || $qty > (float)$availability['max_qty']) {
                         $hasInvalidConfig = true;
                         break;
                     }
@@ -504,6 +531,10 @@ class StorefrontController extends Controller {
                     $realTotalUsd += ($price * $qty);
                     $item['price'] = $price;
                 } else {
+                    if (!empty($options)) {
+                        $hasInvalidConfig = true;
+                        break;
+                    }
                     $price = (float)$prod['price'];
                     $realTotalUsd += ($price * $qty);
                     $item['price'] = $price;
@@ -511,10 +542,22 @@ class StorefrontController extends Controller {
                 $finalItems[] = $item;
             }
         }
+        } finally {
+            if ($hadBusinessId) {
+                $_SESSION['business_id'] = $originalBusinessId;
+            } else {
+                unset($_SESSION['business_id']);
+            }
+        }
         
         if ($hasInvalidConfig) {
             echo json_encode(['success' => false, 'code' => 'INVALID_CONFIGURATION', 'message' => 'La configuración seleccionada no es válida.']);
             http_response_code(422);
+            return;
+        }
+        if (!$finalItems) {
+            http_response_code(422);
+            echo json_encode(['success' => false, 'message' => 'El carrito no contiene productos válidos.']);
             return;
         }
         
@@ -527,87 +570,81 @@ class StorefrontController extends Controller {
         $realTotalBs = $realTotalUsd * $bcvRate;
         $data['total_bs'] = $realTotalBs;
 
-        $sql = "INSERT INTO store_orders (tenant_id, customer_name, customer_phone, customer_address, notes, payment_method, total_usd, total_bs, items_json, idempotency_key) 
-                VALUES (:tid, :cname, :cphone, :caddr, :notes, :pmethod, :tusd, :tbs, :items, :idem)";
-        $stmt = $db->prepare($sql);
-        $stmt->execute([
-            'tid' => $resolvedTenantId,
-            'cname' => $data['customer_name'] ?? '',
-            'cphone' => $data['customer_phone'] ?? '',
-            'caddr' => $data['customer_address'] ?? '',
-            'notes' => $data['notes'] ?? '',
-            'pmethod' => $paymentMethod,
-            'tusd' => $data['total_usd'] ?? 0,
-            'tbs' => $data['total_bs'] ?? 0,
-            'items' => json_encode($data['items']),
-            'idem' => $idempotencyKey
-        ]);
-        
-        $orderId = $db->lastInsertId();
-        
-        // Guardar items estructurados en store_order_items
-        $stmtOrderItem = $db->prepare("INSERT INTO store_order_items (order_id, tenant_id, product_id, quantity, unit_price, total_price, product_name_snapshot) VALUES (:oid, :tid, :pid, :qty, :up, :tp, :pname)");
-        $stmtOrderItemOption = $db->prepare("INSERT INTO store_order_item_options (order_item_id, group_id, option_product_id, group_name_snapshot, option_name_snapshot, price_delta) VALUES (:oiid, :gid, :opid, :gn, :on, :pd)");
-        
-        foreach ($data['items'] as $item) {
-            $stmtOrderItem->execute([
-                'oid' => $orderId,
-                'tid' => $resolvedTenantId,
-                'pid' => $item['id'],
-                'qty' => $item['qty'] ?? 1,
-                'up' => $item['price'] ?? 0,
-                'tp' => ($item['price'] ?? 0) * ($item['qty'] ?? 1),
-                'pname' => $item['name'] ?? ''
-            ]);
-            $orderItemId = $db->lastInsertId();
-            
-            // Guardar opciones del restaurante si existen
-            $options = $item['options'] ?? [];
-            if (!empty($options)) {
-                $itemData = $configService->prepareItemData($item['id'], $item['qty'] ?? 1, $options, (float)$item['price']);
-                foreach ($itemData['options'] as $opt) {
-                    $stmtOrderItemOption->execute([
-                        'oiid' => $orderItemId,
-                        'gid' => $opt['group_id'],
-                        'opid' => $opt['option_product_id'],
-                        'gn' => $opt['group_name_snapshot'],
-                        'on' => $opt['option_name_snapshot'],
-                        'pd' => $opt['price_delta']
-                    ]);
-                }
+        foreach (['customer_name' => 150, 'customer_phone' => 50, 'customer_address' => 500] as $field => $maxLength) {
+            if (!isset($data[$field]) || !is_string($data[$field]) || trim($data[$field]) === '' || strlen($data[$field]) > $maxLength) {
+                http_response_code(422);
+                echo json_encode(['success' => false, 'message' => 'Los datos del cliente están incompletos o exceden el límite permitido.']);
+                return;
             }
         }
-        
-        // Si es a crédito, registramos la deuda automáticamente
-        if ($paymentMethod === 'Crédito (Fiado)' && $clientId) {
-            $totalUsd = (float)($data['total_usd'] ?? 0);
-            $creditModel = new Credit();
-            
-            $creditNotes = "Pedido online #" . $orderId . ". Artículos: ";
-            foreach ($data['items'] as $item) {
-                $creditNotes .= $item['qty'] . "x " . $item['name'] . ", ";
-            }
-            $creditNotes = rtrim($creditNotes, ", ");
-            
-            $creditModel->create([
-                'client_id' => $clientId,
-                'sale_id' => null,
-                'credit_type' => 'producto',
-                'interest_rate' => 0,
-                'down_payment' => 0,
-                'base_amount' => $totalUsd,
-                'total_amount' => $totalUsd,
-                'remaining_amount' => $totalUsd,
-                'due_date' => date('Y-m-d', strtotime('+15 days')),
-                'notes' => $creditNotes,
-                'status' => 'activo'
-            ]);
+        $data['notes'] = $data['notes'] ?? '';
+        if (!is_string($data['notes']) || strlen($data['notes']) > 1000) {
+            http_response_code(422);
+            echo json_encode(['success' => false, 'message' => 'Las notas exceden el límite permitido.']);
+            return;
         }
 
+        $sql = "INSERT INTO store_orders (tenant_id, customer_name, customer_phone, customer_address, notes, payment_method, total_usd, total_bs, items_json, idempotency_key) 
+                VALUES (:tid, :cname, :cphone, :caddr, :notes, :pmethod, :tusd, :tbs, :items, :idem)";
+        $db->beginTransaction();
+        try {
+            $stmt = $db->prepare($sql);
+            $stmt->execute([
+                'tid' => $resolvedTenantId,
+                'cname' => trim($data['customer_name']),
+                'cphone' => trim($data['customer_phone']),
+                'caddr' => trim($data['customer_address']),
+                'notes' => $data['notes'],
+                'pmethod' => $paymentMethod,
+                'tusd' => $data['total_usd'],
+                'tbs' => $data['total_bs'],
+                'items' => json_encode($data['items'], JSON_UNESCAPED_UNICODE),
+                'idem' => $idempotencyKey
+            ]);
+
+            $orderId = $db->lastInsertId();
+            $stmtOrderItem = $db->prepare("INSERT INTO store_order_items (order_id, tenant_id, product_id, quantity, unit_price, total_price, product_name_snapshot) VALUES (:oid, :tid, :pid, :qty, :up, :tp, :pname)");
+            $stmtOrderItemOption = $db->prepare("INSERT INTO store_order_item_options (order_item_id, group_id, option_product_id, group_name_snapshot, option_name_snapshot, price_delta) VALUES (:oiid, :gid, :opid, :gn, :on, :pd)");
+
+            foreach ($data['items'] as $item) {
+                $stmtOrderItem->execute([
+                    'oid' => $orderId,
+                    'tid' => $resolvedTenantId,
+                    'pid' => $item['id'],
+                    'qty' => $item['qty'],
+                    'up' => $item['price'],
+                    'tp' => $item['price'] * $item['qty'],
+                    'pname' => $item['name']
+                ]);
+                $orderItemId = $db->lastInsertId();
+
+                if (!empty($item['options'])) {
+                    $itemData = $configService->prepareItemData($item['id'], $item['qty'], $item['options'], (float)$item['price']);
+                    foreach ($itemData['options'] as $opt) {
+                        $stmtOrderItemOption->execute([
+                            'oiid' => $orderItemId,
+                            'gid' => $opt['group_id'],
+                            'opid' => $opt['option_product_id'],
+                            'gn' => $opt['group_name_snapshot'],
+                            'on' => $opt['option_name_snapshot'],
+                            'pd' => $opt['price_delta']
+                        ]);
+                    }
+                }
+            }
+
+            $db->commit();
+        } catch (\Throwable $e) {
+            if ($db->inTransaction()) $db->rollBack();
+            error_log('[Storefront] checkout order: ' . $e->getMessage());
+            http_response_code(500);
+            echo json_encode(['success' => false, 'message' => 'No se pudo registrar el pedido.']);
+            return;
+        }
+        
         // Enviar notificación al administrador
         try {
             $msg = "Nuevo pedido de " . ($data['customer_name'] ?? 'Cliente') . " por $" . number_format($data['total_usd'] ?? 0, 2);
-            if ($paymentMethod === 'Crédito (Fiado)') $msg .= " (A CRÉDITO)";
             Notification::send('order', 'Nuevo Pedido Tienda', $msg, 'administrador', 'store_order', $orderId);
             
             // Enviar Correo Electrónico

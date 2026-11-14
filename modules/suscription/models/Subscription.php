@@ -87,7 +87,7 @@ class Subscription extends Model {
     }
     
     /**
-     * Registra un pago y activa la suscripción del mes actual.
+     * Registra un pago pendiente de revisión; solo la aprobación activa la suscripción.
      * @param int $tenantId ID del negocio
      * @param string $method Método de pago (binance, bdv, etc.)
      * @param string $reference Número de referencia
@@ -97,19 +97,28 @@ class Subscription extends Model {
     public static function registerPayment(int $tenantId, string $method, string $reference, ?string $proofBase64 = null): array {
         $db = Database::getInstance()->getConnection();
         
-        // Verificar si ya tiene un pago aprobado para este mes
+        // Evitar pagos duplicados mientras haya una solicitud activa en este mes
         $now = new DateTime();
         $monthStart = new DateTime($now->format('Y-m-01'));
         $monthEnd = self::getMonthEndDate($monthStart);
         
         $stmtCheck = $db->prepare("
-            SELECT id FROM payments 
-            WHERE tenant_id = ? AND status = 'approved' 
+            SELECT status FROM payments
+            WHERE tenant_id = ? AND status IN ('approved', 'pending')
             AND created_at >= ? AND created_at <= ?
+            ORDER BY created_at DESC
+            LIMIT 1
         ");
-        $stmtCheck->execute([$tenantId, $monthStart->format('Y-m-d'), $monthEnd->format('Y-m-d')]);
+        $stmtCheck->execute([$tenantId, $monthStart->format('Y-m-d H:i:s'), $monthEnd->format('Y-m-d H:i:s')]);
         
-        if ($stmtCheck->fetch()) {
+        $existingPayment = $stmtCheck->fetchColumn();
+        if ($existingPayment === 'pending') {
+            return [
+                'success' => false,
+                'message' => 'Ya tienes un pago pendiente de revisión.'
+            ];
+        }
+        if ($existingPayment === 'approved') {
             return [
                 'success' => false,
                 'message' => 'Ya tienes una suscripción activa para este mes. El próximo pago estará disponible a partir del próximo mes.'
@@ -135,25 +144,15 @@ class Subscription extends Model {
             // Insertar pago
             $stmtInsert = $db->prepare("
                 INSERT INTO payments (tenant_id, plan_id, amount, payment_method, reference_number, proof_image, status) 
-                VALUES (?, ?, 3.00, ?, ?, ?, 'approved')
+                VALUES (?, ?, 3.00, ?, ?, ?, 'pending')
             ");
             $stmtInsert->execute([$tenantId, $plan['id'], $method, $reference, $proofBase64]);
-            
-            // Actualizar estado del negocio
-            $db->prepare("
-                UPDATE businesses 
-                SET subscription_status = 'active', 
-                    plan_id = ?,
-                    trial_ends_at = NULL 
-                WHERE id = ?
-            ")->execute([$plan['id'], $tenantId]);
             
             $db->commit();
             
             return [
                 'success' => true,
-                'message' => 'Suscripción activada exitosamente hasta fin de mes.',
-                'expires_at' => $monthEnd->format('Y-m-d H:i:s')
+                'message' => 'Pago enviado para revisión. La suscripción se activará cuando el administrador lo apruebe.'
             ];
         } catch (\Exception $e) {
             $db->rollBack();
@@ -228,10 +227,10 @@ class Subscription extends Model {
         
         $stmt = $db->prepare("
             SELECT id FROM payments 
-            WHERE tenant_id = ? AND status = 'approved' 
+            WHERE tenant_id = ? AND status IN ('approved', 'pending')
             AND created_at >= ? AND created_at <= ?
         ");
-        $stmt->execute([$tenantId, $monthStart->format('Y-m-d'), $monthEnd->format('Y-m-d')]);
+        $stmt->execute([$tenantId, $monthStart->format('Y-m-d H:i:s'), $monthEnd->format('Y-m-d H:i:s')]);
         
         return !$stmt->fetch(); // Puede pagar si NO tiene pago aprobado este mes
     }

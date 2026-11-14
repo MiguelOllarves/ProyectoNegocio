@@ -1,5 +1,7 @@
 <?php
 class UsersController extends Controller {
+    private const SUB_USER_ROLES = ['empleado', 'vendedor'];
+    private const SUB_USER_PERMISSIONS = ['pos', 'inventory', 'clients', 'reports', 'settings'];
     
     public function index() {
         if (!isset($_SESSION['user_id'])) {
@@ -61,7 +63,16 @@ class UsersController extends Controller {
             $businessId = $_SESSION['business_id'];
             
             $permissions = isset($_POST['permissions']) && is_array($_POST['permissions']) ? $_POST['permissions'] : [];
+            $permissions = array_values(array_intersect(
+                array_filter($permissions, 'is_string'),
+                self::SUB_USER_PERMISSIONS
+            ));
             $permissionsJson = json_encode($permissions);
+
+            if (!in_array($role, self::SUB_USER_ROLES, true)) {
+                $this->jsonResponse(['success' => false, 'message' => 'Rol de subusuario no permitido'], 400);
+                return;
+            }
 
             if (empty($username) || empty($password) || empty($fullName)) {
                 $this->jsonResponse(['success' => false, 'message' => 'Faltan campos obligatorios'], 400);
@@ -141,7 +152,16 @@ class UsersController extends Controller {
             $businessId = $_SESSION['business_id'];
             
             $permissions = isset($_POST['permissions']) && is_array($_POST['permissions']) ? $_POST['permissions'] : [];
+            $permissions = array_values(array_intersect(
+                array_filter($permissions, 'is_string'),
+                self::SUB_USER_PERMISSIONS
+            ));
             $permissionsJson = json_encode($permissions);
+
+            if (!in_array($role, self::SUB_USER_ROLES, true)) {
+                $this->jsonResponse(['success' => false, 'message' => 'Rol de subusuario no permitido'], 400);
+                return;
+            }
 
             if (empty($username) || empty($fullName)) {
                 $this->jsonResponse(['success' => false, 'message' => 'Cédula y Nombre son obligatorios'], 400);

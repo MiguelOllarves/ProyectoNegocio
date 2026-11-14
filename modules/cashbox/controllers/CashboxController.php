@@ -26,8 +26,17 @@ class CashboxController extends Controller {
         if ($openSession) {
             // Sumar ventas desde la apertura
             $db = Database::getInstance()->getConnection();
-            $stmt = $db->prepare("SELECT COALESCE(SUM(total), 0) as total_usd FROM sales WHERE created_at >= :apertura");
-            $stmt->execute(['apertura' => $openSession['fecha_apertura']]);
+            $stmt = $db->prepare("
+                SELECT COALESCE(SUM(total), 0) as total_usd
+                FROM sales
+                WHERE user_id = :user_id
+                  AND created_at >= :apertura
+                  AND COALESCE(status, 'completada') <> 'anulada'
+            ");
+            $stmt->execute([
+                'user_id' => $userId,
+                'apertura' => $openSession['fecha_apertura']
+            ]);
             $row = $stmt->fetch(PDO::FETCH_ASSOC);
             $ventasUsd = $row['total_usd'] ?? 0;
 
@@ -36,9 +45,14 @@ class CashboxController extends Controller {
                 SELECT COALESCE(SUM(vp.monto_bs), 0) as total_bs
                 FROM ventas_pagos vp
                 JOIN sales s ON vp.venta_id = s.id
-                WHERE s.created_at >= :apertura
+                WHERE s.user_id = :user_id
+                  AND s.created_at >= :apertura
+                  AND COALESCE(s.status, 'completada') <> 'anulada'
             ");
-            $stmt2->execute(['apertura' => $openSession['fecha_apertura']]);
+            $stmt2->execute([
+                'user_id' => $userId,
+                'apertura' => $openSession['fecha_apertura']
+            ]);
             $row2 = $stmt2->fetch(PDO::FETCH_ASSOC);
             $ventasBs = $row2['total_bs'] ?? 0;
         }
@@ -78,13 +92,19 @@ class CashboxController extends Controller {
     public function close() {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $sessionId    = intval($_POST['session_id']);
-            $ventasUsd    = floatval($_POST['ventas_usd'] ?? 0);
-            $ventasBs     = floatval($_POST['ventas_bs'] ?? 0);
             $declaradoUsd = floatval($_POST['declarado_usd'] ?? 0);
             $declaradoBs  = floatval($_POST['declarado_bs'] ?? 0);
             $notes        = trim($_POST['notes'] ?? '');
 
-            $this->model->closeSession($sessionId, $ventasUsd, $ventasBs, $declaradoUsd, $declaradoBs, $notes);
+            if ($sessionId <= 0 || !is_finite($declaradoUsd) || !is_finite($declaradoBs) || $declaradoUsd < 0 || $declaradoBs < 0) {
+                http_response_code(400);
+                exit('Montos inválidos.');
+            }
+
+            if (!$this->model->closeSession($sessionId, $declaradoUsd, $declaradoBs, $notes)) {
+                http_response_code(404);
+                exit('Caja no encontrada o no autorizada.');
+            }
         }
         header('Location: ' . BASE_URL . 'cashbox');
         exit;

@@ -38,14 +38,12 @@ class QrMenuController extends Controller {
         }
         $mime = $validation['mime'];
 
-        // Generate unique SLUG
-        $slug = substr(md5(uniqid(rand(), true)), 0, 8); // 8 chars slug
-        // Generate random 4-digit code
-        $code = str_pad((string)rand(0, 9999), 4, '0', STR_PAD_LEFT);
-
         try {
+            $slug = bin2hex(random_bytes(16));
+            $code = bin2hex(random_bytes(32));
+            $codeHash = password_hash($code, PASSWORD_DEFAULT);
             $stmt = $db->prepare("INSERT INTO free_qr_menus (slug, edit_code, menu_base64, menu_type) VALUES (?, ?, ?, ?)");
-            $stmt->execute([$slug, $code, $validation['clean_base64'], $mime]);
+            $stmt->execute([$slug, $codeHash, $validation['clean_base64'], $mime]);
             
             $this->jsonResponse([
                 'success' => true, 
@@ -54,7 +52,7 @@ class QrMenuController extends Controller {
                 'qr_url' => rtrim(BASE_URL, '/') . '/qrmenu/show/' . $slug,
                 'edit_url' => rtrim(BASE_URL, '/') . '/qrmenu/manage/' . $slug . '?code=' . $code
             ]);
-        } catch(PDOException $e) {
+        } catch(\Throwable $e) {
             error_log('[QrMenu] api_create: ' . $e->getMessage());
             $this->jsonResponse(['success' => false, 'message' => 'Error al crear el menú QR'], 500);
         }
@@ -97,7 +95,7 @@ class QrMenuController extends Controller {
             $stmt->execute([$slug]);
             $dbCode = $stmt->fetchColumn();
 
-            if($dbCode !== $code) {
+            if (!$dbCode || (!password_verify($code, $dbCode) && !hash_equals($dbCode, $code))) {
                 $this->jsonResponse(['success' => false, 'message' => 'Código de edición incorrecto.'], 403);
                 return;
             }
@@ -115,7 +113,7 @@ class QrMenuController extends Controller {
             $this->jsonResponse(['success' => true, 'message' => 'Menú actualizado correctamente.']);
         } catch(PDOException $e) {
             error_log('[QrMenu] api_update error: ' . $e->getMessage() . ' | slug=' . $slug);
-            $this->jsonResponse(['success' => false, 'message' => 'Error de servidor: ' . $e->getMessage()], 500);
+            $this->jsonResponse(['success' => false, 'message' => 'Error interno al actualizar el menú QR.'], 500);
         }
     }
 
@@ -136,7 +134,7 @@ class QrMenuController extends Controller {
         }
 
         // Si entran sin el código, mostrar formulario de PIN
-        if(empty($code) || $row['edit_code'] !== $code) {
+        if (empty($code) || empty($row['edit_code']) || (!password_verify($code, $row['edit_code']) && !hash_equals($row['edit_code'], $code))) {
             $this->view('modules/qrmenu/views/pin', ['slug' => $slug]);
             return;
         }

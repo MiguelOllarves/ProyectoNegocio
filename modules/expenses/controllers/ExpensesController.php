@@ -102,6 +102,15 @@ class ExpensesController extends Controller {
         }
 
         $expense = $this->model->find($id);
+        if (!$expense) {
+            http_response_code(404);
+            if (isset($_GET['json']) || (isset($_SERVER['HTTP_ACCEPT']) && strpos($_SERVER['HTTP_ACCEPT'], 'application/json') !== false)) {
+                header('Content-Type: application/json');
+                echo json_encode(['message' => 'Gasto no encontrado'], JSON_UNESCAPED_UNICODE);
+                exit;
+            }
+            return;
+        }
         
         if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             if (isset($_GET['json']) || (isset($_SERVER['HTTP_ACCEPT']) && strpos($_SERVER['HTTP_ACCEPT'], 'application/json') !== false)) {
@@ -131,7 +140,10 @@ class ExpensesController extends Controller {
                 exit('Monto inválido');
             }
 
-            $this->model->update($id, $data);
+            if (!$this->model->update($id, $data)) {
+                http_response_code(404);
+                return;
+            }
             
             if (isset($_SERVER['HTTP_HX_REQUEST'])) {
                 http_response_code(200);
@@ -145,7 +157,9 @@ class ExpensesController extends Controller {
 
     public function delete() {
         if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['id'])) {
-            $this->model->delete($_POST['id']);
+            if (!$this->model->delete($_POST['id'])) {
+                http_response_code(404);
+            }
         }
         if (isset($_SERVER['HTTP_HX_REQUEST'])) {
             http_response_code(200);

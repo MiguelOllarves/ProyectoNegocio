@@ -9,9 +9,12 @@ class Purchase extends Model {
      * Usa transacciones para garantizar integridad.
      */
     public function createWithItems($userId, $supplierId, $items, $notes = '') {
+        $tenantId = (int)($_SESSION['business_id'] ?? 0);
+        if ($tenantId <= 0) throw new \Exception('Sesión de negocio inválida.');
+        $this->assertSupplierBelongsToTenant($supplierId, $tenantId);
+
         $dbInstance = \Database::getInstance();
         $dbInstance->beginTransaction();
-        $tenantId = $_SESSION['business_id'] ?? null;
 
         try {
             $total = 0;
@@ -29,7 +32,12 @@ class Purchase extends Model {
             $stmtKardex = $this->db->prepare("INSERT INTO kardex (product_id, type, quantity, stock_after, reference_type, reference_id, note, user_id) VALUES (?, 'entrada_compra', ?, ?, 'purchase', ?, ?, ?)");
             
             $stmtProdConf = $this->db->prepare("SELECT purchase_unit_id, content_per_purchase FROM products WHERE id = ? AND tenant_id = ?");
-            $stmtPresConf = $this->db->prepare("SELECT unit_id, quantity FROM product_presentations WHERE id = ?");
+            $stmtPresConf = $this->db->prepare("
+                SELECT pp.unit_id, pp.quantity
+                FROM product_presentations pp
+                JOIN products p ON p.id = pp.product_id
+                WHERE pp.id = ? AND pp.product_id = ? AND p.tenant_id = ?
+            ");
             
             require_once __DIR__ . '/../../../core/CostCalculationService.php';
             require_once __DIR__ . '/../../../core/UnitConversionService.php';
@@ -45,17 +53,22 @@ class Purchase extends Model {
                 $calcUnitId = null;
 
                 if ($presentationId) {
-                    $stmtPresConf->execute([$presentationId]);
+                    $stmtPresConf->execute([$presentationId, $item['product_id'], $tenantId]);
                     $pres = $stmtPresConf->fetch();
                     if ($pres) {
                         $calcUnitId = $pres['unit_id'];
                         $multiplier = (float)$pres['quantity'];
+                    } else {
+                        throw new \Exception('La presentación no pertenece al producto seleccionado.');
                     }
                 }
                 
                 if (!$calcUnitId) {
                     $stmtProdConf->execute([$item['product_id'], $tenantId]);
                     $prodFall = $stmtProdConf->fetch();
+                    if (!$prodFall) {
+                        throw new \Exception('Producto no encontrado en este negocio.');
+                    }
                     $calcUnitId = $prodFall['purchase_unit_id'];
                     $multiplier = (float)$prodFall['content_per_purchase'];
                 }
@@ -95,8 +108,14 @@ class Purchase extends Model {
     }
 
     public function allWithSupplier() {
-        $business_id = $_SESSION['business_id'] ?? 1;
-        $sql = "SELECT p.*, s.name as supplier_name FROM purchases p LEFT JOIN suppliers s ON p.supplier_id = s.id JOIN users u ON p.user_id = u.id WHERE u.business_id = ? ORDER BY p.id DESC";
+        $business_id = (int)($_SESSION['business_id'] ?? 0);
+        if ($business_id <= 0) return [];
+        $sql = "SELECT p.*, s.name as supplier_name
+                FROM purchases p
+                JOIN users u ON p.user_id = u.id
+                LEFT JOIN suppliers s ON p.supplier_id = s.id AND s.tenant_id = u.business_id
+                WHERE u.business_id = ?
+                ORDER BY p.id DESC";
         $stmt = $this->db->prepare($sql);
         $stmt->execute([$business_id]);
         return $stmt->fetchAll();
@@ -105,9 +124,9 @@ class Purchase extends Model {
     public function findWithItems($id, $business_id) {
         // Verify it belongs to the tenant
         $sql = "SELECT p.*, s.name as supplier_name, s.contact_name as supplier_contact, s.phone as supplier_phone, s.address as supplier_address, u.full_name as user_name 
-                FROM purchases p 
-                LEFT JOIN suppliers s ON p.supplier_id = s.id 
-                JOIN users u ON p.user_id = u.id 
+                FROM purchases p
+                JOIN users u ON p.user_id = u.id
+                LEFT JOIN suppliers s ON p.supplier_id = s.id AND s.tenant_id = u.business_id
                 WHERE p.id = ? AND u.business_id = ?";
         $stmt = $this->db->prepare($sql);
         $stmt->execute([$id, $business_id]);
@@ -118,22 +137,28 @@ class Purchase extends Model {
                 SELECT pi.*, pr.name, pr.sku 
                 FROM purchase_items pi 
                 JOIN products pr ON pi.product_id = pr.id 
-                WHERE pi.purchase_id = ?
+                WHERE pi.purchase_id = ? AND pr.tenant_id = ?
             ");
-            $stmtItems->execute([$id]);
+            $stmtItems->execute([$id, $business_id]);
             $purchase['items'] = $stmtItems->fetchAll();
+            $stmtItemCount = $this->db->prepare('SELECT COUNT(*) FROM purchase_items WHERE purchase_id = ?');
+            $stmtItemCount->execute([$id]);
+            if ((int)$stmtItemCount->fetchColumn() !== count($purchase['items'])) {
+                return false;
+            }
             return $purchase;
         }
         return false;
     }
 
     public function deleteWithReversal($id, $userId, $business_id) {
+        $tenantId = (int)$business_id;
+        if ($tenantId <= 0) return false;
         $purchase = $this->findWithItems($id, $business_id);
         if (!$purchase) return false;
 
         $dbInstance = \Database::getInstance();
         $dbInstance->beginTransaction();
-        $tenantId = $_SESSION['business_id'] ?? null;
 
         try {
             $stmtStock = $this->db->prepare("UPDATE products SET stock = stock - ? WHERE id = ? AND tenant_id = ?");
@@ -141,7 +166,12 @@ class Purchase extends Model {
             $stmtKardex = $this->db->prepare("INSERT INTO kardex (product_id, type, quantity, stock_after, reference_type, reference_id, note, user_id) VALUES (?, 'salida_anulacion', ?, ?, 'purchase', ?, ?, ?)");
             
             $stmtProdConf = $this->db->prepare("SELECT purchase_unit_id, content_per_purchase FROM products WHERE id = ? AND tenant_id = ?");
-            $stmtPresConf = $this->db->prepare("SELECT unit_id, quantity FROM product_presentations WHERE id = ?");
+            $stmtPresConf = $this->db->prepare("
+                SELECT pp.unit_id, pp.quantity
+                FROM product_presentations pp
+                JOIN products p ON p.id = pp.product_id
+                WHERE pp.id = ? AND pp.product_id = ? AND p.tenant_id = ?
+            ");
             
             require_once __DIR__ . '/../../../core/UnitConversionService.php';
 
@@ -150,16 +180,19 @@ class Purchase extends Model {
                 $multiplier = 1.0;
                 
                 if (!empty($item['presentation_id'])) {
-                    $stmtPresConf->execute([$item['presentation_id']]);
+                    $stmtPresConf->execute([$item['presentation_id'], $item['product_id'], $tenantId]);
                     $pres = $stmtPresConf->fetch();
                     if ($pres) {
                         $calcUnitId = $pres['unit_id'];
                         $multiplier = (float)$pres['quantity'];
+                    } else {
+                        throw new \Exception('La presentación no pertenece al producto seleccionado.');
                     }
                 }
                 if (!$calcUnitId) {
                     $stmtProdConf->execute([$item['product_id'], $tenantId]);
                     $prodFall = $stmtProdConf->fetch();
+                    if (!$prodFall) throw new \Exception('Producto de compra no pertenece a este negocio.');
                     $calcUnitId = $prodFall['purchase_unit_id'];
                     $multiplier = (float)$prodFall['content_per_purchase'];
                 }
@@ -186,8 +219,9 @@ class Purchase extends Model {
             }
 
             // Finally, cascade delete
-            $stmtDel = $this->db->prepare("DELETE FROM purchases WHERE id = ?");
-            $stmtDel->execute([$id]);
+            $stmtDel = $this->db->prepare("DELETE FROM purchases WHERE id = ? AND user_id IN (SELECT id FROM users WHERE business_id = ?)");
+            $stmtDel->execute([$id, $tenantId]);
+            if ($stmtDel->rowCount() !== 1) throw new \Exception('No se pudo eliminar la compra del negocio actual.');
 
             $dbInstance->commit();
             return true;
@@ -198,6 +232,10 @@ class Purchase extends Model {
     }
 
     public function updateWithItems($id, $userId, $supplierId, $items, $notes, $business_id) {
+        $business_id = (int)$business_id;
+        if ($business_id <= 0) throw new \Exception('Sesión de negocio inválida.');
+        $this->assertSupplierBelongsToTenant($supplierId, $business_id);
+
         // We will reverse the old purchase and apply the new items
         $purchase = $this->findWithItems($id, $business_id);
         if (!$purchase) return false;
@@ -207,12 +245,17 @@ class Purchase extends Model {
 
         try {
             // REVERSE OLD ITEMS
-            $stmtStockSub = $this->db->prepare("UPDATE products SET stock = stock - ? WHERE id = ?");
-            $stmtStockAfter = $this->db->prepare("SELECT stock FROM products WHERE id = ?");
+            $stmtStockSub = $this->db->prepare("UPDATE products SET stock = stock - ? WHERE id = ? AND tenant_id = ?");
+            $stmtStockAfter = $this->db->prepare("SELECT stock FROM products WHERE id = ? AND tenant_id = ?");
             $stmtKardexRev = $this->db->prepare("INSERT INTO kardex (product_id, type, quantity, stock_after, reference_type, reference_id, note, user_id) VALUES (?, 'ajuste_negativo', ?, ?, 'purchase_edit', ?, ?, ?)");
             
-            $stmtProdConfRev = $this->db->prepare("SELECT purchase_unit_id, content_per_purchase FROM products WHERE id = ?");
-            $stmtPresConfRev = $this->db->prepare("SELECT unit_id, quantity FROM product_presentations WHERE id = ?");
+            $stmtProdConfRev = $this->db->prepare("SELECT purchase_unit_id, content_per_purchase FROM products WHERE id = ? AND tenant_id = ?");
+            $stmtPresConfRev = $this->db->prepare("
+                SELECT pp.unit_id, pp.quantity
+                FROM product_presentations pp
+                JOIN products p ON p.id = pp.product_id
+                WHERE pp.id = ? AND pp.product_id = ? AND p.tenant_id = ?
+            ");
             
             require_once __DIR__ . '/../../../core/UnitConversionService.php';
             require_once __DIR__ . '/../../../core/CostCalculationService.php';
@@ -221,7 +264,7 @@ class Purchase extends Model {
                 $calcUnitId = null;
                 $multiplier = 1.0;
                 if (!empty($oldItem['presentation_id'])) {
-                    $stmtPresConfRev->execute([$oldItem['presentation_id']]);
+                    $stmtPresConfRev->execute([$oldItem['presentation_id'], $oldItem['product_id'], $business_id]);
                     $pres = $stmtPresConfRev->fetch();
                     if ($pres) {
                         $calcUnitId = $pres['unit_id'];
@@ -229,8 +272,9 @@ class Purchase extends Model {
                     }
                 }
                 if (!$calcUnitId) { 
-                    $stmtProdConfRev->execute([$oldItem['product_id']]);
+                    $stmtProdConfRev->execute([$oldItem['product_id'], $business_id]);
                     $prodFall = $stmtProdConfRev->fetch();
+                    if (!$prodFall) throw new \Exception('Producto de compra no pertenece a este negocio.');
                     $calcUnitId = $prodFall['purchase_unit_id'];
                     $multiplier = (float)$prodFall['content_per_purchase'];
                 }
@@ -239,8 +283,8 @@ class Purchase extends Model {
                 $realQuantity = $oldItem['quantity'] * $multiplier;
                 $quantityInBaseUnits = \UnitConversionService::convertToBase($realQuantity, $calcUnitId);
 
-                $stmtStockSub->execute([$quantityInBaseUnits, $oldItem['product_id']]);
-                $stmtStockAfter->execute([$oldItem['product_id']]);
+                $stmtStockSub->execute([$quantityInBaseUnits, $oldItem['product_id'], $business_id]);
+                $stmtStockAfter->execute([$oldItem['product_id'], $business_id]);
                 $stockAfter = $stmtStockAfter->fetchColumn();
                 $stmtKardexRev->execute([$oldItem['product_id'], $oldItem['quantity'], $stockAfter, $id, 'Reversión edición compra #' . $id, $userId]);
             }
@@ -251,11 +295,16 @@ class Purchase extends Model {
             // INSERT NEW ITEMS
             $total = 0;
             $stmtItem = $this->db->prepare("INSERT INTO purchase_items (purchase_id, product_id, presentation_id, quantity, unit_type, cost_per_unit) VALUES (?, ?, ?, ?, ?, ?)");
-            $stmtStockAdd = $this->db->prepare("UPDATE products SET stock = stock + ?, unit_cost = ?, bulk_cost = ? WHERE id = ?");
+            $stmtStockAdd = $this->db->prepare("UPDATE products SET stock = stock + ?, unit_cost = ?, bulk_cost = ? WHERE id = ? AND tenant_id = ?");
             $stmtKardexAdd = $this->db->prepare("INSERT INTO kardex (product_id, type, quantity, stock_after, reference_type, reference_id, note, user_id) VALUES (?, 'entrada_compra', ?, ?, 'purchase_edit', ?, ?, ?)");
             
-            $stmtProdConf = $this->db->prepare("SELECT purchase_unit_id, content_per_purchase FROM products WHERE id = ?");
-            $stmtPresConf = $this->db->prepare("SELECT unit_id, quantity FROM product_presentations WHERE id = ?");
+            $stmtProdConf = $this->db->prepare("SELECT purchase_unit_id, content_per_purchase FROM products WHERE id = ? AND tenant_id = ?");
+            $stmtPresConf = $this->db->prepare("
+                SELECT pp.unit_id, pp.quantity
+                FROM product_presentations pp
+                JOIN products p ON p.id = pp.product_id
+                WHERE pp.id = ? AND pp.product_id = ? AND p.tenant_id = ?
+            ");
 
             foreach ($items as $item) {
                 if (!isset($item['quantity']) || $item['quantity'] <= 0) {
@@ -269,16 +318,19 @@ class Purchase extends Model {
                 $multiplier = 1.0;
 
                 if ($presentationId) {
-                    $stmtPresConf->execute([$presentationId]);
+                    $stmtPresConf->execute([$presentationId, $item['product_id'], $business_id]);
                     $pres = $stmtPresConf->fetch();
                     if ($pres) {
                         $calcUnitId = $pres['unit_id'];
                         $multiplier = (float)$pres['quantity'];
+                    } else {
+                        throw new \Exception('La presentación no pertenece al producto seleccionado.');
                     }
                 }
                 if (!$calcUnitId) { 
-                    $stmtProdConf->execute([$item['product_id']]);
+                    $stmtProdConf->execute([$item['product_id'], $business_id]);
                     $prodFall = $stmtProdConf->fetch();
+                    if (!$prodFall) throw new \Exception('Producto no encontrado en este negocio.');
                     $calcUnitId = $prodFall['purchase_unit_id'];
                     $multiplier = (float)$prodFall['content_per_purchase'];
                 }
@@ -288,7 +340,7 @@ class Purchase extends Model {
                 }
 
                 $totalItemCost = $item['quantity'] * $item['cost'];
-                $realQuantity = clone $item['quantity'] * $multiplier;
+                $realQuantity = (float)$item['quantity'] * $multiplier;
                 
                 $quantityInBaseUnits = \UnitConversionService::convertToBase($realQuantity, $calcUnitId);
                 $costPerSaleUnit = $realQuantity > 0 ? $totalItemCost / $realQuantity : 0;
@@ -296,22 +348,31 @@ class Purchase extends Model {
                 $stmtItem->execute([$id, $item['product_id'], $presentationId, $item['quantity'], $unitType, $item['cost']]);
                 
                 // Add stock
-                $stmtStockAdd->execute([$quantityInBaseUnits, $costPerSaleUnit, $item['cost'], $item['product_id']]);
-                $stmtStockAfter->execute([$item['product_id']]);
+                $stmtStockAdd->execute([$quantityInBaseUnits, $costPerSaleUnit, $item['cost'], $item['product_id'], $business_id]);
+                $stmtStockAfter->execute([$item['product_id'], $business_id]);
                 $stockAfter = $stmtStockAfter->fetchColumn();
 
                 $stmtKardexAdd->execute([$item['product_id'], $quantityInBaseUnits, $stockAfter, $id, 'Edición Compra #' . $id, $userId]);
             }
 
             // UPDATE HEADER
-            $this->db->prepare("UPDATE purchases SET supplier_id = ?, user_id = ?, total = ?, notes = ? WHERE id = ?")
-                     ->execute([$supplierId, $userId, $total, $notes, $id]);
+            $this->db->prepare("UPDATE purchases SET supplier_id = ?, user_id = ?, total = ?, notes = ? WHERE id = ? AND user_id IN (SELECT id FROM users WHERE business_id = ?)")
+                     ->execute([$supplierId, $userId, $total, $notes, $id, $business_id]);
 
             $dbInstance->commit();
             return true;
         } catch (\Exception $e) {
             $dbInstance->rollback();
             throw $e;
+        }
+    }
+
+    private function assertSupplierBelongsToTenant($supplierId, int $tenantId): void {
+        if (empty($supplierId)) return;
+        $stmt = $this->db->prepare('SELECT id FROM suppliers WHERE id = ? AND tenant_id = ?');
+        $stmt->execute([$supplierId, $tenantId]);
+        if (!$stmt->fetchColumn()) {
+            throw new \Exception('Proveedor no encontrado en este negocio.');
         }
     }
 }

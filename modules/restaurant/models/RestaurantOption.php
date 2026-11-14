@@ -146,10 +146,23 @@ class RestaurantOption extends Model {
 
         $totalDelta = 0;
         $selectedByGroup = [];
+        $validGroupIds = array_fill_keys(array_map('intval', array_column($groups, 'id')), true);
+        $seenOptions = [];
 
         foreach ($selectedOptions as $opt) {
-            $groupId = $opt['group_id'] ?? 0;
-            $optionId = $opt['option_id'] ?? 0;
+            if (!is_array($opt)) {
+                return ['valid' => false, 'price_delta' => 0, 'error' => 'Configuración de opciones no válida.'];
+            }
+            $groupId = filter_var($opt['group_id'] ?? null, FILTER_VALIDATE_INT);
+            $optionId = filter_var($opt['option_id'] ?? null, FILTER_VALIDATE_INT);
+            if (!$groupId || !$optionId || !isset($validGroupIds[$groupId])) {
+                return ['valid' => false, 'price_delta' => 0, 'error' => 'Configuración de opciones no válida.'];
+            }
+            $optionKey = $groupId . ':' . $optionId;
+            if (isset($seenOptions[$optionKey])) {
+                return ['valid' => false, 'price_delta' => 0, 'error' => 'No se puede seleccionar la misma opción más de una vez.'];
+            }
+            $seenOptions[$optionKey] = true;
             if (!isset($selectedByGroup[$groupId])) $selectedByGroup[$groupId] = [];
             $selectedByGroup[$groupId][] = $optionId;
         }

@@ -155,12 +155,14 @@ $products = $products ?? [];
             <div class="flex items-center justify-between mb-1">
                 <!-- Logo & Brand -->
                 <div class="flex items-center gap-3">
-                    <?php if (!empty($config['logo_url'])): 
-                        $logoStr = $config['logo_url'];
-                        $isBase64OrHttp = (strpos($logoStr, 'data:image') === 0 || strpos($logoStr, 'http') === 0);
-                        $logoSrc = $isBase64OrHttp ? $logoStr : BASE_URL . ltrim($logoStr, '/');
+                    <?php if (!empty($config['logo_url'])):
+                        $logoStr = trim($config['logo_url']);
+                        $logoScheme = strtolower((string)parse_url($logoStr, PHP_URL_SCHEME));
+                        $isSafeDataImage = preg_match('#^data:image/(jpeg|png|webp);base64,#i', $logoStr);
+                        $isSafeRemoteImage = in_array($logoScheme, ['http', 'https'], true);
+                        $logoSrc = ($isSafeDataImage || $isSafeRemoteImage) ? $logoStr : BASE_URL . ltrim($logoStr, '/');
                     ?>
-                        <img src="<?= $logoSrc ?>" 
+                        <img src="<?= htmlspecialchars($logoSrc, ENT_QUOTES, 'UTF-8') ?>"
                              alt="<?= htmlspecialchars($storeName) ?>" 
                              class="h-10 w-auto object-contain rounded-lg">
                     <?php else: ?>
@@ -258,13 +260,21 @@ $products = $products ?? [];
         <?php else: ?>
             <div id="products-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 md:gap-4">
                 <?php foreach ($products as $idx => $prod): 
-                    $prodCategory = addslashes($prod['category_name'] ?? '');
-                    $prodName = htmlspecialchars($prod['name']);
-                    $prodNameJS = addslashes($prod['name']);
+                    $prodCategory = htmlspecialchars($prod['category_name'] ?? '', ENT_QUOTES, 'UTF-8');
+                    $prodName = htmlspecialchars($prod['name'], ENT_QUOTES, 'UTF-8');
+                    $prodNameJS = htmlspecialchars(
+                        json_encode($prod['name'], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT),
+                        ENT_QUOTES,
+                        'UTF-8'
+                    );
                     $prodPrice = number_format($prod['price'], 2);
                     $prodImage = '';
                     if(!empty($prod['image'])){
-                        $prodImage = (strpos($prod['image'], 'data:image') === 0 || strpos($prod['image'], 'http') === 0) ? $prod['image'] : BASE_URL . ltrim($prod['image'], '/');
+                        $imageValue = trim($prod['image']);
+                        $imageScheme = strtolower((string)parse_url($imageValue, PHP_URL_SCHEME));
+                        $isSafeDataImage = preg_match('#^data:image/(jpeg|png|gif|webp);base64,#i', $imageValue);
+                        $isSafeRemoteImage = in_array($imageScheme, ['http', 'https'], true);
+                        $prodImage = ($isSafeDataImage || $isSafeRemoteImage) ? $imageValue : BASE_URL . ltrim($imageValue, '/');
                     }
                     $isLowStock = ($prod['stock'] > 0 && $prod['stock'] <= ($prod['min_stock'] ?? 5));
                 ?>
@@ -276,7 +286,7 @@ $products = $products ?? [];
                     <!-- Product Image -->
                     <div class="aspect-square bg-gray-50 flex items-center justify-center overflow-hidden relative">
                         <?php if ($prodImage): ?>
-                            <img src="<?= $prodImage ?>" alt="<?= $prodName ?>" 
+                            <img src="<?= htmlspecialchars($prodImage, ENT_QUOTES, 'UTF-8') ?>" alt="<?= $prodName ?>"
                                  class="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
                                  loading="lazy">
                         <?php else: ?>
@@ -318,7 +328,7 @@ $products = $products ?? [];
                                 <p class="text-xs font-bold text-gray-400">Consultar</p>
                             <?php endif; ?>
 
-                            <button @click="addToCart({ id: <?= $prod['id'] ?>, name: '<?= $prodNameJS ?>', price: <?= $prod['price'] ?> }, $event)" 
+                            <button @click="addToCart({ id: <?= (int)$prod['id'] ?>, name: <?= $prodNameJS ?>, price: <?= (float)$prod['price'] ?> }, $event)"
                                     :class="isInCart(<?= $prod['id'] ?>) ? 'bg-brand-500' : 'bg-gradient-to-r from-brand-600 to-accent-500'"
                                     class="w-9 h-9 rounded-xl text-white flex items-center justify-center transition-all active:scale-90 shadow-md text-sm"
                                     id="add-btn-<?= $prod['id'] ?>">
@@ -513,7 +523,6 @@ $products = $products ?? [];
                         <?php foreach ($paymentMethods ?? [] as $pm): ?>
                             <option value="<?= htmlspecialchars($pm['name']) ?>"><?= htmlspecialchars($pm['name']) ?></option>
                         <?php endforeach; ?>
-                        <option value="Crédito (Fiado)">Crédito (Fiado) - Solo clientes registrados</option>
                     </select>
                 </div>
 
@@ -656,27 +665,36 @@ $products = $products ?? [];
         if ($hasSocial): ?>
         <div class="flex items-center justify-center gap-3 mb-4">
             <?php if (!empty($config['whatsapp'])): ?>
-            <a href="https://wa.me/<?= preg_replace('/[^0-9]/', '', $config['whatsapp']) ?>" target="_blank" class="w-9 h-9 rounded-full bg-brand-500 hover:bg-green-400 text-white flex items-center justify-center text-sm shadow-md hover:-translate-y-0.5 transition-all" title="WhatsApp">
+            <a href="https://wa.me/<?= preg_replace('/[^0-9]/', '', $config['whatsapp']) ?>" target="_blank" rel="noopener noreferrer" class="w-9 h-9 rounded-full bg-brand-500 hover:bg-green-400 text-white flex items-center justify-center text-sm shadow-md hover:-translate-y-0.5 transition-all" title="WhatsApp">
                 <i class="fab fa-whatsapp"></i>
             </a>
             <?php endif; ?>
             <?php if (!empty($config['instagram'])): ?>
-            <a href="https://instagram.com/<?= ltrim(htmlspecialchars($config['instagram']), '@') ?>" target="_blank" class="w-9 h-9 rounded-full bg-gradient-to-tr from-yellow-400 via-pink-500 to-purple-500 text-white flex items-center justify-center text-sm shadow-md hover:-translate-y-0.5 transition-all" title="Instagram">
+            <a href="https://instagram.com/<?= ltrim(htmlspecialchars($config['instagram']), '@') ?>" target="_blank" rel="noopener noreferrer" class="w-9 h-9 rounded-full bg-gradient-to-tr from-yellow-400 via-pink-500 to-purple-500 text-white flex items-center justify-center text-sm shadow-md hover:-translate-y-0.5 transition-all" title="Instagram">
                 <i class="fab fa-instagram"></i>
             </a>
             <?php endif; ?>
             <?php if (!empty($config['facebook'])): ?>
-            <a href="<?= htmlspecialchars($config['facebook']) ?>" target="_blank" class="w-9 h-9 rounded-full bg-blue-600 hover:bg-blue-500 text-white flex items-center justify-center text-sm shadow-md hover:-translate-y-0.5 transition-all" title="Facebook">
+            <?php
+                $facebookUrl = trim($config['facebook']);
+                $facebookScheme = strtolower((string)parse_url($facebookUrl, PHP_URL_SCHEME));
+                if (!filter_var($facebookUrl, FILTER_VALIDATE_URL) || !in_array($facebookScheme, ['http', 'https'], true)) {
+                    $facebookUrl = '';
+                }
+            ?>
+            <?php if ($facebookUrl !== ''): ?>
+            <a href="<?= htmlspecialchars($facebookUrl, ENT_QUOTES, 'UTF-8') ?>" target="_blank" rel="noopener noreferrer" class="w-9 h-9 rounded-full bg-blue-600 hover:bg-blue-500 text-white flex items-center justify-center text-sm shadow-md hover:-translate-y-0.5 transition-all" title="Facebook">
                 <i class="fab fa-facebook-f"></i>
             </a>
             <?php endif; ?>
+            <?php endif; ?>
             <?php if (!empty($config['tiktok'])): ?>
-            <a href="https://tiktok.com/<?= ltrim(htmlspecialchars($config['tiktok']), '@') ?>" target="_blank" class="w-9 h-9 rounded-full bg-black hover:bg-zinc-800 text-white flex items-center justify-center text-sm shadow-md hover:-translate-y-0.5 transition-all" title="TikTok">
+            <a href="https://tiktok.com/<?= ltrim(htmlspecialchars($config['tiktok']), '@') ?>" target="_blank" rel="noopener noreferrer" class="w-9 h-9 rounded-full bg-black hover:bg-zinc-800 text-white flex items-center justify-center text-sm shadow-md hover:-translate-y-0.5 transition-all" title="TikTok">
                 <i class="fab fa-tiktok"></i>
             </a>
             <?php endif; ?>
             <?php if (!empty($config['twitter'])): ?>
-            <a href="https://twitter.com/<?= ltrim(htmlspecialchars($config['twitter']), '@') ?>" target="_blank" class="w-9 h-9 rounded-full bg-sky-500 hover:bg-sky-400 text-white flex items-center justify-center text-sm shadow-md hover:-translate-y-0.5 transition-all" title="Twitter / X">
+            <a href="https://twitter.com/<?= ltrim(htmlspecialchars($config['twitter']), '@') ?>" target="_blank" rel="noopener noreferrer" class="w-9 h-9 rounded-full bg-sky-500 hover:bg-sky-400 text-white flex items-center justify-center text-sm shadow-md hover:-translate-y-0.5 transition-all" title="Twitter / X">
                 <i class="fab fa-twitter"></i>
             </a>
             <?php endif; ?>
@@ -1141,7 +1159,7 @@ $products = $products ?? [];
                                 Swal.fire({
                                     icon: 'success',
                                     title: 'Solicitud Enviada',
-                                    text: 'Tu solicitud de crédito ha sido registrada. Ahora puedes intentar hacer compras usando la opción de Crédito (Fiado).'
+                                    text: 'Tu solicitud fue enviada al negocio para revisión. Las compras a crédito en línea no están disponibles.'
                                 });
                             } else {
                                 alert("Solicitud registrada con éxito.");
